@@ -1,0 +1,8 @@
+README.html
+
+.DS_Store
+Thumbs.db
+
+config.codekit
+.sass-cache
+.codekit-cache

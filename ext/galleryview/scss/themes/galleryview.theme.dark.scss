@@ -1,0 +1,46 @@
+/*!-----------------------------------------------------------------------------------
+
+	Skin Name: GalleryView Dark Theme
+	Skin URI: https://github.com/bhubbard/GalleryView/blob/master/scss/themes/galleryview.theme.dark.scss
+	Description: A dark skin for GalleryView.
+	Version: 2.0
+	Author: Brandon Hubbard
+	Author URI: http://brandonhubbard.com
+	
+-----------------------------------------------------------------------------------*/
+.gv_showOverlay, .gv_navPlay, .gv_navPause, .gv_navNext, .gv_navPrev, .gv_panelNavNext, .gv_panelNavPrev {
+	background: url(../images/themes/dark/galleryview-theme-dark-sprite.png) no-repeat;
+}
+.gv_showOverlay { 
+	background-color: #222; 
+}
+.gv_navPlay {
+	background-position: -9px -60px ;
+	width: 30px;
+	height: 30px;
+}
+.gv_navPause {
+	background-position: -60px -60px ;
+	width: 30px;
+	height: 30px;
+}
+.gv_navNext {
+	background-position: -164px -17px ;
+	width: 20px;
+	height: 20px;
+}
+.gv_navPrev {
+	background-position: -116px -16px ;
+	width: 20px;
+	height: 20px;
+}
+.gv_panelNavNext {
+	background-position: -164px -17px ;
+	width: 20px;
+	height: 20px;
+}
+.gv_panelNavPrev {
+	background-position: -116px -16px ;
+	width: 20px;
+	height: 20px;
+}
