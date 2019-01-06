@@ -156,3 +156,7 @@ function logstash(item,client,action,fn){//记录日志
         }
     })            
 }
+
+function printscreen(msg){
+    $("#logs").prepend(msg+"<br/>");
+}
