@@ -18,7 +18,7 @@ function flightCheck(code,state){
     printscreen("start flight check.");
     if(util.hasUserInfo()){//如果已存在本地用户，则直接跳转到指定页面
         printscreen("got user info.");
-        //window.location.href=state+".html";
+        window.location.href=state+".html";
     }else{//否则请求微信UserInfo
         printscreen("try to get user info.");
         util.login(code,function (res) {//成功后创建用户
@@ -26,7 +26,7 @@ function flightCheck(code,state){
                 printscreen("Dispatch::flightCheck login success."+res.data);
                 //设置本地UserInfo
                 //跳转到目标页面
-                //window.location.href=state+".html";
+                window.location.href=state+".html";
         });
     }   
 }
