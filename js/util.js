@@ -95,15 +95,17 @@ util.updatePerson=function(id,userInfo,callback) {
 util.AJAX = function( url = '', fn, method = "get",data={}, header = {}){
   if(app.config.isDebug)console.log("Util::AJAX",url,method,data,header);
   if(app.config.isDebug)printscreen("Util::AJAX.[url]"+url+"[method]"+method+"[data]"+JSON.stringify(data)+"[header]"+JSON.stringify(header));
-    wx.request({
-        url: url,
-        method : method ? method : 'get',
-        data: data?data:{"error":"something is wrong"},
-        header: header ? header : {"Content-Type":"application/json"},
-        success: function( res ) {
-            fn( res );
+
+    $.ajax({
+        url:url,
+        type:method,
+        data:JSON.stringify(data),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
+        headers:header,
+        success:function(result){
+            fn(result);
         }
-    });
+    })  
+
 }
 ///////////////////////////////////////////////////////
 //End of util
