@@ -55,7 +55,10 @@ util.checkPerson=function(userinfo,callback) {
         }else{//否则创建
             util.createPerson(res,callback);
         }
-    }, "GET");
+    }, "GET",{},{},function(res){
+        console.log("Check person failed. try to create new one.",res);
+        util.createPerson(userinfo,callback);
+    });
 }
 
 util.createPerson=function(userInfo,callback) {
@@ -90,7 +93,7 @@ util.updatePerson=function(id,userInfo,callback) {
     }, "PATCH", userInfo, { "Api-Key": "foobar" });
 }
 
-util.AJAX = function( url = '', fn, method = "get",data={}, header = {}){
+util.AJAX = function( url = '', success, method = "get",data={}, header = {},fail){
   if(app.config.isDebug)console.log("Util::AJAX",url,method,data,header);
 
     $.ajax({
@@ -99,7 +102,10 @@ util.AJAX = function( url = '', fn, method = "get",data={}, header = {}){
         data:method.toLowerCase()=="get"?data:JSON.stringify(data),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
         headers:header,
         success:function(result){
-            fn(result);
+            success(result);
+        },
+        fail:function(result){
+            fail(result);
         }
     })  
 
