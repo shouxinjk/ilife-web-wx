@@ -31,8 +31,7 @@ util.hasUserInfo =function (){
 //登录并获取openid 
 //example: login(code,{success,fail})
 util.login=function(code,callback) {
-    console.log("Util::login try to login and get userInfo.", code)
-    printscreen("Util::login try to login and get userInfo."+code)
+    console.log("Util::login try to login and get userInfo.", code);
     //发送请求获取openid
     util.AJAX(app.config.auth_api+'/wechat/ilife/login', function (res) {
         //run success callback
@@ -61,7 +60,6 @@ util.checkPerson=function(userinfo,callback) {
 
 util.createPerson=function(userInfo,callback) {
     console.log("Util::createPerson.",userInfo);
-    printscreen("Util::createPerson."+JSON.stringify(userInfo));
     util.AJAX(app.config.data_api+"/user/users", function (res) {//先使用openid创建用户，然后更新 
         //now try to update
         console.log("Util::createPerson got userInfo",userInfo);
@@ -79,10 +77,8 @@ util.createPerson=function(userInfo,callback) {
 util.updatePerson=function(id,userInfo,callback) {
     //NOTICE: miniProgram doesn't support method PATCH. we have to walk around
     //var url = "https://data.shouxinjk.net/util/wxPatch.php?collection=user/users&key=" + id + "&data=" + JSON.stringify(userInfo);
-    var url = data_api +"/user/users/"+id;
-    //if (app.globalData.isDebug) console.log("update person.[url]"+url);
+    var url = app.config.data_api +"/user/users/"+id;
     if (app.globalData.isDebug) console.log("Util::updatePerson update person.",userInfo);
-    printscreen("Util::updatePerson update person."+JSON.stringify(userInfo));
     util.AJAX(url, function (res) {
       if (app.globalData.isDebug) console.log("Util::updatePerson update person finished.", res.data);
       //更新本地UserInfo
@@ -96,7 +92,6 @@ util.updatePerson=function(id,userInfo,callback) {
 
 util.AJAX = function( url = '', fn, method = "get",data={}, header = {}){
   if(app.config.isDebug)console.log("Util::AJAX",url,method,data,header);
-  if(app.config.isDebug)printscreen("Util::AJAX.[url]"+url+"[method]"+method+"[data]"+JSON.stringify(data)+"[header]"+JSON.stringify(header));
 
     $.ajax({
         url:url,
@@ -162,8 +157,4 @@ function logstash(item,client,action,fn){//记录日志
             fn(result);
         }
     })            
-}
-
-function printscreen(msg){
-    $("#logs").prepend(msg+"<br/>");
 }
