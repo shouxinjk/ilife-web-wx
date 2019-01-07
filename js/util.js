@@ -49,16 +49,25 @@ util.login=function(code,callback) {
 //检查用户是否存在
 //checkPerson({userInfo,callback})
 util.checkPerson=function(userinfo,callback) {
-    util.AJAX(app.config.data_api+"/user/users/" + userinfo.openId, function (res) {
-        if(res && res.openId){//判断是否有用户信息，如果有则更新，
+    var query={
+            collection: "user_users", 
+            example: { 
+                _key :userinfo.openId
+            },
+            limit:1
+        };   
+    var header={
+        Content-Type:"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
+        console.log("Util::checkPerson try to retrive user by openid.", res)
+        if(res && res.count>0){//判断是否有用户信息，如果有则更新，
             util.updatePerson(res.openId,userinfo,callback);
         }else{//否则创建
             util.createPerson(userinfo,callback);
         }
-    }, "GET",{},{},function(jqXHR, textStatus, errorThrown){
-        console.log("Check person failed. try to create new one.",jqXHR, textStatus, errorThrown);
-        util.createPerson(userinfo,callback);
-    });
+    }, "PUT",query,header);
 }
 
 util.createPerson=function(userInfo,callback) {
@@ -72,13 +81,7 @@ util.createPerson=function(userInfo,callback) {
         if (typeof callback === "function") {
             callback(res);
         } 
-    }, "POST", { "_key": userInfo.openId },function(jqXHR, textStatus, errorThrown){
-        console.log("Create person failed. try update.",jqXHR, textStatus, errorThrown);
-        util.updatePerson(userInfo.openId, userInfo);
-        if (typeof callback === "function") {
-            callback(userInfo);
-        } 
-    });
+    }, "POST", { "_key": userInfo.openId });
 }
 
 util.updatePerson=function(id,userInfo,callback) {
