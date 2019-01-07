@@ -51,9 +51,9 @@ util.login=function(code,callback) {
 util.checkPerson=function(userinfo,callback) {
     util.AJAX(app.config.data_api+"/user/users/" + userinfo.openId, function (res) {
         if(res && res.openId){//判断是否有用户信息，如果有则更新，
-            util.updatePerson(res.openId,res,callback);
+            util.updatePerson(res.openId,userinfo,callback);
         }else{//否则创建
-            util.createPerson(res,callback);
+            util.createPerson(userinfo,callback);
         }
     }, "GET",{},{},function(jqXHR, textStatus, errorThrown){
         console.log("Check person failed. try to create new one.",jqXHR, textStatus, errorThrown);
