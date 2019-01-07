@@ -42,7 +42,7 @@ util.login=function(code,callback) {
         } else {
             console.log("Util::login only accept callback function as callback.");
         }
-      }, "POST",{ code: code },{'content-type': 'application/json'});
+      }, "GET",{ code: code },{'content-type': 'application/json'});
 }
 
 //check if user exists
