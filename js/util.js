@@ -80,10 +80,10 @@ util.updatePerson=function(id,userInfo,callback) {
     var url = app.config.data_api +"/user/users/"+id;
     if (app.globalData.isDebug) console.log("Util::updatePerson update person.",userInfo);
     util.AJAX(url, function (res) {
-      if (app.globalData.isDebug) console.log("Util::updatePerson update person finished.", res.data);
+      if (app.globalData.isDebug) console.log("Util::updatePerson update person finished.", res);
       //更新本地UserInfo
-      app.globalData.userInfo = res.data;      
-      app.globalData.hasUserInfo = res.data.authorize ? res.data.authorize : false;//是否授权
+      app.globalData.userInfo = res;      
+      app.globalData.hasUserInfo = res.authorize ? res.authorize : false;//是否授权
       if (typeof callback === "function") {
         callback(res);
       }
