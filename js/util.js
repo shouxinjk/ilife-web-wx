@@ -78,7 +78,8 @@ util.createPerson=function(userInfo,callback) {
 
 util.updatePerson=function(id,userInfo,callback) {
     //NOTICE: miniProgram doesn't support method PATCH. we have to walk around
-    var url = "https://data.shouxinjk.net/util/wxPatch.php?collection=user/users&key=" + id + "&data=" + JSON.stringify(userInfo);
+    //var url = "https://data.shouxinjk.net/util/wxPatch.php?collection=user/users&key=" + id + "&data=" + JSON.stringify(userInfo);
+    var url = data_api +"/user/users/"+id;
     //if (app.globalData.isDebug) console.log("update person.[url]"+url);
     if (app.globalData.isDebug) console.log("Util::updatePerson update person.",userInfo);
     printscreen("Util::updatePerson update person."+JSON.stringify(userInfo));
@@ -90,7 +91,7 @@ util.updatePerson=function(id,userInfo,callback) {
       if (typeof callback === "function") {
         callback(res);
       }
-    }, "GET", {}, { "Api-Key": "foobar" });
+    }, "PATCH", userInfo, { "Api-Key": "foobar" });
 }
 
 util.AJAX = function( url = '', fn, method = "get",data={}, header = {}){
