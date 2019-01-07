@@ -99,7 +99,7 @@ util.AJAX = function( url = '', fn, method = "get",data={}, header = {}){
     $.ajax({
         url:url,
         type:method,
-        data:method.tolowercase()=="get"?data:JSON.stringify(data),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
+        data:method.toLowerCase()=="get"?data:JSON.stringify(data),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
         headers:header,
         success:function(result){
             fn(result);
