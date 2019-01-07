@@ -38,7 +38,8 @@ util.login=function(code,callback) {
         //run success callback
         if (typeof callback === "function") {
             console.log("Util::login try to login and get userInfo.", res)
-            util.createPerson(res,callback);
+            //util.createPerson(res,callback);
+            util.checkPerson(res,callback);//检查用户是否存在，并作相应处理
         } else {
             console.log("Util::login only accept callback function as callback.");
         }
@@ -47,14 +48,14 @@ util.login=function(code,callback) {
 
 //check if user exists
 //检查用户是否存在
-//checkPerson({data,callback})
-util.checkPerson=function(id,callback) {
-    util.AJAX(app.config.data_api+"/user/users/" + id, function (res) {
-      if (typeof callback === "function") {
-        callback(res);
-      }else{
-        console.log("Util::checkPerson only accept callback function as parameter.");
-      }
+//checkPerson({userInfo,callback})
+util.checkPerson=function(userinfo,callback) {
+    util.AJAX(app.config.data_api+"/user/users/" + userinfo.openId, function (res) {
+        if(res && res.openId){//判断是否有用户信息，如果有则更新，
+            util.updatePerson(res.openId,res,callback);
+        }else{//否则创建
+            util.createPerson(res,callback);
+        }
     }, "GET");
 }
 
