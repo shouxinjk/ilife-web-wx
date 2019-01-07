@@ -55,8 +55,8 @@ util.checkPerson=function(userinfo,callback) {
         }else{//否则创建
             util.createPerson(res,callback);
         }
-    }, "GET",{},{},function(res){
-        console.log("Check person failed. try to create new one.",res);
+    }, "GET",{},{},function(jqXHR, textStatus, errorThrown){
+        console.log("Check person failed. try to create new one.",jqXHR, textStatus, errorThrown);
         util.createPerson(userinfo,callback);
     });
 }
@@ -104,9 +104,9 @@ util.AJAX = function( url = '', success, method = "get",data={}, header = {},fai
         success:function(result){
             success(result);
         },
-        error:function(result){
+        error:function(jqXHR, textStatus, errorThrown){
             if (typeof fail === "function") {
-                fail(res);
+                fail(jqXHR, textStatus, errorThrown);
             } 
         }
     })  
