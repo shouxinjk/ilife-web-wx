@@ -57,7 +57,7 @@ util.checkPerson=function(userinfo,callback) {
             limit:1
         };   
     var header={
-        Content-Type:"application/json",
+        "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     }; 
     util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
