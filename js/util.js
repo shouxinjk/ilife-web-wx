@@ -63,7 +63,7 @@ util.checkPerson=function(userinfo,callback) {
     util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
         console.log("Util::checkPerson try to retrive user by openid.", res)
         if(res && res.count>0){//判断是否有用户信息，如果有则更新，
-            util.updatePerson(res.openId,userinfo,callback);
+            util.updatePerson(userinfo.openId,userinfo,callback);
         }else{//否则创建
             util.createPerson(userinfo,callback);
         }
