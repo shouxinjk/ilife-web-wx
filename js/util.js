@@ -63,18 +63,22 @@ util.checkPerson=function(userinfo,callback) {
 
 util.createPerson=function(userInfo,callback) {
     console.log("Util::createPerson.",userInfo);
+    userInfo.authorize = true;//设置授权标志
+    userInfo.source="mp";//设置用户来源
     util.AJAX(app.config.data_api+"/user/users", function (res) {//先使用openid创建用户，然后更新 
         //now try to update
         console.log("Util::createPerson got userInfo",userInfo);
-        var sxuser = userInfo;
-        sxuser.authorize = true;//设置授权标志
-        sxuser.source="mp";//设置用户来源
-        util.updatePerson(userInfo.openId, sxuser);
-
+        util.updatePerson(userInfo.openId, userInfo);
         if (typeof callback === "function") {
             callback(res);
         } 
-    }, "POST", { "_key": userInfo.openId });
+    }, "POST", { "_key": userInfo.openId },function(jqXHR, textStatus, errorThrown){
+        console.log("Create person failed. try update.",jqXHR, textStatus, errorThrown);
+        util.updatePerson(userInfo.openId, userInfo);
+        if (typeof callback === "function") {
+            callback(userInfo);
+        } 
+    });
 }
 
 util.updatePerson=function(id,userInfo,callback) {
