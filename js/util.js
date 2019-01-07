@@ -106,6 +106,9 @@ util.AJAX = function( url = '', success, method = "get",data={}, header = {},fai
         },
         fail:function(result){
             fail(result);
+        },
+        error:function(result){
+            fail(result);
         }
     })  
 
