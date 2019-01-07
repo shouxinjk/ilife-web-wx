@@ -104,11 +104,10 @@ util.AJAX = function( url = '', success, method = "get",data={}, header = {},fai
         success:function(result){
             success(result);
         },
-        fail:function(result){
-            fail(result);
-        },
         error:function(result){
-            fail(result);
+            if (typeof fail === "function") {
+                fail(res);
+            } 
         }
     })  
 
