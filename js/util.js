@@ -142,6 +142,10 @@ function getQuery() {
     return args;
 }
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
 function logstash(item,client,action,fn){//记录日志
     var target = item.url2?item.url2:item.url;
     var type = item.url2?"processed":"original";
