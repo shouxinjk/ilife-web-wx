@@ -21,10 +21,13 @@ $(document).ready(function ()
     if(width<800){
         window.location.href=window.location.href.replace(/info.html/g,"info2.html");
     }
+    //当前浏览内容
+    var stuff=null;
     //加载导航和内容
     loadCategories(category);
     loadItem(id);   
     loadHosts(id);
+    registerShareHandler();
     //注册搜索事件
     $(document).keydown(function(event){//注册搜索事件
     if(event.keyCode==13){
@@ -149,6 +152,7 @@ function loadItem(key){//获取内容列表
         data:{},
         success:function(data){
             showContent(data);
+            stuff = data;//本地保存，用于分享等后续操作
         }
     })            
 }
@@ -184,3 +188,56 @@ function loadCategories(currentCategory){
         }
     })    
 }
+
+function registerShareHandler(){
+    $.ajax({
+        url:app.config.auth_api+"/wechat/jssdk/ticket",
+        type:"get",
+        data:{url:window.location.href},
+        success:function(json){
+            wx.config({
+                debug:false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: json.appId, // 必填，公众号的唯一标识
+                timestamp:json.timestamp , // 必填，生成签名的时间戳
+                nonceStr: json.nonceStr, // 必填，生成签名的随机串
+                signature: json.signature,// 必填，签名
+                jsApiList: [
+                    'onMenuShareTimeline', 'onMenuShareAppMessage',
+                    'onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone'
+                ] // 必填，需要使用的JS接口列表
+            });
+            wx.ready(function() {
+                // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
+                // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                //分享到朋友圈
+                wx.onMenuShareTimeline({
+                    title:stuff?stuff.title:"小确幸，大生活", // 分享标题
+                    link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    imgUrl:stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(12)+".jpeg", // 分享图标
+                    success: function () {
+                        // 用户点击了分享后执行的回调函数
+                        logstash(item,"mp","share-timeline",function(){
+                            console.log("分享到朋友圈");
+                        }); 
+                    },
+                });
+                //分享给朋友
+                wx.onMenuShareAppMessage({
+                    title:stuff?stuff.title:"小确幸，大生活", // 分享标题
+                    desc:stuff?stuff.tags:"Live is all about having a good time.", // 分享标题
+                    link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    imgUrl: stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(12)+".jpeg", // 分享图标
+                    type: '', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                    success: function () {
+                      // 用户点击了分享后执行的回调函数
+                        logstash(item,"mp","share-appmsg",function(){
+                            console.log("分享到微信");
+                        }); 
+                    }
+                });            
+            });
+        }
+    })  
+}
+
