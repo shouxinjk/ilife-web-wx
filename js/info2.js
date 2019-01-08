@@ -193,7 +193,7 @@ function loadCategories(currentCategory){
 
 function registerShareHandler(){
     $.ajax({
-        url:"https://data.shouxinjk.net/ilife-wechat/wehcat/jssdk/ticket",
+        url:"https://data.shouxinjk.net/ilife-wechat/wechat/jssdk/ticket",
         type:"get",
         data:{url:window.location.href},
         success:function(json){
