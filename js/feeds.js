@@ -7,6 +7,11 @@ $(document).ready(function ()
     var args = getQuery();//获取参数
     //category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
 
+    //设置浏览用户
+    if(app.globalData.userInfo){
+        persons.push(app.globalData.userInfo);
+        currentPerson = app.globalData.userInfo._key;
+    }
     loadPersons();//加载用户
     loadData();//加载数据：默认使用当前用户查询
 
@@ -29,7 +34,7 @@ var page = {//翻页控制
 };
 
 var persons = [];
-var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;//默认选中当前用户
+var currentPerson = null;
 
 setInterval(function ()
 {
@@ -102,16 +107,12 @@ function loadData() {
         showloading(false);
       }
     }, "post", JSON.stringify(esQuery), esHeader);
-  },
+  }
 
 //load related persons
 function loadPersons() {
     util.AJAX(app.config.data_api+"user/users", function (res) {
       var arr = res.data;
-      //把当前用户作为第一个
-      if(app.globalData.userInfo){
-        persons.push(app.globalData.userInfo);
-      }
       //从列表内过滤掉当前用户：当前用户永远排在第一个
       for (var i = 0; i < arr.length; i++) {
         var u = arr[i];
@@ -309,5 +310,5 @@ function changePerson (personId) {
     currentPerson = ids;//修改当前用户
     items = [];//清空列表
     loadData();//重新加载数据
-  },
+  }
 
