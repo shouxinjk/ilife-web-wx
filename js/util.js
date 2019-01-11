@@ -85,8 +85,9 @@ util.createPerson=function(userInfo,callback) {
 }
 
 util.updatePerson=function(id,userInfo,callback) {
-    //NOTICE: miniProgram doesn't support method PATCH. we have to walk around
-    //var url = "https://data.shouxinjk.net/util/wxPatch.php?collection=user/users&key=" + id + "&data=" + JSON.stringify(userInfo);
+    //字段补全: miniProgram: avatarUrl/nickName / mp: headImgUrl/nickname
+    userInfo.avatarUrl = userInfo.headImgUrl;
+    userInfo.nickName = userInfo.nickname;
     var url = app.config.data_api +"/user/users/"+id;
     if (app.globalData.isDebug) console.log("Util::updatePerson update person.",userInfo);
     util.AJAX(url, function (res) {
