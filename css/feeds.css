@@ -250,6 +250,7 @@ div.title{
   width:30%;
   height:36px;
   display:flex;
+  font-size:14px;
   flex-direction:row;
   justify-content:flex-end;  
   flex-wrap: nowrap;

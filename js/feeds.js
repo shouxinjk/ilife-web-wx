@@ -24,7 +24,7 @@ $(document).ready(function ()
         currentPerson = app.globalData.userInfo._key;
     }
     loadPersons();//加载用户
-    loadData();//加载数据：默认使用当前用户查询
+    //loadData();//加载数据：默认使用当前用户查询
 
 });
 
@@ -131,6 +131,9 @@ function loadPersons() {
     util.AJAX(app.config.data_api+"/user/users", function (res) {
       var arr = res;
       //从列表内过滤掉当前用户：当前用户永远排在第一个
+      if (app.globalData.userInfo != null ){
+          persons.push(app.globalData.userInfo);
+        }
       for (var i = 0; i < arr.length; i++) {
         var u = arr[i];
         if (app.globalData.userInfo == null || u._key != app.globalData.userInfo._key){
@@ -140,11 +143,20 @@ function loadPersons() {
       //将用户显示到页面
       for (var i = 0; i < persons.length; i++) {
         insertPerson(persons[i]);
-      }    
+      }  
+      //将当前用户设为高亮  
       //显示滑动条
-        var mySwiper = new Swiper ('.swiper-container', {
+      var mySwiper = new Swiper ('.swiper-container', {
           slidesPerView: 7,
-        });             
+      });  
+      //注册点击事件：点击后
+      mySwiper.on('tap', function (e) {
+            personId = e.path[1].id;//注意：如果结构改变需要调整path取值
+          console.log('try to change person.',e.path[1].id);
+          changePerson(personId);
+      });  
+      //根据当前用户加载数据
+      changePerson(currentPerson);     
     });
 }
 
@@ -159,7 +171,7 @@ function insertPerson(person){
     // 显示HTML
     var html = '';
     html += '<div class="swiper-slide">';
-    html += '<div class="person" id="person'+person._key+'">';
+    html += '<div class="person" id="'+person._key+'">';
     var style= person._key==currentPerson?'-selected':'';
     html += '<img class="person-img'+style+'" src="'+person.avatarUrl+'"/>';
     html += '<div class="person-name">'+person.nickName+'</div>';
@@ -168,9 +180,10 @@ function insertPerson(person){
     $("#persons").append(html);
 
     //注册事件:点击后切换用户
-    $("person"+person._key).click(function(){
-        changePerson(person._key);
-    });
+    //通过swiper事件注入
+    //$(person._key).click(function(){
+    //    changePerson(person._key);
+    //});
 }
 
 //显示没有更多内容
@@ -274,10 +287,13 @@ function htmlItemTags(item){
 
 function changePerson (personId) {
     var ids = personId;
-    if (app.globalData.isDebug) console.log("Feed::ChangePerson change person.[id]" + ids);
-    $("#person"+currentPerson+" img").toggleClass("person-img");
-    $("#person"+ids+" img").toggleClass("person-img-selected");
-    $("#feeds").empty();//清空原有列表
+    if (app.globalData.isDebug) console.log("Feed::ChangePerson change person.",currentPerson,personId);
+    $("#"+currentPerson+" img").removeClass("person-img-selected");
+    $("#"+currentPerson+" img").addClass("person-img");
+    $("#"+ids+" img").removeClass("person-img");
+    $("#"+ids+" img").addClass("person-img-selected");
+    $("#waterfall").empty();//清空原有列表
+    $("#waterfall").css("height","20px");//调整瀑布流高度
     showloading(true);//显示加载状态
 
     page.current = -1;//从第一页开始查看
