@@ -18,8 +18,10 @@ function flightCheck(code,state){
         window.location.href=state+".html";
     }else{//否则请求微信UserInfo
         util.login(code,function (res) {//成功后创建用户
-                console.log("Dispatch::flightCheck login success.", res.data);
-                //设置本地UserInfo
+                console.log("Dispatch::flightCheck login success.", res);
+                //设置本地UserInfo：存储到cookie
+                $.cookie('sxUserInfo', JSON.stringify(res), { expires: 3650, path: '/' });
+                $.cookie('hasUserInfo', 'true', { expires: 3650, path: '/' });
                 //跳转到目标页面
                 window.location.href=state+".html";
         });

@@ -28,6 +28,8 @@ $(document).ready(function ()
     registerShareHandler();
 });
 
+util.getUserInfo();//从本地加载cookie
+
 var galleryWidth = 672;
 var galleryHeight = 378;
 

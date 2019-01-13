@@ -21,11 +21,25 @@ app.config={
 var util = new Object();
 
 util.hasUserInfo =function (){
+  util.getUserInfo();//从cookie读取存储的UserInfo
   if (app.globalData.userInfo) {
     return app.globalData.userInfo.country.length>0;
   } else {
     return false;
   }
+}
+
+util.getUserInfo =function (){
+  var strUserInfo = $.cookie('sxUserInfo');
+  console.log("load userInfo from cookie.",strUserInfo);
+  var jsonUserInfo = {};
+  if(strUserInfo && strUserInfo.trim().length>0){
+    jsonUserInfo = JSON.parse(strUserInfo);
+    app.globalData.userInfo = jsonUserInfo;
+    app.globalData.hasUserInfo = true;
+  }
+  console.log("load userInfo from cookie json.",jsonUserInfo);
+  return jsonUserInfo;
 }
 
 //登录并获取openid 

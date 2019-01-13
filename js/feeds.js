@@ -28,6 +28,8 @@ $(document).ready(function ()
 
 });
 
+util.getUserInfo();//从本地加载cookie
+
 var loading = false;
 var dist = 500;
 var num = 1;//需要加载的内容下标

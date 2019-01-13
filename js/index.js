@@ -31,6 +31,8 @@ $(document).ready(function ()
     });
 });
 
+util.getUserInfo();//从本地加载cookie
+
 var columnWidth = 300;//默认宽度300px
 var columnMargin = 5;//默认留白5px
 

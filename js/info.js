@@ -37,6 +37,8 @@ $(document).ready(function ()
     });
 });
 
+util.getUserInfo();//从本地加载cookie
+
 var galleryWidth = 673;
 var galleryHeight = 378;
 
