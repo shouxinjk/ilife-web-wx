@@ -1,0 +1,301 @@
+.contain_detail_cnt { height: 100%; width: 100%; overflow: hidden; }
+
+.gallery-top {
+  height: 400px;
+  width: 100%;
+}
+
+.gallery-top image {
+  height: 400px;
+  width: 100%;
+}
+
+
+.shopping{
+  width:100%;
+  height:20px;
+  display:flex;
+  flex-direction:row;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  align-items: center;
+  text-align: center;
+}
+
+.shopping-summary{
+  width:70%;
+  display:flex;
+  flex-direction:row;
+  justify-content:flex-start;  
+  flex-wrap: nowrap;
+    align-items: center;
+  text-align: center;
+}
+
+.shopping-icon{
+  height:16px;
+  width:64px;/*必须指定宽度，否则flex-direction:row不生效*/
+  margin-left:2px;
+}
+
+.box-title{
+  color:gray;
+}
+
+.currency{
+  color:darkred;
+  font-size:12px;
+}
+
+.price-sale{
+  color:green;
+  font-weight:bold;
+}
+
+.price-bid{
+  color:gray;
+  text-decoration: line-through;
+}
+
+.likes{
+  width:30%;
+  height:36px;
+  float:right;
+  margin-right:0;
+}
+.likes-number{
+  line-height: 36px;
+  font-size:18rpx;
+  float:right;
+  color:silver;
+  padding-left: 18px; 
+  position: relative; 
+  font-weight: normal;  
+  margin-right:5px;
+}
+
+.likes-number::before{ content: ''; height: 16px; width: 16px; background: url("http://www.shouxinjk.net/list/images/hot-16.png") no-repeat 50% 50%;  position: absolute; top:8px; left: 0; }
+
+
+
+.connections{
+  display: flex;
+  align-items: center;
+  border: 1px solid #f8f8f8;
+  background: #fff;
+}
+
+.list {
+    width:60%;
+    font-size: 32.81rpx;
+    display:flex;
+    align-items: center;
+    padding:0 5px;
+}
+
+.similarity{
+  width:20%;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.list-icon-wrap {
+    width:35%;
+    padding:auto;
+}
+
+.list-text-wrap {
+    width:65%;
+    display: flex;
+    flex-direction: column;
+}
+
+.list-icon {
+    width: 120rpx;
+    height:120rpx;
+    margin-top:4px;
+    margin-left:10px;
+    border-radius: 50%;
+}
+
+.list-text {
+  font-size: 30rpx;
+  width:100%;
+  white-space: nowrap;
+  overflow:hidden; 
+  text-overflow:ellipsis;
+}
+
+
+.menus{
+  width:100%;
+  white-space: nowrap;
+}
+
+.menu{
+  margin-left:2px;
+  margin-right:10px;
+  font-size:14px;
+  line-height: 60px;
+  color:gray;
+  width:100%;
+  display:inline-block;
+}
+
+.btn-area{
+  display:flex;
+  flex-direction: row;
+  flex-wrap:nowrap;
+  border-top: 1px solid #f8f8f8;
+  border-bottom: 1px solid #f8f8f8;
+  background: #fff;  
+}
+
+.person{
+  width:60px;
+  display:flex;
+  flex-direction:column;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-start;  
+  text-align: center;
+}
+.person-img{ width: 48px; height: 48px; border-radius: 50%; border: 2px solid silver; margin:0 1px;}
+
+.person-name{ 
+  font-size:20rpx; 
+  line-height: 24rpx; 
+  width:60px;
+  overflow:hidden; 
+  text-overflow:ellipsis;
+  }
+
+.connect-status{
+  font-size:20rpx;
+  color:green;
+}
+
+.connect-status-pending{
+  font-size:20rpx;
+  color:darkorange;
+}
+
+.small{
+  font-size:24rpx;
+}
+.silver{
+  color:silver;
+}
+
+.green{
+  color:darkgreen;
+}
+.large{
+  font-size:48rpx;
+}
+
+/*buttons*/
+.btn-wrap{
+  height:40px;
+  margin:auto;
+}
+.btn{
+  width:40%;
+  margin:auto;
+  height:32px;
+  font-size: 14px;
+}
+.btn-wrap-small{
+  width:20%;
+}
+.btn-small{
+  width:85%;
+  margin:auto;
+  height:24px;
+  font-size: 10px;
+}
+
+.toconnect{
+  color:darkorange;
+}
+
+.connected{
+  color:darkgreen
+}
+
+.tags{
+  width:100%;
+  display:flex;
+  flex-direction: row;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+  overflow:hidden; 
+  text-overflow:ellipsis;
+}
+
+.tag-text{
+  font-size:12px;
+  color:gray;
+  margin-left:2px;
+}
+
+.box-title{ padding: 5px; background: #f9f9f9; }
+.title{ font-size: 14px; line-height: 20px; color: #000; font-weight: 600; }
+
+.content{ line-height: 1.8em; margin: 2px 0; font-size: 14px; color: #666; }
+.scrollLoading{ width: 100%; height: 220px; display: block; margin: 1px 0; }
+.contView{ padding: 0 20px 10px; }
+
+/* 评论 */
+.content-comments{ margin-bottom: 20px; }
+.comments-title{ font-size: 14px; font-weight: bold; display: block; text-align: center; padding: 10px; }
+
+.comments-list{ margin-top: 10px; position: relative; padding: 10px; min-height: 40px;}
+.comments-avatar{ position: absolute; top: 10px; left: 10px; width: 40px; height: 40px; }
+.comments-avatar-img{ width: 40px; height: 40px; border-radius: 50%; border: 1px solid #F2F2F2; }
+.comments-main{ margin-left: 50px; font-size: 14px; }
+.comments-author{ margin-bottom: 6px; color: #999; font-weight: bold; height: 20px; line-height: 20px; }
+.comments-zan{ float: right; padding-left: 18px; position: relative; font-weight: normal; line-height: 20px; }
+.comments-zan::before{ content: ''; height: 14px; width: 14px; background: url("http://www.shouxinjk.net/list/images/hot.png")  #FFF no-repeat 50% 50%; background-size: cover; position: absolute; top: 2px; left: 0; }
+.comments-content{ color: #666; line-height: 20px; }
+.comments-data{ height: 18px; margin-top: 5px; line-height: 18px; font-size: 12px; color: #999; }
+
+.not-comments{ text-align: center; padding: 30px 20px; font-size: 14px; color: #999; }
+
+/* 浮动信息补全提示 */
+.baseline{ display:block;height: 32px; background: lightcoral; border-bottom: 1px solid red; position: fixed; top: 0px; left: 0; right: 0px; width: 100%; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.1); z-index: 9;}
+.tip-text{
+  color:crimson;font-size:12px;line-height:32px;text-align: center;
+}
+
+/*底部浮动条*/
+.toolbar{ height: 40px; background: #FFF; border-top: 1px solid #F2F2F2; position: fixed; bottom: 0px; left: 0; right: 0px; width: 100%; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.1); display:flex;justify-content: space-around;align-items: center}
+.toolbar-img{ width: 20px; height: 20px; padding: 10px 15px; }
+.toolbar-text{font-size:12px;line-height: 20px;color:gray;}
+.toolbar-btn{font-size:12px;line-height: 20px;color:gray;margin:0;padding-left: 20px;border:none;background-color: white;text-align: center}
+.toolbar-btn::after{border: none;}
+.btn-liked::before{ content: ''; height: 16px; width: 16px; background: url("http://www.shouxinjk.net/list/images/like1.png") no-repeat 50% 50%;  position: absolute; top:1px; left: 0px; }
+.btn-like::before{ content: ''; height: 16px; width: 16px; background: url("http://www.shouxinjk.net/list/images/like0.png") no-repeat 50% 50%;  position: absolute; top:1px; left: 0px; }
+.btn-buy::before{ content: ''; height: 16px; width: 16px; background: url("http://www.shouxinjk.net/list/images/buy.png") no-repeat 50% 50%;  position: absolute; top:1px; left: 0px; }
+.btn-share::before{ content: ''; height: 16px; width: 16px; background: url("http://www.shouxinjk.net/list/images/share.png") no-repeat 50% 50%;  position: absolute; top:1px; left: 0px; }
+.toolbar-separator{ width: 2px; height: 16px; background-color: silver }
+
+/* 浮动 */
+.extra{ height: 40px; background: #FFF; border-top: 1px solid #F2F2F2; position: fixed; bottom: 0px; left: 0; width: 100%; box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.1); }
+.extra-input{ width: 50%; height: 20px; margin: 10px; font-size: 13px; font-weight: 300; line-height: 20px; padding: 0 6px; border-left: 2px solid #48C23D; color: #444; }
+.extra-placeholder{ font-size: 13px; font-weight: 300; color: #999; }
+/* 点赞 评论 分享 */
+.extra-share{ position: absolute; right: 5px; width: 50%; }
+.extra-share-img{ width: 20px; height: 20px; float: right; padding: 10px 15px; }
+
+/* 分享box */
+.extra-share-box{ display: none; width: 100%; position: fixed; bottom: 0; left: 0; right: 0; top: 0; height: 100%; }
+.share-box-show{ position: absolute; left: 0; right: 0; bottom: -50px; z-index: 2; height: 40px; background: #FFF; }
+.share-box-img-box{ padding: 10px 20px; width: 240px; margin: 0 auto; display: block; overflow: hidden; }
+.share-box-img{ width: 40px; height: 40px; padding: 10px; margin: 5px 10px; float: left; }
+.share-box-opacity{ background: #000; opacity: 0; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; }
+.share-box-close{ width: 100%; background: #F5F5F5; text-align: center; line-height: 40px; font-size: 14px; }
+.share-box-text{ width: 100%; background: #F5F5F5; text-align: center; line-height: 40px; font-size: 14px; }
+
+
