@@ -224,7 +224,7 @@ function insertItem(){
     //注册事件
     $("#item"+item._key).click(function(){
         //跳转到详情页
-        window.location.href = "detail.html?id="+item._key;
+        window.location.href = "info2.html?id="+item._key;
     });
     // 表示加载结束
     showloading(false);

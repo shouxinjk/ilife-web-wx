@@ -154,10 +154,10 @@ function logstash(item,client,action,fn){//记录日志
         records:[{
             value:{
                 itemId:item._key,
-                userId:"dummy",
+                userId:app.globalData.userInfo?app.globalData.userInfo._key:"dummy",
                 item:item,
                 client:client,
-                user:{},//TODO: 需要增加用户信息
+                user:app.globalData.userInfo,//TODO: 需要增加用户信息
                 action:action,
                 timestamp:new Date()
             }
