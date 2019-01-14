@@ -138,7 +138,9 @@ function loadPersons() {
         }
       for (var i = 0; i < arr.length; i++) {
         var u = arr[i];
-        if (app.globalData.userInfo == null || u._key != app.globalData.userInfo._key){
+        if(app.globalData.userInfo == null ){
+          persons.push(u);
+        }else if(u._key != app.globalData.userInfo._key){
           persons.push(u);
         }
       }
@@ -154,9 +156,14 @@ function loadPersons() {
       //注册点击事件：点击后
       mySwiper.on('tap', function (e) {
             personId = e.path[1].id;//注意：如果结构改变需要调整path取值
-          console.log('try to change person.',e.path[1].id);
+          console.log('try to change person by tab.',e.path[1].id,e);
           changePerson(personId);
       });  
+      mySwiper.on('doubleTap', function (e) {
+            personId = e.path[1].id;//注意：如果结构改变需要调整path取值
+          console.log('try to change person by doubletap.',e.path[1].id,e);
+          changePerson(personId);
+      });        
       //根据当前用户加载数据
       changePerson(currentPerson);     
     });
