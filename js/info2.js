@@ -231,7 +231,7 @@ function registerShareHandler(){
                     imgUrl:stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(12)+".jpeg", // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
-                        logstash(item,"mp","share timeline",function(){
+                        logstash(stuff,"mp","share timeline",function(){
                             console.log("分享到朋友圈");
                         }); 
                     },
@@ -246,7 +246,7 @@ function registerShareHandler(){
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
                       // 用户点击了分享后执行的回调函数
-                        logstash(item,"mp","share appmsg",function(){
+                        logstash(stuff,"mp","share appmsg",function(){
                             console.log("分享到微信");
                         }); 
                     }
