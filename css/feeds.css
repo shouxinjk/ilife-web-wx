@@ -298,7 +298,6 @@ div.title{
 }
 
 .footer-show{
-	display:block;
 	width:20%;
 	font-size:1rem;
 	color:grey;
@@ -307,6 +306,17 @@ div.title{
 	border:1px solid silver;
 	border-radius: 5px;
 	text-align: center;
+}
+
+.loading-hide{
+  display:none;
+}
+
+.loading-show{
+  width:20%;
+  margin:5px auto;
+  padding:5px;
+  text-align: center;
 }
 
 #sx-menu{ 

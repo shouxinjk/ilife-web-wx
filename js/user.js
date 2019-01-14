@@ -19,7 +19,8 @@ $(document).ready(function ()
         width: width-20,
         delay: 100,
     });
-
+    $("body").css("background-color","#fff");//更改body背景为白色
+    
     loadPerson(currentPerson);//加载用户
     //loadData();//加载数据：默认使用当前用户查询
 
@@ -180,22 +181,24 @@ function insertPerson(person){
 
 //显示没有更多内容
 function shownomore(flag){
-    $("#nomore").empty();
-    var html = '';
-    if(flag){
-        html += '<text> 没有更多了 </text>';
-    }
-    $("#nomore").append(html);
+  if(flag){
+    $("#footer").toggleClass("footer-hide",false);
+    $("#footer").toggleClass("footer-show",true);
+  }else{
+    $("#footer").toggleClass("footer-hide",true);
+    $("#footer").toggleClass("footer-show",false);
+  }
 }
 
 //显示正在加载提示
 function showloading(flag){
-    $("#loading").empty();
-    var html = '';
-    if(flag){
-        html += '<image src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>';
-    }
-    $("#loading").append(html);
+  if(flag){
+    $("#loading").toggleClass("loading-hide",false);
+    $("#loading").toggleClass("loading-show",true);
+  }else{
+    $("#loading").toggleClass("loading-hide",true);
+    $("#loading").toggleClass("loading-show",false);    
+  }
 }
 
 //将item显示到页面

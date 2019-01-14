@@ -419,3 +419,29 @@
   font-weight: bold;
   color:#e0620d;
 }
+
+.footer-hide{
+  display:none;
+}
+
+.footer-show{
+  width:20%;
+  font-size:1rem;
+  color:grey;
+  margin:5px auto;
+  padding:5px;
+  border:1px solid silver;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.loading-hide{
+  display:none;
+}
+
+.loading-show{
+  width:20%;
+  margin:5px auto;
+  padding:5px;
+  text-align: center;
+}
