@@ -20,7 +20,7 @@ $(document).ready(function ()
         delay: 100,
     });
     $("body").css("background-color","#fff");//更改body背景为白色
-    
+
     loadPerson(currentPerson);//加载用户
     //loadData();//加载数据：默认使用当前用户查询
 
@@ -136,7 +136,7 @@ function loadData() {
                 for(var i = 0 ; i < hits.length ; i++){
                     items.push(hits[i]._source.item);
                 }
-                //insertItem();
+                insertItem();
                 showloading(false);
             }
         }
@@ -174,7 +174,7 @@ function insertPerson(person){
     html += '</div>';
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
-    html += '<div class="info-text info-blank">'+(person.province?person.province:"")+(person.city?person.city:"")+'</div>';
+    html += '<div class="info-text info-blank">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
     html += '</div>';
     $("#user").append(html);
 }
