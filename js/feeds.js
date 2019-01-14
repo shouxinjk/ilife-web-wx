@@ -24,6 +24,7 @@ $(document).ready(function ()
     //设置浏览用户
     if(app.globalData.userInfo){
         persons.push(app.globalData.userInfo);
+        personKeys.push(app.globalData.userInfo._key);
         currentPerson = app.globalData.userInfo._key;
     }
     loadPersons();//加载用户
@@ -138,7 +139,7 @@ function loadPersons() {
     util.AJAX(app.config.data_api+"/user/users", function (res) {
       var arr = res;
       //从列表内过滤掉当前用户：当前用户永远排在第一个
-      if (app.globalData.userInfo != null ){
+      if (app.globalData.userInfo != null && personKeys.indexOf(u._key) < 0){
           persons.push(app.globalData.userInfo);
           personKeys.push(app.globalData.userInfo._key);
         }
