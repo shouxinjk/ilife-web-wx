@@ -156,6 +156,13 @@ function loadPersons() {
       var mySwiper = new Swiper ('.swiper-container', {
           slidesPerView: 7,
       });  
+      //调整swiper 风格，使之悬浮显示
+      $(".swiper-container").css("position","fixed");
+      $(".swiper-container").css("left","0");
+      $(".swiper-container").css("top","0");
+      $(".swiper-container").css("z-index","999");
+      $(".swiper-container").css("background-color","#fff");
+      $(".swiper-container").css("margin-bottom","5px");
       //注册点击事件：点击后【当前该事件在移动端不生效，直接使用jquery点击事件】
       /*
       mySwiper.on('tap', function (e) {
