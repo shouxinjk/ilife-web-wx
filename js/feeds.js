@@ -18,17 +18,17 @@ $(document).ready(function ()
         delay: 100,
     });
 
+    util.getUserInfo();//从本地加载cookie
     //设置浏览用户
     if(app.globalData.userInfo){
         persons.push(app.globalData.userInfo);
         currentPerson = app.globalData.userInfo._key;
     }
     loadPersons();//加载用户
+    loadFeeds();
     //loadData();//加载数据：默认使用当前用户查询
 
 });
-
-util.getUserInfo();//从本地加载cookie
 
 var loading = false;
 var dist = 500;
@@ -42,26 +42,28 @@ var page = {//翻页控制
 };
 
 var persons = [];
-var currentPerson = '0';
+var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:'0';
 
-setInterval(function ()
-{
-    //console.log("interval",$(window).scrollTop(),$(document).height(),$(window).height(),$(document).height() - $(window).height() - dist);
-    if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+function loadFeeds(){
+    setInterval(function ()
     {
-        // 表示开始加载
-        loading = true;
+        //console.log("interval",$(window).scrollTop(),$(document).height(),$(window).height(),$(document).height() - $(window).height() - dist);
+        if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+        {
+            // 表示开始加载
+            loading = true;
 
-        // 加载内容
-        if(items.length < num){//如果内容未获取到本地则继续获取
-            //console.log("load from remote ");
-            loadData();
-        }else{//否则使用本地内容填充
-            //console.log("load from locale ");
-            insertItem();
+            // 加载内容
+            if(items.length < num){//如果内容未获取到本地则继续获取
+                //console.log("load from remote ");
+                loadData();
+            }else{//否则使用本地内容填充
+                //console.log("load from locale ");
+                insertItem();
+            }
         }
-    }
-}, 60);
+    }, 60);
+}
 
 //load feeds
 function loadData() {
@@ -121,7 +123,7 @@ function loadData() {
                 for(var i = 0 ; i < hits.length ; i++){
                     items.push(hits[i]._source.item);
                 }
-                //insertItem();
+                insertItem();
                 showloading(false);
             }
         }
@@ -153,12 +155,14 @@ function loadPersons() {
       var mySwiper = new Swiper ('.swiper-container', {
           slidesPerView: 7,
       });  
-      //注册点击事件：点击后
+      //注册点击事件：点击后【当前该事件在移动端不生效，直接使用jquery点击事件】
+      /*
       mySwiper.on('tap', function (e) {
             personId = e.path[1].id;//注意：如果结构改变需要调整path取值
           console.log('try to change person by tab.',e.path[1].id,e);
           changePerson(personId);
-      });         
+      });   
+      //*/      
       //根据当前用户加载数据
       changePerson(currentPerson);     
     });
@@ -215,6 +219,7 @@ function showloading(flag){
 function insertItem(){
     var item = items[num-1];//从本地取一条item
     console.log("Feed::insertItem add item to html.",num,item);
+    if(item == null)return;
     var html = '';
     html += '<li><div class="WxMasonry">';
     html += '<div id="item'+item._key+'">';
@@ -304,6 +309,7 @@ function changePerson (personId) {
     page.current = -1;//从第一页开始查看
     currentPerson = ids;//修改当前用户
     items = [];//清空列表
+    num = 1;//从第一条开始加载
     loadData();//重新加载数据
   }
 

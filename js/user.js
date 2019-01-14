@@ -301,6 +301,7 @@ function changeActionType (e) {
 
     page.current = -1;//从第一页开始查看
     items = [];//清空列表
+    num=1;//从第一条开始显示
     loadData();//重新加载数据
   }
 
