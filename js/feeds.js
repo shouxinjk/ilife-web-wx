@@ -43,6 +43,7 @@ var page = {//翻页控制
 
 var persons = [];
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:'0';
+var personKeys = [];//标记已经加载的用户key，用于排重
 
 function loadFeeds(){
     setInterval(function ()
@@ -137,13 +138,13 @@ function loadPersons() {
       //从列表内过滤掉当前用户：当前用户永远排在第一个
       if (app.globalData.userInfo != null ){
           persons.push(app.globalData.userInfo);
+          personKeys.push(app.globalData.userInfo._key);
         }
       for (var i = 0; i < arr.length; i++) {
         var u = arr[i];
-        if(app.globalData.userInfo == null ){
+        if(personKeys.indexOf(u._key) < 0){
           persons.push(u);
-        }else if(u._key != app.globalData.userInfo._key){
-          persons.push(u);
+          personKeys.push(u._key);
         }
       }
       //将用户显示到页面
