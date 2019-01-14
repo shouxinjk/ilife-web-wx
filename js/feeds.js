@@ -158,12 +158,7 @@ function loadPersons() {
             personId = e.path[1].id;//注意：如果结构改变需要调整path取值
           console.log('try to change person by tab.',e.path[1].id,e);
           changePerson(personId);
-      });  
-      mySwiper.on('doubleTap', function (e) {
-            personId = e.path[1].id;//注意：如果结构改变需要调整path取值
-          console.log('try to change person by doubletap.',e.path[1].id,e);
-          changePerson(personId);
-      });        
+      });         
       //根据当前用户加载数据
       changePerson(currentPerson);     
     });
@@ -190,9 +185,10 @@ function insertPerson(person){
 
     //注册事件:点击后切换用户
     //通过swiper事件注入
-    //$(person._key).click(function(){
-    //    changePerson(person._key);
-    //});
+    $("#"+person._key).click(function(e){
+        console.log("try to change person by jQuery click event.",person._key,e.currentTarget.id,e);
+        changePerson(e.currentTarget.id);
+    });
 }
 
 //显示没有更多内容
