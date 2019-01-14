@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="ext/galleryview/css/galleryview.css">
     <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css"> 
     <link rel="stylesheet" type="text/css" href="css/info2.css">
 </head>
 <body>
@@ -42,7 +43,12 @@
         </div>                 
 
         <div id="author"></div> 
-        <div id="author-fold"></div> 
+        <div id="author-fold" class="swiper-container">
+            <!-- Additional required wrapper -->
+            <div class="swiper-wrapper" id="persons">
+
+            </div>
+        </div>              
         <div id="content"></div>  
     </div>
 
@@ -54,6 +60,7 @@
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/swiper.min.js"></script>
 <script type="text/javascript" src="ext/galleryview/js/jquery.galleryview.js"></script>
 <script type="text/javascript" src="ext/galleryview/js/jquery.timers.min.js"></script>
 <script type="text/javascript" src="js/util.js?v=7.0"></script>

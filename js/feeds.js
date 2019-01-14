@@ -196,7 +196,7 @@ function insertPerson(person){
     $("#persons").append(html);
 
     //注册事件:点击后切换用户
-    //通过swiper事件注入
+    //通过jquery事件注入
     $("#"+person._key).click(function(e){
         console.log("try to change person by jQuery click event.",person._key,e.currentTarget.id,e);
         changePerson(e.currentTarget.id);

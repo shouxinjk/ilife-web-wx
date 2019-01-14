@@ -117,32 +117,43 @@ function jump(item){//支持点击事件
 */
 function showHosts(hosts){
     //单行显示
-    var templateFlat="<div class='person'>"+
+    var templateFlat="<div id='__key' class='person'>"+
     "<div class='logo'><img src='__imgSrc' alt='__name'/></div>"+//image
     "<div class='name'>__name</div>"+//name
-    "<div class='connection'><button type='button' class='btn __status'>__text</button></div>"+//button
+    //"<div class='connection'><button type='button' class='btn __status'>__text</button></div>"+//button
     "</div>";
     //折叠显示
-    var templateFold="<div class='person-fold'>"+
+    var templateFold="<div id='__key' class='swiper-slide person-fold'>"+
     "<div class='logo'><img src='__imgSrc' alt='__name'/></div>"+//image
     "<div class='name'>__name</div>"+//name
-    "<div class='connection'><button type='button' class='btn __status'>__text</button></div>"+//button
+    //"<div class='connection'><button type='button' class='btn __status'>__text</button></div>"+//button
     "</div>";
     //判断是否折叠显示
     var isFold = hosts.length>3?true:false;
-    var authorEl = isFold?$("#author-fold"):$("#author")
+    var authorEl = isFold?$("#persons"):$("#author")
     var template = isFold?templateFold:templateFlat;
     for(var i=0;i<hosts.length;i++){
         var h = hosts[i];
         var hostEl = template.replace(/__imgSrc/g,h.avatarUrl)
+            .replace(/__key/g,h._key)
             .replace(/__name/g,h.nickName)
             .replace(/__status/g,"toconnect")
             .replace(/__text/g,"+关注");
         authorEl.append(hostEl);
+
+        //注册点击事件，通过jQuery事件监听
+        $("#"+h._key).click(function(e){
+            console.log("try to view person by jQuery click event.",h._key,e.currentTarget.id,e);
+            window.location.href="user.html?id="+e.currentTarget.id;
+        });        
     }
     if(isFold){//仅显示折叠父元素
         $("#author").css("display","none");
         $("#author-fold").css("display","flex");
+          //显示滑动条
+          var mySwiper = new Swiper ('.swiper-container', {
+              slidesPerView: 8,
+          });          
     }else{
         $("#author").css("display","block");
         $("#author-fold").css("display","none");
