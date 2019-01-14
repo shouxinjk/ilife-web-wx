@@ -96,7 +96,7 @@ function loadData() {
       ]
     };
 
-    if (tagging.length > 0) {//如果设置了操作类型，如种草、拔草、养草，则设置过滤条件
+    if (tagging && tagging.length > 0) {//如果设置了操作类型，如种草、拔草、养草，则设置过滤条件
       esQuery.query.bool.must.push({
         "match": {
           "action": tagging
@@ -191,7 +191,6 @@ function shownomore(flag){
 //显示正在加载提示
 function showloading(flag){
     $("#loading").empty();
-    loading = flag;
     var html = '';
     if(flag){
         html += '<image src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>';
@@ -220,6 +219,7 @@ function insertItem(){
     });
     // 表示加载结束
     showloading(false);
+    loading = false;    
     num++;
 }
 
