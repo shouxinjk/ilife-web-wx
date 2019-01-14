@@ -42,7 +42,7 @@ var page = {//翻页控制
 };
 
 var persons = [];
-var currentPerson = "oQhcg5fVusZ47QQLH2Vu7TWIAUHs";
+var currentPerson = '0';
 
 setInterval(function ()
 {
