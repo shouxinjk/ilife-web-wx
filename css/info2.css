@@ -28,20 +28,20 @@ a{
 	margin:10px 5px;	
 }
 #score .comment{
-	width:15%;
+	width:30%;
 }
 #score .price{
-	width:20%;
+	width:40%;
 	border-left:1px solid silver;
 	border-right:1px solid silver;
 	padding:0 5px;
 	margin:0 5px;
 }
 #score .score{
-	width:15%;
+	width:30%;
 }
 .link{
-	width:50%;
+	width:90%;
 	text-align: right;
 }
 .distributor{border:1px solid silver;border-radius:1.2rem;padding:0 0.8rem;font-size:1.2rem;}
@@ -53,6 +53,27 @@ a{
 .price-bid{font-size: 1.6rem;padding-right: 0;margin-right: 0;text-decoration: line-through;color:gray;font-weight:normal;}
 .price-sale{font-size: 2rem;color:red;text-align: right;font-weight: bold;}
 .match{font-size: 2rem;font-weight: bold;color:darkgreen;}
+
+#qrcodeImgDiv{
+	visibility:hidden;
+	float:left;
+	overflow: hidden;
+}
+
+/*注意：对于每一个不同的source需要定义裁剪规则*/
+.qrcode-lianlianly-div{
+	width:100%;
+	height:66px;
+}
+
+.qrcode-lianlianly{
+	display: block; 
+	min-width: 0px !important; 
+	min-height: 0px !important; 
+	max-width: none !important; 
+	max-height: none !important; 
+	transform: scale(0.5) translate(-382px, -1861px);	
+}
 
 #shopping{
 	display:flex;
@@ -76,7 +97,7 @@ a{
 
 .buy-btn{
 	background-color: #f04848;
-	width:80%;
+	width:90%;
     border: none;
     border-radius: 2rem;
     color: white;

@@ -72,6 +72,16 @@ function showContent(item){
     //$("#score .comment").append("<div class='label'>评价</div><div class='rank'>"+item.score.rank+"/<span class='base'>"+item.score.base+"</span></div>");
     $("#score .price").append("<div class='label'>价格</div><div class='price-sale'><span class='price-bid'>"+(item.price.bid?item.price.bid:"")+"</span>"+item.price.sale+"</div>");
     $("#score .score").append("<div class='label'>推荐度</div><div class='match'>"+(item.rank.match*100)+"%</div>");
+
+    //二维码：使用海报图，将其中二维码进行裁剪
+    if(item.link.qrcode){
+        $("#qrcodeImg").attr("src",item.link.qrcode);
+        $('#qrcodeImg').addClass('qrcode-'+item.source);//应用对应不同source的二维码裁剪属性
+        $('#qrcodeImgDiv').addClass('qrcode-'+item.source+'-div');//应用对应不同source的二维码裁剪属性
+        $("#qrcodeImgDiv").css('visibility', 'visible');
+        $("#jumpbtn").text('扫码购买');
+    }
+
     //标签
     if(item.distributor && item.distributor.name){//来源作为标签
         $("#tags").append("<div class='tag'>"+item.distributor.name+"</div>");
@@ -100,11 +110,21 @@ function jump(item){//支持点击事件
     //console.log(item.id,item.url);
     logstash(item,"mp","buy",function(){
         var target = item.url;
-        if(item.link){
-            target = item.link.web2?item.link.web2:item.link.web;
+        if(item.link.qrcode){
+            //it is a QRCODE
+            $("#jumpbtn").text("扫码购买哦");
+        }else if(item.link.wap2){
+            target = item.link.wap2;
+            window.location.href = target;
+        }else if(item.link.wap){
+            target = item.link.wap;
+            window.location.href = target;
+        }else{
+            //there is no url link to jump
+            //it is a QRCODE
+            $("#jumpbtn").text("啊哦，这货买不了");
         }
-        window.location.href = target;
-    });
+    });     
 }
 
 /*

@@ -48,6 +48,28 @@ a{
 .price-sale{font-size: 2rem;color:red;text-align: right;font-weight: bold;}
 .match{font-size: 2rem;font-weight: bold;color:darkgreen;}
 
+#qrcodeImgDiv{
+	visibility:hidden;
+	float:left;
+	overflow: hidden;
+	border:1px solid silver;
+}
+
+/*注意：对于每一个不同的source需要定义裁剪规则*/
+.qrcode-lianlianly-div{
+	width:126px;
+	height:126px;
+}
+
+.qrcode-lianlianly{
+	display: block; 
+	min-width: 0px !important; 
+	min-height: 0px !important; 
+	max-width: none !important; 
+	max-height: none !important; 
+	transform: scale(1) translate(-10px, -1196px);	
+}
+
 #shopping{
 	display:flex;
 	flex-direction:row;
