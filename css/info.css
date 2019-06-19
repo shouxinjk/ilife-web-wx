@@ -52,10 +52,25 @@ a{
 	visibility:hidden;
 	float:left;
 	overflow: hidden;
-	border:1px solid silver;
 }
 
-/*注意：对于每一个不同的source需要定义裁剪规则*/
+
+/*注意：对于每一个不同的source需要定义裁剪规则：旅划算*/
+.qrcode-lvhuasuan-div{
+	width:126px;
+	height:126px;
+}
+
+.qrcode-lvhuasuan{
+	display: block; 
+	min-width: 0px !important; 
+	min-height: 0px !important; 
+	max-width: none !important; 
+	max-height: none !important; 
+	transform: scale(1) translate(-10px, -1335px);	
+}
+
+/*注意：对于每一个不同的source需要定义裁剪规则：连连周边游*/
 .qrcode-lianlianly-div{
 	width:126px;
 	height:126px;
