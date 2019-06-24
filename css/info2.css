@@ -60,6 +60,22 @@ a{
 	overflow: hidden;
 }
 
+/*注意：对于每一个不同的source需要定义裁剪规则：琥珀亲子*/
+.qrcode-hupoqinzi-div{
+	width:100%;
+	height:80px;
+}
+
+.qrcode-hupoqinzi{
+	display: block; 
+	min-width: 0px !important; 
+	min-height: 0px !important; 
+	max-width: none !important; 
+	max-height: none !important; 
+	transform-origin: 0 0;
+	transform: scale(0.2) translate(-10px, -2240px);	
+	
+}
 
 /*注意：对于每一个不同的source需要定义裁剪规则：旅划算*/
 .qrcode-lvhuasuan-div{

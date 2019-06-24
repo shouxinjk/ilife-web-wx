@@ -55,6 +55,23 @@ a{
 }
 
 
+/*注意：对于每一个不同的source需要定义裁剪规则：琥珀亲子*/
+.qrcode-hupoqinzi-div{
+	width:400px;
+	height:400px;
+}
+
+.qrcode-hupoqinzi{
+	display: block; 
+	min-width: 0px !important; 
+	min-height: 0px !important; 
+	max-width: none !important; 
+	max-height: none !important; 
+	transform-origin: 0 0;
+	transform: scale(0.8) translate(-1455px, -2230px);	
+	
+}
+
 /*注意：对于每一个不同的source需要定义裁剪规则：旅划算*/
 .qrcode-lvhuasuan-div{
 	width:126px;
