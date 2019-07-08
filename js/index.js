@@ -23,12 +23,26 @@ $(document).ready(function ()
         $(".search input").attr("placeholder"," "+tagging);
     }
     loadCategories(category);//加载导航目录
-    $(document).keydown(function(event){//注册搜索事件
-        if(event.keyCode==13){
-            tagging = $(".search input").val().trim();
+    $("#searchBtn").click(function(event){//注册搜索事件
+        tagging = $(".search input").val().trim();
+        if(tagging.length>1){
             window.location.href="index.html?keyword="+tagging;
+        }else{
+            console.log("do nothing because there is no input text.");
         }
     });
+
+
+    $("#search").focus(function(){
+        $("#search").addClass("search");
+        $("#tubiao").addClass("tubiao");
+    });
+ 
+    $("#search").blur(function(){
+        $("#search").removeClass("search");
+        $("#tubiao").removeClass("tubiao");
+    })
+
 });
 
 util.getUserInfo();//从本地加载cookie
