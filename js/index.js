@@ -173,9 +173,24 @@ function insertItem(){
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
     var image = "<img src='"+item.images[0]+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
-    //var title = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
+    var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
+    var tags = "<div class='itemTags'>";
+    tags += "<a class='itemTag' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
+    tags += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
+    var taggingList = item.tagging.split(" ");
+    for(var t in taggingList){
+        var txt = taggingList[t];
+        if(txt.trim().length>1 && txt.trim().length<6){
+            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
+        }
+    }
+    if(item.categoryId && item.categoryId.trim().length>1){
+        tags += tagTmpl.replace("__TAGGING",item.category).replace("__TAG",item.category);
+    }
+    tags += "</div>";
+    //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='title'>"+item.title+"</div>"
-    $("#waterfall").append("<li><div data='"+item._key+"'>" + image +title+ "</div></li>");
+    $("#waterfall").append("<li><div data='"+item._key+"'>" + image + tags +title+ "</div></li>");
     num++;
 
     //注册事件

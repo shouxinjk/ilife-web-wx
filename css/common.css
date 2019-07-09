@@ -59,6 +59,22 @@ input,img{border: none;}
 #searchIcon a{color:#AAAAAA;text-decoration:none;}
 #searchIcon a:hover {text-decoration:none;color: #0088CF;}
 
+.itemTags{
+    line-height: 20px;
+    vertical-align: middle;
+    margin-top:-5px;
+    margin-bottom:5px;
+}
+
+.itemTag{
+    border:1px solid #8BC34A;
+    background-color: #8BC34A;
+    color:white;
+    font-weight: bold;
+    border-radius: 5px;
+    margin-right:2px;
+    padding:2px;
+}
 
 .header span{
     color: white;
