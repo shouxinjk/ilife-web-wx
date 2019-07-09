@@ -32,7 +32,8 @@ $(document).ready(function ()
         personKeys.push(app.globalData.userInfo._key);
         currentPerson = app.globalData.userInfo._key;
     }
-    loadPersons();//加载用户
+    //loadPersons();//加载用户
+    loadPersonas();//加载用户画像
     loadFeeds();
     //loadData();//加载数据：默认使用当前用户查询
 
@@ -54,6 +55,7 @@ var page = {//翻页控制
 
 var persons = [];
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:'0';
+var currentPersonTagging = "";//记录当前用户的标签清单，用于根据标签显示内容
 var personKeys = [];//标记已经加载的用户key，用于排重
 
 function loadFeeds(){
@@ -79,7 +81,7 @@ function loadFeeds(){
 
 //load feeds
 function loadData() {
-    console.log("Feed::loadData", currentPerson);
+    console.log("Feed::loadData", currentPerson,currentPersonTagging);
     //设置query
     var esQuery = {//搜索控制
       from: (page.current + 1) * page.size,
@@ -142,6 +144,51 @@ function loadData() {
     });
   }
 
+//load predefined personas
+function loadPersonas() {
+    util.AJAX(app.config.data_api+"/persona/personas", function (res) {
+      var arr = res;
+      //将persona作为特殊的person显示到顶部
+      for (var i = 0; i < arr.length; i++) {
+        var u = arr[i];
+        if(personKeys.indexOf(u._key) < 0){
+          u.nickName = u.name;//将persona转换为person
+          u.avatarUrl = u.image;//将persona转换为person
+          persons.push(u);
+          personKeys.push(u._key);
+        }
+      }
+      //将用户显示到页面
+      for (var i = 0; i < persons.length; i++) {
+        insertPerson(persons[i]);
+      }  
+      //将当前用户设为高亮  
+      //显示滑动条
+      var mySwiper = new Swiper ('.swiper-container', {
+          slidesPerView: 7,
+      });  
+      //调整swiper 风格，使之悬浮显示
+      $(".swiper-container").css("position","fixed");
+      $(".swiper-container").css("left","0");
+      $(".swiper-container").css("top","0");
+      $(".swiper-container").css("z-index","999");
+      $(".swiper-container").css("background-color","#fff");
+      $(".swiper-container").css("margin-bottom","5px");
+      //注册点击事件：点击后【当前该事件在移动端不生效，直接使用jquery点击事件】
+      /*
+      mySwiper.on('tap', function (e) {
+            personId = e.path[1].id;//注意：如果结构改变需要调整path取值
+          console.log('try to change person by tab.',e.path[1].id,e);
+          changePerson(personId);
+      });   
+      //*/      
+      //根据当前用户加载数据：默认使用第一个
+      currentPerson = persons[0]._key;
+      currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";
+      changePerson(currentPerson,currentPersonTagging);     
+    });
+}
+
 //load related persons
 function loadPersons() {
     util.AJAX(app.config.data_api+"/user/users", function (res) {
@@ -174,16 +221,11 @@ function loadPersons() {
       $(".swiper-container").css("z-index","999");
       $(".swiper-container").css("background-color","#fff");
       $(".swiper-container").css("margin-bottom","5px");
-      //注册点击事件：点击后【当前该事件在移动端不生效，直接使用jquery点击事件】
-      /*
-      mySwiper.on('tap', function (e) {
-            personId = e.path[1].id;//注意：如果结构改变需要调整path取值
-          console.log('try to change person by tab.',e.path[1].id,e);
-          changePerson(personId);
-      });   
-      //*/      
-      //根据当前用户加载数据
-      changePerson(currentPerson);     
+    
+      //根据当前用户加载数据：默认使用第一个
+      currentPerson = persons[0]._key;
+      currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";      
+      changePerson(currentPerson,currentPersonTagging);     
     });
 }
 
@@ -198,7 +240,7 @@ function insertPerson(person){
     // 显示HTML
     var html = '';
     html += '<div class="swiper-slide">';
-    html += '<div class="person" id="'+person._key+'">';
+    html += '<div class="person" id="'+person._key+'" data-tagging="'+(person.tags?person.tags.join(" "):"")+'">';
     var style= person._key==currentPerson?'-selected':'';
     html += '<img class="person-img'+style+'" src="'+person.avatarUrl+'"/>';
     html += '<div class="person-name">'+person.nickName+'</div>';
@@ -210,7 +252,7 @@ function insertPerson(person){
     //通过jquery事件注入
     $("#"+person._key).click(function(e){
         console.log("try to change person by jQuery click event.",person._key,e.currentTarget.id,e);
-        changePerson(e.currentTarget.id);
+        changePerson(e.currentTarget.id,e.currentTarget.dataset.tagging);
     });
 }
 
@@ -347,7 +389,7 @@ function htmlItemTags(item){
     return html;
 }
 
-function changePerson (personId) {
+function changePerson (personId,personTagging) {
     var ids = personId;
     if (app.globalData.isDebug) console.log("Feed::ChangePerson change person.",currentPerson,personId);
     $("#"+currentPerson+" img").removeClass("person-img-selected");
@@ -360,6 +402,7 @@ function changePerson (personId) {
 
     page.current = -1;//从第一页开始查看
     currentPerson = ids;//修改当前用户
+    currentPersonTagging = personTagging;//修改当前用户推荐Tagging
     items = [];//清空列表
     num = 1;//从第一条开始加载
     loadData();//重新加载数据

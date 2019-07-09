@@ -67,6 +67,8 @@ input,img{border: none;}
 }
 
 .itemTag{
+    white-space: nowrap; 
+    display:inline-block;
     border:1px solid #8BC34A;
     background-color: #8BC34A;
     color:white;
