@@ -106,6 +106,32 @@ function loadData() {
         { "_score": { order: "desc" } }//匹配高的优先显示
       ]
     };
+
+    //设置query
+    var esQueryForPersona = {//搜索控制
+      from: (page.current + 1) * page.size,
+      size: page.size,
+      query: {
+        bool: {
+          should: [
+            {
+              "match": {
+                "full_text": currentPersonTagging
+              }
+            }
+          ]
+        }
+      },
+      collapse: {
+        field: "itemId"//根据itemId 折叠，即：一个item仅显示一次
+      },      
+      sort: [
+        //{ "weight": { order: "desc" } },//权重高的优先显示
+        { "@timestamp": { order: "desc" } },//最近操作的优先显示
+        { "_score": { order: "desc" } }//匹配高的优先显示
+      ]
+    };
+
     //设置请求头
     var esHeader = {
       "Content-Type": "application/json",
@@ -115,7 +141,7 @@ function loadData() {
     $.ajax({
         url:"https://data.pcitech.cn/actions/_search",
         type:"post",
-        data:JSON.stringify(esQuery),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
+        data:JSON.stringify(esQueryForPersona),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
         headers:{
             "Content-Type":"application/json",
             "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
@@ -356,7 +382,7 @@ function htmlItemSummary(item){
     var tags = "<div class='itemTags'>";
     tags += "<a class='itemTag' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
     tags += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
-    var taggingList = item.tagging.split(" ");
+    var taggingList = item.tagging?item.tagging.split(" "):[];
     for(var t in taggingList){
         var txt = taggingList[t];
         if(txt.trim().length>1 && txt.trim().length<6){
