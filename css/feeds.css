@@ -166,8 +166,8 @@ div.title{
 }
 
 .list-box-title{ 
-  font-size:16px; 
-  line-height: 20px; 
+  font-size:1.2rem; 
+  line-height: 1.5rem; 
   margin:2px 5px;  
   overflow:hidden; 
   text-overflow:ellipsis;
@@ -285,8 +285,9 @@ div.title{
 }
 
 .tag-text{
-  font-size:12px;
-  color:silver;
+  font-size:1.2rem;
+  font-weight:bold;
+  color:#E34D17;
   margin-left:2px;
 }
 

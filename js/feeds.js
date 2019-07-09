@@ -8,13 +8,18 @@ $(document).ready(function ()
     rootFontSize = rootFontSize <8 ? 8:rootFontSize;//最小为8px
     rootFontSize = rootFontSize >16 ? 16:rootFontSize;//最大为18px
     oHtml.style.fontSize = rootFontSize+ "px";   
+    //计算图片流宽度：根据屏幕宽度计算，最小显示2列
+    if(width < 2*columnWidth){//如果屏幕不能并排2列，则调整图片宽度
+        columnWidth = (width-columnMargin*4)/2;//由于每一个图片左右均留白，故2列有4个留白
+    }    
     //显示加载状态
     showloading(true);
     //处理参数
     var args = getQuery();//获取参数
     //category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     $('#waterfall').NewWaterfall({
-        width: width-20,
+        //width: width-20,//1列
+        width: columnWidth,//动态列宽，当前为2列
         delay: 100,
     });
 
@@ -32,6 +37,9 @@ $(document).ready(function ()
     //loadData();//加载数据：默认使用当前用户查询
 
 });
+
+var columnWidth = 300;//默认宽度300px
+var columnMargin = 5;//默认留白5px
 
 var loading = false;
 var dist = 500;
@@ -255,14 +263,25 @@ function insertItem(){
 }
 
 function htmlItemImage(item){
+    var imgWidth = columnWidth-2*columnMargin;//注意：改尺寸需要根据宽度及留白计算，例如宽度为360，左右留白5，故宽度为350
+    var imgHeight = random(50, 300);//随机指定初始值
+    //计算图片高度
+    var img = new Image();
+    img.src = item.images?item.images[0]:"https://www.biglistoflittlethings.com/list/images/logo00.jpeg";
+    var orgWidth = img.width;
+    var orgHeight = img.height;
+    imgHeight = orgHeight/orgWidth*imgWidth;
+
     var html = '';
     html += '<div class="mainbody">';
-    html += '<img class="WxMasonryImage" id="'+item._key+'" src="'+item.images[0]+'" width="100%" height="200px" />';
+    html += '<img class="WxMasonryImage" id="'+item._key+'" src="'+item.images[0]+'" width="'+imgWidth+'" height="'+imgHeight+'" />';
+    //html += '<img class="WxMasonryImage" id="'+item._key+'" src="'+item.images[0]+'" width="100%" height="200px" />';
     html += '</div>';
     return html;
 }
 
-function htmlItemSummary(item){
+/**
+function htmlItemSummaryDeprecated(item){
     var html = '';
     html += '<div class="shopping">';
     html += '<div class="shopping-summary">';
@@ -287,6 +306,26 @@ function htmlItemSummary(item){
     html += '</div>';
     html += '</div> ';
     return html;
+}
+//**/
+
+function htmlItemSummary(item){
+    var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING' nowrap>__TAG</a>";
+    var tags = "<div class='itemTags'>";
+    tags += "<a class='itemTag' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
+    tags += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
+    var taggingList = item.tagging.split(" ");
+    for(var t in taggingList){
+        var txt = taggingList[t];
+        if(txt.trim().length>1 && txt.trim().length<6){
+            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
+        }
+    }
+    if(item.categoryId && item.categoryId.trim().length>1){
+        tags += tagTmpl.replace("__TAGGING",item.category).replace("__TAG",item.category);
+    }
+    tags += "</div>";
+    return tags;  
 }
 
 function htmlItemTags(item){
@@ -326,6 +365,10 @@ function changePerson (personId) {
     loadData();//重新加载数据
   }
 
-
+// 自动加载更多：此处用于测试，动态调整图片高度
+function random(min, max)
+{
+    return min + Math.floor(Math.random() * (max - min + 1))
+}
 
 
