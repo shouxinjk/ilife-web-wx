@@ -27,11 +27,13 @@ $(document).ready(function ()
 
     util.getUserInfo();//从本地加载cookie
     //设置浏览用户
+    /*
     if(app.globalData.userInfo){
         persons.push(app.globalData.userInfo);
         personKeys.push(app.globalData.userInfo._key);
         currentPerson = app.globalData.userInfo._key;
     }
+    //*/
     //loadPersons();//加载用户
     loadPersonas();//加载用户画像
     loadFeeds();
