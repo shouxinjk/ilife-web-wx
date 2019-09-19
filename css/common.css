@@ -51,6 +51,13 @@ input,img{border: none;}
     background-color: white;
     color:grey;
 }
+.searchBtn{
+    width:40px;
+    font-size: 12px;
+    font-weight:bold;
+    color:white;
+    margin-left:5px;
+}
 /*带搜索图标的搜索框样式*/
 #searchInput{float: left;width:100%;}
 #searchInput .form-control{border: 1px solid #AAAAAA;}

@@ -19,6 +19,7 @@ $(document).ready(function ()
     });
     category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     tagging = args["keyword"]?args["keyword"]:""; //通过搜索跳转
+    filter = args["filter"]?args["filter"]:""; //根据指定类型进行过滤
     if(tagging.trim().length>0){
         $(".search input").attr("placeholder"," "+tagging);
     }
@@ -32,17 +33,14 @@ $(document).ready(function ()
         }
     });
 
-
-    $("#search").focus(function(){
-        $("#search").addClass("search");
-        $("#tubiao").addClass("tubiao");
-    });
- 
-    $("#search").blur(function(){
-        $("#search").removeClass("search");
-        $("#tubiao").removeClass("tubiao");
-    })
-
+    $("#findAll").click(function(){//注册搜索事件：点击搜索全部
+        tagging = $(".search input").val().trim();
+        window.location.href="index.html?keyword="+tagging;
+    }); 
+    $("#findByPrice").click(function(){//注册搜索事件：点击搜索好价
+        tagging = $(".search input").val().trim();
+        window.location.href="index.html?filter=byPrice&keyword="+tagging;
+    }); 
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -57,6 +55,7 @@ var num = 1;//需要加载的内容下标
 var items = [];//所有内容列表
 var category  = 0; //当前目录ID
 var tagging = ""; //当前目录关联的查询关键词，搜索时直接通过该字段而不是category进行
+var filter = "";//通过filter区分好价、好物、附近等不同查询组合
 
 var page = {
     size:20,//每页条数
@@ -73,6 +72,26 @@ var esQuery={
     sort: [
         { "@timestamp": { order: "desc" }},
         { "_score":   { order: "desc" }}
+    ]
+};
+
+var esQueryByPrice={
+  from:0,
+  size:page.size,
+  query: {
+    function_score: {
+      query: {
+        match_all: {}
+      },
+      script_score: {
+        script: "double discount=0;try{discount=doc['price.sale'].value/(doc['price.sale'].value+0.01);}catch(Exception ex){discount=0;} return 1+discount;"
+      },
+      boost_mode: "multiply"
+    }
+  },
+    sort: [
+        { "_score":   { "order": "desc" }},
+        { "@timestamp": { "order": "desc" }}
     ]
 };
 
@@ -97,14 +116,28 @@ function loadItems(){//获取内容列表
         match: { 
           full_text:"" 
         }
-    };    
-    if(tagging.trim().length>0){//使用指定内容进行搜索
-        q.match.full_text = tagging;
-        esQuery.query = q;
-    }else{//搜索全部
-        esQuery.query = {
-            match_all: {}
-        };
+    };  
+    if(filter.trim()=="byPrice" || filter.trim()=="byScore"||filter.trim()=="byDistance"){//需要进行过滤
+        if(filter.trim()=="byPrice"){
+            esQuery = esQueryByPrice;
+        }else if(filter.trim().equalsIgnoreCase("byScore")){
+            
+        }else if(filter.trim().equalsIgnoreCase("byDistance")){
+            
+        }
+        if(tagging.trim().length>0){//使用指定内容进行搜索
+            q.match.full_text = tagging;
+            esQuery.query.function_score.query = q;
+        }
+    }else{//无过滤
+        if(tagging.trim().length>0){//使用指定内容进行搜索
+            q.match.full_text = tagging;
+            esQuery.query = q;
+        }else{//搜索全部
+            esQuery.query = {
+                match_all: {}
+            };
+        }
     }
     //处理翻页
     esQuery.from = (page.current+1) * page.size;
