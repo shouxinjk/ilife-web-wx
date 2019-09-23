@@ -41,6 +41,101 @@ $(document).ready(function ()
         tagging = $(".search input").val().trim();
         window.location.href="index.html?filter=byPrice&keyword="+tagging;
     }); 
+
+    //微信JSSDK注册获取位置、分享事件
+    /**
+    wx.config({
+        debug: true,
+        appId: '${appId!}',
+        timestamp: ${timestamp!},
+        nonceStr: '${nonceStr!}',
+        signature: '${signature!}',
+        jsApiList: [
+            'checkJsApi',
+            'onMenuShareTimeline',
+            'onMenuShareAppMessage',
+            'onMenuShareQQ',
+            'onMenuShareWeibo',
+            'hideMenuItems',
+            'getLocation'
+        ]
+    });
+
+    var shareTitle = "小确幸大生活";
+    var shareDesc = "发现生活里的小确幸";
+    var currentLink = window.location.href;
+    var shareLink = currentLink;
+    var shareImgUrl = "images/banner2.png";
+    var shareGid = "";
+
+    wx.ready(function () {
+        //分享给朋友
+        wx.onMenuShareAppMessage({
+            title: shareTitle,
+            desc: shareDesc,
+            link: shareLink,
+            imgUrl: shareImgUrl,
+            success: function (res) {
+                shared(shareLink, "friend", shareGid);
+            },
+            fail: function (res) {
+                alert(JSON.stringify(res));
+            }
+        });
+        //分享到朋友圈
+        wx.onMenuShareTimeline({
+            title: shareTitle,
+            desc: shareDesc,
+            link: shareLink,
+            imgUrl: shareImgUrl,
+            success: function (res) {
+                shared(shareLink, "Timeline", shareGid);
+            },
+            fail: function (res) {
+                alert(JSON.stringify(res));
+            }
+        });
+        //分享到QQ
+        wx.onMenuShareQQ({
+            title: shareTitle,
+            desc: shareDesc,
+            link: shareLink,
+            imgUrl: shareImgUrl,
+            success: function (res) {
+                shared(shareLink, "QQ", shareGid);
+            },
+            fail: function (res) {
+                alert(JSON.stringify(res));
+            }
+        });
+        //分享到腾讯QQ
+        wx.onMenuShareWeibo({
+            title: shareTitle,
+            desc: shareDesc,
+            link: shareLink,
+            imgUrl: shareImgUrl,
+            success: function (res) {
+                shared(shareLink, "Weibo", shareGid);
+            },
+            fail: function (res) {
+                alert(JSON.stringify(res));
+            }
+        });
+        //分享到QZone
+        wx.onMenuShareQZone({
+            title: shareTitle,
+            desc: shareDesc,
+            link: shareLink,
+            imgUrl: shareImgUrl,
+            success: function (res) {
+                shared(shareLink, "QZone", shareGid);
+            },
+            fail: function (res) {
+                alert(JSON.stringify(res));
+            }
+        });
+    }); 
+    //**/
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -290,4 +385,19 @@ function changeCategory(key,q){
     num=1;//设置加载内容从第一条开始
     page.current = -1;//设置浏览页面为未开始
     loadItems();//重新加载数据
+}
+
+function shared(url, type, gid){
+    var rUrl = basePath + "/share/add?type=" + type + "&url=" + encodeURI(url);
+    if(!!gid) {
+        rUrl += "&gid=" + gid;
+    }
+    $.ajax({
+        type: "GET",
+        url: rUrl,
+        dataType: "json",
+        success: function(rs){
+            //alert("分享成功");
+        }
+    });
 }
