@@ -179,11 +179,11 @@ function insertPerson(person){
     $("#user").append(html);
 
     //检查是否是达人
-    util.checkBroker(currentPerson, insertBroker);
+    util.checkBroker(userInfo._key, insertBroker);
 }
 
 //显示达人后台入口
-function insertPerson(res){
+function insertBroker(res){
     $("#brokerLink").html('<a href="broker/team.html">进入达人后台</a>');
 }
 
