@@ -32,8 +32,26 @@ util.hasUserInfo =function (){
   }
 }
 
+util.getUserInfo =function (){
+  var strUserInfo = $.cookie('sxUserInfo');
+  console.log("load userInfo from cookie.",strUserInfo);
+  var jsonUserInfo = {};
+  if(strUserInfo && strUserInfo.trim().length>0){
+    jsonUserInfo = JSON.parse(strUserInfo);
+    app.globalData.userInfo = jsonUserInfo;
+    app.globalData.hasUserInfo = true;
+  }
+  console.log("load userInfo from cookie json.",jsonUserInfo);
+  return jsonUserInfo;
+}
+
+
 util.hasBrokerInfo =function (){
-    util.getBrokerInfo();//从cookie读取存储的BrokerInfo
+    if(!app.globalData.hasBrokerInfo){//请求获得broker信息
+        util.checkBroker(app.globalData.userInfo._key);
+    }else{//从cookie读取存储的BrokerInfo
+        util.getBrokerInfo();
+    }
     return app.globalData.hasBrokerInfo;
 }
 
@@ -49,19 +67,6 @@ util.getBrokerInfo =function (){
   }
   console.log("load brokerInfo from cookie json.",jsonBrokerInfo);
   return jsonBrokerInfo;
-}
-
-util.getUserInfo =function (){
-  var strUserInfo = $.cookie('sxUserInfo');
-  console.log("load userInfo from cookie.",strUserInfo);
-  var jsonUserInfo = {};
-  if(strUserInfo && strUserInfo.trim().length>0){
-    jsonUserInfo = JSON.parse(strUserInfo);
-    app.globalData.userInfo = jsonUserInfo;
-    app.globalData.hasUserInfo = true;
-  }
-  console.log("load userInfo from cookie json.",jsonUserInfo);
-  return jsonUserInfo;
 }
 
 //登录并获取openid 
