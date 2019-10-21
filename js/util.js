@@ -136,8 +136,8 @@ util.updatePerson=function(id,userInfo,callback) {
       //更新本地UserInfo
       app.globalData.userInfo = res;      
       app.globalData.hasUserInfo = res.authorize ? res.authorize : false;//是否授权
-      //检查是否是Broker
-      util.checkBroker(res._key);
+      //检查是否是Broker:进入user页面时才进行检测
+      //util.checkBroker(res._key);
       if (typeof callback === "function") {
         callback(res);
       }
@@ -158,7 +158,7 @@ util.checkBroker=function(openid,callback) {
       if (typeof callback === "function") {
         callback(res);
       }
-    }, "GET", null, { "Api-Key": "foobar" });
+    }, "GET", {}, { "Api-Key": "foobar" });
 }
 
 util.AJAX = function( url = '', success, method = "get",data={}, header = {},fail){
