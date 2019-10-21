@@ -7,9 +7,12 @@ app.globalData={
         isDebug:true,
         hasUserInfo:true,//默认认为有授权，如果判断未授权则显示授权按钮
         userInfo:null,
+        hasBrokerInfo:false,//默认不是达人
+        brokerInfo:null,
     };
 app.config={
     auth_api:"https://data.shouxinjk.net/ilife-wechat",//获取UserInfo后端服务
+    sx_api:"https://data.shouxinjk.net/ilife/a",//服务端数据服务
     data_api:"https://data.shouxinjk.net/_db/sea",//数据存取服务
     search_api:"https://data.pcitech.cn",//搜索服务:内容搜索后缀为 /stuff/_search
     message_api:"https://data.shouxinjk.net/kafka-rest"//日志等消息服务（kafka）
@@ -27,6 +30,11 @@ util.hasUserInfo =function (){
   } else {
     return false;
   }
+}
+
+util.hasBrokerInfo =function (){
+  //util.getUserInfo();//从cookie读取存储的UserInfo
+    return app.globalData.hasBrokerInfo;
 }
 
 util.getUserInfo =function (){
@@ -109,10 +117,26 @@ util.updatePerson=function(id,userInfo,callback) {
       //更新本地UserInfo
       app.globalData.userInfo = res;      
       app.globalData.hasUserInfo = res.authorize ? res.authorize : false;//是否授权
+      //检查是否是Broker
+      util.checkBroker(res._key);
       if (typeof callback === "function") {
         callback(res);
       }
     }, "PATCH", userInfo, { "Api-Key": "foobar" });
+}
+
+util.checkBroker=function(openid,callback) {
+    var url = app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid;
+    if (app.globalData.isDebug) console.log("Util::checkBroker start check if current user is a broker.",openid);
+    util.AJAX(url, function (res) {
+      if (app.globalData.isDebug) console.log("Util::checkBroker check broker finished.", res);
+      //更新本地Broker
+      app.globalData.brokerInfo = res.data;      
+      app.globalData.hasBrokerInfo = res.status;//是否是达人
+      if (typeof callback === "function") {
+        callback(res);
+      }
+    }, "GET", null, { "Api-Key": "foobar" });
 }
 
 util.AJAX = function( url = '', success, method = "get",data={}, header = {},fail){

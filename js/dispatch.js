@@ -15,7 +15,11 @@ var state = "index"; //默认跳转到index页面
 
 function flightCheck(code,state){
     if(util.hasUserInfo()){//如果已存在本地用户，则直接跳转到指定页面
-        window.location.href=state+".html";
+        if(state=="user" && util.hasBrokerInfo()){//对于state=user并且是达人，则跳转到达人后台
+            window.location.href="broker/team.html";
+        }else{//否则直接跳转
+            window.location.href=state+".html";
+        }
     }else{//否则请求微信UserInfo
         util.login(code,function (res) {//成功后创建用户
                 console.log("Dispatch::flightCheck login success.", res);
@@ -23,7 +27,11 @@ function flightCheck(code,state){
                 $.cookie('sxUserInfo', JSON.stringify(res), { expires: 3650, path: '/' });
                 $.cookie('hasUserInfo', 'true', { expires: 3650, path: '/' });
                 //跳转到目标页面
-                window.location.href=state+".html";
+                if(state=="user" && util.hasBrokerInfo()){//对于state=user并且是达人，则跳转到达人后台
+                    window.location.href="broker.html";
+                }else{//否则直接跳转
+                    window.location.href=state+".html";
+                }
         });
     }   
 }
