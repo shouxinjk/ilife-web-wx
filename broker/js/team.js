@@ -133,7 +133,7 @@ function requestQRcode(broker) {
 
 //显示二维码
 function showQRcode(url) {
-    $("#qrcode").html('<img src="'+url+'" width="50px" alt="分享二维码邀请达人加入"/>');
+    $("#qrcode").html('<img src="'+url+'" width="200px" alt="分享二维码邀请达人加入"/>');
 }
 
 //将person显示到页面
