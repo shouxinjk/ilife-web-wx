@@ -58,15 +58,23 @@ function loadData() {
             if(data.length==0){//如果没有内容，则显示提示文字
                 shownomore(true);
             }else{//显示达人列表
-                $('#dataTable').DataTable( {
-                    data: data,
-                    "columns": [
-                        { "data": "name" },
-                        { "data": "phone" },
-                        { "data": "level" },
-                        { "data": "upgrade" }
-                    ]
-                } );                
+                $('#brokers').bootstrapTable({
+                    columns: [
+                    {
+                        field: 'name',
+                        title: '姓名'
+                    }, {
+                        field: 'phone',
+                        title: '电话'
+                    }, {
+                        field: 'level',
+                        title: '等级'
+                    }, {
+                        field: 'upgrade',
+                        title: '升级状态'
+                    }],
+                    data: data
+                    });                
             }
         }
     });
