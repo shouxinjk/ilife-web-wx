@@ -33,8 +33,22 @@ util.hasUserInfo =function (){
 }
 
 util.hasBrokerInfo =function (){
-  //util.getUserInfo();//从cookie读取存储的UserInfo
+    util.getBrokerInfo();//从cookie读取存储的BrokerInfo
     return app.globalData.hasBrokerInfo;
+}
+
+util.getBrokerInfo =function (){
+  var strHasBroker = $.cookie('hasBrokerInfo');
+  var strBrokerInfo = $.cookie('sxBrokerInfo');
+  var jsonBrokerInfo = {};
+  if(strHasBroker && strHasBroker.trim().length>0 && strHasBroker=="true"){
+    console.log("load brokerInfo from cookie.",strBrokerInfo);
+    jsonBrokerInfo = JSON.parse(strUserInfo);
+    app.globalData.brokerInfo = jsonBrokerInfo;
+    app.globalData.hasBrokerInfo = true;
+  }
+  console.log("load brokerInfo from cookie json.",jsonBrokerInfo);
+  return jsonBrokerInfo;
 }
 
 util.getUserInfo =function (){
@@ -133,6 +147,9 @@ util.checkBroker=function(openid,callback) {
       //更新本地Broker
       app.globalData.brokerInfo = res.data;      
       app.globalData.hasBrokerInfo = res.status;//是否是达人
+      //写入cookie
+        $.cookie('sxBrokerInfo', JSON.stringify(res.data), { expires: 3650, path: '/' });
+        $.cookie('hasBrokerInfo', res.status, { expires: 3650, path: '/' });      
       if (typeof callback === "function") {
         callback(res);
       }
