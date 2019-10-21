@@ -108,7 +108,7 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {//
             loadData();//加载下级达人列表
-            if(res.data.qrcodeUrl.startsWith("http")){//如果有QRcode则显示
+            if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
                 showQRcode(res.data.qrcodeUrl);
             }else{//否则请求生成后显示
 
