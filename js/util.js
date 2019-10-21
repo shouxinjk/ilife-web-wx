@@ -137,7 +137,7 @@ util.updatePerson=function(id,userInfo,callback) {
       app.globalData.userInfo = res;      
       app.globalData.hasUserInfo = res.authorize ? res.authorize : false;//是否授权
       //检查是否是Broker:进入user页面时才进行检测
-      //util.checkBroker(res._key);
+      util.checkBroker(res._key);
       if (typeof callback === "function") {
         callback(res);
       }
