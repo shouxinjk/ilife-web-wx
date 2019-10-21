@@ -13,6 +13,12 @@
     font-size: 32.81rpx;
 }
 
+#brokerLink a{
+  font-weight:bold;
+  color:red;
+  font-size:120%;
+}
+
 .info {
     height: 80px;
     background: url("http://www.shouxinjk.net/list/images/bg.jpg") #FFF no-repeat 0 50%; 
