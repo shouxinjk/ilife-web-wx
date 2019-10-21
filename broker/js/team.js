@@ -58,7 +58,7 @@ function loadData() {
             if(data.length==0){//如果没有内容，则显示提示文字
                 shownomore(true);
             }else{//显示达人列表
-                $('#brokers').bootstrapTable({
+                $('#brokers table').bootstrapTable({
                     columns: [
                     {
                         field: 'name',
@@ -93,13 +93,47 @@ function loadPerson(personId) {
     });
 }
 
+//更新Broker
+function updateBroker(broker) {
+    console.log("try to update broker.[broker]",broker);
+    util.AJAX(app.config.sx_api+"/a/mod/broker/rest/"+broker.id, function (res) {
+        console.log("update broker successfully.",res);
+    });
+}
+
 //根据openid查询加载broker
 function loadBrokerByOpenid(openid) {
     console.log("try to load broker info by openid.[openid]",openid);
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
-        loadData();//加载下级达人列表
+        if (res.status) {//
+            loadData();//加载下级达人列表
+            if(res.data.qrcodeUrl.startsWith("http")){//如果有QRcode则显示
+                showQRcode(res.data.qrcodeUrl);
+            }else{//否则请求生成后显示
+
+            }
+        }
     });
+}
+
+//请求生成二维码
+function requestQRcode(broker) {
+    console.log("try to request QRCode.[broker]",broker);
+    util.AJAX(app.config.auth_api+"/wechat/ilife/qrcode?brokerId="+broker.id, function (res) {
+        console.log("Generate QRCode successfully.",res);
+        if (res.status) {
+            showQRcode(res.data.url);//显示二维码
+            //将二维码URL更新到borker
+            broker.qrcodeUrl = res.data.url;
+            updateBroker(broker);
+        }
+    });
+}
+
+//显示二维码
+function showQRcode(url) {
+    $("#qrcode").html('<img src="'+url+'" width="50px" alt="分享二维码邀请达人加入"/>');
 }
 
 //将person显示到页面
