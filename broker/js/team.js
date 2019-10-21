@@ -96,7 +96,7 @@ function loadPerson(personId) {
 //更新Broker
 function updateBroker(broker) {
     console.log("try to update broker.[broker]",broker);
-    util.AJAX(app.config.sx_api+"/a/mod/broker/rest/"+broker.id, function (res) {
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/"+broker.id, function (res) {
         console.log("update broker successfully.",res);
     },"PATCH");
 }
