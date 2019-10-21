@@ -184,7 +184,7 @@ function insertPerson(person){
 
 //显示达人后台入口
 function insertPerson(res){
-    $("#brokerLink").innerHtml('<a href="broker/team.html">进入达人后台</a>');
+    $("#brokerLink").html('<a href="broker/team.html">进入达人后台</a>');
 }
 
 //显示没有更多内容
