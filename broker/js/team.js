@@ -105,7 +105,8 @@ function loadBrokerByOpenid(openid) {
     console.log("try to load broker info by openid.[openid]",openid);
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
-        if (res.status) {//
+        if (res.status) {
+            insertBroker(res.data);//显示达人信息
             loadData();//加载下级达人列表
             if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
                 showQRcode(res.data.qrcodeUrl);
@@ -161,7 +162,7 @@ function insertPerson(person){
 }
 
 function insertBroker(broker){
-    $("#brokerHint").html("达人级别："+app.globalData.brokerInfo?app.globalData.brokerInfo.level:"分享达人");
+    $("#brokerHint").html("达人级别："+app.globalData.brokerInfo?broker.level:"分享达人");
 }
 
 //显示没有更多内容
