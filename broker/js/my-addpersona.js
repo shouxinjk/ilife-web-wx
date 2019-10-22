@@ -149,8 +149,12 @@ function insertItem(){
 
 //创建达人关注用户画像
 function createPersona(persona){
-    persona.broker = userInfo._key;//设置为用户特定类型
-    persona.parent = persona._key;//设置所有者为当前用户
+    var myPersona = {};
+    myPersona.broker = userInfo._key;//设置为用户特定类型
+    myPersona.parent = persona._key;//设置所有者为当前用户
+    myPersona.name = persona.name;
+    myPersona.description = persona.description;
+    myPersona.tags = persona.tags;
 
     var header={
         "Content-Type":"application/json",
@@ -159,7 +163,7 @@ function createPersona(persona){
     util.AJAX(app.config.data_api+"/_api/document/persona_personas?returnNew=true", function (res) {
         console.log("Broker::My Persona created.", res)
         window.location.href = "my-updatepersona.html?personaId="+res._key;//跳转到修改界面
-    }, "POST",persona,header);
+    }, "POST",myPersona,header);
 }
 
 //load person
