@@ -155,6 +155,7 @@ function createPersona(persona){
     myPersona.name = persona.name;
     myPersona.description = persona.description;
     myPersona.tags = persona.tags;
+    myPersona.image = persona.image;
 
     var header={
         "Content-Type":"application/json",

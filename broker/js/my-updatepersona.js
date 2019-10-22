@@ -80,9 +80,11 @@ function showPersona(persona){
     $("#personaTags").val(persona.tags.join(" "));
     //注册事件
     $("#submitBtn").click(function(){
-        //根据选中内容创建一个特定于当前broker的persona
         updatePersona();
     });
+    $("#deleteBtn").click(function(){
+        deletePersona();
+    });   
 
     // 表示加载结束
     loading = false;
@@ -108,6 +110,18 @@ function updatePersona(){
         console.log("Broker::My Persona updated.", res)
         window.location.href = "my.html";//跳转到设置页面
     }, "PATCH",persona,header);
+}
+
+//删用户画像
+function deletePersona(){
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+currentPersona._key, function (res) {
+        console.log("Broker::My Persona deleted.", res)
+        window.location.href = "my.html";//跳转到设置页面
+    }, "DELETE",{},header);
 }
 
 //load person
