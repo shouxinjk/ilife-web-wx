@@ -9,15 +9,7 @@ $(document).ready(function ()
     rootFontSize = rootFontSize >16 ? 16:rootFontSize;//最大为18px
     oHtml.style.fontSize = rootFontSize+ "px";   
 
-    //计算图片流宽度：根据屏幕宽度计算，最小显示2列
-    if(width < 2*columnWidth){//如果屏幕不能并排2列，则调整图片宽度
-        //columnWidth = (width-columnMargin*4)/2;//由于每一个图片左右均留白，故2列有4个留白
-    }
     var args = getQuery();//获取参数
-    $('#waterfall').NewWaterfall({
-        width: columnWidth,
-        delay: 100,
-    });
 
     //显示加载状态
     showloading(true);
@@ -25,6 +17,9 @@ $(document).ready(function ()
     var args = getQuery();//获取参数
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
+    }
+    if(args["personaId"]){
+        currentPersonaId = args["personaId"]; //设置需要修改的personaId
     }
 
     $("body").css("background-color","#fff");//更改body背景为白色
@@ -59,92 +54,56 @@ var tagging = '';//操作对应的action 如buy view like 等
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;
 var userInfo=app.globalData.userInfo;//默认为当前用户
 
-setInterval(function ()
-{
-    console.log("Timer Broker::MySettings start load personas.");
-    if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
-    {
-        console.log("Broker::MySettings start load personas.");
-        // 表示开始加载
-        loading = true;
-        showloading(true);
+var currentPersonaId = "none";
+var currentPersona = {};
 
-        // 加载内容
-        if(items.length < num){//如果内容未获取到本地则继续获取
-            loadItems();
-        }else{//否则使用本地内容填充
-            insertItem();
-        }
-    }
-}, 60);
-
-//加载特定于达人的画像列表
-function loadItems(){
-    var query={
-            collection: "persona_personas", 
-            example: { 
-                broker:userInfo.openId
-            },
-            skip:(page.current+1)*page.size,
-            limit:page.size
-        };   
+//加载Persona
+function loadPersona(personaId){
     var header={
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     }; 
-    util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
-        showloading(false);
-        console.log("Broker::My::loadItems try to retrive personas by broker id.", res)
-        if(res && res.count==0){//如果没有画像则提示，
-            shownomore();
-        }else{//否则显示到页面
-            //更新当前翻页
-            page.current = page.current + 1;
-            //装载具体条目
-            var hits = res.result;
-            for(var i = 0 ; i < hits.length ; i++){
-                items.push(hits[i]);
-            }
-            insertItem();
+    util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+personaId, function (res) {
+        console.log("Broker::My Loaded persona by id.", res)
+        if(res && res.count==0){
+            currentPersona = res;
+            showPersona(res);
         }
-    }, "PUT",query,header);
+    }, "GET",{},header);
 }
 
-//将item显示到页面
-function insertItem(){
-    // 加载内容
-    var item = items[num-1];
-
-    //计算文字高度：按照1倍行距计算
-    //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.image+"' width='100' height='100'/>"
-    var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
-    var tags = "<div class='itemTags'>";
-    var taggingList = item.tags;
-    for(var t in taggingList){
-        var txt = taggingList[t];
-        if(txt.trim().length>1 && txt.trim().length<6){
-            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
-        }
-    }
-    if(item.categoryId && item.categoryId.trim().length>1){
-        tags += tagTmpl.replace("__TAGGING",item.category).replace("__TAG",item.category);
-    }
-    tags += "</div>";
-    //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
-    var title = "<div class='title'>"+item.name+"</div>"
-    var description = "<div class='description'>"+item.description+"</div>"
-    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo'>" + image +"</div><div class='persona-tags'>" +title +description+ tags+ "</div></li>");
-    num++;
-
+//将默认信息填写到表单
+function showPersona(persona){
+    $("#personaTitle").val(persona.name);
+    $("#personaDesccription").val(persona.description);
+    $("#personaTags").val(persona.tags.join(" "));
     //注册事件
-    $("div[data='"+item._key+"']").click(function(){
-        //跳转到详情页
-        window.location.href = "my-updatepersona.html?personaId="+item._key;
+    $("#submitBtn").click(function(){
+        //根据选中内容创建一个特定于当前broker的persona
+        updatePersona();
     });
 
     // 表示加载结束
     loading = false;
+}
+
+//修改达人关注用户画像
+function updatePersona(){
+    currentPersona.name = $("#personaTitle").val();
+    currentPersona.description = $("#personaDescription").val();
+    var tags = $("#personaTags").val();
+    if(tags.trim().length>0){
+            currentPersona.tags = tags.trim().split(" ");
+    }
+
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    util.AJAX(app.config.data_api+"/_api/document/persona_personas", function (res) {
+        console.log("Broker::My Persona updated.", res)
+        window.location.href = "my.html";//跳转到设置页面
+    }, "PATCH",currentPersona,header);
 }
 
 //load person

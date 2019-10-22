@@ -83,7 +83,7 @@ function loadItems(){
     var query={
             collection: "persona_personas", 
             example: { 
-                broker:userInfo.openId
+                broker:"system"//查询系统提供的persona
             },
             skip:(page.current+1)*page.size,
             limit:page.size
@@ -139,12 +139,27 @@ function insertItem(){
 
     //注册事件
     $("div[data='"+item._key+"']").click(function(){
-        //跳转到详情页
-        window.location.href = "my-updatepersona.html?personaId="+item._key;
+        //根据选中内容创建一个特定于当前broker的persona
+        createPersona(item);
     });
 
     // 表示加载结束
     loading = false;
+}
+
+//创建达人关注用户画像
+function createPersona(persona){
+    persona.broker = userInfo._key;//设置为用户特定类型
+    persona.parent = persona._key;//设置所有者为当前用户
+
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    util.AJAX(app.config.data_api+"/_api/document/persona_personas?returnNew=true", function (res) {
+        console.log("Broker::My Persona created.", res)
+        window.location.href = "my-updatepersona.html?personaId="+res._key;//跳转到修改界面
+    }, "POST",persona,header);
 }
 
 //load person
