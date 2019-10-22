@@ -96,9 +96,9 @@ function loadPerson(personId) {
 //更新Broker
 function updateBroker(broker) {
     console.log("try to update broker.[broker]",broker);
-    util.AJAX(app.config.sx_api+"/mod/broker/rest/"+broker.id, function (res) {
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/bad-cors//"+broker.id, function (res) {
         console.log("update broker successfully.",res);
-    },"PATCH",broker,{ "Api-Key": "foobar" });
+    },"POST",broker,{ "Api-Key": "foobar" });
 }
 
 //根据openid查询加载broker
