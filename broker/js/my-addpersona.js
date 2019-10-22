@@ -61,7 +61,7 @@ var userInfo=app.globalData.userInfo;//默认为当前用户
 
 setInterval(function ()
 {
-    console.log("Timer Broker::MySettings start load personas.");
+    console.log("Timer Broker::MySettings start load personas Timer.");
     if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
     {
         console.log("Broker::MySettings start load personas.");

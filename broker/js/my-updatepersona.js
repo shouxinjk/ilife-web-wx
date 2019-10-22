@@ -12,7 +12,7 @@ $(document).ready(function ()
     var args = getQuery();//获取参数
 
     //显示加载状态
-    showloading(true);
+    //showloading(true);
     //处理参数
     var args = getQuery();//获取参数
     if(args["id"]){
@@ -25,6 +25,7 @@ $(document).ready(function ()
     $("body").css("background-color","#fff");//更改body背景为白色
 
     loadPerson(currentPerson);//加载用户
+    loadPersona(currentPersonaId);//加载待修改Persona
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
@@ -74,7 +75,7 @@ function loadPersona(personaId){
 
 //将默认信息填写到表单
 function showPersona(persona){
-    $("#personaTitle").val(persona.name);
+    $("#personaName").val(persona.name);
     $("#personaDesccription").val(persona.description);
     $("#personaTags").val(persona.tags.join(" "));
     //注册事件
@@ -89,7 +90,7 @@ function showPersona(persona){
 
 //修改达人关注用户画像
 function updatePersona(){
-    currentPersona.name = $("#personaTitle").val();
+    currentPersona.name = $("#personaName").val();
     currentPersona.description = $("#personaDescription").val();
     var tags = $("#personaTags").val();
     if(tags.trim().length>0){

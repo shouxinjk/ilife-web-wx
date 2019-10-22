@@ -58,13 +58,19 @@
 
     <div id="Center">
         <div>
-            <label for="title">标题</label>
-            <input type="text" name="title" id="personaTitle"/>
-            <label for="description">描述</label>
-            <input type="text" name="description" id="personaDescription"/>
-            <label for="tags">标签</label>
-            <input type="text" name="tags" id="personaTags"/>
-            <input type="button" name="submit" id="submitBtn"/>
+            <div class="form-group">
+              <label for="personaName">名称:</label>
+              <input type="text" class="form-control" id="personaName">
+            </div>
+            <div class="form-group">
+              <label for="personaDescription">描述:</label>
+              <textarea class="form-control" rows="5" id="personaDescription"></textarea>
+            </div>     
+            <div class="form-group">
+              <label for="personaTags">标签:</label>
+              <textarea class="form-control" rows="5" id="personaTags"></textarea>
+            </div>    
+            <button type="submit" class="btn btn-default" id="submitBtn">提交</button>
         </div>
     </div>
 
