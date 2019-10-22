@@ -98,7 +98,7 @@ function updateBroker(broker) {
     console.log("try to update broker.[broker]",broker);
     util.AJAX(app.config.sx_api+"/mod/broker/rest/"+broker.id, function (res) {
         console.log("update broker successfully.",res);
-    },"POST",broker,{ "Api-Key": "foobar" });
+    },"PATCH",broker,{ "Api-Key": "foobar" });
 }
 
 //根据openid查询加载broker
