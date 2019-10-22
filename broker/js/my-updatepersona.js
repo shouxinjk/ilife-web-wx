@@ -107,7 +107,7 @@ function updatePersona(){
     util.AJAX(app.config.data_api+"/_api/document/persona_personas", function (res) {
         console.log("Broker::My Persona updated.", res)
         window.location.href = "my.html";//跳转到设置页面
-    }, "PATCH",currentPersona,header);
+    }, "PATCH",persona,header);
 }
 
 //load person
