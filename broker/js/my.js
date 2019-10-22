@@ -82,7 +82,7 @@ function loadItems(){
     var query={
             collection: "persona_personas", 
             example: { 
-                broker:"o8HmJ1EdIUR8iZRwaq1T7D_nPIYc"//userinfo.openId
+                broker:userinfo.openId
             },
             skip:(page.current+1)*page.size,
             limit:page.size
