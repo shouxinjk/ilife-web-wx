@@ -156,13 +156,13 @@ function insertPerson(person){
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
     html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    html += '<div class="info-text info-blank" id="brokerLink">返回用户后台</div>';
+    html += '<div class="info-text info-blank" id="brokerLink"><a href="../user.html">返回用户后台</a></div>';
     html += '</div>';
     $("#user").append(html);
 }
 
 function insertBroker(broker){
-    $("#brokerHint").html("达人级别："+app.globalData.brokerInfo?broker.level:"分享达人");
+    $("#brokerHint").html("达人级别："+broker.level);
 }
 
 //显示没有更多内容
