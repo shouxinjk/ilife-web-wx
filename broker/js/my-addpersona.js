@@ -62,7 +62,7 @@ var userInfo=app.globalData.userInfo;//默认为当前用户
 setInterval(function ()
 {
     console.log("Timer Broker::MySettings start load personas Timer.");
-    if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist)// && !loading)
+    if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
     {
         console.log("Broker::MySettings start load personas.");
         // 表示开始加载
@@ -76,7 +76,7 @@ setInterval(function ()
             insertItem();
         }
     }
-}, 60);
+}, 300);
 
 //加载特定于达人的画像列表
 function loadItems(){

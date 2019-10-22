@@ -90,11 +90,14 @@ function showPersona(persona){
 
 //修改达人关注用户画像
 function updatePersona(){
-    currentPersona.name = $("#personaName").val();
-    currentPersona.description = $("#personaDescription").val();
+    var persona = {};
+    persona.name = $("#personaName").val().trim().length>0?$("#personaName").val().trim():currentPersona.name;
+    persona.description = $("#personaDescription").val().trim().length>0?$("#personaDescription").val():currentPersona.description;
     var tags = $("#personaTags").val();
     if(tags.trim().length>0){
-            currentPersona.tags = tags.trim().split(" ");
+        persona.tags = tags.trim().split(" ");
+    }else{
+        persona.tags = currentPersona.tags;
     }
 
     var header={
