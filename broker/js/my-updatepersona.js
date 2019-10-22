@@ -66,7 +66,7 @@ function loadPersona(personaId){
     }; 
     util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+personaId, function (res) {
         console.log("Broker::My Loaded persona by id.", res)
-        if(res && res.count==0){
+        if(res){
             currentPersona = res;
             showPersona(res);
         }
