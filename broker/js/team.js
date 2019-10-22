@@ -1,7 +1,7 @@
 // 文档加载完毕后执行
 $(document).ready(function ()
 {
-        //根据屏幕大小计算字体大小
+    //根据屏幕大小计算字体大小
     const oHtml = document.getElementsByTagName('html')[0]
     const width = oHtml.clientWidth;
     var rootFontSize = 12 * (width / 1440);// 在1440px的屏幕基准像素为12px
@@ -19,7 +19,6 @@ $(document).ready(function ()
     $("body").css("background-color","#fff");//更改body背景为白色
 
     loadPerson(currentPerson);//加载用户
-    //loadData();//获取所有下级达人列表：注意需要在当前达人加载完成后再加载
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
@@ -38,7 +37,7 @@ var tagging = '';//操作对应的action 如buy view like 等
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;
 var userInfo=app.globalData.userInfo;//默认为当前用户
 
-//load brokers
+//加载下级达人列表
 function loadData() {
     console.log("Team::loadData", currentPerson);
 
@@ -155,9 +154,14 @@ function insertPerson(person){
     html += '</div>';
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
-    html += '<div class="info-text info-blank">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
+    html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
+    html += '<div class="info-text info-blank" id="brokerLink">返回用户后台</div>';
     html += '</div>';
     $("#user").append(html);
+}
+
+function insertBroker(broker){
+    $("#brokerHint").html("达人级别："+app.globalData.brokerInfo?app.globalData.brokerInfo.level:"分享达人");
 }
 
 //显示没有更多内容
@@ -207,5 +211,8 @@ function changeActionType (e) {
         $("#"+currentActionType+" div").removeClass("actiontype");
         $("#"+currentActionType+" div").addClass("actiontype-selected");  
     } 
-  }
+
+    //跳转到相应页面
+    window.location.href = currentActionType+".html";
+}
 

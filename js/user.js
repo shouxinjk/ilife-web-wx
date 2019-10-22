@@ -174,6 +174,7 @@ function insertPerson(person){
     html += '</div>';
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
+    html += '<div class="info-text info-blank">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
     html += '<div class="info-text info-blank" id="brokerLink">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
     html += '</div>';
     $("#user").append(html);
