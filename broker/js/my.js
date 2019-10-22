@@ -61,8 +61,10 @@ var userInfo=app.globalData.userInfo;//默认为当前用户
 
 setInterval(function ()
 {
+    console.log("Timer Broker::MySettings start load personas.");
     if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
     {
+        console.log("Broker::MySettings start load personas.");
         // 表示开始加载
         loading = true;
 
@@ -80,7 +82,7 @@ function loadItems(){
     var query={
             collection: "persona_personas", 
             example: { 
-                broker:userinfo.openId
+                broker:"o8HmJ1EdIUR8iZRwaq1T7D_nPIYc" //userinfo.openId
             },
             skip:(page.current+1)*page.size,
             limit:page.size
@@ -177,7 +179,7 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {
             insertBroker(res.data);//显示达人信息
-            loadData();//加载下级达人列表
+            //loadData();//加载下级达人列表
             if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
                 showQRcode(res.data.qrcodeUrl);
             }else{//否则请求生成后显示
