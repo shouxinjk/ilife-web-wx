@@ -76,7 +76,7 @@ function loadPersona(personaId){
 //将默认信息填写到表单
 function showPersona(persona){
     $("#personaName").val(persona.name);
-    $("#personaDesccription").val(persona.description);
+    $("#personaDescription").val(persona.description);
     $("#personaTags").val(persona.tags.join(" "));
     //注册事件
     $("#submitBtn").click(function(){
