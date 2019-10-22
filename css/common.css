@@ -10,6 +10,13 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
     font-family: "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;   
     line-height: 1;
 }
+.tips{
+    margin-top:10px;
+    margin-bottom: 10px;
+    font-size:12px;
+    text-align: center;
+}
+
 body {
     color: rgba(0, 0, 0, 0.6);
     overflow-x: hidden;   

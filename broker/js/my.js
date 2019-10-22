@@ -40,7 +40,7 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
-var columnWidth = 600;//默认宽度600px
+var columnWidth = 800;//默认宽度600px
 var columnMargin = 5;//默认留白5px
 var loading = false;
 var dist = 500;
@@ -82,7 +82,7 @@ function loadItems(){
     var query={
             collection: "persona_personas", 
             example: { 
-                broker:"o8HmJ1EdIUR8iZRwaq1T7D_nPIYc" //userinfo.openId
+                broker:"o8HmJ1EdIUR8iZRwaq1T7D_nPIYc"//userinfo.openId
             },
             skip:(page.current+1)*page.size,
             limit:page.size
@@ -94,7 +94,7 @@ function loadItems(){
     util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
         console.log("Broker::My::loadItems try to retrive personas by broker id.", res)
         if(res && res.count==0){//如果没有画像则提示，
-            showNoMoreMsg();
+            shownomore();
         }else{//否则显示到页面
             //更新当前翻页
             page.current = page.current + 1;
@@ -112,17 +112,10 @@ function loadItems(){
 function insertItem(){
     // 加载内容
     var item = items[num-1];
-    var imgWidth = columnWidth-2*columnMargin;//注意：改尺寸需要根据宽度及留白计算，例如宽度为360，左右留白5，故宽度为350
-    var imgHeight = random(50, 300);//随机指定初始值
-    //计算图片高度
-    var img = new Image();
-    img.src = item.images?item.images:"https://www.biglistoflittlethings.com/list/images/logo00.jpeg";
-    var orgWidth = img.width;
-    var orgHeight = img.height;
-    imgHeight = orgHeight/orgWidth*imgWidth;
+
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.images+"' width='120' height='120'/>"
+    var image = "<img src='"+item.image+"' width='120' height='120'/>"
     var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
     var tags = "<div class='itemTags'>";
     var taggingList = item.tags;
@@ -137,8 +130,9 @@ function insertItem(){
     }
     tags += "</div>";
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
-    var title = "<div class='title'>"+item.title+"</div>"
-    $("#waterfall").append("<li><div data='"+item._key+"'><div>" + image +"</div><div>" +title+ tags+ "</div></li>");
+    var title = "<div class='title'>"+item.name+"</div>"
+    var description = "<div class='description'>"+item.description+"</div>"
+    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo'>" + image +"</div><div class='persona-tags'>" +title +description+ tags+ "</div></li>");
     num++;
 
     //注册事件
