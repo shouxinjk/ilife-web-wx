@@ -49,13 +49,13 @@ var newBroker = {
 };
 
 
-//更新Broker
+//注册Broker
 function registerBroker() {
     newBroker.name = $("#brokerName").val().trim();
     newBroker.phone = $("#brokerPhone").val().trim();
 
     console.log("try to register new broker.[broker]",newBroker);
-    util.AJAX(app.config.sx_api+"/mod/broker/rest/"+broker.id, function (res) {
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/"+parentBrokerId, function (res) {
         console.log("register broker successfully.",res);
         //发送通知给上级达人
         sendNotification();
