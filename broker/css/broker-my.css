@@ -32,3 +32,33 @@
   width:75%;
   margin:10px auto;
 }
+
+.persona-form label{
+  font-size: 12px;
+}
+
+.persona-form input{
+  font-size: 12px;
+}
+
+.persona-form textarea{
+  font-size: 12px;
+}
+
+.persona-form button{
+  font-size: 12px;
+}
+
+#submitBtn{
+  background-color: green;
+  border:1px solid green;
+  border-radius: 5px;
+  color: white;
+}
+
+#deleteBtn{
+  background-color: red;
+  border:1px solid red;
+  border-radius: 5px;
+  color: white;
+}
