@@ -71,7 +71,7 @@ function sendNotification() {
     };
 
     console.log("try to register new broker.[broker]",newBroker);
-    util.AJAX(app.config.sx_api+"/wechat/ilife/notify", function (res) {
+    util.AJAX(app.config.auth_api+"/wechat/ilife/notify", function (res) {
         console.log("Notification message sent successfully.",res);
         window.location.href="../index.html";//注册完成后跳到首页
     },"POST",msg,{ "Content-Type":"application/json" });
