@@ -1,0 +1,64 @@
+
+.money-all{
+  text-align: center;
+  color: red;
+  width:100%;
+  font-size:20px;
+  font-weight: bold;
+  margin-bottom:10px;
+}
+
+.amount-larger{
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.money-all-text{
+  text-align: center;
+  color: grey;
+  width:100%;
+  font-size:12px;
+  margin-bottom:10px;
+}
+
+.money-table{
+  width:60%;
+  display:table;
+  margin: 5px auto;
+  border:1px solid silver;
+  margin-bottom: 0;
+}
+
+.money-table-cont{
+  width:60%;
+  display:table;
+  margin: 5px auto;
+  border:1px solid silver;
+  border-top: 0;
+  margin-top:0; 
+}
+
+.money-column{
+  width:50%;
+  display:table-cell;
+  text-align: center;  
+  vertical-align: middle;
+}
+
+.money-cell{
+  text-align: center;
+  border-left: 1px solid silver;
+  line-height: 30px;
+}
+.money-cell-border{
+  text-align: center;
+  border: 1px solid silver;
+  line-height: 30px;
+  border-right: 0;
+}
+
+.money-cell-tips{
+  text-align: left;
+  border-left: 1px solid silver;
+  line-height: 24px;
+}

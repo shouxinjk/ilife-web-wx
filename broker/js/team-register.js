@@ -44,6 +44,7 @@ var newBroker = {
     name: "",
     phone: "",
     hierarchy: "3",
+    level: "推广达人",
     status: "active",
     upgrade: "无"
 };
