@@ -31,7 +31,7 @@ $(document).ready(function ()
 
     //注册事件
     $("#submitBtn").click(function(){
-        updateBroker();
+        registerBroker();
     });
 
 });
