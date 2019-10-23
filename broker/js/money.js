@@ -98,7 +98,7 @@ function getMoney(brokerId) {
 function showMoney(money){
     $("#amountTotal").html("￥"+money.clearingAmount);
     $("#amountSettlement").html("￥"+money.settlementAmount);
-    $("#amountPayable").html("可提现：￥"+(money.settlementAmount-money.lockedAmount-money.paymentAmount);
+    $("#amountPayable").html("可提现：￥"+(money.settlementAmount-money.lockedAmount-money.paymentAmount));
     $("#amountPayment").html("已提现：￥"+money.paymentAmount);
     $("#amountLocked").html("已锁定：￥"+money.lockedAmount);
     $("#amountPending").html("￥"+(money.clearingAmount-money.settlementAmount));

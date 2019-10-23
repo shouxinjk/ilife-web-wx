@@ -22,7 +22,7 @@
 }
 
 .money-table{
-  width:60%;
+  width:80%;
   display:table;
   margin: 5px auto;
   border:1px solid silver;
@@ -30,7 +30,7 @@
 }
 
 .money-table-cont{
-  width:60%;
+  width:80%;
   display:table;
   margin: 5px auto;
   border:1px solid silver;
@@ -38,8 +38,15 @@
   margin-top:0; 
 }
 
-.money-column{
-  width:50%;
+.money-column-left{
+  width:35%;
+  display:table-cell;
+  text-align: center;  
+  vertical-align: middle;
+}
+
+.money-column-right{
+  width:65%;
   display:table-cell;
   text-align: center;  
   vertical-align: middle;
@@ -61,4 +68,5 @@
   text-align: left;
   border-left: 1px solid silver;
   line-height: 24px;
+  padding-left:10px;
 }
