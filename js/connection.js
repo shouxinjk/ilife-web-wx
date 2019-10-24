@@ -88,7 +88,7 @@ function loadItems(){
     }; 
     util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
         showloading(false);
-        console.log("Connections::loadItems try to retrive connections by broker id.", res)
+        console.log("Connections::loadItems try to retrive connections by presonId.", res)
         if(res && res.count==0){//如果没有画像则提示，
             shownomore();
         }else{//否则显示到页面
@@ -97,7 +97,8 @@ function loadItems(){
             //装载具体条目
             var hits = res.result;
             for(var i = 0 ; i < hits.length ; i++){
-                getItem(hits[i]._to,hits[i].name);//加载用户对象
+                var personId = hits[i]._to.split("/")[0];//原始handler形式为：user_users/o8HmJ1JeYicv-JFGPyHvicLO6QQ8
+                getItem(personId,hits[i].name);//加载用户对象
             }
             insertItem();
         }
