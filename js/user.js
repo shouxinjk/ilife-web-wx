@@ -1,13 +1,24 @@
 // 文档加载完毕后执行
 $(document).ready(function ()
 {
-        //根据屏幕大小计算字体大小
+    //根据屏幕大小计算字体大小
     const oHtml = document.getElementsByTagName('html')[0]
     const width = oHtml.clientWidth;
     var rootFontSize = 12 * (width / 1440);// 在1440px的屏幕基准像素为12px
     rootFontSize = rootFontSize <8 ? 8:rootFontSize;//最小为8px
     rootFontSize = rootFontSize >16 ? 16:rootFontSize;//最大为18px
     oHtml.style.fontSize = rootFontSize+ "px";   
+
+    //计算图片流宽度：根据屏幕宽度计算，最小显示2列
+    if(width < 2*columnWidth){//如果屏幕不能并排2列，则调整图片宽度
+        //columnWidth = (width-columnMargin*4)/2;//由于每一个图片左右均留白，故2列有4个留白
+    }
+    var args = getQuery();//获取参数
+    $('#waterfall').NewWaterfall({
+        width: columnWidth,
+        delay: 100,
+    });
+
     //显示加载状态
     showloading(true);
     //处理参数
@@ -15,14 +26,11 @@ $(document).ready(function ()
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
-    $('#waterfall').NewWaterfall({
-        width: width-20,
-        delay: 100,
-    });
+
     $("body").css("background-color","#fff");//更改body背景为白色
 
     loadPerson(currentPerson);//加载用户
-    //loadData();//加载数据：默认使用当前用户查询
+    loadSelectedPersonas();//加载当前用户选中的画像列表
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
@@ -33,15 +41,20 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
+var columnWidth = 800;//默认宽度600px
+var columnMargin = 5;//默认留白5px
 var loading = false;
-var dist = 50;
+var dist = 500;
 var num = 1;//需要加载的内容下标
 
-var items = [];
-var page = {//翻页控制
-  size: 20,//每页条数
-  total: 1,//总页数
-  current: -1//当前翻页
+var items = [];//所有画像列表
+var selectedPersonas = [];//已经选中的列表
+var selectedPersonaIds = [];//已经选中的列表,仅存储ID，便于比对使用
+
+var page = {
+    size:20,//每页条数
+    total:1,//总页数
+    current:-1//当前翻页
 };
 
 var currentActionType = '';//当前操作类型
@@ -52,120 +65,248 @@ var userInfo=app.globalData.userInfo;//默认为当前用户
 
 setInterval(function ()
 {
-    //console.log("interval",$(window).scrollTop(),$(document).height(),$(window).height(),$(document).height() - $(window).height() - dist);
+    console.log("Timer Broker::MySettings start load personas Timer.");
     if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
     {
+        console.log("Broker::MySettings start load personas.");
         // 表示开始加载
         loading = true;
+        showloading(true);
 
         // 加载内容
         if(items.length < num){//如果内容未获取到本地则继续获取
-            //console.log("load from remote ");
-            loadData();
+            loadPersonas();
         }else{//否则使用本地内容填充
-            //console.log("load from locale ");
-            insertItem();
+            insertPersona();
         }
     }
-}, 60);
+}, 300);
 
-//load feeds
-function loadData() {
-    console.log("User::loadData", currentPerson);
-    //设置query
-    var esQuery = {//搜索控制
-      from: (page.current + 1) * page.size,
-      size: page.size,
-      query: {
-        bool: {
-          must: [
-            {
-              "match": {
-                "userId": currentPerson
-              }
+//加载系统提供的默认画像列表：是全部列表
+function loadPersonas(){
+    var query={
+            collection: "persona_personas", 
+            example: { 
+                broker:"system"//查询系统提供的persona
+            },
+            skip:(page.current+1)*page.size,
+            limit:page.size
+        };   
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
+        showloading(false);
+        console.log("Broker::My::loadPersonas try to retrive personas by broker id.", res)
+        if(res && res.count==0){//如果没有画像则提示，
+            shownomore();
+        }else{//否则显示到页面
+            //更新当前翻页
+            page.current = page.current + 1;
+            //装载具体条目
+            var hits = res.result;
+            for(var i = 0 ; i < hits.length ; i++){
+                items.push(hits[i]);
             }
-          ]
+            insertPersona();
         }
-      },
-      collapse: {
-        field: "itemId"//根据itemId 折叠，即：一个item仅显示一次
-      },
-      sort: [
-        { "weight": { order: "desc" } },//权重高的优先显示
-        { "@timestamp": { order: "desc" } },//最近操作的优先显示
-        { "_score": { order: "desc" } }//匹配高的优先显示
-      ]
-    };
+    }, "PUT",query,header);
+}
 
-    if (tagging && tagging.length > 0) {//如果设置了操作类型，如种草、拔草、养草，则设置过滤条件
-      esQuery.query.bool.must.push({
-        "match": {
-          "action": tagging
+//加载当前用户已经选中的Persona：是部分列表
+function loadSelectedPersonas(){
+    var query={
+            collection: "user_persona", 
+            example: { 
+                _from:userInfo._key//查询当前用户关联的persona
+            },
+            limit:100
+        };   
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
+        showloading(false);
+        console.log("Broker::My::loadSelectedPersonas try to retrive personas by user id.", res)
+        if(res && res.count==0){//如果没有画像则提示，
+            shownomore();
+        }else{//否则根据列表修改选中状态
+            var hits = res.result;
+            for(var i = 0 ; i < hits.length ; i++){
+                showPersona(hits[i]);//将persona加入已选列表，并且更改选中风格
+            }
         }
-      });
+    }, "PUT",query,header);
+}
+
+function changePersonaStyle(personaId){
+    if(selectedPersonas.indexOf(personaId)>-1){//如果已选中
+        $("#img"+personaId).toggleClass("persona-logo",false);
+        $("#img"+personaId).toggleClass("persona-logo-selected",true);
+    }else{
+        $("#img"+personaId).toggleClass("persona-logo",true);
+        $("#img"+personaId).toggleClass("persona-logo-selected",false);    
     }
 
-    //设置请求头
-    var esHeader = {
-      "Content-Type": "application/json",
-      "Authorization": "Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
-    };
+    //$("#"+currentActionType+" div").removeClass("actiontype");
+    //$("#"+currentActionType+" div").addClass("actiontype-selected");  
+}
 
-    $.ajax({
-        url:app.config.search_api+"/actions/_search",
-        type:"post",
-        data:JSON.stringify(esQuery),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
-        headers:{
-            "Content-Type":"application/json",
-            "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
-        },
-        crossDomain: true,
-        success:function(data){
-            console.log("User::loadData success.",data);
-            if(data.hits.hits.length==0){//如果没有内容，则显示提示文字
-                shownomore(true);
-                showloading(false);
-            }else{
-                //更新总页数
-                var total = data.hits.total;
-                page.total = (total + page.size - 1) / page.size;
-                //更新当前翻页
-                page.current = page.current + 1;
-                //装载具体条目
-                var hits = data.hits.hits;
-                for(var i = 0 ; i < hits.length ; i++){
-                    items.push(hits[i]._source.item);
-                }
-                insertItem();
-                showloading(false);
-            }
+function showPersona(persona){//将已选中Persona添加到页面并显示
+    selectedPersonas.push(persona);//装载到已选persona列表
+    selectedPersonaIds.push(persona._key);//装载到已选personaId列表
+    changePersonaStyle(personaId);//更改界面选中风格
+}
+
+function hidePersona(personaId){
+    //从选中列表内删除
+    for(var i=0; i<selectedPersonaIds.length; i++) {
+        if(selectedPersonaIds[i] == personaId) {
+            selectedPersonaIds.splice(i, 1);
+            break;
         }
+    }    
+    changePersonaStyle(personaId);//更改界面选中风格    
+}
+
+function removePersona(personaId){//用户选择删除一个Persona
+    //从选中列表内找到对应的Connection
+    var connKey = "";
+    for(var i=0; i<selectedPersonas.length; i++) {
+        if(selectedPersonas[i]._to.indexOf(personaId)>0) {
+            connKey = selectedPersonas[i]._key;
+            selectedPersonas.splice(i, 1);//删除Persona
+            break;
+        }
+    }      
+    //将对应的connection删除
+    util.AJAX(app.config.data_api+"/_api/document/user_persona/"+connKey, function (res) {
+        console.log("User:removePersona try to remove  connected persona.", res)
+        hidePersona(personaId);//不再显示选中状态
+    }, "DELETE",{},header);
+}
+
+function addPersona(personaId){//用户选择增加一个Persona
+    //提交并建立新的connection
+    var conn={
+        _from:"user_users/"+userInfo._key,
+        _to:"persona_personas/"+personaId
+    }
+    util.AJAX(app.config.data_api+"/_api/document/user_persona?returnNew=true", function (res) {
+        console.log("User:addPersona try to add connected persona.", res)
+        showPersona(res.new);//显示选中状态
+    }, "POST",conn,header);
+}
+
+//将persona显示到页面
+function insertPersona(){
+    // 加载内容
+    var item = items[num-1];
+
+    //计算文字高度：按照1倍行距计算
+    //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
+    var image = "<img src='"+item.image+"' width='100' height='100'/>"
+    var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
+    var tags = "<div class='itemTags'>";
+    var taggingList = item.tags;
+    for(var t in taggingList){
+        var txt = taggingList[t];
+        if(txt.trim().length>1 && txt.trim().length<6){
+            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
+        }
+    }
+    if(item.categoryId && item.categoryId.trim().length>1){
+        tags += tagTmpl.replace("__TAGGING",item.category).replace("__TAG",item.category);
+    }
+    tags += "</div>";
+    //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
+    var title = "<div class='title'>"+item.name+"</div>"
+    var description = "<div class='description'>"+item.description+"</div>"
+    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div id='img"+item._key+"' class='persona-logo'>" + image +"</div><div class='persona-tags'>" +title +description+ tags+ "</div></li>");
+    num++;
+
+    //检查选中状态
+    changePersonaStyle(item._key);
+
+    //注册事件
+    $("div[data='"+item._key+"']").click(function(){
+        //点击后选中，再次点击取消选中
+        changePersona(item);
     });
-  }
 
-//load related persons
+    // 表示加载结束
+    loading = false;
+}
+
+//创建达人关注用户画像
+function changePersona(persona){
+    //检查当前item的状态，如果已经选中则删除，否则添加
+    if(selectedPersonaIds.indexOf(persona._key)>-1){
+        removePersona(persona._key);
+    }else{
+        addPersona(persona);
+    }
+}
+
+//load person
 function loadPerson(personId) {
     console.log("try to load person info.",personId);
     util.AJAX(app.config.data_api+"/user/users/"+personId, function (res) {
         console.log("load person info.",personId,res);
         userInfo = res;
         currentPerson = res._key;
-        insertPerson(userInfo);
-        loadData();
+        insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
+        //loadData();
+        loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
 }
 
-//将person显示到页面
-/*
-        <view class="info-general">
-          <image class="general-icon" src="{{userInfo.avatarUrl}}" catchtap="navigateTo" data-url="{{userInfo._key}}"></image>
-        </view>
-        <view class="info-detail">
-          <progress percent="80" stroke-width="12" active/>
-          <view class="info-text info-blank">{{userInfo.nickName}}</view>
-          <view class="info-text info-blank">{{userInfo.city?userInfo.city:""}}</view>
-        </view>
-*/
+//更新Broker
+function updateBroker(broker) {
+    console.log("try to update broker.[broker]",broker);
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/"+broker.id, function (res) {
+        console.log("update broker successfully.",res);
+    },"PUT",broker,{ "Content-Type":"application/json" });
+}
+
+//根据openid查询加载broker
+function loadBrokerByOpenid(openid) {
+    console.log("try to load broker info by openid.[openid]",openid);
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
+        console.log("load broker info.",openid,res);
+        if (res.status) {
+            insertBroker(res.data);//显示达人信息
+            //loadData();//加载下级达人列表
+            if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
+                showQRcode(res.data.qrcodeUrl);
+            }else{//否则请求生成后显示
+                requestQRcode(res.data);
+            }
+        }
+    });
+}
+
+//请求生成二维码
+function requestQRcode(broker) {
+    console.log("try to request QRCode.[broker]",broker);
+    util.AJAX(app.config.auth_api+"/wechat/ilife/qrcode?brokerId="+broker.id, function (res) {
+        console.log("Generate QRCode successfully.",res);
+        if (res.status) {
+            showQRcode(res.data.url);//显示二维码
+            //将二维码URL更新到borker
+            broker.qrcodeUrl = res.data.url;
+            updateBroker(broker);
+        }
+    });
+}
+
+//显示二维码
+function showQRcode(url) {
+    $("#qrcode").html('<img src="'+url+'" width="200px" alt="分享二维码邀请达人加入"/>');
+}
+
 function insertPerson(person){
     // 显示HTML
     var html = '';
@@ -174,18 +315,14 @@ function insertPerson(person){
     html += '</div>';
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
-    html += '<div class="info-text info-blank">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    html += '<div class="info-text info-blank" id="brokerLink">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
+    html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
+    html += '<div class="info-text info-blank" id="brokerLink"><a href="../user.html">返回用户后台</a></div>';
     html += '</div>';
     $("#user").append(html);
-
-    //检查是否是达人
-    util.checkBroker(userInfo._key, insertBroker);
 }
 
-//显示达人后台入口
-function insertBroker(res){
-    $("#brokerLink").html('<a href="broker/team.html">进入达人后台</a>');
+function insertBroker(broker){
+    $("#brokerHint").html("达人级别："+broker.level);
 }
 
 //显示没有更多内容
@@ -210,85 +347,6 @@ function showloading(flag){
   }
 }
 
-//将item显示到页面
-function insertItem(){
-    var item = items[num-1];//从本地取一条item
-    console.log("User::insertItem add item to html.",num,item);
-    var html = '';
-    html += '<li><div class="WxMasonry">';
-    html += '<div id="item'+item._key+'">';
-    html += htmlItemImage(item);
-    html += htmlItemSummary(item);
-    html += htmlItemTags(item);
-    html += '</div>';
-    html += '</div></li>';
-    $("#waterfall").append(html);
-
-    //注册事件
-    $("#item"+item._key).click(function(){
-        //跳转到详情页
-        window.location.href = "info2.html?id="+item._key;
-    });
-    // 表示加载结束
-    showloading(false);
-    loading = false;    
-    num++;
-}
-
-function htmlItemImage(item){
-    var html = '';
-    html += '<div class="mainbody">';
-    html += '<img class="WxMasonryImage" id="'+item._key+'" src="'+item.images[0]+'" width="100%" height="200px" />';
-    html += '</div>';
-    return html;
-}
-
-function htmlItemSummary(item){
-    var html = '';
-    html += '<div class="shopping">';
-    html += '<div class="shopping-summary">';
-    if(item.source.length>0){
-        html += '<img class="shopping-icon" class="shopping-icon" src="http://www.shouxinjk.net/list/images/source/'+item.source+'.png"/>';
-    }
-    if(item.distributor.name.length>0){
-        html += '<text class="box-title">'+item.distributor.name+'</text>';
-    }
-    html += '</div>';
-    html += '<div class="likes">';
-    if(item.price.currency){
-        html += '<text class="currency">'+item.price.currency+'</text>';
-    }else{
-        html += '<text class="currency">¥</text>';
-    }
-    html += '<text class="price-sale">'+item.price.sale+'</text>';
-    if(item.price.bid){
-        html += '<text class="price-bid">/</text>';
-        html += '<text class="price-bid">'+item.price.bid+'</text>';
-    }
-    html += '</div>';
-    html += '</div> ';
-    return html;
-}
-
-function htmlItemTags(item){
-    var html = '';
-    html += '<div class="list-box">';
-    html += '<div class="main-item">';
-    html += '<div class="list-box-title">'+item.title+'</div>';
-    if(item.tags.length>0){
-        html += '<div class="tags">';
-        for(var i=0;i<item.tags.length;i++){
-            if(item.tags[i].trim().length>0){
-                html += '<div class="tag-text">#'+item.tags[i]+'</div>';
-            }
-        }
-        html += '</div>';
-    }
-    html += '</div>';
-    html += '</div>';
-    return html;
-}
-
 function changeActionType (e) {
     console.log("now try to change action type.",e);
     //首先清除原来高亮状态
@@ -306,14 +364,8 @@ function changeActionType (e) {
         $("#"+currentActionType+" div").removeClass("actiontype");
         $("#"+currentActionType+" div").addClass("actiontype-selected");  
     } 
-    //更新内容列表
-    $("#waterfall").empty();//清空原有列表
-    $("#waterfall").css("height","20px");//调整瀑布流高度
-    showloading(true);//显示加载状态
 
-    page.current = -1;//从第一页开始查看
-    items = [];//清空列表
-    num=1;//从第一条开始显示
-    loadData();//重新加载数据
-  }
+    //跳转到相应页面
+    window.location.href = currentActionType+".html";
+}
 
