@@ -112,7 +112,7 @@ function getItem(personId,connName) {
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     };     
-    util.AJAX(app.config.data_api+"/_api/document/user_users/"+personId, function (res) {
+    util.AJAX(app.config.data_api+"/user/users/"+personId, function (res) {
         console.log("load person info.",personId,res);
         if(res){
             items.push(res);
