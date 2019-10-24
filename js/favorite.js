@@ -152,6 +152,7 @@ function loadPerson(personId) {
         currentPerson = res._key;
         insertPerson(userInfo);
         loadData();
+        loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
 }
 
@@ -174,21 +175,30 @@ function insertPerson(person){
     html += '</div>';
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
-    if(util.hasBrokerInfo()){//如果是达人，则显示达人后台入口
-        html += '<div class="info-text info-blank"><a href="broker/money.html">进入达人后台</a></div>';
-    }else{
-        html += '<div class="info-text info-blank">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    }
+    html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
+    html += '<div class="info-text info-blank" id="brokerLink"></div>';
     html += '</div>';
     $("#user").append(html);
 
     //检查是否是达人
-    util.checkBroker(userInfo._key, insertBroker);
+    //util.checkBroker(userInfo._key, insertBroker);
+}
+
+//根据openid查询加载broker
+function loadBrokerByOpenid(openid) {
+    console.log("try to load broker info by openid.[openid]",openid);
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
+        console.log("load broker info.",openid,res);
+        if (res.status) {
+            insertBroker(res.data);//显示达人信息
+        }
+    });
 }
 
 //显示达人后台入口
-function insertBroker(res){
+function insertBroker(broker){
     $("#brokerLink").html('<a href="broker/team.html">进入达人后台</a>');
+    $("#brokerHint").html("达人级别："+broker.level);
 }
 
 //显示没有更多内容
