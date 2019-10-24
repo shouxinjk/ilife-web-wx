@@ -119,7 +119,7 @@ function loadSelectedPersonas(){
     var query={
             collection: "user_persona", 
             example: { 
-                _from:userInfo._key//查询当前用户关联的persona
+                _from:"user_users/"+userInfo._key//查询当前用户关联的persona
             },
             limit:100
         };   
