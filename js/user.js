@@ -157,7 +157,7 @@ function changePersonaStyle(personaId){
 function showPersona(persona){//将已选中Persona添加到页面并显示
     selectedPersonas.push(persona);//装载到已选persona列表
     selectedPersonaIds.push(persona._key);//装载到已选personaId列表
-    changePersonaStyle(personaId);//更改界面选中风格
+    changePersonaStyle(persona._key);//更改界面选中风格
 }
 
 function hidePersona(personaId){
