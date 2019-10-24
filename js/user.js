@@ -296,33 +296,8 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {
             insertBroker(res.data);//显示达人信息
-            //loadData();//加载下级达人列表
-            if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
-                showQRcode(res.data.qrcodeUrl);
-            }else{//否则请求生成后显示
-                requestQRcode(res.data);
-            }
         }
     });
-}
-
-//请求生成二维码
-function requestQRcode(broker) {
-    console.log("try to request QRCode.[broker]",broker);
-    util.AJAX(app.config.auth_api+"/wechat/ilife/qrcode?brokerId="+broker.id, function (res) {
-        console.log("Generate QRCode successfully.",res);
-        if (res.status) {
-            showQRcode(res.data.url);//显示二维码
-            //将二维码URL更新到borker
-            broker.qrcodeUrl = res.data.url;
-            updateBroker(broker);
-        }
-    });
-}
-
-//显示二维码
-function showQRcode(url) {
-    $("#qrcode").html('<img src="'+url+'" width="200px" alt="分享二维码邀请达人加入"/>');
 }
 
 function insertPerson(person){
@@ -333,16 +308,14 @@ function insertPerson(person){
     html += '</div>';
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
-    if(util.hasBrokerInfo()){//如果是达人，则显示达人后台入口
-        html += '<div class="info-text info-blank"><a href="broker/money.html">进入达人后台</a></div>';
-    }else{
-        html += '<div class="info-text info-blank">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    }
+    html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
+    html += '<div class="info-text info-blank" id="brokerLink"></div>';
     html += '</div>';
     $("#user").append(html);
 }
 
 function insertBroker(broker){
+    $("#brokerLink").html('<a href="broker/task.html">进入达人后台</a>');
     $("#brokerHint").html("达人级别："+broker.level);
 }
 

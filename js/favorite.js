@@ -197,7 +197,7 @@ function loadBrokerByOpenid(openid) {
 
 //显示达人后台入口
 function insertBroker(broker){
-    $("#brokerLink").html('<a href="broker/team.html">进入达人后台</a>');
+    $("#brokerLink").html('<a href="broker/task.html">进入达人后台</a>');
     $("#brokerHint").html("达人级别："+broker.level);
 }
 
