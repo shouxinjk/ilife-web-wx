@@ -1,6 +1,5 @@
 #qrcode img{
   margin: 5px auto;
-  display: inline-block;
 }
 
 #qrcode{
@@ -10,7 +9,10 @@
 
 .relation{
   font-weight:bold;
+  font-size:14px;
+  color:silver;
   padding-right:5px;
+  line-height: 16px;
 }
 
 .person{
@@ -18,7 +20,12 @@
   display:table;
   margin:2px auto;
 }
-
+.person-name{
+  display:table-cell;
+  font-weight:bold;
+  font-size:14px;
+  line-height: 16px;
+}
 .person-logo{
   display:table-cell;
   width:30%;
@@ -26,16 +33,11 @@
 }
 
 .person-tags{
+  font-size:14px;  
   display:table-cell;
-  vertical-align: top;
+  vertical-align: middle;
   width:70%;
-}
-
-.text{
-  margin-top: 20px;
-  margin-bottom: 2px;
-  font-size: 14px;
-  text-align: center;
+  line-height: 16px;
 }
 
 #brokerLink a{

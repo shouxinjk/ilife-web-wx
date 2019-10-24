@@ -16,6 +16,11 @@ $(document).ready(function ()
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
 
+    $('#waterfall').NewWaterfall({
+        width: columnWidth,
+        delay: 100,
+    });    
+
     $("body").css("background-color","#fff");//更改body背景为白色
 
     loadPerson(currentPerson);//加载用户
@@ -116,7 +121,7 @@ function getItem(personId,connName) {
         console.log("load person info.",personId,res);
         if(res){
             items.push(res);
-            if(res.name){
+            if(connName){
                 connNames[personId]=connName;
             }
             insertItem();
@@ -144,10 +149,13 @@ function insertItem(){
     }
     tags += "</div>";
     //**/
-    var relation = "<span class='relation'>"+(connNames[item._key]?connNames[item._key]:"我关心的")+"</span>";
-    var title = "<div class='title'>"+item.nickName+"</div>"
+    var relation = "";
+    if(connNames[item._key]){
+        relation = "<div class='relation'>"+connNames[item._key]+"</div>";
+    }
+    var title = "<div class='person-name'>"+item.nickName+"</div>"
     var description = "<div class='description'>"+(item.province?item.province:"")+(item.city?(" "+item.city):"")+"</div>"
-    $("#waterfall").append("<li><div class='person' data='"+item._key+"'><div class='person-logo'>" + image +"</div><div class='person-tags'>" +title +description+ "</div></li>");
+    $("#waterfall").append("<li><div class='person' data='"+item._key+"'><div class='person-logo'>" + image +"</div><div class='person-tags'>" +title +relation+description+ "</div></li>");
 
     //注册事件
     $("div[data='"+item._key+"']").click(function(){
@@ -211,7 +219,7 @@ function requestQRcode(broker) {
 
 //显示二维码
 function showQRcode(url) {
-    $("#qrcode").html('<img src="'+url+'" width="200px" alt="分享二维码邀请达人加入"/>');
+    $("#qrcode").html('<img src="'+url+'" width="200px" alt="分享二维码邀请关心的人"/>');
 }
 
 //将person显示到页面
@@ -234,12 +242,13 @@ function insertPerson(person){
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
     html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    html += '<div class="info-text info-blank" id="brokerLink"><a href="../user.html">返回用户后台</a></div>';
+    html += '<div class="info-text info-blank" id="brokerLink"></div>';
     html += '</div>';
     $("#user").append(html);
 }
 
 function insertBroker(broker){
+    $("#brokerLink").html('<a href="broker/task.html">进入达人后台</a>');
     $("#brokerHint").html("达人级别："+broker.level);
 }
 
