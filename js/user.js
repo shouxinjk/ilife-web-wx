@@ -333,8 +333,11 @@ function insertPerson(person){
     html += '</div>';
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
-    html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    html += '<div class="info-text info-blank" id="brokerLink"><a href="../user.html">返回用户后台</a></div>';
+    if(util.hasBrokerInfo()){//如果是达人，则显示达人后台入口
+        html += '<div class="info-text info-blank"><a href="broker/money.html">进入达人后台</a></div>';
+    }else{
+        html += '<div class="info-text info-blank">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
+    }
     html += '</div>';
     $("#user").append(html);
 }
