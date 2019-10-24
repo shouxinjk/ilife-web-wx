@@ -128,34 +128,37 @@ function insertItem(){
     // 加载内容
     var item = items[num-1];
 
-    //计算文字高度：按照1倍行距计算
-    //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.avatarUrl+"' width='60' height='60'/>";
-        /**
-    var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
-    var tags = "<div class='itemTags'>";
-    var taggingList = item.tags;
-    for(var t in taggingList){
-        var txt = taggingList[t];
-        if(txt.trim().length>1 && txt.trim().length<6){
-            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
+    if(item){//由于通过异步加载，可能在展示时，尚未得到数据，需要直接跳过
+        //计算文字高度：按照1倍行距计算
+        //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
+        var image = "<img src='"+item.avatarUrl+"' width='60' height='60'/>";
+            /**
+        var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
+        var tags = "<div class='itemTags'>";
+        var taggingList = item.tags;
+        for(var t in taggingList){
+            var txt = taggingList[t];
+            if(txt.trim().length>1 && txt.trim().length<6){
+                tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
+            }
         }
+        tags += "</div>";
+        //**/
+        var relation = "<span class='relation'>"+(connNames[item._key]?connNames[item._key]:"我关心的")+"</span>";
+        var title = "<div class='title'>"+item.nickName+"</div>"
+        var description = "<div class='description'>"+(person.province?person.province:"")+(person.city?(" "+person.city):"")+"</div>"
+        $("#waterfall").append("<li><div class='person' data='"+item._key+"'><div class='person-logo'>" + image +"</div><div class='person-tags'>" +title +description+ "</div></li>");
+
+        //注册事件
+        $("div[data='"+item._key+"']").click(function(){
+            //点击后跳转到对应用户推荐界面？
+        });
+
+        num++;//下标加一
+        loading = false;// 表示加载结束
+    }else{
+        console.log("Waiting for items from remote server.......");
     }
-    tags += "</div>";
-    //**/
-    var relation = "<span class='relation'>"+(connNames[item._key]?connNames[item._key]:"我关心的")+"</span>";
-    var title = "<div class='title'>"+item.nickName+"</div>"
-    var description = "<div class='description'>"+(person.province?person.province:"")+(person.city?(" "+person.city):"")+"</div>"
-    $("#waterfall").append("<li><div class='person' data='"+item._key+"'><div class='person-logo'>" + image +"</div><div class='person-tags'>" +title +description+ "</div></li>");
-    num++;
-
-    //注册事件
-    $("div[data='"+item._key+"']").click(function(){
-        //点击后跳转到对应用户推荐界面？
-    });
-
-    // 表示加载结束
-    loading = false;
 }
 
 //load person
