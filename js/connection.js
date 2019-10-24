@@ -146,7 +146,7 @@ function insertItem(){
     //**/
     var relation = "<span class='relation'>"+(connNames[item._key]?connNames[item._key]:"我关心的")+"</span>";
     var title = "<div class='title'>"+item.nickName+"</div>"
-    var description = "<div class='description'>"+(person.province?person.province:"")+(person.city?(" "+person.city):"")+"</div>"
+    var description = "<div class='description'>"+(item.province?item.province:"")+(item.city?(" "+item.city):"")+"</div>"
     $("#waterfall").append("<li><div class='person' data='"+item._key+"'><div class='person-logo'>" + image +"</div><div class='person-tags'>" +title +description+ "</div></li>");
 
     //注册事件
