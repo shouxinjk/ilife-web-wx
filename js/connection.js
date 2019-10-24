@@ -108,6 +108,10 @@ function loadItems(){
 //根据Id加载指定的关联用户Item
 function getItem(personId,connName) {
     console.log("try to load connected person info.",personId,connName);
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    };     
     util.AJAX(app.config.data_api+"/_api/document/user_users/"+personId, function (res) {
         console.log("load person info.",personId,res);
         if(res){
@@ -116,7 +120,7 @@ function getItem(personId,connName) {
                 connNames[personId]=connName;
             }
         }
-    });
+    }, "GET",{},header);
 }
 
 //将item显示到页面
