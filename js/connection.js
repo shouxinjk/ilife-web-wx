@@ -100,7 +100,7 @@ function loadItems(){
                 var personId = hits[i]._to.split("/")[1];//原始handler形式为：user_users/o8HmJ1JeYicv-JFGPyHvicLO6QQ8
                 getItem(personId,hits[i].name);//加载用户对象
             }
-            insertItem();
+            //insertItem();
         }
     }, "PUT",query,header);
 }
