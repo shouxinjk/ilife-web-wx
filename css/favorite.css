@@ -5,10 +5,23 @@
 }
 
 .fav-item-title{
-  font-size:14px;
+  font-size:12px;
+  line-height: 14px;
 }
 .itemTag{
   font-size:12px;
+}
+.itemTagPrice{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:darkred;
+}
+.itemTagBlank{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:darkgreen;
 }
 .fav-item-logo{
   display:table-cell;

@@ -218,8 +218,10 @@ function insertItem(){
     var image = "<img src='"+item.images[0]+"' width='100' height='100'/>"
     var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
     var tags = "<div class='itemTags'>";
-    tags += "<a class='itemTag' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
-    tags += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
+    tags += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
+    var tagTmplBlank = "<a class='itemTagBlank' href='index.html?keyword=__TAGGING'>__TAG</a>";
+    tags += tagTmplBlank.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
+    tags += "<br/>";
     var taggingList = item.tagging.split(" ");    
     for(var t in taggingList){
         var txt = taggingList[t];
