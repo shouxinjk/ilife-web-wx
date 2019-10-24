@@ -48,7 +48,7 @@ var dist = 500;
 var num = 1;//需要加载的内容下标
 
 var items = [];//所有画像列表
-var selectedPersonas = [];//已经选中的列表
+var personaConns = [];//已经选中的列表
 var selectedPersonaIds = [];//已经选中的列表,仅存储ID，便于比对使用
 
 var page = {
@@ -159,7 +159,7 @@ function changePersonaStyle(personaId){
 
 function showPersona(personaConn){//将已选中Persona添加到页面并显示
     var personaId = personaConn._to.split("/")[1];//注意返回形式：persona_personas/39989476
-    selectedPersonaConns.push(personaConn);//装载到已选persona列表：有问题：这里不能得到persona实例
+    personaConns.push(personaConn);//装载到已选persona列表：有问题：这里不能得到persona实例
     selectedPersonaIds.push(personaId);//装载到已选personaId列表：
     changePersonaStyle(personaId);//更改界面选中风格
 }
@@ -178,10 +178,10 @@ function hidePersona(personaId){
 function removePersona(personaId){//用户选择删除一个Persona
     //从选中列表内找到对应的Connection
     var connKey = "";
-    for(var i=0; i<selectedPersonaConns.length; i++) {
-        if(selectedPersonaConns[i]._to.indexOf(personaId)>0) {
-            connKey = selectedPersonaConns[i]._key;
-            selectedPersonaConns.splice(i, 1);//删除Persona
+    for(var i=0; i<personaConns.length; i++) {
+        if(personaConns[i]._to.indexOf(personaId)>0) {
+            connKey = personaConns[i]._key;
+            personaConns.splice(i, 1);//删除Persona
             break;
         }
     }      
