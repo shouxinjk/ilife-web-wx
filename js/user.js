@@ -147,12 +147,16 @@ function changePersonaStyle(personaId){
         console.log("User::Setting::changePersonaStyle try to change persona display style::show");
         $("#img"+personaId).toggleClass("logo-image",false);
         $("#img"+personaId).toggleClass("logo-image-selected",true);
-        $("#imgchk"+personaId).attr("src","images/select-yes.png"); 
+        $("#chk"+personaId).toggleClass("conn-status-no",false);
+        $("#chk"+personaId).toggleClass("conn-status-yes",true);              
+        $("#chk"+personaId).html("已关联"); 
     }else{
         console.log("User::Setting::changePersonaStyle try to change persona display style::hide");
         $("#img"+personaId).toggleClass("logo-image",true);
-        $("#img"+personaId).toggleClass("logo-image-selected",false);    
-        $("#imgchk"+personaId).attr("src","images/select-no.png"); 
+        $("#img"+personaId).toggleClass("logo-image-selected",false);  
+        $("#chk"+personaId).toggleClass("conn-status-no",true);
+        $("#chk"+personaId).toggleClass("conn-status-yes",false);              
+        $("#chk"+personaId).html("未关联"); 
     }
 
     //$("#"+currentActionType+" div").removeClass("actiontype");
@@ -236,7 +240,7 @@ function insertPersona(){
     }
     tags += "</div>";
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
-    var title = "<div class='title'><img id='imgchk"+item._key+"' src='images/selecte-no' height='20' width='20'/>"+item.name+"</div>"
+    var title = "<div class='title'><span id='chk"+item._key+"' class='conn-status-no'>未关联</span>"+item.name+"</div>"
     var description = "<div class='description'>"+item.description+"</div>"
     $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo'>" + image +"</div><div class='persona-tags'>" +title +description+ tags+ "</div></li>");
     num++;

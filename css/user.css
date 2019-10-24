@@ -23,6 +23,27 @@
   vertical-align: top;
   width:70%;
 }
+
+.conn-status-no{
+  font-size:14px;
+  font-weight: bold;
+  border:1px solid silver;
+  border-radius: 5px;
+  color:silver;
+  padding:2px;
+  margin-right:5px;
+}
+
+.conn-status-yes{
+  font-size:14px;
+  font-weight: bold;
+  border:1px solid darkgreen;
+  border-radius: 5px;
+  color:darkgreen;
+  padding:2px;
+  margin-right:5px;
+}
+
 .title{
   font-size:16px;
   font-weight: bold;
