@@ -158,7 +158,7 @@ function changePersonaStyle(personaId){
 }
 
 function showPersona(personaConn){//将已选中Persona添加到页面并显示
-    var personaId = persona._to.split("/")[1];//注意返回形式：persona_personas/39989476
+    var personaId = personaConn._to.split("/")[1];//注意返回形式：persona_personas/39989476
     selectedPersonaConns.push(personaConn);//装载到已选persona列表：有问题：这里不能得到persona实例
     selectedPersonaIds.push(personaId);//装载到已选personaId列表：
     changePersonaStyle(personaId);//更改界面选中风格
