@@ -143,11 +143,11 @@ function loadSelectedPersonas(){
 
 function changePersonaStyle(personaId){
     if(selectedPersonas.indexOf(personaId)>-1){//如果已选中
-        $("#img"+personaId).toggleClass("persona-logo",false);
-        $("#img"+personaId).toggleClass("persona-logo-selected",true);
+        $("#img"+personaId).toggleClass("logo-image",false);
+        $("#img"+personaId).toggleClass("logo-image-selected",true);
     }else{
-        $("#img"+personaId).toggleClass("persona-logo",true);
-        $("#img"+personaId).toggleClass("persona-logo-selected",false);    
+        $("#img"+personaId).toggleClass("logo-image",true);
+        $("#img"+personaId).toggleClass("logo-image-selected",false);    
     }
 
     //$("#"+currentActionType+" div").removeClass("actiontype");
@@ -181,6 +181,10 @@ function removePersona(personaId){//用户选择删除一个Persona
             break;
         }
     }      
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
     //将对应的connection删除
     util.AJAX(app.config.data_api+"/_api/document/user_persona/"+connKey, function (res) {
         console.log("User:removePersona try to remove  connected persona.", res)
@@ -194,6 +198,10 @@ function addPersona(personaId){//用户选择增加一个Persona
         _from:"user_users/"+userInfo._key,
         _to:"persona_personas/"+personaId
     }
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
     util.AJAX(app.config.data_api+"/_api/document/user_persona?returnNew=true", function (res) {
         console.log("User:addPersona try to add connected persona.", res)
         showPersona(res.new);//显示选中状态
@@ -207,7 +215,7 @@ function insertPersona(){
 
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.image+"' width='100' height='100'/>"
+    var image = "<img id='img"+item._key+"' src='"+item.image+"' width='100' height='100' class='logo-img'/>"
     var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
     var tags = "<div class='itemTags'>";
     var taggingList = item.tags;
@@ -224,7 +232,7 @@ function insertPersona(){
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='title'>"+item.name+"</div>"
     var description = "<div class='description'>"+item.description+"</div>"
-    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div id='img"+item._key+"' class='persona-logo'>" + image +"</div><div class='persona-tags'>" +title +description+ tags+ "</div></li>");
+    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo'>" + image +"</div><div class='persona-tags'>" +title +description+ tags+ "</div></li>");
     num++;
 
     //检查选中状态

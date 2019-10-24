@@ -4,6 +4,12 @@
   margin:2px auto;
 }
 
+.fav-item-title{
+  font-size:14px;
+}
+.itemTag{
+  font-size:12px;
+}
 .fav-item-logo{
   display:table-cell;
   width:30%;

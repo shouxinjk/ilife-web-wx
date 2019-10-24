@@ -11,10 +11,11 @@
   border: 5px solid silver;
 }
 
-.persona-logo-selected{
-  display:table-cell;
-  width:30%;
-  text-align: center;
+.logo-image{
+  border: 5px solid silver;
+}
+
+.logo-image-selected{
   border: 5px solid green;
 }
 
