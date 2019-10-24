@@ -6,6 +6,7 @@
 
 .fav-item-title{
   font-size:12px;
+  font-weight: bold;
   line-height: 14px;
 }
 .itemTag{
@@ -16,12 +17,18 @@
   font-weight: bold;
   background-color: white;
   color:darkred;
+  padding:2px;
+  border-radius: 5px;
+  border:2px solid darkred;
 }
 .itemTagBlank{
   font-size:12px;
   font-weight: bold;
   background-color: white;
   color:darkgreen;
+  padding:2px;
+  border-radius: 5px;
+  border:2px solid darkgreen;  
 }
 .fav-item-logo{
   display:table-cell;

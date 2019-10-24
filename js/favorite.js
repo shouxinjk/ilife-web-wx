@@ -215,7 +215,7 @@ function insertItem(){
     // 加载内容
     var item = items[num-1];
     console.log("Favorite::insertItem add item to html.",num,item);
-    var image = "<img src='"+item.images[0]+"' width='100' height='100'/>"
+    var image = "<img src='"+item.images[0]+"' width='80' height='80'/>"
     var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
     var tags = "<div class='itemTags'>";
     tags += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";

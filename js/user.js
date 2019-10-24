@@ -254,7 +254,7 @@ function changePersona(persona){
     if(selectedPersonaIds.indexOf(persona._key)>-1){
         removePersona(persona._key);
     }else{
-        addPersona(persona);
+        addPersona(persona._key);
     }
 }
 
