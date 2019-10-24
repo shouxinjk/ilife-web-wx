@@ -30,7 +30,7 @@ $(document).ready(function ()
     $("body").css("background-color","#fff");//更改body背景为白色
 
     loadPerson(currentPerson);//加载用户
-    loadSelectedPersonas();//加载当前用户选中的画像列表
+    loadPersonaConns();//加载当前用户选中的画像列表
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
@@ -114,8 +114,8 @@ function loadPersonas(){
     }, "PUT",query,header);
 }
 
-//加载当前用户已经选中的Persona：是部分列表
-function loadSelectedPersonas(){
+//加载当前用户已经选中的User-Persona Connection：是部分列表
+function loadPersonaConns(){
     var query={
             collection: "user_persona", 
             example: { 
@@ -129,7 +129,7 @@ function loadSelectedPersonas(){
     }; 
     util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
         showloading(false);
-        console.log("Broker::My::loadSelectedPersonas try to retrive personas by user id.", res)
+        console.log("User::Settings::loadPersonaConns try to retrive persona connections by user id.", res);
         if(res && res.count==0){//如果没有画像则提示，
             shownomore();
         }else{//否则根据列表修改选中状态
@@ -142,10 +142,13 @@ function loadSelectedPersonas(){
 }
 
 function changePersonaStyle(personaId){
-    if(selectedPersonas.indexOf(personaId)>-1){//如果已选中
+    console.log("User::Setting::changePersonaStyle try to change persona display style.");
+    if(selectedPersonaIds.indexOf(personaId)>-1){//如果已选中
+        console.log("User::Setting::changePersonaStyle try to change persona display style::show");
         $("#img"+personaId).toggleClass("logo-image",false);
         $("#img"+personaId).toggleClass("logo-image-selected",true);
     }else{
+        console.log("User::Setting::changePersonaStyle try to change persona display style::hide");
         $("#img"+personaId).toggleClass("logo-image",true);
         $("#img"+personaId).toggleClass("logo-image-selected",false);    
     }
@@ -154,10 +157,11 @@ function changePersonaStyle(personaId){
     //$("#"+currentActionType+" div").addClass("actiontype-selected");  
 }
 
-function showPersona(persona){//将已选中Persona添加到页面并显示
-    selectedPersonas.push(persona);//装载到已选persona列表
-    selectedPersonaIds.push(persona._key);//装载到已选personaId列表
-    changePersonaStyle(persona._key);//更改界面选中风格
+function showPersona(personaConn){//将已选中Persona添加到页面并显示
+    var personaId = persona._to.split("/")[1];//注意返回形式：persona_personas/39989476
+    selectedPersonaConns.push(personaConn);//装载到已选persona列表：有问题：这里不能得到persona实例
+    selectedPersonaIds.push(personaId);//装载到已选personaId列表：
+    changePersonaStyle(personaId);//更改界面选中风格
 }
 
 function hidePersona(personaId){
@@ -174,10 +178,10 @@ function hidePersona(personaId){
 function removePersona(personaId){//用户选择删除一个Persona
     //从选中列表内找到对应的Connection
     var connKey = "";
-    for(var i=0; i<selectedPersonas.length; i++) {
-        if(selectedPersonas[i]._to.indexOf(personaId)>0) {
-            connKey = selectedPersonas[i]._key;
-            selectedPersonas.splice(i, 1);//删除Persona
+    for(var i=0; i<selectedPersonaConns.length; i++) {
+        if(selectedPersonaConns[i]._to.indexOf(personaId)>0) {
+            connKey = selectedPersonaConns[i]._key;
+            selectedPersonaConns.splice(i, 1);//删除Persona
             break;
         }
     }      
