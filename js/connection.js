@@ -136,7 +136,7 @@ function insertItem(){
 
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.avatarUrl+"' width='60' height='60'/>";
+    var image = "<img src='"+(item.avatarUrl?item.avatarUrl:(item.headImgUrl?item.headImgUrl:"/images/avatar/default.png"))+"' width='60' height='60'/>";
         /**
     var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
     var tags = "<div class='itemTags'>";
@@ -153,7 +153,7 @@ function insertItem(){
     if(connNames[item._key]){
         relation = "<div class='relation'>"+connNames[item._key]+"</div>";
     }
-    var title = "<div class='person-name'>"+item.nickName+"</div>"
+    var title = "<div class='person-name'>"+(item.nickName?item.nickName:(item.nickname?item.nickname:"没写名字的神秘人"))+"</div>"
     var description = "<div class='description'>"+(item.province?item.province:"")+(item.city?(" "+item.city):"")+"</div>"
     $("#waterfall").append("<li><div class='person' data='"+item._key+"'><div class='person-logo'>" + image +"</div><div class='person-tags'>" +title +relation+description+ "</div></li>");
 
@@ -173,8 +173,8 @@ function loadPerson(personId) {
         console.log("load person info.",personId,res);
         userInfo = res;
         currentPerson = res._key;
-        insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
-        //loadData();
+        insertPerson(userInfo);
+        requestQRcode(userInfo);
         loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
 }
@@ -192,27 +192,19 @@ function loadBrokerByOpenid(openid) {
     console.log("try to load broker info by openid.[openid]",openid);
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
-        if (res.status) {
+        if (res.status) {//如果是达人则显示达人入口
             insertBroker(res.data);//显示达人信息
-            if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
-                showQRcode(res.data.qrcodeUrl);
-            }else{//否则请求生成后显示
-                requestQRcode(res.data);
-            }
         }
     });
 }
 
-//请求生成二维码
-function requestQRcode(broker) {
-    console.log("try to request QRCode.[broker]",broker);
-    util.AJAX(app.config.auth_api+"/wechat/ilife/qrcode?brokerId="+broker.id, function (res) {
+//请求生成二维码：使用当前用户openid作为scene_str生成临时二维码，有效期7天。每次使用临时生成
+function requestQRcode(person) {
+    console.log("try to request temp QRCode.",person);
+    util.AJAX(app.config.auth_api+"/wechat/ilife/tempQRcode?userId="+person._key, function (res) {
         console.log("Generate QRCode successfully.",res);
         if (res.status) {
             showQRcode(res.data.url);//显示二维码
-            //将二维码URL更新到borker
-            broker.qrcodeUrl = res.data.url;
-            updateBroker(broker);
         }
     });
 }
@@ -237,10 +229,10 @@ function insertPerson(person){
     // 显示HTML
     var html = '';
     html += '<div class="info-general">';
-    html += '<img class="general-icon" src="'+person.avatarUrl+'" height="60px"/>';
+    html += '<img class="general-icon" src="'+(person.avatarUrl?person.avatarUrl:(person.headImgUrl?person.headImgUrl:"/images/avatar/default.png"))+'" height="60px"/>';
     html += '</div>';
     html += '<div class="info-detail">';
-    html += '<div class="info-text info-blank">'+person.nickName+'</div>';
+    html += '<div class="info-text info-blank">'+(person.nickName?person.nickName:(person.nickname?person.nickname:"没写名字的神秘人"))+'</div>';
     html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
     html += '<div class="info-text info-blank" id="brokerLink"></div>';
     html += '</div>';

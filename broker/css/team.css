@@ -7,9 +7,9 @@
   text-align: center;
 }
 
-.relation{
+.phone{
   font-weight:bold;
-  font-size:14px;
+  font-size:12px;
   color:silver;
   padding-right:5px;
   line-height: 18px;
@@ -23,7 +23,7 @@
 .person-name{
   display:table-cell;
   font-weight:bold;
-  font-size:14px;
+  font-size:12px;
   line-height: 18px;
 }
 .person-logo{
@@ -33,7 +33,7 @@
 }
 
 .person-tags{
-  font-size:14px;  
+  font-size:12px;  
   display:table-cell;
   vertical-align: middle;
   width:70%;

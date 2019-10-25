@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
-    <link rel="stylesheet" type="text/css" href="css/broker.css">
+    <link rel="stylesheet" type="text/css" href="css/team.css">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -51,12 +51,15 @@
         </div>                                   
     </view>
 
-    <!-- 下级达人列表 -->
+    <div class="tips">
+        分享二维码邀请更多成员加入团队
+    </div> 
+    <!-- 分享二维码邀请 -->
+    <div id="qrcode" align="center"></div>
+
     <div id="Center">
-        <div class="text">分享二维码邀请更多成员加入</div>
-        <div id="qrcode" align="center"></div>
-        <div id="brokers"><table></table></div>      
-    </div>
+        <ul id="waterfall"></ul>
+    </div>    
 
     <!-- 加载进度与提示 -->
     <div class="loading-hide" id="loading">
@@ -91,5 +94,5 @@
 <script type="text/javascript" src="../ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
-<script type="text/javascript" src="js/team.js?v=5.0"></script> 
+<script type="text/javascript" src="js/team.js?v=6.0"></script> 
 </html>

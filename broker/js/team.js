@@ -16,6 +16,11 @@ $(document).ready(function ()
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
 
+    $('#waterfall').NewWaterfall({
+        width: columnWidth,
+        delay: 100,
+    });     
+
     $("body").css("background-color","#fff");//更改body背景为白色
 
     loadPerson(currentPerson);//加载用户
@@ -29,7 +34,20 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
+var columnWidth = 800;//默认宽度600px
+var columnMargin = 5;//默认留白5px
 var loading = false;
+var dist = 500;
+var num = 1;//需要加载的内容下标
+
+var items = [];//所有下级达人
+var brokerUsers = {};//下级达人对应的用户列表。brokerId:persona，能够根据达人ID获取用户对象。
+
+var page = {
+    size:20,//每页条数
+    total:1,//总页数
+    current:-1//当前翻页
+};
 
 var currentActionType = '';//当前操作类型
 var tagging = '';//操作对应的action 如buy view like 等
@@ -37,47 +55,98 @@ var tagging = '';//操作对应的action 如buy view like 等
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;
 var userInfo=app.globalData.userInfo;//默认为当前用户
 
-//加载下级达人列表
-function loadData() {
-    console.log("Team::loadData", currentPerson);
+/**
+setInterval(function ()
+{
+    if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+    {
+        // 表示开始加载
+        loading = true;
+        showloading(true);
 
-    //根据当前用户openid 查询所有下级达人
-    $.ajax({
-        url:app.config.sx_api+"/mod/broker/rest/brokersByOpenid/"+currentPerson,
-        type:"get",
-        //data:JSON.stringify(esQuery),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
-        headers:{
-            "Content-Type":"application/json",
-            "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
-        },
-        crossDomain: true,
-        success:function(data){
-            console.log("Team::loadData success.",data);
-            showloading(false);
-            if(data.length==0){//如果没有内容，则显示提示文字
-                shownomore(true);
-            }else{//显示达人列表
-                $('#brokers table').bootstrapTable({
-                    columns: [
-                    {
-                        field: 'name',
-                        title: '姓名'
-                    }, {
-                        field: 'phone',
-                        title: '电话'
-                    }, {
-                        field: 'level',
-                        title: '等级'
-                    }, {
-                        field: 'upgrade',
-                        title: '升级状态'
-                    }],
-                    data: data
-                    });                
-            }
+        // 加载内容
+        if(items.length < num){//如果内容未获取到本地则继续获取
+            loadItems();
+        }else{//否则使用本地内容填充
+            insertItem();
         }
+    }
+}, 300);
+//**/
+
+//加载下级达人
+function loadItems(){
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/brokersByOpenid/"+currentPerson, function (res) {
+        showloading(false);
+        console.log("Team::loadItems try to retrive brokers by presonId.", res)
+        if(res && res.length==0){//如果没有画像则提示，
+            shownomore();
+        }else{//否则显示到页面
+            //更新当前翻页
+            page.current = page.current + 1;
+            //装载具体条目
+            var hits = res;
+            for(var i = 0 ; i < hits.length ; i++){
+                getBrokerUser(hits[i]);
+            }
+            //insertItem();
+        }
+    }, "GET",{},{});
+}
+
+//根据openId加载指定的关联用户Item
+function getBrokerUser(broker) {
+    console.log("try to load connected person info.",broker);
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    };     
+    util.AJAX(app.config.data_api+"/user/users/"+broker.openid, function (res) {
+        console.log("load person info by openid.",broker.openid,res);
+        if(res){
+            items.push(broker);//仅在用户存在是显示达人，否则不显示
+            brokerUsers[broker.id]=res;//存储对应的用户详情
+            insertItem();
+        }
+    }, "GET",{},header);
+}
+
+//将item显示到页面
+function insertItem(){
+    // 加载内容
+    var item = items[num-1];
+
+    var brokerUser = brokerUsers[item.id];
+
+    //计算文字高度：按照1倍行距计算
+    //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
+    var image = "<img src='"+(brokerUser.avatarUrl?brokerUser.avatarUrl:(brokerUser.headImgUrl?brokerUser.headImgUrl:"/images/avatar/default.png"))+"' width='60' height='60'/>";
+        /**
+    var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
+    var tags = "<div class='itemTags'>";
+    var taggingList = item.tags;
+    for(var t in taggingList){
+        var txt = taggingList[t];
+        if(txt.trim().length>1 && txt.trim().length<6){
+            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
+        }
+    }
+    tags += "</div>";
+    //**/
+    var phone= "<div class='phone'>电话："+(item.phone?item.phone:"--")+"</div>";
+    var title = "<div class='person-name'>"+(item.name?item.name:"")+(brokerUser.nickname?("("+brokerUser.nickname+")"):"")+"</div>"
+    //var description = "<div class='description'>"+(brokerUser.province?brokerUser.province:"")+(brokerUser.city?(" "+brokerUser.city):"")+"</div>"
+    var description = "<div class='description'>等级："+item.level+"</div>"
+    $("#waterfall").append("<li><div class='person' data='"+item._key+"'><div class='person-logo'>" + image +"</div><div class='person-tags'>" +title +phone+description+ "</div></li>");
+
+    //注册事件
+    $("div[data='"+item.id+"']").click(function(){
+        //点击后跳转到对应用户推荐界面？
     });
-  }
+
+    num++;//下标加一
+    loading = false;// 表示加载结束
+}
 
 //load person
 function loadPerson(personId) {
@@ -87,7 +156,7 @@ function loadPerson(personId) {
         userInfo = res;
         currentPerson = res._key;
         insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
-        //loadData();
+        loadItems();//加载下级达人列表
         loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
 }
@@ -107,7 +176,6 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {
             insertBroker(res.data);//显示达人信息
-            loadData();//加载下级达人列表
             if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
                 showQRcode(res.data.qrcodeUrl);
             }else{//否则请求生成后显示
