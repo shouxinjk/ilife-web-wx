@@ -112,6 +112,7 @@ function insertItem(){
     console.log("Detail::insertItem add item to html.",item);
     $("#largeImg").append(htmlItemImageSlide(item));//图片幻灯：大图
     $("#smallImg").append(htmlItemImageSlide(item));//图片幻灯：缩略图
+    $(".profit").append(htmlItemProfitTags(item));//达人佣金
     $(".shopping").append(htmlItemSummary(item));//摘要（来源、价格等）
     $(".tags").append(htmlItemTags(item));//标签
     $(".box-title").append(htmlItemTitle(item));//标题
@@ -238,6 +239,30 @@ function htmlItemSummary(item){
     }
     html += '</div>';
     return html;
+}
+
+
+function htmlItemHighlights(item){
+    var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
+    var highlights = "<div class='itemTags'>";
+    highlights += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
+    highlights += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name).replace("itemTag","itemTagDistributor");
+    highlights += "</div>";
+
+    return highlights; 
+}
+
+function htmlItemProfitTags(item){
+    var profitTags = "";
+    if(util.hasBrokerInfo()){//如果是推广达人则显示佣金
+        if(item.profit&&item.profit.order)profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+item.profit.order+"</span>";
+        if(item.profit&&item.profit.team)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+item.profit.team+"</span>";
+        if(item.profit&&item.profit.credit)profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+item.profit.credit+"</span>";
+    }
+    if(profitTags.trim().length>0){
+        profitTags = "<div class='itemTags'>"+profitTags+"</div>";
+    }  
+    return profitTags;
 }
 
 function htmlItemTags(item){

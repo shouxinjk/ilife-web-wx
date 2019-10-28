@@ -302,9 +302,23 @@ function insertItem(){
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
     var image = "<img src='"+item.images[0]+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
     var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
+    var highlights = "<div class='itemTags'>";
+    highlights += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
+    highlights += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name).replace("itemTag","itemTagDistributor");
+    highlights += "</div>";
+
+    var profitTags = "";
+    if(util.hasBrokerInfo()){//如果是推广达人则显示佣金
+        if(item.profit&&item.profit.order)profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+item.profit.order+"</span>";
+        if(item.profit&&item.profit.team)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+item.profit.team+"</span>";
+        if(item.profit&&item.profit.credit)profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+item.profit.credit+"</span>";
+    }
+    if(profitTags.trim().length>0){
+        profitTags = "<div class='itemTags'>"+profitTags+"</div>";
+    }
+    
+
     var tags = "<div class='itemTags'>";
-    tags += "<a class='itemTag' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
-    tags += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
     var taggingList = item.tagging.split(" ");
     for(var t in taggingList){
         var txt = taggingList[t];
@@ -318,7 +332,7 @@ function insertItem(){
     tags += "</div>";
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='title'>"+item.title+"</div>"
-    $("#waterfall").append("<li><div data='"+item._key+"'>" + image + tags +title+ "</div></li>");
+    $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights+ tags +title+ "</div></li>");
     num++;
 
     //注册事件

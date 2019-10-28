@@ -40,6 +40,7 @@ util.getUserInfo =function (){
     jsonUserInfo = JSON.parse(strUserInfo);
     app.globalData.userInfo = jsonUserInfo;
     app.globalData.hasUserInfo = true;
+    util.checkBroker(app.globalData.userInfo._key);//获取用户后加载达人信息
   }
   console.log("load userInfo from cookie json.",jsonUserInfo);
   return jsonUserInfo;
@@ -48,7 +49,7 @@ util.getUserInfo =function (){
 
 util.hasBrokerInfo =function (){
     if(!app.globalData.hasBrokerInfo){//请求获得broker信息
-        util.checkBroker(app.globalData.userInfo._key);
+        util.checkBroker(app.globalData.userInfo._key);//这里有问题，可能还未得到用户信息
     }else{//从cookie读取存储的BrokerInfo
         util.getBrokerInfo();
     }
@@ -61,7 +62,7 @@ util.getBrokerInfo =function (){
   var jsonBrokerInfo = {};
   if(strHasBroker && strHasBroker.trim().length>0 && strHasBroker=="true"){
     console.log("load brokerInfo from cookie.",strBrokerInfo);
-    jsonBrokerInfo = JSON.parse(strUserInfo);
+    jsonBrokerInfo = JSON.parse(strBrokerInfo);
     app.globalData.brokerInfo = jsonBrokerInfo;
     app.globalData.hasBrokerInfo = true;
   }

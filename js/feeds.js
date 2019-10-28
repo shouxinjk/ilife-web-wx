@@ -315,6 +315,8 @@ function insertItem(){
     html += '<li><div class="WxMasonry">';
     html += '<div id="item'+item._key+'">';
     html += htmlItemImage(item);
+    html += htmlItemProfitTags(item);
+    html += htmlItemHighlights(item);
     html += htmlItemSummary(item);
     html += htmlItemTags(item);
     html += '</div>';
@@ -382,8 +384,8 @@ function htmlItemSummaryDeprecated(item){
 function htmlItemSummary(item){
     var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING' nowrap>__TAG</a>";
     var tags = "<div class='itemTags'>";
-    tags += "<a class='itemTag' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
-    tags += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
+    //tags += "<a class='itemTag' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
+    //tags += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
     var taggingList = item.tagging?item.tagging.split(" "):[];
     for(var t in taggingList){
         var txt = taggingList[t];
@@ -415,6 +417,29 @@ function htmlItemTags(item){
     html += '</div>';
     html += '</div>';
     return html;
+}
+
+function htmlItemHighlights(item){
+    var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
+    var highlights = "<div class='itemTags'>";
+    highlights += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
+    highlights += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name).replace("itemTag","itemTagDistributor");
+    highlights += "</div>";
+
+    return highlights; 
+}
+
+function htmlItemProfitTags(item){
+    var profitTags = "";
+    if(util.hasBrokerInfo()){//如果是推广达人则显示佣金
+        if(item.profit&&item.profit.order)profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+item.profit.order+"</span>";
+        if(item.profit&&item.profit.team)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+item.profit.team+"</span>";
+        if(item.profit&&item.profit.credit)profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+item.profit.credit+"</span>";
+    }
+    if(profitTags.trim().length>0){
+        profitTags = "<div class='itemTags'>"+profitTags+"</div>";
+    }  
+    return profitTags;
 }
 
 function changePerson (personId,personTagging) {

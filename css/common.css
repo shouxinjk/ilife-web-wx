@@ -92,6 +92,86 @@ input,img{border: none;}
     padding:2px;
 }
 
+.itemTagPrice{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:darkred;
+  padding:2px;
+}
+.itemTagDistributor{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:darkgreen;
+  padding:2px; 
+}
+
+.itemTagProfitOrder{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:darkred;
+  padding:2px;    
+  border:1px solid darkred;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  margin-right:2px;
+}
+.itemTagProfitTeam{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:darkgreen;
+  padding:2px;    
+  border:1px solid darkgreen;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  margin-right:2px;
+}
+.itemTagProfitCredit{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:orange;
+  padding:2px;    
+  border:1px solid orange;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+.profitTipOrder{
+  font-size:12px;
+  font-weight: bold;
+  background-color: darkred;
+  color:white;
+  padding:2px;    
+  border:1px solid darkred;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+.profitTipTeam{
+  font-size:12px;
+  font-weight: bold;
+  background-color: darkgreen;
+  color:white;
+  padding:2px;    
+  border:1px solid darkgreen;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+.profitTipCredit{
+  font-size:12px;
+  font-weight: bold;
+  background-color: orange;
+  color:white;
+  padding:2px;    
+  border:1px solid orange;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+
 .header span{
     color: white;
     font-size:2rem;

@@ -19,16 +19,19 @@ $(document).ready(function ()
     if(width>=800){
         window.location.href=window.location.href.replace(/info2.html/g,"info.html");
     }
-    //当前浏览内容
-    var stuff=null;
+
     //加载导航和内容
     loadCategories(category);
     loadItem(id);   
+    loadBrokerByOpenid(app.globalData.userInfo._key);//有点危险。如果没存到cookie可能为空
     loadHosts(id);
     registerShareHandler();
 });
 
 util.getUserInfo();//从本地加载cookie
+
+//当前浏览内容
+var stuff=null;
 
 var galleryWidth = 672;
 var galleryHeight = 378;
@@ -63,6 +66,7 @@ function showContent(item){
 
     //标题
     $("#title").html(item.title);
+    
     //评分
     if(item.rank.score){
         $("#score .comment").append("<div class='label'>评价</div><div class='rank'>"+item.rank.score+"/<span class='base'>"+item.rank.base+"</span></div>");
@@ -103,6 +107,37 @@ function showContent(item){
     logstash(item,"mp","view",function(){
         //do nothing
     });      
+}
+
+//佣金
+function htmlItemProfitTags(item){
+    var profitTags = "";
+    //if(util.hasBrokerInfo()){//如果是推广达人则显示佣金
+        if(item.profit&&item.profit.order)profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+item.profit.order+"</span>";
+        if(item.profit&&item.profit.team)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+item.profit.team+"</span>";
+        if(item.profit&&item.profit.credit)profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+item.profit.credit+"</span>";
+    //}
+    if(profitTags.trim().length>0){
+        profitTags = "<div class='itemTags'>"+profitTags+"</div>";
+    }  
+    return profitTags;
+}
+
+//根据openid查询加载broker
+function loadBrokerByOpenid(openid) {
+    console.log("try to load broker info by openid.[openid]",openid);
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
+        console.log("load broker info.",openid,res);
+        if (res.status) {//将佣金信息显示到页面
+            //达人佣金
+            var profitHtml = htmlItemProfitTags(stuff);
+            if(profitHtml.trim().length>0){
+                $("#profit").html(profitHtml);
+                $("#profit").toggleClass("profit-hide",false);
+                $("#profit").toggleClass("profit-show",true);
+            }
+        }
+    });
 }
 
 //点击跳转到原始链接
