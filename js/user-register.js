@@ -26,7 +26,6 @@ $(document).ready(function ()
     if(args["toUserOpenId"]){
         toUserOpenId = args["toUserOpenId"]; //获取推荐者Openid
         loadToUserByOpenid(toUserOpenId);//加载推荐者
-        loadConnection();//加载关联关系
     }else{
         console.log("Error. Cannot get toUserOpenId.");
     }  
@@ -137,7 +136,7 @@ function loadPerson(personId) {
         userInfo = res;
         currentPerson = res._key;
         insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
-        //loadData();
+        loadConnection();//加载关联关系
         loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
 }
