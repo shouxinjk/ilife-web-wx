@@ -15,7 +15,7 @@
 }
 
 .logo-image-selected{
-  border: 5px solid green;
+  border: 5px solid darkred;
 }
 
 .persona-tags{
@@ -37,9 +37,9 @@
 .conn-status-yes{
   font-size:14px;
   font-weight: bold;
-  border:1px solid darkgreen;
+  border:1px solid darkred;
   border-radius: 5px;
-  color:darkgreen;
+  color:darkred;
   padding:2px;
   margin-right:5px;
 }
