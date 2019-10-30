@@ -309,13 +309,19 @@ function insertItem(){
 
     var profitTags = "";
     if(util.hasBrokerInfo()){//如果是推广达人则显示佣金
-        if(item.profit&&item.profit.order)profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+item.profit.order+"</span>";
-        if(item.profit&&item.profit.team)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+item.profit.team+"</span>";
-        if(item.profit&&item.profit.credit)profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+item.profit.credit+"</span>";
+        if(item.profit&&item.profit.order){
+            profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span>";
+            if(item.profit&&item.profit.team&&item.profit.team>0.1)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.profit.team*10)/10).toFixed(1)))+"</span>";
+        }else if(item.profit&&item.profit.credit){
+            profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(item.profit.credit*10)/10).toFixed(0)))+"</span>";
+        }
     }
-    if(profitTags.trim().length>0){
-        profitTags = "<div class='itemTags'>"+profitTags+"</div>";
-    }
+    if(profitTags.trim().length>0){//如果已经存在则直接加载
+        profitTags = "<div id='profit"+item._key+"' class='itemTags profit-show'>"+profitTags+"</div>";
+    }else{//否则请求得到该item的profit信息
+        profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide'></div>";
+        getItemProfit(item);
+    }    
     
 
     var tags = "<div class='itemTags'>";
@@ -335,6 +341,8 @@ function insertItem(){
     $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights+ tags +title+ "</div></li>");
     num++;
 
+    //如果是达人，则加载显示佣金信息
+
     //注册事件
     $("div[data='"+item._key+"']").click(function(){
         //跳转到详情页
@@ -343,6 +351,38 @@ function insertItem(){
 
     // 表示加载结束
     loading = false;
+}
+
+//查询特定条目的佣金信息。返回order/team/credit三个值
+function getItemProfit(item) {
+    var data={
+        source:item.source,
+        price:item.price.sale,
+        category:item.categoryId?item.categoryId:""
+    };
+    console.log("try to query item profit",data);
+    util.AJAX(app.config.sx_api+"/mod/commissionScheme/rest/profit", function (res) {
+        console.log("got profit info.",item,res);
+        var showProfit = false;
+        var html = "";
+        if (res.order) {//店返
+            html += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(res.order*10)/10).toFixed(1)))+"</span>";
+            if(res.team && res.team>0.1){//过小的团返不显示
+                html += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(res.team*10)/10).toFixed(1)))+"</span>";
+            }
+        }else if(res.credit){//如果没有现金则显示积分
+            html += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(res.credit*10)/10).toFixed(0)))+"</span>";
+        }else{//这里应该是出了问题，既没有现金也没有积分
+            console.log("===error===\nnothing to show.",item,res);
+        }
+        //显示到界面
+        if(html.trim().length>0){
+            $("#profit"+item._key).html(html);
+            $("#profit"+item._key).toggleClass("profit-hide",false);
+            $("#profit"+item._key).toggleClass("profit-show",true);
+        }
+        //更新到item       
+    },"GET",data);
 }
 
 //当没有更多item时显示提示信息

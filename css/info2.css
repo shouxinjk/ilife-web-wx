@@ -19,16 +19,6 @@ a{
 	width:30%;
 }
 
-.profit-hide{
-	display:none;
-}
-
-.profit-show{
-	display:block;
-	margin-left: 5px;
-	margin-top: 10px;
-}
-
 #score{
 	display:flex;
 	flex-direction:row;

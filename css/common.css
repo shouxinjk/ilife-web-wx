@@ -17,6 +17,16 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
     text-align: center;
 }
 
+.profit-hide{
+  display:none;
+}
+
+.profit-show{
+  display:block;
+  margin-left: 5px;
+  margin-top: 10px;
+}
+
 body {
     color: rgba(0, 0, 0, 0.6);
     overflow-x: hidden;   
