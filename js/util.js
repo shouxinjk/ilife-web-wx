@@ -216,9 +216,9 @@ function logstash(item,client,action,fromUser="",fromBroker="",fn){//记录日�
             value:{
                 itemId:item._key,
                 userId:app.globalData.userInfo?app.globalData.userInfo._key:"dummy",
-                item:item,
+                //item:item,
                 client:client,
-                user:app.globalData.userInfo,//TODO: 需要增加用户信息
+                //user:app.globalData.userInfo,//TODO: 需要增加用户信息
                 fromUser:fromUser.trim().length>0?fromUser:"system",//记录分享用户
                 fromBroker:fromBroker.trim().length>0?fromBroker:"system",//记录分享达人
                 action:action,

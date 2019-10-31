@@ -20,16 +20,22 @@ $(document).ready(function ()
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
 
     //判断屏幕大小，如果是大屏则跳转
+    /**
     if(width>=800){
         window.location.href=window.location.href.replace(/info2.html/g,"info.html");
+    }
+    //**/
+
+    //判断是否为已注册用户
+    if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
+        loadBrokerByOpenid(app.globalData.userInfo._key);//如果已注册则检查是否是broker
     }
 
     //加载导航和内容
     loadCategories(category);
     loadItem(id);   
-    loadBrokerByOpenid(app.globalData.userInfo._key);//有点危险。如果没存到cookie可能为空
     loadHosts(id);
-    //registerShareHandler();//由于需要检验达人，需要在达人信息加载完成后再处理
+    registerShareHandler();//注意：存在二次注册，在加载完成达人信息后会重新注册
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -185,7 +191,7 @@ function loadBrokerByOpenid(openid) {
                 $("#profit").toggleClass("profit-show",true);
             }
         }
-        //加载达人后再注册分享事件
+        //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
     });
 }
@@ -409,11 +415,11 @@ function registerShareHandler(){
                 //分享给朋友
                 wx.onMenuShareAppMessage({
                     title:stuff?stuff.title:"小确幸，大生活", // 分享标题
-                    desc:stuff?stuff.tags:"Live is all about having a good time.", // 分享标题
+                    desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-                    imgUrl: stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
                     link:shareUrl,
-                    type: '', // 分享类型,music、video或link，不填默认为link
+                    imgUrl: stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
                       // 用户点击了分享后执行的回调函数
