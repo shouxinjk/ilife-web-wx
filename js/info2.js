@@ -15,6 +15,10 @@ $(document).ready(function ()
     var args = getQuery();
     var category = args["category"]; //当前目录
     var id = args["id"];//当前内容
+
+    fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
+    fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
+
     //判断屏幕大小，如果是大屏则跳转
     if(width>=800){
         window.location.href=window.location.href.replace(/info2.html/g,"info.html");
@@ -35,6 +39,11 @@ var stuff=null;
 
 var galleryWidth = 672;
 var galleryHeight = 378;
+
+//记录分享用户、分享达人
+var fromUser = "";
+var fromBroker = "";
+var broker = {};//当前达人
 
 //将item显示到页面
 function showContent(item){
@@ -104,7 +113,7 @@ function showContent(item){
     //*/
     //广告
     //trace user action
-    logstash(item,"mp","view",function(){
+    logstash(item,"mp","view",fromUser,fromBroker,function(){
         //do nothing
     });      
 }
@@ -116,7 +125,7 @@ function htmlItemProfitTags(item){
     if(item.profit&&item.profit.order){
         profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span>";
         if(item.profit&&item.profit.team&&item.profit.team>0.1)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.profit.team*10)/10).toFixed(1)))+"</span>";
-    }else if(item.profit&&item.profit.credit){
+    }else if(item.profit&&item.profit.credit&&item.profit.credit>0){
         profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(item.profit.credit*10)/10).toFixed(0)))+"</span>";
     }
     //}
@@ -146,7 +155,7 @@ function getItemProfit(item) {
             if(res.team && res.team>0.1){//过小的团返不显示
                 html += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(res.team*10)/10).toFixed(1)))+"</span>";
             }
-        }else if(res.credit){//如果没有现金则显示积分
+        }else if(res.credit&&res.credit>0){//如果没有现金则显示积分
             html += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(res.credit*10)/10).toFixed(0)))+"</span>";
         }else{//这里应该是出了问题，既没有现金也没有积分
             console.log("===error===\nnothing to show.",item,res);
@@ -157,7 +166,7 @@ function getItemProfit(item) {
             $("#profit"+item._key).toggleClass("profit-hide",false);
             $("#profit"+item._key).toggleClass("profit-show",true);
         }
-        //更新到item       
+        //TODO：更新到item       
     },"GET",data);
 }
 
@@ -167,6 +176,7 @@ function loadBrokerByOpenid(openid) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
+            broker = res.data;
             //达人佣金
             var profitHtml = htmlItemProfitTags(stuff);
             if(profitHtml.trim().length>0){
@@ -181,23 +191,55 @@ function loadBrokerByOpenid(openid) {
 //点击跳转到原始链接
 function jump(item){//支持点击事件
     //console.log(item.id,item.url);
-    logstash(item,"mp","buy",function(){
+    //确定购买归属达人：如果本身是达人则记到自身，如果有fromBroker则记为fromBroker，都没有则记为system
+    var benificiaryBrokerId = "system";//默认为平台直接分享
+    if(broker&&broker.id){//如果当前分享用户本身是达人，则直接引用其自身ID
+        benificiaryBrokerId=broker.id;
+    }else if(fromBroker && fromBroker.trim().length>0){
+        benificiaryBrokerId=fromBroker;
+    }
+    logstash(item,"mp","buy",fromUser,benificiaryBrokerId,function(){
         var target = item.url;
         if(item.link.qrcode){
             //it is a QRCODE
             $("#jumpbtn").text("扫码购买哦");
-        }else if(item.link.wap2){
-            target = item.link.wap2;
-            window.location.href = target;
-        }else if(item.link.wap){
-            target = item.link.wap;
-            window.location.href = target;
-        }else{
-            //there is no url link to jump
-            //it is a QRCODE
-            $("#jumpbtn").text("啊哦，这货买不了");
+        }else if(item.link.cps && item.link.cps[benificiaryBrokerId]){//能够直接获得达人链接则直接显示
+            window.location.href = item.link.cps[benificiaryBrokerId];
+        }else{//否则请求其链接并显示
+            getBrokerCpsLink(benificiaryBrokerId,item);
         }
     });     
+}
+
+ //根据Broker查询得到CPS链接
+ //注意：由于目标达人的推广位可能尚未建立，导致内容展示和购买记录中有收益记录，但实际CPS链接为system的情况。结算时会有差异。
+ //解决办法：对于不同级别达人，需要告知此种情况，对于需要额外建立推广位的可能存在误差
+function getBrokerCpsLink(brokerId,item) {
+    var data={
+        brokerId:brokerId,
+        source:item.source,
+        category:"",//注意：不按照类别进行区分
+        //category:item.categoryId?item.categoryId:"",
+        url:item.link.wap
+    };
+    console.log("try to generate broker specified url",data);
+    util.AJAX(app.config.sx_api+"/mod/cpsLinkScheme/rest/cpslink", function (res) {
+        console.log("======\nload cps link info.",data,res);
+        if (res.status) {//将跳转到该链接
+            window.location.href = res.link;
+            //TODO：更新到item
+        }else{//如果不能生成链接则直接使用已有链接
+            if(item.link.wap2){
+                window.location.href = item.link.wap2;
+            }else if(item.link.wap){
+                window.location.href = item.link.wap;
+            }else{
+                //there is no url link to jump
+                //it is a QRCODE
+                $("#jumpbtn").text("啊哦，这货买不了");
+            }
+        }
+    },"GET",data);
 }
 
 /*
@@ -298,6 +340,28 @@ function loadCategories(currentCategory){
 }
 
 function registerShareHandler(){
+    //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system
+    var shareBrokerId = "system";//默认为平台直接分享
+    if(broker&&broker.id){//如果当前分享用户本身是达人，则直接引用其自身ID
+        shareBrokerId=broker.id;
+    }else if(fromBroker && fromBroker.trim().length>0){//如果当前用户不是达人，但页面带有前述达人，则使用前述达人ID
+        shareBrokerId=fromBroker;
+    }
+    //计算分享用户：如果是注册用户则使用当前用户，否则默认为平台用户
+    var shareUserId = "system";//默认为平台直接分享
+    if(app.globalData.userInfo && app.globalData.userInfo._key){//如果为注册用户，则使用当前用户
+        shareUserId = app.globalData.userInfo._key;
+    }
+
+    //准备分享url，需要增加分享的 fromUser、fromBroker信息
+    var shareUrl = window.location.href;
+    if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
+        shareUrl += "&fromUser="+shareUserId;
+        shareUrl += "&fromBroker="+shareBrokerId;
+    }else{//否则作为第一个参数增加
+        shareUrl += "?fromUser="+shareUserId;
+        shareUrl += "&fromBroker="+shareBrokerId;        
+    }
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
         type:"get",
@@ -320,11 +384,12 @@ function registerShareHandler(){
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
                     title:stuff?stuff.title:"小确幸，大生活", // 分享标题
-                    link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
                     imgUrl:stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
-                        logstash(stuff,"mp","share timeline",function(){
+                        logstash(stuff,"mp","share timeline",fromUser,fromBroker,function(){
                             console.log("分享到朋友圈");
                         }); 
                     },
@@ -333,13 +398,14 @@ function registerShareHandler(){
                 wx.onMenuShareAppMessage({
                     title:stuff?stuff.title:"小确幸，大生活", // 分享标题
                     desc:stuff?stuff.tags:"Live is all about having a good time.", // 分享标题
-                    link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     imgUrl: stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
+                    link:shareUrl,
                     type: '', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
                       // 用户点击了分享后执行的回调函数
-                        logstash(stuff,"mp","share appmsg",function(){
+                        logstash(stuff,"mp","share appmsg",fromUser,fromBroker,function(){
                             console.log("分享到微信");
                         }); 
                     }

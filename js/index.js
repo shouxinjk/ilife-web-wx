@@ -312,7 +312,7 @@ function insertItem(){
         if(item.profit&&item.profit.order){
             profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span>";
             if(item.profit&&item.profit.team&&item.profit.team>0.1)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.profit.team*10)/10).toFixed(1)))+"</span>";
-        }else if(item.profit&&item.profit.credit){
+        }else if(item.profit&&item.profit.credit&&item.profit.credit>0){
             profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(item.profit.credit*10)/10).toFixed(0)))+"</span>";
         }
     }
@@ -370,7 +370,7 @@ function getItemProfit(item) {
             if(res.team && res.team>0.1){//过小的团返不显示
                 html += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(res.team*10)/10).toFixed(1)))+"</span>";
             }
-        }else if(res.credit){//如果没有现金则显示积分
+        }else if(res.credit&&res.credit>0){//如果没有现金则显示积分
             html += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(res.credit*10)/10).toFixed(0)))+"</span>";
         }else{//这里应该是出了问题，既没有现金也没有积分
             console.log("===error===\nnothing to show.",item,res);

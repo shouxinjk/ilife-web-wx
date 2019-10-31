@@ -208,7 +208,7 @@ function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
 
-function logstash(item,client,action,fn){//记录日志
+function logstash(item,client,action,fromUser="",fromBroker="",fn){//记录日志
     var target = item.url2?item.url2:item.url;
     var type = item.url2?"processed":"original";
     var data = {
@@ -219,6 +219,8 @@ function logstash(item,client,action,fn){//记录日志
                 item:item,
                 client:client,
                 user:app.globalData.userInfo,//TODO: 需要增加用户信息
+                fromUser:fromUser.trim().length>0?fromUser:"system",//记录分享用户
+                fromBroker:fromBroker.trim().length>0?fromBroker:"system",//记录分享达人
                 action:action,
                 timestamp:new Date()
             }
