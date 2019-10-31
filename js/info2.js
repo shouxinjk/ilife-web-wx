@@ -28,17 +28,34 @@ $(document).ready(function ()
 
     //判断是否为已注册用户
     if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
-        loadBrokerByOpenid(app.globalData.userInfo._key);//如果已注册则检查是否是broker
+        loadBrokerByOpenid(app.globalData.userInfo._key);
+        //注意：在加载完成后会注册分享事件，并用相应的broker进行填充
+    }else{//直接注册分享分享事件，默认broker为system，默认fromUser为system
+        console.log("cannot get user info. assume he is a new one.");
+        //TODO:是不是要生成一个特定的编号用于识别当前用户？在注册后可以与openid对应上
+        //检查cookie是否有标记，否则生成标记
+        tmpUser = $.cookie('tmpUserId');
+        if(tmpUser && tmpUser.trim().length>0){
+            console.log("there already has a temp code for this user.", tmpUser);
+        }else{
+            tmpUser = "tmp-"+gethashcode();
+            console.log("there is no temp code for this user, generate one.", tmpUser);
+            $.cookie('tmpUserId', tmpUser, { expires: 3650, path: '/' });  
+        }
+        registerShareHandler();
     }
 
     //加载导航和内容
     loadCategories(category);
     loadItem(id);   
     loadHosts(id);
-    registerShareHandler();//注意：存在二次注册，在加载完成达人信息后会重新注册
+    
 });
 
 util.getUserInfo();//从本地加载cookie
+
+//临时用户
+var tmpUser = "";
 
 //当前浏览内容
 var stuff=null;
@@ -357,6 +374,9 @@ function registerShareHandler(){
     }
     //计算分享用户：如果是注册用户则使用当前用户，否则默认为平台用户
     var shareUserId = "system";//默认为平台直接分享
+    if(tmpUser&&tmpUser.trim().length>0){//如果是临时用户进行记录。注意有时序关系，需要放在用户信息检查之前。
+        shareUserId = tmpUser;
+    }
     if(app.globalData.userInfo && app.globalData.userInfo._key){//如果为注册用户，则使用当前用户
         shareUserId = app.globalData.userInfo._key;
     }
@@ -373,7 +393,7 @@ function registerShareHandler(){
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
         type:"get",
-        data:{url:window.location.href},//重要：微信分享的URL必须和浏览器浏览地址保持一致！！
+        data:{url:window.location.href},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
         success:function(json){
             console.log("===got jssdk ticket===\n",json);
             wx.config({
@@ -407,8 +427,8 @@ function registerShareHandler(){
                     imgUrl:stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
-                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(){
-                            console.log("分享到朋友圈");
+                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到朋友圈",res);
                         }); 
                     },
                 });
@@ -423,8 +443,8 @@ function registerShareHandler(){
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
                       // 用户点击了分享后执行的回调函数
-                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(){
-                            console.log("分享到微信");
+                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到微信",res);
                         }); 
                     }
                 });            
