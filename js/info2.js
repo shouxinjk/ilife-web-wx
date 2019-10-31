@@ -26,28 +26,11 @@ $(document).ready(function ()
     }
     //**/
 
-    //判断是否为已注册用户
-    if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
-        loadBrokerByOpenid(app.globalData.userInfo._key);
-        //注意：在加载完成后会注册分享事件，并用相应的broker进行填充
-    }else{//直接注册分享分享事件，默认broker为system，默认fromUser为system
-        console.log("cannot get user info. assume he is a new one.");
-        //TODO:是不是要生成一个特定的编号用于识别当前用户？在注册后可以与openid对应上
-        //检查cookie是否有标记，否则生成标记
-        tmpUser = $.cookie('tmpUserId');
-        if(tmpUser && tmpUser.trim().length>0){
-            console.log("there already has a temp code for this user.", tmpUser);
-        }else{
-            tmpUser = "tmp-"+gethashcode();
-            console.log("there is no temp code for this user, generate one.", tmpUser);
-            $.cookie('tmpUserId', tmpUser, { expires: 3650, path: '/' });  
-        }
-        registerShareHandler();
-    }
+    //加载内容
+    loadItem(id); 
 
-    //加载导航和内容
-    loadCategories(category);
-    loadItem(id);   
+    //加载导航和关注列表
+    loadCategories(category);  
     loadHosts(id);
     
 });
@@ -328,6 +311,26 @@ function loadItem(key){//获取内容列表
         success:function(data){
             showContent(data);
             stuff = data;//本地保存，用于分享等后续操作
+
+            //准备注册分享事件。需要等待内容加载完成后才注册
+            //判断是否为已注册用户
+            if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
+                loadBrokerByOpenid(app.globalData.userInfo._key);
+                //注意：在加载完成后会注册分享事件，并用相应的broker进行填充
+            }else{//直接注册分享分享事件，默认broker为system，默认fromUser为system
+                console.log("cannot get user info. assume he is a new one.");
+                //TODO:是不是要生成一个特定的编号用于识别当前用户？在注册后可以与openid对应上
+                //检查cookie是否有标记，否则生成标记
+                tmpUser = $.cookie('tmpUserId');
+                if(tmpUser && tmpUser.trim().length>0){
+                    console.log("there already has a temp code for this user.", tmpUser);
+                }else{
+                    tmpUser = "tmp-"+gethashcode();
+                    console.log("there is no temp code for this user, generate one.", tmpUser);
+                    $.cookie('tmpUserId', tmpUser, { expires: 3650, path: '/' });  
+                }
+                registerShareHandler();
+            }            
         }
     })            
 }
