@@ -16,8 +16,12 @@ $(document).ready(function ()
     var category = args["category"]; //当前目录
     var id = args["id"];//当前内容
 
+    from = args["from"]?args["from"]:"mp";//可能为groupmessage,timeline等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
+
+
+    //需要判定进入来源：如果是通过分享链接进入则要重新获取openid
 
     //判断屏幕大小，如果是大屏则跳转
     /**
@@ -47,6 +51,7 @@ var galleryWidth = 672;
 var galleryHeight = 378;
 
 //记录分享用户、分享达人
+var from = "mp";//链接来源，默认为公众号进入
 var fromUser = "";
 var fromBroker = "";
 var broker = {};//当前达人
@@ -119,7 +124,7 @@ function showContent(item){
     //*/
     //广告
     //trace user action
-    logstash(item,"mp","view",fromUser,fromBroker,function(){
+    logstash(item,from,"view",fromUser,fromBroker,function(){
         //do nothing
     });      
 }
@@ -206,7 +211,7 @@ function jump(item){//支持点击事件
     }else if(fromBroker && fromBroker.trim().length>0){
         benificiaryBrokerId=fromBroker;
     }
-    logstash(item,"mp","buy",fromUser,benificiaryBrokerId,function(){
+    logstash(item,from,"buy",fromUser,benificiaryBrokerId,function(){
         var target = item.url;
         if(item.link.qrcode){
             //it is a QRCODE
@@ -385,7 +390,7 @@ function registerShareHandler(){
     }
 
     //准备分享url，需要增加分享的 fromUser、fromBroker信息
-    var shareUrl = window.location.href;
+    var shareUrl = window.location.href.replace(/info2/g,"share");//需要使用中间页进行跳转
     if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
         shareUrl += "&fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;

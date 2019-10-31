@@ -1,0 +1,28 @@
+// 文档加载完毕后执行
+$(document).ready(function ()
+{
+    //当分享单个item时，传递参数包括：fromBroker,fromUser,from,itemId四个，需要获取参数后请求微信静默授权得到openid
+    var args = location.search;//获取参数
+    console.log("Share::onReady get parameters.",args);
+
+    args = args.replace(/\?/g,"___");
+    args = args.replace(/\&/g,"__");
+    
+    //组织链接，到oauth
+    var appid="wxe12f24bb8146b774";
+    var redirect_uri="http://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html";//统一通过分发页面跳转
+    var response_type="code";
+    var scope="snsapi_base";//静默授权，只需要获取openid
+    var state="info2"+args;
+
+    var oauth_url="https://open.weixin.qq.com/connect/oauth2/authorize"
+        +"?appid="+appid
+        + "&redirect_uri=" + redirect_uri
+        + "&response_type=code&scope=" + scope
+        + "&state=" + state
+        + "#wechat_redirect";
+
+    console.log("Share::onReady start oauth.",oauth_url);
+    window.location.href = oauth_url;
+});
+
