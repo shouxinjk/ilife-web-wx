@@ -365,7 +365,8 @@ function registerShareHandler(){
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
         type:"get",
-        data:{url:window.location.href},
+        //data:{url:window.location.href},
+        data:{url:shareUrl},
         success:function(json){
             wx.config({
                 debug:false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
@@ -389,7 +390,7 @@ function registerShareHandler(){
                     imgUrl:stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
-                        logstash(stuff,"mp","share timeline",fromUser,fromBroker,function(){
+                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(){
                             console.log("分享到朋友圈");
                         }); 
                     },
@@ -405,7 +406,7 @@ function registerShareHandler(){
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
                       // 用户点击了分享后执行的回调函数
-                        logstash(stuff,"mp","share appmsg",fromUser,fromBroker,function(){
+                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(){
                             console.log("分享到微信");
                         }); 
                     }
