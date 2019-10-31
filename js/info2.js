@@ -29,7 +29,7 @@ $(document).ready(function ()
     loadItem(id);   
     loadBrokerByOpenid(app.globalData.userInfo._key);//有点危险。如果没存到cookie可能为空
     loadHosts(id);
-    registerShareHandler();
+    //registerShareHandler();//由于需要检验达人，需要在达人信息加载完成后再处理
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -185,6 +185,8 @@ function loadBrokerByOpenid(openid) {
                 $("#profit").toggleClass("profit-show",true);
             }
         }
+        //加载达人后再注册分享事件
+        registerShareHandler();
     });
 }
 
