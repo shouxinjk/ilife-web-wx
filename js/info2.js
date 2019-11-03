@@ -105,7 +105,8 @@ function showContent(item){
         $("#qrcodeImgDiv").css('visibility', 'visible');
         $("#jumpbtn").text('扫码购买');
     }else if(item.link.token && item.link.token.trim().length>0){//如果是口令
-        $('#jumpbtn').attr('data-clipboard-text',item.link.token);//将口令预先设置好           
+        $('#jumpbtn').attr('data-clipboard-text',item.link.token);//将口令预先设置好    
+        $('#jumpbtn').html("复制口令并前往"+item.distributor.name);
     }
 
     //标签
