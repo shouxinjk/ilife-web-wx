@@ -78,12 +78,12 @@ setInterval(function ()
     }
 }, 300);
 
-//加载特定于达人的画像列表
+//加载特定于达人的任务列表
 function loadItems(){
     var query={
-            collection: "persona_personas", 
+            collection: "tasks", 
             example: { 
-                broker:"system"//查询系统提供的persona
+                openId:currentPerson//查询分配给当前达人的任务列表
             },
             skip:(page.current+1)*page.size,
             limit:page.size
@@ -117,31 +117,22 @@ function insertItem(){
 
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.image+"' width='100' height='100'/>"
-    var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
-    var tags = "<div class='itemTags'>";
-    var taggingList = item.tags;
-    for(var t in taggingList){
-        var txt = taggingList[t];
-        if(txt.trim().length>1 && txt.trim().length<6){
-            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
-        }
-    }
-    if(item.categoryId && item.categoryId.trim().length>1){
-        tags += tagTmpl.replace("__TAGGING",item.category).replace("__TAG",item.category);
-    }
-    tags += "</div>";
-    //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
-    var title = "<div class='title'>"+item.name+"</div>"
+    var image = "<img src='images/tasks/"+item.type+".png' width='40' height='40'/>"
+    var title = "<div class='title'>"+item.title+"</div>"
     var description = "<div class='description'>"+item.description+"</div>"
-    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo'>" + image +"</div><div class='persona-tags'>" +title +description+ tags+ "</div></li>");
+    var link = "";
+    if(item.url&&item.url.trim().length>0){
+        link = "<div class='task-url'><a href='"+item.url+"'>点击查看详情</a></div>";
+    }
+    $("#waterfall").append("<li><div class='task' data='"+item._key+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+ link+"</div></li>");
     num++;
 
     //注册事件
     $("div[data='"+item._key+"']").click(function(){
-        //根据选中内容创建一个特定于当前broker的persona
-        //TODO: 需要显示任务详情
-        //createPersona(item);
+        //如果任务带有url，则跳转到指定url显示。是完整url链接
+        if(item.url){
+            window.location.href = item.url;
+        }
     });
 
     // 表示加载结束
