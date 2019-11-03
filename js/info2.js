@@ -104,6 +104,8 @@ function showContent(item){
         $('#qrcodeImgDiv').addClass('qrcode-'+item.source+'-div');//应用对应不同source的二维码裁剪属性
         $("#qrcodeImgDiv").css('visibility', 'visible');
         $("#jumpbtn").text('扫码购买');
+    }else if(item.link.token && item.link.token.trim().length>0){//如果是口令
+        $('#jumpbtn').attr('data-clipboard-text',item.link.token);//将口令预先设置好           
     }
 
     //标签
@@ -213,9 +215,23 @@ function jump(item){//支持点击事件
     }
     logstash(item,from,"buy",fromUser,benificiaryBrokerId,function(){
         var target = item.url;
-        if(item.link.qrcode){
+        if(item.link.qrcode){//如果是二维码
             //it is a QRCODE
             $("#jumpbtn").text("扫码购买哦");
+        }else if(item.link.token && item.link.token.trim().length>0){//如果是口令
+            var clipboard = new ClipboardJS('#jumpbtn');
+            clipboard.on('success', function(e) {
+                //$('#jumpbtn').attr('data-clipboard-text',item.link.token);
+                //console.info('Action:', e.action);
+                console.info('token is copied:', e.text);
+                $.toast({//浮框提示打开APP
+                    heading: '需要在APP购买',
+                    text: '口令已复制，打开'+item.distributor.name+'APP吧',
+                    showHideTransition: 'fade',
+                    icon: 'success'
+                });              
+                //e.clearSelection();
+            });            
         }else if(item.link.cps && item.link.cps[benificiaryBrokerId]){//能够直接获得达人链接则直接显示
             window.location.href = item.link.cps[benificiaryBrokerId];
         }else{//否则请求其链接并显示
