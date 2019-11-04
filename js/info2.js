@@ -103,7 +103,7 @@ function showContent(item){
         $('#qrcodeImg').addClass('qrcode-'+item.source);//应用对应不同source的二维码裁剪属性
         $('#qrcodeImgDiv').addClass('qrcode-'+item.source+'-div');//应用对应不同source的二维码裁剪属性
         $("#qrcodeImgDiv").css('visibility', 'visible');
-        $("#jumpbtn").text('扫码购买');
+        $("#jumpbtn").text('长按下面的图片扫码购买');
     }else if(item.link.token && item.link.token.trim().length>0){//如果是口令
         $('#jumpbtn').attr('data-clipboard-text',item.link.token);//将口令预先设置好    
         $('#jumpbtn').html("复制口令并前往"+item.distributor.name);
@@ -218,7 +218,7 @@ function jump(item){//支持点击事件
         var target = item.url;
         if(item.link.qrcode){//如果是二维码
             //it is a QRCODE
-            $("#jumpbtn").text("扫码购买哦");
+            $("#jumpbtn").text("长按下面的图片扫码购买哦");
         }else if(item.link.token && item.link.token.trim().length>0){//如果是口令
             var clipboard = new ClipboardJS('#jumpbtn');
             clipboard.on('success', function(e) {
