@@ -149,7 +149,24 @@ input,img{border: none;}
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
 }
+.coupon{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:#fe4800;
+  padding:2px;    
+  border:1px solid #fe4800;
+}
 
+.couponTip{
+  font-size:12px;
+  font-weight: bold;
+  background-color: #fe4800;
+  color:white;
+  padding:2px;    
+  border:1px solid #fe4800;
+  margin-left:2px;
+}
 .profitTipOrder{
   font-size:12px;
   font-weight: bold;

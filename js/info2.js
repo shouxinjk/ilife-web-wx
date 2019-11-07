@@ -151,6 +151,11 @@ function htmlItemProfitTags(item){
         profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide'></div>";
         getItemProfit(item);
     }
+
+    if(item.price.coupon>0){
+        profitTags += "<span class='couponTip'>可领券</span><span class='coupon' href='#'>"+item.price.coupon+"</span>";
+    }
+
     return profitTags;
 }
 
