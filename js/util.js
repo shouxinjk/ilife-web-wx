@@ -61,12 +61,12 @@ util.getBrokerInfo =function (){
   var strBrokerInfo = $.cookie('sxBrokerInfo');
   var jsonBrokerInfo = {};
   if(strHasBroker && strHasBroker.trim().length>0 && strHasBroker=="true"){
-    console.log("load brokerInfo from cookie.",strBrokerInfo);
+    //console.log("load brokerInfo from cookie.",strBrokerInfo);
     jsonBrokerInfo = JSON.parse(strBrokerInfo);
     app.globalData.brokerInfo = jsonBrokerInfo;
     app.globalData.hasBrokerInfo = true;
   }
-  console.log("load brokerInfo from cookie json.",jsonBrokerInfo);
+  //console.log("load brokerInfo from cookie json.",jsonBrokerInfo);
   return jsonBrokerInfo;
 }
 

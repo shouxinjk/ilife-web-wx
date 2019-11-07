@@ -368,9 +368,8 @@ function getItemProfit2Party(item) {
         amount:item.profit.amount,
         category:item.categoryId?item.categoryId:""
     };
-    console.log("try to query item profit -- 2 party",data);
     util.AJAX(app.config.sx_api+"/mod/commissionScheme/rest/profit-2-party", function (res) {
-        console.log("got profit info.",item,res);
+        console.log("\ngot profit info.",data,res);
         var showProfit = false;
         var html = "";
         if (res.order) {//店返
@@ -397,7 +396,7 @@ function getItemProfit2Party(item) {
         item.profit.team = res.team;
         item.profit.credit = res.credit;
         item.profit.type = "3-party";   
-        updateItem(item);      
+        //updateItem(item);      //注意：需要进入索引，而不是直接修改原始数据
     },"GET",data);
 }
 
@@ -437,7 +436,7 @@ function getItemProfit(item) {
         item.profit.team = res.team;
         item.profit.credit = res.credit;
         item.profit.type = "3-party";   
-        updateItem(item);   
+        //updateItem(item);   //注意：需要进入索引，而不是直接修改原始数据
     },"GET",data);
 }
 

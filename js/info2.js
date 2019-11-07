@@ -136,6 +136,7 @@ function showContent(item){
 function htmlItemProfitTags(item){
     var profitTags = "";
     //因为已经确认过是达人，这里直接显示即可
+    console.log("\n\n==profit==",item.profit);
     if(item.profit&&item.profit.type=="3-party"){//如果已经存在则直接加载
       if(item.profit&&item.profit.order){
           profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span>";
@@ -244,8 +245,30 @@ function updateItem(item) {
     if (app.globalData.isDebug) console.log("Info2::updateItem update item.",item);
     util.AJAX(url, function (res) {
       if (app.globalData.isDebug) console.log("Info2::updateItem update item finished.", res);
-      //do nothing
+      //需要重新提交索引， 否则首页无法显示
+      index(item);
     }, "PATCH", item, header);
+}
+
+//提交索引
+function index(item){//记录日志
+    var data = {
+        records:[{
+            value:item
+        }]
+    };
+    $.ajax({
+        url:"http://kafka-rest.shouxinjk.net/topics/stuff",
+        type:"post",
+        data:JSON.stringify(data),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/vnd.kafka.json.v2+json",
+            "Accept":"application/vnd.kafka.v2+json"
+        },
+        success:function(result){
+            console.log("update index success.");
+        }
+    })            
 }
 
 //根据openid查询加载broker

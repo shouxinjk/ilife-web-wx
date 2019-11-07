@@ -432,7 +432,8 @@ function htmlItemHighlights(item){
 function htmlItemProfitTags(item){ 
     var profitTags = "";
     if(util.hasBrokerInfo()){//如果是推广达人则显示佣金
-        if(item.profit && item.profit.type.indexOf("3-party")>-1){//如果已经存在则直接加载
+        console.log("\n\n==profit==",item.profit);
+        if(item.profit && item.profit.type=="3-party"){//如果已经存在则直接加载
           console.log("\n\n===3-party==");
           if(item.profit&&item.profit.order){
               profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span>";
@@ -440,7 +441,7 @@ function htmlItemProfitTags(item){
           }else if(item.profit&&item.profit.credit&&item.profit.credit>0){
               profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(item.profit.credit*10)/10).toFixed(0)))+"</span>";
           }
-        }else if(item.profit && item.profit.type.indexOf("2-party")>-1){//如果是2方分润则请求计算
+        }else if(item.profit && item.profit.type=="2-party"){//如果是2方分润则请求计算
             console.log("\n\n===2-party==");
             profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide'></div>";
             getItemProfit2Party(item);
@@ -495,7 +496,7 @@ function getItemProfit(item) {
         item.profit.team = res.team;
         item.profit.credit = res.credit;
         item.profit.type = "3-party";   
-        updateItem(item);       
+        //updateItem(item);  //注意：需要进入索引，而不是直接修改原始数据     
     },"GET",data);
 }
 
@@ -537,7 +538,7 @@ function getItemProfit2Party(item) {
         item.profit.team = res.team;
         item.profit.credit = res.credit;
         item.profit.type = "3-party";   
-        updateItem(item);      
+        //updateItem(item);  //注意：需要进入索引，而不是直接修改原始数据    
     },"GET",data);
 }
 
