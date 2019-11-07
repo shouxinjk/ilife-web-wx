@@ -432,18 +432,28 @@ function htmlItemHighlights(item){
 function htmlItemProfitTags(item){ 
     var profitTags = "";
     if(util.hasBrokerInfo()){//如果是推广达人则显示佣金
-        if(item.profit&&item.profit.order){
-            profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span>";
-            if(item.profit&&item.profit.team&&item.profit.team>0.1)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.profit.team*10)/10).toFixed(1)))+"</span>";
-        }else if(item.profit&&item.profit.credit&&item.profit.credit>0){
-            profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(item.profit.credit*10)/10).toFixed(0)))+"</span>";
+        if(item.profit && item.profit.type.indexOf("3-party")>-1){//如果已经存在则直接加载
+          console.log("\n\n===3-party==");
+          if(item.profit&&item.profit.order){
+              profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span>";
+              if(item.profit&&item.profit.team&&item.profit.team>0.1)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.profit.team*10)/10).toFixed(1)))+"</span>";
+          }else if(item.profit&&item.profit.credit&&item.profit.credit>0){
+              profitTags += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(item.profit.credit*10)/10).toFixed(0)))+"</span>";
+          }
+        }else if(item.profit && item.profit.type.indexOf("2-party")>-1){//如果是2方分润则请求计算
+            console.log("\n\n===2-party==");
+            profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide'></div>";
+            getItemProfit2Party(item);
+        }else{//表示尚未计算。需要请求计算得到该item的profit信息
+            console.log("\n\n===re-calculate==",item);
+            profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide'></div>";
+            getItemProfit(item);
         }
     }
-    if(profitTags.trim().length>0){//如果已经存在则直接加载
+    if(profitTags.trim().length>0){
         profitTags = "<div id='profit"+item._key+"' class='itemTags profit-show'>"+profitTags+"</div>";
-    }else{//否则请求得到该item的profit信息
+    }else{
         profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide'></div>";
-        getItemProfit(item);
     } 
     return profitTags;
 }
@@ -477,10 +487,73 @@ function getItemProfit(item) {
             $("#profit"+item._key).toggleClass("profit-hide",false);
             $("#profit"+item._key).toggleClass("profit-show",true);
         }
-        //更新到item       
+        //更新到item
+        if(item.profit==null){
+          item.profit={};
+        }
+        item.profit.order = res.order;
+        item.profit.team = res.team;
+        item.profit.credit = res.credit;
+        item.profit.type = "3-party";   
+        updateItem(item);       
     },"GET",data);
 }
 
+
+//查询佣金。2方分润。返回order/team/credit三个值
+function getItemProfit2Party(item) {
+    var data={
+        source:item.source,
+        price:item.price.sale,
+        amount:item.profit.amount,
+        category:item.categoryId?item.categoryId:""
+    };
+    console.log("try to query item profit -- 2 party",data);
+    util.AJAX(app.config.sx_api+"/mod/commissionScheme/rest/profit-2-party", function (res) {
+        console.log("got profit info.",item,res);
+        var showProfit = false;
+        var html = "";
+        if (res.order) {//店返
+            html += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(res.order*10)/10).toFixed(1)))+"</span>";
+            if(res.team && res.team>0.1){//过小的团返不显示
+                html += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(res.team*10)/10).toFixed(1)))+"</span>";
+            }
+        }else if(res.credit&&res.credit>0){//如果没有现金则显示积分
+            html += "<span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(res.credit*10)/10).toFixed(0)))+"</span>";
+        }else{//这里应该是出了问题，既没有现金也没有积分
+            console.log("===error===\nnothing to show.",item,res);
+        }
+        //显示到界面
+        if(html.trim().length>0){
+            $("#profit"+item._key).html(html);
+            $("#profit"+item._key).toggleClass("profit-hide",false);
+            $("#profit"+item._key).toggleClass("profit-show",true);
+        }
+        //更新到item
+        if(item.profit==null){
+          item.profit={};
+        }        
+        item.profit.order = res.order;
+        item.profit.team = res.team;
+        item.profit.credit = res.credit;
+        item.profit.type = "3-party";   
+        updateItem(item);      
+    },"GET",data);
+}
+
+//更新item信息。只用于更新profit
+function updateItem(item) {
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    };  
+    var url = app.config.data_api +"/_api/document/my_stuff/"+item._key;
+    if (app.globalData.isDebug) console.log("Feeds::updateItem update item.",item);
+    util.AJAX(url, function (res) {
+      if (app.globalData.isDebug) console.log("Feeds::updateItem update item finished.", res);
+      //do nothing
+    }, "PATCH", item, header);
+}
 
 function changePerson (personId,personTagging) {
     var ids = personId;

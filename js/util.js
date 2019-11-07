@@ -34,7 +34,7 @@ util.hasUserInfo =function (){
 
 util.getUserInfo =function (){
   var strUserInfo = $.cookie('sxUserInfo');
-  console.log("load userInfo from cookie.",strUserInfo);
+  //console.log("load userInfo from cookie.",strUserInfo);
   var jsonUserInfo = {};
   if(strUserInfo && strUserInfo.trim().length>0){
     jsonUserInfo = JSON.parse(strUserInfo);
