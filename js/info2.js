@@ -334,6 +334,16 @@ function loadItem(key){//获取内容列表
             showContent(data);
             stuff = data;//本地保存，用于分享等后续操作
 
+            ////多站点处理：start//////////////////////////////////
+            //由于当前shouxinjk.net 和 biglistoflittlethings.com 两个网站分别到不同电商平台，需要进行分隔处理
+            if(stuff.source == "jd"){//如果是京东则跳转到shouxinjk
+                if(window.location.href.indexOf("shouxinjk.net")<0){//如果不是shouxinjk.net则跳转
+                    var sxUrl = window.location.href.replace(/www\.biglistoflittlethings\.com/g,"www.shouxinjk.net");
+                    window.location.href = sxUrl;
+                }
+            }
+            ////多站点处理：end////////////////////////////////////
+
             //准备注册分享事件。需要等待内容加载完成后才注册
             //判断是否为已注册用户
             if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
@@ -415,6 +425,14 @@ function registerShareHandler(){
         shareUrl += "?fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;        
     }
+
+    ////多站点处理：start//////////////////////////////////
+    //由于不同平台通过不同站点，需要进行区分是shouxinjk.net还是biglistoflittlethings.com
+    if(stuff&&stuff.source=="jd"){//如果是京东，则需要指明跳转到shouxinjk.net
+        shareUrl += "&toSite=shouxinjk"; 
+    }
+    ////多站点处理：end////////////////////////////////////
+
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
         type:"get",

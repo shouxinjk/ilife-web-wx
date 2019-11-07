@@ -282,6 +282,7 @@ div.title{
   justify-content:flex-start;
   overflow:hidden; 
   text-overflow:ellipsis;
+  line-height: 14px;
 }
 
 .tag-text{
