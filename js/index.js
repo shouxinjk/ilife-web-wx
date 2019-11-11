@@ -368,7 +368,7 @@ function getItemProfit2Party(item) {
     var data={
         source:item.source,
         price:item.price.sale,
-        amount:item.profit.amount,
+        amount:item.profit.amount?item.profit.amount:0,
         category:item.categoryId?item.categoryId:""
     };
     util.AJAX(app.config.sx_api+"/mod/commissionScheme/rest/profit-2-party", function (res) {
