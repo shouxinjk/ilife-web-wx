@@ -96,12 +96,12 @@ function showContent(item){
     //$("#score .comment").append("<div class='label'>评价</div><div class='rank'>"+item.score.rank+"/<span class='base'>"+item.score.base+"</span></div>");
     var priceHtml = "<div class='label'>价格</div>";
     if(item.price.bid && item.price.bid>item.price.sale){//如果有降价信息则优先显示
-        if(item.price.coupon>0){//如果有券则显示领券标志
+        if(item.price.coupon && item.price.coupon>0){//如果有券则显示领券标志
             priceHtml+= "<div class='price-sale'><span class='couponTipBox'>券</span><span class='price-bid'>"+item.price.bid+"</span>"+item.price.sale+"</div>";
         }else{//否则显示原价
             priceHtml+= "<div class='price-sale'><span class='price-bid'>"+item.price.bid+"</span>"+item.price.sale+"</div>";
         }
-    }else if(item.price.coupon>0){//否则显示券的具体金额
+    }else if(item.price.coupon && item.price.coupon>0){//否则显示券的具体金额
         priceHtml+= "<div class='price-sale'><span class='couponTip'>券</span><span class='price-coupon'>"+item.price.coupon+"</span>"+item.price.sale+"</div>";
     }
     $("#score .price").append(priceHtml);
