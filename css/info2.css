@@ -50,7 +50,8 @@ a{
 .rank{font-size: 2rem;color:green;}
 .rank .base{font-size: 1.6rem;color:gray;}
 .rank .empty{font-size: 1rem;color:gray;}
-.price-bid{font-size: 1.6rem;padding-right: 0;margin-right: 0;text-decoration: line-through;color:gray;font-weight:normal;}
+.price-bid{font-size: 1.6rem;padding-right: 5px;margin-right: 0;text-decoration: line-through;color:darkgray;font-weight:normal;}
+.price-coupon{font-size: 1.6rem;padding-right: 5px;margin-right: 0;color:#fe4800;font-weight:normal;}
 .price-sale{font-size: 2rem;color:red;text-align: right;font-weight: bold;}
 .match{font-size: 2rem;font-weight: bold;color:darkgreen;}
 
@@ -153,6 +154,7 @@ a{
 	flex-wrap: wrap;
 	padding:2px 0;
 	margin-left:5px;
+	margin-top: 5px;
 }
 #tags>div{
 	font-size: 1.2rem;

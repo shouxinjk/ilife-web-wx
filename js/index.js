@@ -304,10 +304,10 @@ function insertItem(){
     var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
     var highlights = "<div class='itemTags'>";
     highlights += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
-    highlights += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name).replace("itemTag","itemTagDistributor");
     if(item.price.coupon>0){
-        highlights += "<span class='couponTip'>可领券</span><span class='coupon' href='#'>"+item.price.coupon+"</span>";
-    }
+        highlights += "<span class='couponTip'>券</span><span class='coupon' href='#'>"+item.price.coupon+"</span>";
+    }    
+    highlights += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name).replace("itemTag","itemTagDistributor");
     highlights += "</div>";
 
     var profitTags = "";
