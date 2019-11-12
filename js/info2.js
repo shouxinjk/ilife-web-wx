@@ -103,6 +103,8 @@ function showContent(item){
         }
     }else if(item.price.coupon && item.price.coupon>0){//否则显示券的具体金额
         priceHtml+= "<div class='price-sale'><span class='couponTip'>券</span><span class='price-coupon'>"+item.price.coupon+"</span>"+item.price.sale+"</div>";
+    }else{//只有最终售价
+        priceHtml+= "<div class='price-sale'>"+item.price.sale+"</div>";
     }
     $("#score .price").append(priceHtml);
 
