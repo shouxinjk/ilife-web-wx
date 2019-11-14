@@ -41,6 +41,18 @@ $(document).ready(function ()
         tagging = $(".search input").val().trim();
         window.location.href="index.html?filter=byPrice&keyword="+tagging;
     }); 
+    $("#findByDistance").click(function(){//注册搜索事件：点击搜索附近
+        tagging = $(".search input").val().trim();
+        getLocation();//每次都获取当前位置后开始搜索
+        /**
+        //另一种方案是获取一次后一直使用，但由于用户位置变化，需要获取当前位置
+        if(app.globalData.userInfo.location){//如果已经有位置，则直接发起搜索
+            window.location.href="index.html?filter=byDistance&keyword="+tagging;
+        }else{//否则请求位置信息并发起搜索
+            getLocation();
+        }
+        //**/
+    });     
 
     //微信JSSDK注册获取位置、分享事件
     /**
@@ -190,6 +202,34 @@ var esQueryByPrice={
     ]
 };
 
+var esQueryByDistance={
+  from:0,
+  size:page.size,
+  query: {
+    function_score: {
+        query: {
+            match_all: {}
+        },
+        functions: [
+            {
+              gauss: {
+                location: { 
+                      origin: { lat: 27.9881, lon: 86.9250 },//默认以珠穆朗玛峰为中心
+                      offset: "2km",
+                      scale:  "3km"
+                }
+              }
+            }
+        ],
+        boost_mode: "multiply"
+    }
+  },
+    sort: [
+        { "_score":   { "order": "desc" }},
+        { "@timestamp": { "order": "desc" }}
+    ]
+};
+
 setInterval(function ()
 {
     if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
@@ -215,10 +255,13 @@ function loadItems(){//获取内容列表
     if(filter.trim()=="byPrice" || filter.trim()=="byScore"||filter.trim()=="byDistance"){//需要进行过滤
         if(filter.trim()=="byPrice"){
             esQuery = esQueryByPrice;
-        }else if(filter.trim().equalsIgnoreCase("byScore")){
-            
-        }else if(filter.trim().equalsIgnoreCase("byDistance")){
-            
+        }else if(filter.trim()=="byScore"){
+            //TODO: 根据评价进行搜索
+        }else if(filter.trim()=="byDistance"){
+            //TODO: 根据位置进行搜索。优先从用户信息中获取经纬度，否则请求获取得到当前用户经纬度
+            esQuery = esQueryByDistance;
+            esQuery.query.function_score.functions[0].gauss.location.origin.lat = app.globalData.userInfo.location.latitude;
+            esQuery.query.function_score.functions[0].gauss.location.origin.lon = app.globalData.userInfo.location.longitude;
         }
         if(tagging.trim().length>0){//使用指定内容进行搜索
             q.match.full_text = tagging;
@@ -527,3 +570,75 @@ function shared(url, type, gid){
         }
     });
 }
+
+function getLocation(){
+    $.ajax({
+        url:app.config.auth_api+"/wechat/jssdk/ticket",
+        type:"get",
+        data:{url:window.location.href},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
+        success:function(json){
+            console.log("===got jssdk ticket===\n",json);
+            wx.config({
+                debug:false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: json.appId, // 必填，公众号的唯一标识
+                timestamp:json.timestamp , // 必填，生成签名的时间戳
+                nonceStr: json.nonceStr, // 必填，生成签名的随机串
+                signature: json.signature,// 必填，签名
+                jsApiList: [
+                  'getLocation',
+                  'updateTimelineShareData',
+                  'onMenuShareAppMessage',
+                  'onMenuShareTimeline',
+                  "onMenuShareTimeline",
+                  'onMenuShareAppMessage'                   
+                ] // 必填，需要使用的JS接口列表
+            });
+            wx.ready(function() {
+                // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
+                // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                //获取当前用户地理位置
+                wx.getLocation({
+                  type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'. gcj02可以用高德进行验证
+                  success: function (res) {
+                    console.log("\n-----got current location-----\n",res);
+                    var latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+                    var longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+                    var speed = res.speed; // 速度，以米/每秒计
+                    var accuracy = res.accuracy; // 位置精度
+                    //通过百度转换为统一坐标系
+                    //convertToBaiduLocation(longitude,latitude,callback);//这个有跨域问题，不能直接通过ajax请求访问
+                    var baiduApi = "http://api.map.baidu.com/geoconv/v1/?coords="+longitude+","+latitude
+                                    +"&from=3&to=5&ak=XwNTgTOf5mYaZYhQ0OiIb6GmOHsSZWul&callback=getCorsCoordinate";
+                    jQuery.getScript(baiduApi);//注意：不能通过ajax请求，而只能通过脚本加载绕过跨域问题
+                  }
+                });
+                //end
+            });
+        }
+    })    
+}
+
+
+function getCorsCoordinate(data){
+    console.log("\n\ngot converted location.",data);
+    if(data.status==0&&data.result.length>0){//表示成功:更新到用户地址
+        var location = {
+            longitude:data.result[0].x,
+            latitude:data.result[0].y
+        };
+        app.globalData.userInfo.location = location;
+        //设置本地UserInfo：存储到cookie
+        $.cookie('sxUserInfo', JSON.stringify(app.globalData.userInfo), { expires: 3650, path: '/' });
+        //推送到用户
+        util.AJAX(app.config.data_api +"/user/users/"+app.globalData.userInfo.openId, function (res) {
+            if (app.globalData.isDebug) console.log("Index::convertToBaiduLocation update person location finished.", res);
+            //直接开始搜索
+            window.location.href="index.html?filter=byDistance&keyword="+tagging;
+        }, "PATCH", app.globalData.userInfo, { "Api-Key": "foobar" });
+    }else{
+        console.log("\n\nfailed convert location.",data);
+    }
+}
+
+
+
