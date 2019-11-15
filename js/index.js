@@ -43,111 +43,12 @@ $(document).ready(function ()
     }); 
     $("#findByDistance").click(function(){//注册搜索事件：点击搜索附近
         tagging = $(".search input").val().trim();
-        getLocation();//每次都获取当前位置后开始搜索
-        /**
-        //另一种方案是获取一次后一直使用，但由于用户位置变化，需要获取当前位置
-        if(app.globalData.userInfo.location){//如果已经有位置，则直接发起搜索
-            window.location.href="index.html?filter=byDistance&keyword="+tagging;
-        }else{//否则请求位置信息并发起搜索
-            getLocation();
-        }
-        //**/
-    });     
-
-    //微信JSSDK注册获取位置、分享事件
-    /**
-    wx.config({
-        debug: true,
-        appId: '${appId!}',
-        timestamp: ${timestamp!},
-        nonceStr: '${nonceStr!}',
-        signature: '${signature!}',
-        jsApiList: [
-            'checkJsApi',
-            'onMenuShareTimeline',
-            'onMenuShareAppMessage',
-            'onMenuShareQQ',
-            'onMenuShareWeibo',
-            'hideMenuItems',
-            'getLocation'
-        ]
-    });
-
-    var shareTitle = "小确幸大生活";
-    var shareDesc = "发现生活里的小确幸";
-    var currentLink = window.location.href;
-    var shareLink = currentLink;
-    var shareImgUrl = "images/banner2.png";
-    var shareGid = "";
-
-    wx.ready(function () {
-        //分享给朋友
-        wx.onMenuShareAppMessage({
-            title: shareTitle,
-            desc: shareDesc,
-            link: shareLink,
-            imgUrl: shareImgUrl,
-            success: function (res) {
-                shared(shareLink, "friend", shareGid);
-            },
-            fail: function (res) {
-                alert(JSON.stringify(res));
-            }
-        });
-        //分享到朋友圈
-        wx.onMenuShareTimeline({
-            title: shareTitle,
-            desc: shareDesc,
-            link: shareLink,
-            imgUrl: shareImgUrl,
-            success: function (res) {
-                shared(shareLink, "Timeline", shareGid);
-            },
-            fail: function (res) {
-                alert(JSON.stringify(res));
-            }
-        });
-        //分享到QQ
-        wx.onMenuShareQQ({
-            title: shareTitle,
-            desc: shareDesc,
-            link: shareLink,
-            imgUrl: shareImgUrl,
-            success: function (res) {
-                shared(shareLink, "QQ", shareGid);
-            },
-            fail: function (res) {
-                alert(JSON.stringify(res));
-            }
-        });
-        //分享到腾讯QQ
-        wx.onMenuShareWeibo({
-            title: shareTitle,
-            desc: shareDesc,
-            link: shareLink,
-            imgUrl: shareImgUrl,
-            success: function (res) {
-                shared(shareLink, "Weibo", shareGid);
-            },
-            fail: function (res) {
-                alert(JSON.stringify(res));
-            }
-        });
-        //分享到QZone
-        wx.onMenuShareQZone({
-            title: shareTitle,
-            desc: shareDesc,
-            link: shareLink,
-            imgUrl: shareImgUrl,
-            success: function (res) {
-                shared(shareLink, "QZone", shareGid);
-            },
-            fail: function (res) {
-                alert(JSON.stringify(res));
-            }
-        });
-    }); 
-    //**/
+        getLocation();//点击后请求授权，并且在授权后每次点击时获取当前位置，并开始搜索
+    });  
+    $("#findByProfit").click(function(){//注册搜索事件：点击搜索高佣
+        tagging = $(".search input").val().trim();
+        window.location.href="index.html?filter=byProfit&keyword="+tagging;
+    });    
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -183,23 +84,28 @@ var esQuery={
 };
 
 var esQueryByPrice={
-  from:0,
-  size:page.size,
-  query: {
-    function_score: {
-      query: {
-        match_all: {}
-      },
-      script_score: {
-        script: "double discount=1;try{discount=doc['price.sale'].value/(doc['price.bid'].value+0.01);}catch(Exception ex){discount=1;} return 2-discount;"
-      },
-      boost_mode: "multiply"
+  "from": 0,
+  "size": page.size,
+  "query": {
+    "nested": {
+      "path": "price",
+      "score_mode": "min", 
+      "query": {
+        "function_score": {
+          "query": {
+              "match_all": {}
+          },
+          "script_score": {
+            "script": "_score * (2-doc['price.sale'].value/(doc['price.bid'].value==0?doc['price.sale'].value:doc['price.bid'].value))"
+          }
+        }
+      }
     }
   },
-    sort: [
-        { "_score":   { "order": "desc" }},
-        { "@timestamp": { "order": "desc" }}
-    ]
+  sort: [
+    { "_score":   { order: "desc" }},
+    { "@timestamp": { order: "desc" }}
+  ]
 };
 
 var esQueryByDistance={
@@ -230,6 +136,32 @@ var esQueryByDistance={
     ]
 };
 
+
+var esQueryByProfit={
+  "from": 0,
+  "size": page.size,
+  "query": {
+    "nested": {
+      "path": "profit",
+      "score_mode": "min", 
+      "query": {
+        "function_score": {
+          "query": {
+              "match_all": {}
+          },
+          "script_score": {
+            "script": "_score * doc['profit.amount'].value"
+          }
+        }
+      }
+    }
+  },
+  sort: [
+        { "_score":   { order: "desc" }},
+        { "@timestamp": { order: "desc" }}
+    ]
+};
+
 setInterval(function ()
 {
     if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
@@ -252,16 +184,17 @@ function loadItems(){//获取内容列表
           full_text:"" 
         }
     };  
-    if(filter.trim()=="byPrice" || filter.trim()=="byScore"||filter.trim()=="byDistance"){//需要进行过滤
+    if(filter.trim()=="byPrice" || filter.trim()=="byScore"||filter.trim()=="byDistance"||filter.trim()=="byProfit"){//需要进行过滤
         if(filter.trim()=="byPrice"){
             esQuery = esQueryByPrice;
-        }else if(filter.trim()=="byScore"){
-            //TODO: 根据评价进行搜索
-        }else if(filter.trim()=="byDistance"){
-            //TODO: 根据位置进行搜索。优先从用户信息中获取经纬度，否则请求获取得到当前用户经纬度
+        }else if(filter.trim()=="byScore"){//根据评价进行搜索
+            //TODO
+        }else if(filter.trim()=="byDistance"){//根据位置进行搜索。优先从用户信息中获取经纬度，否则请求获取得到当前用户经纬度
             esQuery = esQueryByDistance;
             esQuery.query.function_score.functions[0].gauss.location.origin.lat = app.globalData.userInfo.location.latitude;
             esQuery.query.function_score.functions[0].gauss.location.origin.lon = app.globalData.userInfo.location.longitude;
+        }else if(filter.trim()=="byProfit"){//根据佣金排序
+            esQuery = esQueryByProfit;
         }
         if(tagging.trim().length>0){//使用指定内容进行搜索
             q.match.full_text = tagging;
@@ -269,12 +202,23 @@ function loadItems(){//获取内容列表
         }
     }else{//无过滤
         if(tagging.trim().length>0){//使用指定内容进行搜索
-            q.match.full_text = tagging;
-            esQuery.query = q;
+            if(filter.trim()=="byPrice" || filter.trim()=="byProfit"){//由于使用嵌套查询，查询关键字设置不同
+                q.match.full_text = tagging;
+                esQuery.query.nested.query.function_score.query = q;
+            }else{
+                q.match.full_text = tagging;
+                esQuery.query = q;
+            }
         }else{//搜索全部
-            esQuery.query = {
-                match_all: {}
-            };
+            if(filter.trim()=="byPrice" || filter.trim()=="byProfit"){//由于使用嵌套查询，查询关键字设置不同
+                esQuery.query.nested.query.function_score.query = {
+                    match_all: {}
+                };
+            }else{
+                esQuery.query = {
+                    match_all: {}
+                };
+            }            
         }
     }
     //处理翻页
@@ -355,6 +299,7 @@ function insertItem(){
 
     var profitTags = "";
     if(util.hasBrokerInfo()){//如果是推广达人则显示佣金
+        showHighProfitLink();//显示高佣链接入口
         if(item.profit&&item.profit.type=="3-party"){//如果已经存在则直接加载
           if(item.profit&&item.profit.order){
               profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span>";
@@ -513,6 +458,12 @@ function showNoMoreMsg(){
     //*/
     $("#footer").toggleClass("footer-hide",false);
     $("#footer").toggleClass("footer-show",true);
+}
+
+//如果是达人则显示高佣入口
+function showHighProfitLink(){
+    $("#findByProfit").toggleClass("searchBtn-hide",false);
+    $("#findByProfit").toggleClass("searchBtn",true);
 }
 
 // 自动加载更多：此处用于测试，动态调整图片高度
