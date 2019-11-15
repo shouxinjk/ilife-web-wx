@@ -48,7 +48,11 @@ $(document).ready(function ()
     $("#findByProfit").click(function(){//注册搜索事件：点击搜索高佣
         tagging = $(".search input").val().trim();
         window.location.href="index.html?filter=byProfit&keyword="+tagging;
-    });    
+    }); 
+    $("#findByRank").click(function(){//注册搜索事件：点击搜索好物：根据评价
+        tagging = $(".search input").val().trim();
+        window.location.href="index.html?filter=byRank&keyword="+tagging;
+    });        
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -97,6 +101,32 @@ var esQueryByPrice={
           },
           "script_score": {
             "script": "_score * (2-doc['price.sale'].value/(doc['price.bid'].value==0?doc['price.sale'].value:doc['price.bid'].value))"
+          }
+        }
+      }
+    }
+  },
+  sort: [
+    { "_score":   { order: "desc" }},
+    { "@timestamp": { order: "desc" }}
+  ]
+};
+
+
+var esQueryByRank={
+  "from": 0,
+  "size": page.size,
+  "query": {
+    "nested": {
+      "path": "rank",
+      "score_mode": "avg", 
+      "query": {
+        "function_score": {
+          "query": {
+              "match_all": {}
+          },
+          "script_score": {
+            "script": "_score * (1+doc['rank.score'].value/(doc['rank.base'].value==0?5:doc['rank.base'].value))"
           }
         }
       }
@@ -184,7 +214,7 @@ function loadItems(){//获取内容列表
           full_text:"" 
         }
     };  
-    if(filter.trim()=="byPrice" || filter.trim()=="byScore"||filter.trim()=="byDistance"||filter.trim()=="byProfit"){//需要进行过滤
+    if(filter.trim()=="byPrice" || filter.trim()=="byScore"||filter.trim()=="byDistance"||filter.trim()=="byProfit"||filter.trim()=="byRank"){//需要进行过滤
         if(filter.trim()=="byPrice"){
             esQuery = esQueryByPrice;
         }else if(filter.trim()=="byScore"){//根据评价进行搜索
@@ -195,6 +225,8 @@ function loadItems(){//获取内容列表
             esQuery.query.function_score.functions[0].gauss.location.origin.lon = app.globalData.userInfo.location.longitude;
         }else if(filter.trim()=="byProfit"){//根据佣金排序
             esQuery = esQueryByProfit;
+        }else if(filter.trim()=="byRank"){//根据佣金排序
+            esQuery = esQueryByRank;
         }
         if(tagging.trim().length>0){//使用指定内容进行搜索
             q.match.full_text = tagging;
@@ -202,7 +234,7 @@ function loadItems(){//获取内容列表
         }
     }else{//无过滤
         if(tagging.trim().length>0){//使用指定内容进行搜索
-            if(filter.trim()=="byPrice" || filter.trim()=="byProfit"){//由于使用嵌套查询，查询关键字设置不同
+            if(filter.trim()=="byPrice" || filter.trim()=="byProfit"||filter.trim()=="byRank"){//由于使用嵌套查询，查询关键字设置不同
                 q.match.full_text = tagging;
                 esQuery.query.nested.query.function_score.query = q;
             }else{
@@ -210,7 +242,7 @@ function loadItems(){//获取内容列表
                 esQuery.query = q;
             }
         }else{//搜索全部
-            if(filter.trim()=="byPrice" || filter.trim()=="byProfit"){//由于使用嵌套查询，查询关键字设置不同
+            if(filter.trim()=="byPrice" || filter.trim()=="byProfit"||filter.trim()=="byRank"){//由于使用嵌套查询，查询关键字设置不同
                 esQuery.query.nested.query.function_score.query = {
                     match_all: {}
                 };
