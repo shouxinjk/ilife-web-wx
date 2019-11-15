@@ -191,7 +191,7 @@ var esQueryByPrice={
         match_all: {}
       },
       script_score: {
-        script: "double discount=0;try{discount=doc['price.sale'].value/(doc['price.sale'].value+0.01);}catch(Exception ex){discount=0;} return 1+discount;"
+        script: "double discount=1;try{discount=doc['price.sale'].value/(doc['price.bid'].value+0.01);}catch(Exception ex){discount=1;} return 2-discount;"
       },
       boost_mode: "multiply"
     }
