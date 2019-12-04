@@ -19,6 +19,11 @@ $(document).ready(function ()
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
 
+    $('#waterfall').NewWaterfall({
+        width: columnWidth,
+        delay: 100,
+    });     
+
     $("body").css("background-color","#fff");//更改body背景为白色
 
     loadPerson(currentPerson);//加载用户
@@ -51,6 +56,84 @@ var tagging = '';//操作对应的action 如buy view like 等
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;
 var userInfo=app.globalData.userInfo;//默认为当前用户
 
+var platforms = {
+    taobao:"淘宝",
+    ctrip:"携程",
+    tmall:"天猫",
+    jd:"京东",
+    lvmama:"驴妈妈",
+    tongcheng:"同程",
+    dangdang:"当当"
+};
+
+var statusArr= {
+    cleared:"已结算",
+    pending:"结算中",
+    locked:"当前锁定。待团队指标达成后解锁"
+};
+
+var currentBroker = null;
+
+function startLoadOrders(brokerId){
+    currentBroker = brokerId;
+    setInterval(function ()
+    {
+        if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+        {
+            // 表示开始加载
+            loading = true;
+            showloading(true);
+
+            // 加载内容
+            if(items.length < num){//如果内容未获取到本地则继续获取
+                loadItems();
+            }else{//否则使用本地内容填充
+                insertItem();
+            }
+        }
+    }, 500);
+}
+
+//加载订单列表
+function loadItems(){
+    util.AJAX(app.config.sx_api+"/mod/clearing/rest/money/byOrder/"+currentBroker, function (res) {
+        showloading(false);
+        console.log("money::loadItems try to retrive orders by brokerId.", res)
+        if(res && res.length==0){//如果没有订单则提示，
+            shownomore();
+        }else{//否则显示到页面
+            //更新当前翻页
+            page.current = page.current + 1;
+            //装载具体条目
+            var hits = res;
+            for(var i = 0 ; i < hits.length ; i++){
+                items.push(hits[i]);
+            }
+            insertItem();
+        }
+    }, "GET",{offset:(page.current+1)*page.size,size:page.size},{});
+}
+
+//将item显示到页面
+function insertItem(){
+    // 加载内容
+    var item = items[num-1];
+    var placeHolder = "<div class='placeholder'></div>";
+    var orderTime = "<div class='order-item'>时间："+item.orderTime.split(" ")[0]+"</div>";
+    var itemTitle = "<div class='order-item'>"+"商品：【"+platforms[item.platform]+"】"+item.item+"</div>";
+    var profitAmount = "<div class='order-item'>佣金："+item.amountProfit+"</div>";
+    var profitStatus = "<div class='order-item'>状态："+statusArr[item.status]+"</div>";
+    $("#waterfall").append("<li><div class='order-entry' data='"+item.id+"'>"+placeHolder+"<div class='order-box'>"+itemTitle +orderTime +profitAmount+profitStatus+"</div>"+placeHolder+ "</div></li>");
+
+    //注册事件
+    $("div[data='"+item.id+"']").click(function(){
+        //点击后跳转到对应的商品？当前存在跳转障碍
+    });
+
+    num++;//下标加一
+    loading = false;// 表示加载结束
+}
+
 //load person
 function loadPerson(personId) {
     console.log("try to load person info.",personId);
@@ -80,6 +163,7 @@ function loadBrokerByOpenid(openid) {
         if (res.status) {
             insertBroker(res.data);//显示达人信息
             getMoney(res.data.id);//查询达人收益信息
+            startLoadOrders(res.data.id);//加载订单信息
         }
     });
 }
