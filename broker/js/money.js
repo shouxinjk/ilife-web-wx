@@ -122,7 +122,7 @@ function insertItem(){
     var orderTime = "<div class='order-item'>时间："+item.orderTime.split(" ")[0]+"</div>";
     var itemTitle = "<div class='order-item'>"+"商品：【"+platforms[item.platform]+"】"+item.item+"</div>";
     var profitAmount = "<div class='order-item'>佣金："+item.amountProfit+"</div>";
-    var profitStatus = "<div class='order-item'>状态："+statusArr[item.status]+"</div>";
+    var profitStatus = "<div class='order-item'>状态："+statusArr[item.statusClear]+"</div>";
     $("#waterfall").append("<li><div class='order-entry' data='"+item.id+"'>"+placeHolder+"<div class='order-box'>"+itemTitle +orderTime +profitAmount+profitStatus+"</div>"+placeHolder+ "</div></li>");
 
     //注册事件
