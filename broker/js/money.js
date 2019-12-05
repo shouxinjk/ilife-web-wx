@@ -180,12 +180,12 @@ function getMoney(brokerId) {
 }
 
 function showMoney(money){
-    $("#amountTotal").html("￥"+money.clearingAmount);
-    $("#amountSettlement").html("￥"+money.settlementAmount);
-    $("#amountPayable").html("可提现：￥"+(money.settlementAmount-money.lockedAmount-money.paymentAmount));
-    $("#amountPayment").html("已提现：￥"+money.paymentAmount);
-    $("#amountLocked").html("已锁定：￥"+money.lockedAmount);
-    $("#amountPending").html("￥"+(money.clearingAmount-money.settlementAmount));
+    $("#amountTotal").html("￥"+money.totalAmount.toFixed(2));
+    $("#amountSettlement").html("￥"+(money.lockedAmount+money.payableAmount).toFixed(2));
+    $("#amountPayable").html("可提现：￥"+(money.payableAmount-money.paidAmount).toFixed(2));
+    $("#amountPayment").html("已提现：￥"+money.paidAmount.toFixed(2));
+    $("#amountLocked").html("已锁定：￥"+money.lockedAmount.toFixed(2));
+    $("#amountPending").html("￥"+(money.totalAmount-money.lockedAmount-money.payableAmount).toFixed(2));
 }
 
 function insertPerson(person){
