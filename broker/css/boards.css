@@ -1,0 +1,154 @@
+.task{
+  width:100%;
+  display:table;
+  margin:2px auto;
+}
+
+.task-logo{
+  display:table-cell;
+  width:20%;
+  text-align: center;
+}
+
+.task-tags{
+  display:table-cell;
+  vertical-align: top;
+  width:80%;
+}
+
+.task-tags .btns{
+  line-height: 16px;
+  vertical-align: middle;
+}
+
+.task-url{
+  width:100%;
+  font-size:12px;
+  text-align:top;
+  padding-bottom: 5px;
+}
+
+.task-url a{
+  font-size:12px;
+  line-height:16px;
+  padding-top:0;
+  color:darkred;
+}
+
+.title{
+  font-size:16px;
+  font-weight: bold;
+  margin-bottom:10px;
+}
+
+.description{
+  font-size:12px;
+  line-height: 14px;
+  margin-top: 10px;
+}
+
+.tags {
+  font-color:darkred;
+  font-size: 12px;
+  font-weight:bold;
+}
+
+.board-item-tips{
+  text-align: center;
+  color: grey;
+  width:100%;
+  font-size:14px;
+  line-height: 60px;
+}
+
+.board-item-separator{
+  line-height: 10px;
+  width:100%;
+  border-top:1px solid silver;
+  margin-bottom:10px;
+}
+
+.board-item-form{
+  width:100%;
+  margin:0 auto;
+}
+
+.board-item-form-group{
+  margin:0;
+  padding:0;
+  margin-top:-10px;
+}
+
+.board-item-form-group textarea{
+  font-size: 12px;
+  width:95%;
+}
+
+.board-item-btn-delete{
+  margin-top:-30px;
+  font-color:darkred;
+}
+
+.board-item-btn-submit{
+  margin-top:-30px;
+  font-color:darkgreen;
+  font-weight:bold;
+}
+
+.board-item{
+  width:100%;
+  display:table;
+  margin:0 auto;
+}
+
+.board-item-title{
+  font-size:14px;
+  font-weight: bold;
+}
+
+.board-item-logo{
+  display:table-cell;
+  width:20%;
+  text-align: center;
+}
+
+.board-item-tags{
+  display:table-cell;
+  vertical-align: top;
+  width:80%;
+}
+
+.persona-form{
+  width:85%;
+  margin:10px auto;
+}
+
+.persona-form label{
+  font-size: 12px;
+}
+
+.persona-form input{
+  font-size: 12px;
+}
+
+.persona-form textarea{
+  font-size: 12px;
+}
+
+.persona-form button{
+  font-size: 12px;
+}
+
+#submitBtn{
+  background-color: green;
+  border:1px solid green;
+  border-radius: 5px;
+  color: white;
+}
+
+#deleteBtn{
+  background-color: red;
+  border:1px solid red;
+  border-radius: 5px;
+  color: white;
+}

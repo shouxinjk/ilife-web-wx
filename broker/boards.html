@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
     <link rel="stylesheet" type="text/css" href="css/broker.css">
-    <link rel="stylesheet" type="text/css" href="css/broker-my.css">
+    <link rel="stylesheet" type="text/css" href="css/boards.css?v=1.1">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -37,18 +37,18 @@
         <div class="order-cell" id="task" data-tagging="like view">
             <img class="order-cell-icon-small" src="images/task.png"/>
             <div class="actiontype">任务</div>
-        </div>  
+        </div>         
         <div class="order-cell" id="boards" data-tagging="like view">
-            <img class="order-cell-icon-small" src="images/boards.png"/>
-            <div class="actiontype">清单</div>
-        </div>          
+            <img class="order-cell-icon-small" src="images/boards-selected.png"/>
+            <div class="actiontype-selected">清单</div>
+        </div>           
         <div class="order-cell" id="team" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/team.png"/>
             <div class="actiontype">团队</div>
         </div>   
         <div class="order-cell" id="my" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/my-selected.png"/>
-            <div class="actiontype-selected">设置</div>
+            <img class="order-cell-icon-small" src="images/my.png"/>
+            <div class="actiontype">设置</div>
         </div>  
         <div class="order-cell" id="money" data-tagging="share">
             <img class="order-cell-icon-small" src="images/money.png"/>
@@ -57,7 +57,7 @@
     </view>
 
     <div class="tips">
-        设置目标人群获得更精准的推荐结果。<a href="my-addpersona.html">添加目标人群</a>
+        清单可以将多个商品放到一起推广效果更好。<a href="boards-add.html">新建清单</a>
     </div> 
 
     <div id="Center">
@@ -70,7 +70,7 @@
     </div>
 
     <div id="footer" class="footer-hide">
-        没有更多推荐设置
+        我是有底线的
     </div>  
 
   <div id="sx-menu">
@@ -97,5 +97,5 @@
 <script type="text/javascript" src="../ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
-<script type="text/javascript" src="js/my.js?v=1.0"></script> 
+<script type="text/javascript" src="js/boards.js?v=1.2"></script> 
 </html>

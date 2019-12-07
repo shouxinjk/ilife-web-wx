@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
     <link rel="stylesheet" type="text/css" href="css/broker.css">
-    <link rel="stylesheet" type="text/css" href="css/broker-my.css">
+    <link rel="stylesheet" type="text/css" href="css/boards.css">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -39,16 +39,16 @@
             <div class="actiontype">任务</div>
         </div>  
         <div class="order-cell" id="boards" data-tagging="like view">
-            <img class="order-cell-icon-small" src="images/boards.png"/>
-            <div class="actiontype">清单</div>
-        </div>          
+            <img class="order-cell-icon-small" src="images/boards-selected.png"/>
+            <div class="actiontype-selected">清单</div>
+        </div>         
         <div class="order-cell" id="team" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/team.png"/>
             <div class="actiontype">团队</div>
         </div>   
         <div class="order-cell" id="my" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/my-selected.png"/>
-            <div class="actiontype-selected">设置</div>
+            <img class="order-cell-icon-small" src="images/my.png"/>
+            <div class="actiontype">设置</div>
         </div>  
         <div class="order-cell" id="money" data-tagging="share">
             <img class="order-cell-icon-small" src="images/money.png"/>
@@ -57,11 +57,30 @@
     </view>
 
     <div class="tips">
-        设置目标人群获得更精准的推荐结果。<a href="my-addpersona.html">添加目标人群</a>
+        给清单命名并进行描述，便于目标用户查看
     </div> 
 
     <div id="Center">
-        <ul id="waterfall"></ul>
+        <div class="persona-form">
+            <div class="form-group">
+              <label for="boardTitle">标题:</label>
+              <input type="text" class="form-control" id="boardTitle" placeholder="想一个简短的标题"/>
+            </div>
+            <div class="form-group">
+              <label for="boardDescription">描述:</label>
+              <textarea class="form-control" rows="5" id="boardDescription" placeholder="再想一些吸引人的推荐语"></textarea>
+            </div>     
+            <div class="form-group">
+              <label for="boardTags">标签:</label>
+              <textarea class="form-control" rows="3" id="boardTags" placeholder="用简单的词语描述这个清单的主要特点，便于快速发现"></textarea>
+            </div>  
+            <div class="form-group">
+              <label for="boardKeywords">关键字:</label>
+              <textarea class="form-control" rows="3" id="boardKeywords" placeholder="设置一些关键字，系统会自动给出相关内容推荐"></textarea>
+            </div>               
+            <button type="submit" class="btn btn-default" id="submitBtn">创建</button>
+            <button type="submit" class="btn btn-default" id="deleteBtn">取消</button>
+        </div>
     </div>
 
     <!-- 加载进度与提示 -->
@@ -70,7 +89,7 @@
     </div>
 
     <div id="footer" class="footer-hide">
-        没有更多推荐设置
+
     </div>  
 
   <div id="sx-menu">
@@ -97,5 +116,5 @@
 <script type="text/javascript" src="../ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
-<script type="text/javascript" src="js/my.js?v=1.0"></script> 
+<script type="text/javascript" src="js/boards-add.js?v=1.0"></script> 
 </html>
