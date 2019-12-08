@@ -17,6 +17,15 @@ $(document).ready(function ()
         width: columnWidth,
         delay: 100,
     });
+    //判定是否有编辑中的board
+    getBoard();//先从cookie内加载
+    if(args["boardId"]){//如果参数中有boardId则优先使用
+        boardId = args["boardId"];
+        var board = {
+            id:boardId
+        };
+        $.cookie('board', JSON.stringify(board), { expires: 3650, path: '/' });  //把编辑中的board写入cookie。能够跳转到其他页面继续添加
+    }
     category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     tagging = args["keyword"]?args["keyword"]:""; //通过搜索跳转
     filter = args["filter"]?args["filter"]:""; //根据指定类型进行过滤
@@ -56,6 +65,9 @@ $(document).ready(function ()
 });
 
 util.getUserInfo();//从本地加载cookie
+
+//加载board信息
+var boardId = null;
 
 var columnWidth = 300;//默认宽度300px
 var columnMargin = 5;//默认留白5px
@@ -191,6 +203,15 @@ var esQueryByProfit={
         { "@timestamp": { order: "desc" }}
     ]
 };
+
+function getBoard(){
+    var boardInfo = $.cookie('board');
+    console.log("load board from cookie.",boardInfo);
+    if(boardInfo && boardInfo.trim().length>0){
+        var board = JSON.parse(boardInfo);
+        boardId = board.id;
+    }
+}
 
 setInterval(function ()
 {
@@ -368,7 +389,16 @@ function insertItem(){
     tags += "</div>";
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='title'>"+item.title+"</div>"
-    $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights+ tags +title+ "</div></li>");
+
+    var boartBtns = "";
+    if(boardId){//如果有board信息则显示添加到清单按钮
+        boartBtns = "<div class='itemTags'>";
+        boartBtns += "<a  id='btn-add-"+item._key+"-to-board' data-board='"+boardId+"' data-item='"+item._key+"' class='boardOption'>加入清单</a>&nbsp;";
+        boartBtns += "<a class='boardOption' href='broker/boards-modify.html?id="+boardId+"'>编辑清单</a>";
+        boartBtns += "</div>";
+    }
+
+    $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights+ tags +title+boartBtns+ "</div></li>");
     num++;
 
     //如果是达人，则加载显示佣金信息
@@ -379,8 +409,44 @@ function insertItem(){
         window.location.href = "info.html?category="+category+"&id="+item._key;
     });
 
+    //如果有board则注册增加商品事件
+    $("#btn-add-"+item._key+"-to-board").click(function(event){
+        //添加item到board并浮框提示
+        var itemKey = $(this).data("item");
+        addItemToBoard(item._key);
+
+        event.stopPropagation(); //禁止冒泡
+    });
+
     // 表示加载结束
     loading = false;
+}
+
+//添加item到board
+function addItemToBoard(itemKey){
+    console.log("Index::addItemToBoard try to add item to board.", itemKey)
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    };     
+    var data = {
+        item:itemKey,
+        board:{
+            id:boardId
+        }
+    };
+    util.AJAX(app.config.sx_api+"/mod/boardItem/rest/board-item/", function (res) {
+        console.log("Index::addItemToBoard item added successfully.", res)
+        if(res.status){
+            console.log("Index::addItemToBoard item added successfully", res)
+            $.toast({//浮框提示已添加成功
+                heading: '已添加到清单',
+                text: '可以继续添加商品或编辑清单',
+                showHideTransition: 'fade',
+                icon: 'success'
+            });            
+        }
+    }, "POST",data,header);
 }
 
 //查询佣金。2方分润。返回order/team/credit三个值

@@ -136,13 +136,13 @@ function deleteBoardItem(item){
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     };     
-    util.AJAX(app.config.sx_api+"/mod/boardItem/rest/board-item/"+item.id, function (res) {
+    util.AJAX(app.config.sx_api+"/mod/boardItem/rest/board-item/x/"+item.id, function (res) {
         console.log("Broker::Board::UpdateBoardItem modify board item successfully.", res)
         if(res.status){
             console.log("Broker::Board::UpdateBoardItem now jump to board modify page for editing.", res)
             window.location.href = "boards-modify.html?id="+item.board.id;//跳转到board查看界面
         }
-    }, "DELETE",{},{});
+    }, "PUT",{},{});
 }
 
 //根据boardId查询board信息
@@ -155,7 +155,7 @@ function loadBoard(boardId){
         console.log("Broker::Board::loadBoard load board successfully.", res)
         if(res.status){
             console.log("Broker::Board::loadBoard now insert board info.", res)
-            $.cookie('board', res.data, { expires: 3650, path: '/' });  //把编辑中的board写入cookie便于添加item
+            $.cookie('board', JSON.stringify(res.data), { expires: 3650, path: '/' });  //把编辑中的board写入cookie便于添加item
             displayBoard(res.data);
         }
     }, "GET",{},header);

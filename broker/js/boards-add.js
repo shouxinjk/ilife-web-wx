@@ -83,7 +83,7 @@ function createBoard(personaId){
         console.log("Broker::Board::AddBoard create board successfully.", res)
         if(res.status){
             console.log("Broker::Board::AddBoard now jump to home page for item adding.", res)
-            $.cookie('board', res.data, { expires: 3650, path: '/' });  //把编辑中的board写入cookie便于添加item
+            $.cookie('board', JSON.stringify(res.data), { expires: 3650, path: '/' });  //把编辑中的board写入cookie便于添加item
             $.toast({//浮框提示已创建成功，然后跳转到首页添加item
                 heading: '创建成功',
                 text: '可以开始添加商品到列表',

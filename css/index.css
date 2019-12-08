@@ -21,6 +21,12 @@ div.title{
 	text-align: center;
 }
 
+.boardOption{
+  font-size:12px;
+  font-weight: bold;
+  color:darkred;
+}
+
 
 #sx-menu{ 
   width:100%; 
