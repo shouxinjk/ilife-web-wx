@@ -235,7 +235,10 @@ function insertItem(){
     var tagTmplBlank = "<a class='itemTagBlank' href='index.html?keyword=__TAGGING'>__TAG</a>";
     tags += tagTmplBlank.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
     tags += "<br/>";
-    var taggingList = item.tagging.split(" ");    
+    var taggingList = [];
+    if(item.tagging && item.tagging.length>0){
+        taggingList = item.tagging.split(" ");    
+    }
     for(var t in taggingList){
         var txt = taggingList[t];
         if(txt.trim().length>1 && txt.trim().length<6){
