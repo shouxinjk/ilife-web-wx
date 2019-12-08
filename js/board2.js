@@ -225,7 +225,13 @@ function insertBoardItem(){
 
     //注册事件：能够跳转到指定item
     $('#board-item-'+item.stuff._key).click(function(){
-        window.location.href="info2.html?id="+item.stuff._key;
+        var targetUrl = "info2.html?id="+item.stuff._key;
+        if(broker&&broker.id){//如果当前用户是达人，则使用当前达人跟踪。
+            targetUrl += "&fromBroker="+broker.id;
+        }else if(board&&board.broker.id){//否则，使用board的创建者进行跟踪
+            targetUrl += "&fromBroker="+board.broker.id;
+        }
+        window.location.href=targetUrl;
     });
 
     num++;
@@ -272,7 +278,7 @@ function registerShareHandler(){
     }
 
     //准备分享url，需要增加分享的 fromUser、fromBroker信息
-    var shareUrl = window.location.href.replace(/info2/g,"share");//需要使用中间页进行跳转
+    var shareUrl = window.location.href.replace(/board2/g,"share");//需要使用中间页进行跳转
     if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
         shareUrl += "&fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;
@@ -280,6 +286,7 @@ function registerShareHandler(){
         shareUrl += "?fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;        
     }
+    shareUrl += "&origin=board";//添加源，表示是一个列表页分享
 
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
@@ -312,31 +319,37 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:board?board.title:"小确幸，大生活", // 分享标题
+                    title:board&&board.title?board.title:"小确幸，大生活", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
+                    imgUrl:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
+                        //TODO: board分享当前不记录
+                        /*
                         logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
                             console.log("分享到朋友圈",res);
                         }); 
+                        //**/
                     },
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:stuff?stuff.title:"小确幸，大生活", // 分享标题
-                    desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
+                    title:board&&board.title?board.title:"小确幸，大生活", // 分享标题
+                    desc:board.description&&board.description.trim().length>0?board.description:"Live is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
+                    imgUrl: "http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
                       // 用户点击了分享后执行的回调函数
+                      //TODO:board分享当前不记录
+                      /**
                         logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
                             console.log("分享到微信",res);
                         }); 
+                        //**/
                     }
                 });            
             });

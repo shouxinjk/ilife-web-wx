@@ -23,7 +23,14 @@ $(document).ready(function ()
 
     var response_type="code";
     var scope="snsapi_base";//静默授权，只需要获取openid
-    var state="info2"+args;
+
+    var state="info2"+args;//默认是单个商品详情页分享
+    //如果origin为board，则跳转到board
+    var origin = getQuery()["origin"];//获取origin参数，如果为空则不作处理
+    if(origin && origin =="board"){//如果是board则调整跳转页面
+        state="board2"+args;
+    }
+
 
     var oauth_url="https://open.weixin.qq.com/connect/oauth2/authorize"
         +"?appid="+appid

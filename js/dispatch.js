@@ -30,7 +30,7 @@ function flightCheck(code,state){
             $.cookie('sxUserInfo', JSON.stringify(res), { expires: 3650, path: '/' });
             $.cookie('hasUserInfo', 'true', { expires: 3650, path: '/' });
             //window.location.href=state+".html";
-            if(state.indexOf("___")>=0){//如果是跳转到详情页面则需要重新组织参数
+            if(state.indexOf("___")>=0){//如果是跳转到详情页面或列表页面则需要重新组织参数
                 var itemUrlArr = state.split("___");//使用___分解页面地址和具体参数
                 var targetUrl = itemUrlArr[0] +".html?"+ itemUrlArr[1].replace(/__/g,"&");
                 console.log("Dispatch::flightCheck try to redirect to landing page after login.",targetUrl);

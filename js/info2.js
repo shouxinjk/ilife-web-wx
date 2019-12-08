@@ -526,6 +526,7 @@ function registerShareHandler(){
         shareUrl += "?fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;        
     }
+    shareUrl += "&origin=item";//添加源，表示是一个单品分享
 
     ////多站点处理：start//////////////////////////////////
     //由于不同平台通过不同站点，需要进行区分是shouxinjk.net还是biglistoflittlethings.com
