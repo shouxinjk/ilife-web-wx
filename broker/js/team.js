@@ -120,7 +120,7 @@ function insertItem(){
 
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+(brokerUser.avatarUrl?brokerUser.avatarUrl:(brokerUser.headImgUrl?brokerUser.headImgUrl:"/images/avatar/default.png"))+"' width='60' height='60'/>";
+    var image = "<img src='"+(brokerUser.avatarUrl?brokerUser.avatarUrl:(brokerUser.headImgUrl?brokerUser.headImgUrl:"../images/avatar/default.jpg"))+"' width='60' height='60'/>";
         /**
     var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
     var tags = "<div class='itemTags'>";
