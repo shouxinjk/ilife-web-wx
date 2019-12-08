@@ -83,7 +83,8 @@ function loadItems(){
     var query={
             collection: "tasks", 
             example: { 
-                openId:currentPerson//查询分配给当前达人的任务列表
+                //openId:currentPerson//查询分配给当前达人的任务列表
+                status:"new"//仅根据状态查询，不按照达人查询
             },
             skip:(page.current+1)*page.size,
             limit:page.size
