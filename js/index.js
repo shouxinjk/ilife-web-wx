@@ -413,7 +413,7 @@ function insertItem(){
     $("#btn-add-"+item._key+"-to-board").click(function(event){
         //添加item到board并浮框提示
         var itemKey = $(this).data("item");
-        addItemToBoard(item._key);
+        addItemToBoard(item);
 
         event.stopPropagation(); //禁止冒泡
     });
@@ -423,14 +423,16 @@ function insertItem(){
 }
 
 //添加item到board
-function addItemToBoard(itemKey){
-    console.log("Index::addItemToBoard try to add item to board.", itemKey)
+function addItemToBoard(item){
+    console.log("Index::addItemToBoard try to add item to board.", item)
     var header={
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     };     
     var data = {
-        item:itemKey,
+        item:item._key,
+        title:item.title,
+        description:item.tags?item.tags.join(" "):"",
         board:{
             id:boardId
         }

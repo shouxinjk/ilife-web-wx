@@ -119,7 +119,7 @@ function loadBoard(boardId){
 
             //注册事件：根据关键词搜索更多
             $("#jumpToSearch").click(function(){
-                window.location.href="index.html?keywords="+board.keywords;
+                window.location.href="index.html?keyword="+board.keywords;
             });            
 
             //准备注册分享事件。需要等待内容加载完成后才注册

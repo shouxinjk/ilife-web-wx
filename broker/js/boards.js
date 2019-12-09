@@ -113,7 +113,7 @@ function insertItem(){
     var title = "<div class='title'>"+item.title+"</div>";
     var description = "<div class='description'>"+item.description+"</div>";
     var tags = "<div class='tags'>"+item.tags+"</div>";
-    var btns = "<div class='btns'><a href='../index.html?keywords="+item.keywords+"&boardId="+item.id+"'>添加商品</a>&nbsp;<a href='boards-modify.html?id="+item.id+"'>编辑</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享</a></div>";
+    var btns = "<div class='btns'><a href='../index.html?keyword="+item.keywords+"&boardId="+item.id+"'>添加商品</a>&nbsp;<a href='boards-modify.html?id="+item.id+"'>编辑</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享</a></div>";
     $("#waterfall").append("<li><div class='task' data='"+item.id+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title+ tags +description+btns+"</div></li>");
     num++;
 
