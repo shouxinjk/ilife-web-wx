@@ -77,7 +77,7 @@ function showContent(board){
     //标题
     $("#title").html(board.title);
     //作者与发布时间
-    $("#author").html(broker&&broker.id?broker.name:board.broker.name);    //如果当前用户是达人，则转为其个人board，否则使用board创建者
+    $("#author").html(board.broker.name);    //默认作者为board创建者
     $("#publish-time").html(board.createDate.split(" ")[0]);   
     //摘要
     $("#content").html(board.description);
@@ -97,6 +97,7 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
+            $("#author").html(broker.name);    //如果当前用户是达人，则转为其个人board
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
