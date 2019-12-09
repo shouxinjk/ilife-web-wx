@@ -376,7 +376,10 @@ function insertItem(){
     
 
     var tags = "<div class='itemTags'>";
-    var taggingList = item.tagging.split(" ");
+    var taggingList = [];
+    if(item.tagging&&item.tagging.length>0){
+        item.tagging.split(" ");
+    }
     for(var t in taggingList){
         var txt = taggingList[t];
         if(txt.trim().length>1 && txt.trim().length<6){
