@@ -116,7 +116,7 @@ function sendNotification() {
     console.log("try to register new broker.[broker]",newBroker);
     util.AJAX(app.config.auth_api+"/wechat/ilife/notify", function (res) {
         console.log("Notification message sent successfully.",res);
-        window.location.href="../index.html";//注册完成后跳到首页
+        window.location.href="task.html";//注册完成后跳到任务页，能够看到操作提示
     },"POST",msg,{ "Content-Type":"application/json" });
 }
 
