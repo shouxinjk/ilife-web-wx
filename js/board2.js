@@ -77,7 +77,7 @@ function showContent(board){
     //标题
     $("#title").html(board.title);
     //作者与发布时间
-    $("#author").html(board.broker.name);    
+    $("#author").html(broker&&broker.id?broker.name:board.broker.name);    //如果当前用户是达人，则转为其个人board，否则使用board创建者
     $("#publish-time").html(board.createDate.split(" ")[0]);   
     //摘要
     $("#content").html(board.description);
