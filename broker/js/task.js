@@ -48,7 +48,7 @@ var num = 1;//需要加载的内容下标
 
 var items = [];//所有画像列表
 var page = {
-    size:20,//每页条数
+    size:50,//每页条数：TODO：由于当前不支持排序，在客户端完成排序，需要一页显示所有内容
     total:1,//总页数
     current:-1//当前翻页
 };
@@ -106,6 +106,7 @@ function loadItems(){
             for(var i = 0 ; i < hits.length ; i++){
                 items.push(hits[i]);
             }
+            jsonSort(items,"priority",false);//对priority进行排序
             insertItem();
         }
     }, "PUT",query,header);
@@ -279,3 +280,32 @@ function changeActionType (e) {
     window.location.href = currentActionType+".html";
 }
 
+
+/*
+ * @description    根据某个字段实现对json数组的排序
+ * @param   array  要排序的json数组对象
+ * @param   field  排序字段（此参数必须为字符串）
+ * @param   reverse 是否倒序（默认为false）
+ * @return  array  返回排序后的json数组
+*/
+function jsonSort (array, field, reverse) {
+  //数组长度小于2 或 没有指定排序字段 或 不是json格式数据
+  if (array.length < 2 || !field || typeof array[0] !== "object") return array;
+  //数字类型排序
+  if (typeof array[0][field] === "number") {
+    array.sort(function (x, y) {
+      return x[field] - y[field];
+    });
+  }
+  //字符串类型排序
+  if (typeof array[0][field] === "string") {
+    array.sort(function (x, y) {
+      return x[field].localeCompare(y[field]);
+    });
+  }
+  //倒序
+  if (reverse) {
+    array.reverse();
+  }
+  return array;
+}
