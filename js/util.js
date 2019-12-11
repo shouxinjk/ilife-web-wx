@@ -116,6 +116,7 @@ util.createPerson=function(userInfo,callback) {
     console.log("Util::createPerson.",userInfo);
     userInfo.authorize = true;//设置授权标志
     userInfo.source="mp";//设置用户来源
+    userInfo.createOn = new Date();//记录创建时间
     util.AJAX(app.config.data_api+"/user/users", function (res) {//先使用openid创建用户，然后更新 
         //now try to update
         console.log("Util::createPerson got userInfo",userInfo);
@@ -130,6 +131,7 @@ util.updatePerson=function(id,userInfo,callback) {
     //字段补全: miniProgram: avatarUrl/nickName / mp: headImgUrl/nickname
     userInfo.avatarUrl = userInfo.headImgUrl;
     userInfo.nickName = userInfo.nickname;
+    userInfo.updateOn = new Date();//记录更新时间
     var url = app.config.data_api +"/user/users/"+id;
     if (app.globalData.isDebug) console.log("Util::updatePerson update person.",userInfo);
     util.AJAX(url, function (res) {
