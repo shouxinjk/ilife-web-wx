@@ -27,8 +27,10 @@ $(document).ready(function ()
     var state="info2"+args;//默认是单个商品详情页分享
     //如果origin为board，则跳转到board
     var origin = getQuery()["origin"];//获取origin参数，如果为空则不作处理
-    if(origin && origin =="board"){//如果是board则调整跳转页面
+    if(origin && origin =="board"){//如果是board则调整跳转页面：列表风格
         state="board2"+args;
+    }else if(origin && origin =="board-waterfall"){//如果是board则调整跳转页面：瀑布流风格
+        state="board2-waterfall"+args;
     }
 
 
