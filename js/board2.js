@@ -222,7 +222,7 @@ function insertBoardItem(){
             .replace(/__TITLE/g,item.title?" "+item.title:"")
             .replace(/__DESCRIPTION/g,item.description?item.description:"");
 
-    $("#waterfall").append("<li>"+boardItemDetail+"<div class='board-item' id='board-item-"+item.stuff._key+"'><div class='board-item-logo'>" + image +"</div><div class='board-item-tags'>" +highlights+ tags+ title +"</div></li>");
+    $("#waterfall").append("<li>"+boardItemDetail+"<div class='board-item' id='board-item-"+item.stuff._key+"'><div class='board-item-logo'>" + image +"</div><div class='board-item-tags'>"+ title +highlights+ tags +"</div></li>");
 
     //注册事件：能够跳转到指定item
     $('#board-item-'+item.stuff._key).click(function(){
