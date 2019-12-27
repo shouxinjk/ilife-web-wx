@@ -78,7 +78,7 @@ function showContent(board){
     $("#title").html(board.title);
     //作者与发布时间
     $("#author").html(board.broker.name);    //默认作者为board创建者
-    $("#publish-time").html(board.createDate.split(" ")[0]);   
+    $("#publish-time").html(board.updateDate.split(" ")[0]);   
     //摘要
     $("#content").html(board.description);
 
