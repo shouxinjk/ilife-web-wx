@@ -14,6 +14,7 @@ var code  = null; //默认为空
 var state = "index"; //默认跳转到index页面
 
 function flightCheck(code,state){
+    /*
     if(util.hasUserInfo()){//如果已存在本地用户，则直接跳转到指定页面
         if(state.indexOf("___")>=0){//如果是跳转到详情页面则需要重新组织参数
             var itemUrlArr = state.split("___");//使用___分解页面地址和具体参数
@@ -24,6 +25,7 @@ function flightCheck(code,state){
             window.location.href=state+".html";
         }
     }else{//否则请求微信UserInfo
+    //**/
         util.login(code,function (res) {//成功后创建用户
             console.log("Dispatch::flightCheck login success.", res);
             //设置本地UserInfo：存储到cookie
@@ -39,6 +41,6 @@ function flightCheck(code,state){
                 window.location.href=state+".html";
             }            
         });
-    }   
+    //}   
 }
 
