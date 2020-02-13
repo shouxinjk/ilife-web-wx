@@ -73,7 +73,7 @@ var currentBrokerId = null;
 var boardId = null;
 
 var boardItemFormTemplate = '<div class="board-item-form">'+
-            /*
+            //*
             '<div class="form-group">'+
               '<label for="boardItemTitle">推荐标题:</label>'+
               '<input type="text" class="form-control" id="boardItemTitle" placeholder="一句话推荐这个商品"/>'+

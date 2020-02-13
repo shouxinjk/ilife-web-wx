@@ -94,7 +94,7 @@ input,img{border: none;}
 #searchIcon a:hover {text-decoration:none;color: #0088CF;}
 
 .itemTags{
-    line-height: 20px;
+    line-height: 16px;
     vertical-align: middle;
     margin-top:-5px;
     margin-bottom:5px;

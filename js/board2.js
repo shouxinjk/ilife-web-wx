@@ -189,7 +189,7 @@ function insertBoardItem(){
     }
 
     //显示所关联stuff内容
-    var image = "<img src='"+logoImg+"' width='60' height='60'/>";
+    var image = "<img src='"+logoImg+"' width='160'/>";
     var title = "<div class='board-item-title'>"+item.stuff.title+"</div>";
 
 /////////////
@@ -222,7 +222,23 @@ function insertBoardItem(){
             .replace(/__TITLE/g,item.title?" "+item.title:"")
             .replace(/__DESCRIPTION/g,item.description?item.description:"");
 
-    $("#waterfall").append("<li>"+boardItemDetail+"<div class='board-item' id='board-item-"+item.stuff._key+"'><div class='board-item-logo'>" + image +"</div><div class='board-item-tags'>"+ title +highlights+ tags +"</div></li>");
+    $("#waterfall").append("<li>"+
+
+        '<div class="board-item-title">'+
+          '<span class="board-item-title-head"><br/>#'+num+'  </span>'+
+          '<span class="board-item-title-text">'+(item.title?item.title:item.stuff.title)+'</span>'+
+        '</div>'+ 
+        
+        
+        "<div class='board-item' id='board-item-"+item.stuff._key+"'>"+
+        "<div class='board-item-logo'>" + image +"</div>"+
+        "<div class='board-item-tags'>"+ 
+            highlights+
+            tags+ 
+            
+            "<div class='board-item-description'>"+item.description+"</div>"+
+        "</div>"+
+        "</li>");
 
     //注册事件：能够跳转到指定item
     $('#board-item-'+item.stuff._key).click(function(){

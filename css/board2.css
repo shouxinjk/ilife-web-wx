@@ -249,15 +249,15 @@ a{
 
 .board-item-title-head{
 	font-size:14px;
-	color:black;
+	line-height: 20px;
+	color:gray;
 	font-weight: bold;
-	vertical-align: text-bottom;
 }
 
 .board-item-title-text{
-	font-size:12px;
+	font-size:14px;
+	line-height: 20px;
 	font-weight: bold;
-	vertical-align: text-bottom;
 }
 
 .board-item-description{
@@ -274,7 +274,7 @@ a{
 
 .board-item-logo{
   display:table-cell;
-  width:20%;
+  width:40%;
   text-align: center;
 }
 
@@ -282,7 +282,7 @@ a{
   display:table-cell;
   vertical-align: top;
   font-size:12px;
-  width:80%;
+  width:60%;
 }
 
 .person{
