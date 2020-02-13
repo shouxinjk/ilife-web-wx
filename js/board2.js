@@ -233,8 +233,8 @@ function insertBoardItem(){
         "<div class='board-item' id='board-item-"+item.stuff._key+"'>"+
         "<div class='board-item-logo'>" + image +"</div>"+
         "<div class='board-item-tags'>"+ 
-            highlights+
             tags+ 
+            highlights+
             
             "<div class='board-item-description'>"+item.description+"</div>"+
         "</div>"+
