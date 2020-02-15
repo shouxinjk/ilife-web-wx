@@ -26,6 +26,9 @@ $(document).ready(function ()
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
+    if(args["filter"]){
+        filter = args["filter"]; //如果传入参数则使用传入值：all、byBroker
+    }
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
@@ -45,6 +48,8 @@ var columnMargin = 5;//默认留白5px
 var loading = false;
 var dist = 500;
 var num = 1;//需要加载的内容下标
+
+var filter = "byBroker";//byBroker、all。数据查询规则：默认为根据BrokerId查询，可以为查询全部
 
 var items = [];//所有画像列表
 var page = {
@@ -75,7 +80,12 @@ function registerTimer(brokerId){
 
             // 加载内容
             if(items.length < num){//如果内容未获取到本地则继续获取
-                loadItems();
+                //loadItems();
+                if(filter=="all"){
+                    loadAllItems();
+                }else{
+                    loadItemsByBroker();
+                }
             }else{//否则使用本地内容填充
                 insertItem();
             }
@@ -84,10 +94,30 @@ function registerTimer(brokerId){
 }
 
 //加载特定于达人的任务列表
-function loadItems(){
+function loadItemsByBroker(){
     util.AJAX(app.config.sx_api+"/mod/board/rest/boards/"+currentBroker, function (res) {
         showloading(false);
         console.log("Broker::Boards::loadItems try to retrive boards by broker id.", res)
+        if(res && res.count==0){//如果没有画像则提示，
+            shownomore();
+        }else{//否则显示到页面
+            //更新当前翻页
+            page.current = page.current + 1;
+            //装载具体条目
+            var hits = res;
+            for(var i = 0 ; i < hits.length ; i++){
+                items.push(hits[i]);
+            }
+            insertItem();
+        }
+    }, "GET",{offset:(page.current+1)*page.size,size:page.size},{});
+}
+
+//加载所有清单：用于推荐时使用
+function loadAllItems(){
+    util.AJAX(app.config.sx_api+"/mod/board/rest/all-boards", function (res) {
+        showloading(false);
+        console.log("Broker::Boards::loadItems try to retrive all boards.", res)
         if(res && res.count==0){//如果没有画像则提示，
             shownomore();
         }else{//否则显示到页面
