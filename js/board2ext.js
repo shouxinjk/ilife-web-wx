@@ -113,8 +113,8 @@ function generateImage() {
     var shareContent = document.querySelector("#container");//需要截图的包裹的（原生的）DOM 对象：注意，必须是原生DOM对象，不能是jQuery对象
     var width = shareContent.offsetWidth; //获取dom 宽度
     var height = shareContent.offsetHeight; //获取dom 高度
-    //var canvas = document.createElement("canvas"); //创建一个canvas节点
-    var canvas = document.querySelector("#canvas");
+    var canvas = document.createElement("canvas"); //创建一个canvas节点
+    //var canvas = document.querySelector("#canvas");
     var scale = 2;//DPR(); //定义任意放大倍数 支持小数:【注意在css中需要对目标元素设置 transform: 1/scale】
     canvas.width = width * scale; //定义canvas 宽度 * 缩放
     canvas.height = height * scale; //定义canvas高度 *缩放
@@ -159,16 +159,17 @@ function generateImage() {
             "width": canvas.width / scale + "px",
             "height": canvas.height / scale + "px",
         });
+        //隐藏原有元素
+               $("#container").toggleClass("container-hide",true);
+       $("#container").toggleClass("container",false);
 
         //显示图片
        $("#share-img").toggleClass("share-img-hide",false);
        $("#share-img").toggleClass("share-img-show",true);
-        //隐藏原有元素
-       $("#container").toggleClass("container",false);
-       $("#container").toggleClass("container-hide",true);
+
          //隐藏画布
-       $("#canvas").toggleClass("canvas-show",false);
-       $("#canvas").toggleClass("canvas-hide",true);      
+       //$("#canvas").toggleClass("canvas-show",false);
+       //$("#canvas").toggleClass("canvas-hide",true);      
 
     });
 }
