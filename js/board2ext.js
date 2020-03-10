@@ -71,7 +71,6 @@ var boardItemTemplate = '<div class="board-item-wrapper">'+
 
 //生成短连接及二维码
 function generateQRcode(){
-    var qrcode = new QRCode("app-qrcode-box");
     var longUrl = window.location.href.replace(/board2ext/g,boardType);//获取分享目标链接
     var header={
         "Content-Type":"application/json"
@@ -82,6 +81,7 @@ function generateQRcode(){
         if (res.status) {//获取短连接
             shortUrl = res.data.url;
         }
+        var qrcode = new QRCode("app-qrcode-box");
         qrcode.makeCode(shortUrl);
     }, "POST", { "longUrl": longUrl },header);    
 }
