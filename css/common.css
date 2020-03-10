@@ -14,8 +14,8 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
 .share-box{
   text-align: center;
   position: fixed;
-  bottom: 10px;
-  right: 10px;
+  bottom: 20px;
+  right: 20px;
   width:100px;
   border:1px solid #BF0A10;
   border-radius: 5px;
@@ -24,6 +24,10 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
   line-height: 20px;
   color:white;
   background-color: #fff;
+}
+
+.share-box-hide{
+  display:none;
 }
 
 .share-tips{

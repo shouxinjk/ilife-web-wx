@@ -153,6 +153,10 @@ function showContent(item){
 
 //分享浮框
 function showShareContent(){
+    //显示分享卡片
+   $("#share-box").toggleClass("share-box",true);
+   $("#share-box").toggleClass("share-box-hide",false);  
+
     var strBonus = "";
     if(bonus>0){
         strBonus += (parseFloat((Math.floor(bonus*10)/10).toFixed(1)));
