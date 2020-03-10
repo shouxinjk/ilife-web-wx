@@ -14,7 +14,7 @@ $(document).ready(function ()
     //处理参数
     var args = getQuery();
     var category = args["category"]; //当前目录
-    var id = args["id"];//当前内容
+    id = args["id"];//当前内容
 
     from = args["from"]?args["from"]:"mp";//可能为groupmessage,timeline等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
@@ -44,6 +44,10 @@ util.getUserInfo();//从本地加载cookie
 //临时用户
 var tmpUser = "";
 
+//item id
+var id = "null";
+var bonus = 0;
+
 //当前浏览内容
 var stuff=null;
 
@@ -58,6 +62,8 @@ var broker = {};//当前达人
 
 //将item显示到页面
 function showContent(item){
+    //分享链接
+    $("#share-link").attr("href","info2ext.html?id="+id);    
     //购买按钮
     /*
     if(item.distributor && item.distributor.images && item.distributor.images.length>0)$("#shopping-summary").append("<img src='"+item.distributor.images[0]+"'/>");
@@ -143,6 +149,22 @@ function showContent(item){
     logstash(item,from,"view",fromUser,fromBroker,function(){
         //do nothing
     });      
+}
+
+//分享浮框
+function showShareContent(){
+    var strBonus = "";
+    if(bonus>0){
+        strBonus += (parseFloat((Math.floor(bonus*10)/10).toFixed(1)));
+    }
+    if(strBonus.length > 0){//仅对超过1元的商品显示佣金
+        $("#share-bonus").html("返￥"+strBonus);
+        $("#share-bonus").toggleClass("share-bonus",true);
+        $("#share-bonus").toggleClass("share-bonus-hide",false);  
+    }else{
+       $("#share-bonus").toggleClass("share-bonus",false);
+       $("#share-bonus").toggleClass("share-bonus-hide",true);        
+    }
 }
 
 //佣金
@@ -299,6 +321,14 @@ function loadBrokerByOpenid(openid) {
                 $("#profit").toggleClass("profit-hide",false);
                 $("#profit").toggleClass("profit-show",true);
             }
+            //显示分享按钮
+            //console.log("Board::insertBoardItem load share info.", item);
+            if(stuff.profit && stuff.profit.order && stuff.profit.order >0){
+                if( stuff.profit.order > bonus){
+                    bonus = stuff.profit.order;
+                }
+                showShareContent();//更新佣金
+            }            
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();

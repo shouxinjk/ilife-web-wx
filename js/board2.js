@@ -212,17 +212,17 @@ function insertBoardItem(){
 
     // 获取佣金：获取范围
     //console.log("Board::insertBoardItem load share info.", item);
-    if(item.stuff.profit && item.stuff.profit.amount && item.stuff.profit.amount >0){
+    if(item.stuff.profit && item.stuff.profit.order && item.stuff.profit.order >0){
         //console.log("Board::insertBoardItem load share info. step 2...", item);
         if( bonusMax == 0 & bonusMin ==0 ){//首先将两者均设为第一个值
-            bonusMin = item.stuff.profit.amount;
-            bonusMax = item.stuff.profit.amount;
+            bonusMin = item.stuff.profit.order;
+            bonusMax = item.stuff.profit.order;
         }
-        if( item.stuff.profit.amount > bonusMax){
-            bonusMax = item.stuff.profit.amount;
+        if( item.stuff.profit.order > bonusMax){
+            bonusMax = item.stuff.profit.order;
         }
-        if( item.stuff.profit.amount < bonusMin){
-            bonusMin = item.stuff.profit.amount;
+        if( item.stuff.profit.order < bonusMin){
+            bonusMin = item.stuff.profit.order;
         }
         showShareContent();//更新佣金
     }
