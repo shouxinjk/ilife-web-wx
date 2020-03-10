@@ -10,6 +10,70 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
     font-family: "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;   
     line-height: 1;
 }
+
+.share-box{
+  text-align: center;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  width:100px;
+  border:1px solid #BF0A10;
+  border-radius: 5px;
+  z-index: 9;
+  font-size:12px;
+  line-height: 20px;
+  color:white;
+  background-color: #fff;
+}
+
+.share-tips{
+  background-color: #BF0A10;
+  border:1px solid #BF0A10;
+  color:white;
+  font-weight: bold;
+  text-align: center;
+  line-height: 16px;
+  font-size: 10px;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
+}
+
+.share-bonus{
+  color:#000;
+  font-size:12px;
+  line-height: 20px;
+  text-align: center;
+  border-bottom:1px dashed #BF0A10;
+}
+
+.share-bonus-hide{
+  display: none;
+}
+
+.share-btn div{
+  margin:5px auto;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  width:100%;
+  color:#000;
+}
+
+.share-btn a{
+  margin:5px auto;
+  font-weight: bold;
+  font-size: 12px;
+  line-height: 20px;
+  color:white;
+  background-color: #BF0A10;
+  border: 1px solid #BF0A10;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  width:80px;
+  text-align: center;
+  vertical-align: middle;
+}
+
 .tips{
     margin-top:10px;
     margin-bottom: 10px;

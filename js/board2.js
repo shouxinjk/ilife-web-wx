@@ -14,7 +14,7 @@ $(document).ready(function ()
     //处理参数
     var args = getQuery();
     var category = args["category"]; //当前目录
-    var id = args["id"];//当前board id
+    id = args["id"];//当前board id
 
     from = args["from"]?args["from"]:"mp";//可能为groupmessage,timeline等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
@@ -45,6 +45,11 @@ $(document).ready(function ()
 });
 
 util.getUserInfo();//从本地加载cookie
+
+//board id
+var id = "null";
+var bonusMin = 0;
+var bonusMax = 0;
 
 //临时用户
 var tmpUser = "";
@@ -82,12 +87,33 @@ function showContent(board){
     //摘要
     $("#content").html(board.description);
 
+    //分享链接
+    $("#share-link").attr("href","board2ext.html?type=board2&id="+id);
+
     //TODO:记录board浏览历史
     /*
     logstash(item,from,"view",fromUser,fromBroker,function(){
         //do nothing
     });   
     //**/   
+}
+
+function showShareContent(){
+    var strBonus = "";
+    if(bonusMin>0){
+        strBonus += ""+parseFloat(new Number(bonusMin).toFixed(1));
+    }
+    if(bonusMax>0 && bonusMax > bonusMin){
+        strBonus += "-"+parseFloat(Number(bonusMax).toFixed(1));
+    }
+    if(strBonus.length > 0){//仅对超过1元的商品显示佣金
+        $("#share-bonus").html("返￥"+strBonus);
+        $("#share-bonus").toggleClass("share-bonus",true);
+        $("#share-bonus").toggleClass("share-bonus-hide",false);  
+    }else{
+       $("#share-bonus").toggleClass("share-bonus",false);
+       $("#share-bonus").toggleClass("share-bonus-hide",true);        
+    }
 }
 
 //根据openid查询加载broker
@@ -154,7 +180,7 @@ function loadBoardItems(boardId){
         Authorization:"Basic aWxpZmU6aWxpZmU="
     };     
     util.AJAX(app.config.sx_api+"/mod/boardItem/rest/board-items/"+boardId, function (res) {
-        console.log("Board::loadBoardItems load board items successfully.", res)
+        console.log("Board::loadBoardItems load board items successfully.", res);
         //装载具体条目
         var hits = res;
         for(var i = 0 ; i < hits.length ; i++){
@@ -170,6 +196,7 @@ function loadBoardItem(item){//获取内容列表
         type:"get",
         data:{},
         success:function(data){
+            //console.log("Board::loadBoardItem load board item successfully.", data)
             item.stuff = data;//装载stuff到boarditem   
             items.push(item); //装载到列表 
             insertBoardItem(); //显示到界面    
@@ -182,6 +209,23 @@ function insertBoardItem(){
     // 加载内容
     var item = items[num-1];
     if(!item)return;
+
+    // 获取佣金：获取范围
+    //console.log("Board::insertBoardItem load share info.", item);
+    if(item.stuff.profit && item.stuff.profit.amount && item.stuff.profit.amount >0){
+        //console.log("Board::insertBoardItem load share info. step 2...", item);
+        if( bonusMax == 0 & bonusMin ==0 ){//首先将两者均设为第一个值
+            bonusMin = item.stuff.profit.amount;
+            bonusMax = item.stuff.profit.amount;
+        }
+        if( item.stuff.profit.amount > bonusMax){
+            bonusMax = item.stuff.profit.amount;
+        }
+        if( item.stuff.profit.amount < bonusMin){
+            bonusMin = item.stuff.profit.amount;
+        }
+        showShareContent();//更新佣金
+    }
 
     var logoImg = "images/tasks/board.png";
     if(item.stuff && item.stuff.images && item.stuff.images.length>0){
