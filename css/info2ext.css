@@ -18,6 +18,82 @@
   display: none;
 }
 
+.item-logo{
+	margin-top:10px;
+	padding-top:10px;
+	width:100%;
+	line-height: 1px;
+	border-top:1px solid #cccccc;
+	text-align: center;	
+}
+
+.item-title{
+	width:80%;
+	line-height: 18px;
+	font-size:12px;
+	font-weight: bold;
+	margin: 10px auto;
+	text-align: center;
+	padding-bottom:10px;
+}
+
+
+.broker{
+  width:100%;
+  display:table;
+  margin:2px auto;
+}
+
+.broker-log{
+  display:table-cell;
+  vertical-align: center;
+  width:20%;
+  text-align: center;
+}
+
+.broker-logo img{
+	width:48px;
+	border-radius: 5px;
+	margin-left:10px;
+}
+
+.broker-shop{
+  display:table-cell;
+  padding-left:5px;
+  width:80%;
+  vertical-align: top;
+  font-size:12px;
+  line-height: 16px;
+}
+
+.broker-name{
+	width:100%;
+	font-weight: bold;
+	line-height: 20px;
+	font-size: 14px;
+}
+
+.shop-name{
+	width:100%;
+	line-height: 24px;
+}
+
+
+.foot{
+  width:90%;
+  display:table;
+  margin:2px auto;
+  margin-top:5px;  
+}
+
+.head{
+	font-size:18px;
+	color:gray;
+	font-weight: bold;	
+	line-height: 40px;
+	text-align: center;
+}
+
 a{
     color:black;
     text-decoration: none;
@@ -199,226 +275,9 @@ a{
 
 .title{
 	font-weight: bold;
-	font-size:2rem;
-	line-height: 2.4rem;
-}
-
-.publisher{
-	line-height: 20px;
-}
-
-.author{
-	font-size:12px;
-	font-weight: bold;
-	color:darkorange;
-}
-
-.publish-time{
-	font-size:12px;
-	color:silver;
-	font-weight: bold;
-}
-
-.content{
-	font-size:12px;
-	margin-top: 5px;
-	line-height: 16px;
-}
-
-.broker{
-  width:100%;
-  display:table;
-  margin:2px auto;
-}
-
-.broker-log{
-  display:table-cell;
-  vertical-align: center;
-  width:20%;
-  text-align: center;
-}
-
-.broker-logo img{
-	width:48px;
-	border-radius: 5px;
-	margin-left:10px;
-}
-
-.broker-shop{
-  display:table-cell;
-  padding-left:5px;
-  width:80%;
-  vertical-align: top;
-  font-size:12px;
-  line-height: 16px;
-}
-
-.broker-name{
-	width:100%;
-	font-weight: bold;
-	line-height: 20px;
-	font-size: 14px;
-}
-
-.shop-name{
-	width:100%;
-}
-
-
-.board-item-tips-seperator{
-	width:100%;
-	background:linear-gradient(to left,#efefef,#b6b6b6,#efefef);
-	height:1px;
-	margin-top:10px;
-	margin-bottom: 10px;
-}
-
-.board-item-tips{
-	text-align: center;
-	vertical-align: middle;
-	width:100%;
-	font-size: 10px;
-	line-height: 12px;
-}
-
-.board-item-tips-more{
-	text-align: center;
-	vertical-align: middle;
-	width:100%;
-	font-size: 12px;
-	line-height: 16px;
-	font-weight: bold;
-	color:darkorange;
-}
-
-.board-item-wrapper{
-	margin-top:10px;
-	width:100%;
-	font-size:12px;
-}
-
-.board-item-seperator-short{
-	margin-left:15%;
-	margin-top:5px;
-	padding-top:5px;
-	width:80%;
-	line-height: 1px;
-	border-top:1px solid #cccccc;
-}
-
-.board-item-seperator-long{
-	margin-top:5px;
-	padding-top:5px;
-	width:100%;
-	line-height: 1px;
-	border-top:1px solid #cccccc;
-}
-
-.board-item-head-no{
-	font-size:14px;
-	color:gray;
-	font-weight: bold;
-	vertical-align: top;
-}
-
-.board-item-head-no-1{
-	font-size:14px;
-	color:darkred;
-	font-weight: bold;
-	padding-left:10px;
-	padding-top:10px;
-}
-
-.board-item-head-no-2{
-	font-size:14px;
-	color:darkgreen;
-	font-weight: bold;
-	padding-left:10px;
-	padding-top:10px;
-}
-
-.board-item-head-no-3{
-	font-size:14px;
-	color:orange;
-	font-weight: bold;
-	padding-left:10px;
-	padding-top:10px;
-}
-
-.board-item-head-no-4{
-	font-size:14px;
-	color:gray;
-	font-weight: bold;
-	padding-left:10px;
-	padding-top:10px;
-}
-
-.board-item-head-no-5{
-	font-size:14px;
-	color:gray;
-	font-weight: bold;
-	padding-left:10px;
-	padding-top:10px;
-}
-
-.board-item-head-tag{
-	font-size:12px;
-	font-weight: bold;
-	vertical-align: top;
-}
-
-.board-item-title{
-	width:100%;
-	line-height: 16px;
-}
-
-.board-item-description{
-	width:100%;
-	line-height: 14px;
-	font-size:12px;
-}
-
-.board-item{
-  width:100%;
-  display:table;
-  margin:2px auto;
-}
-
-.board-item-head{
-  display:table-cell;
-  vertical-align: top;
-  width:10%;
-  text-align: center;
-}
-
-.board-item-logo{
-  display:table-cell;
-  width:30%;
-  text-align: center;
-}
-
-.board-item-detail{
-  display:table-cell;
-  vertical-align: top;
-  font-size:12px;
-  padding-top:5px;
-  width:60%;
-}
-
-.foot{
-  width:100%;
-  display:table;
-  margin:2px auto;
-  width:90%;
-  margin-top:5px;  
-}
-
-.head{
-	font-size:18px;
-	color:gray;
-	font-weight: bold;	
-	line-height: 40px;
-	text-align: center;
+	font-size:1.6rem;
+	line-height: 2rem;
+	padding:5px;
 }
 
 .person{

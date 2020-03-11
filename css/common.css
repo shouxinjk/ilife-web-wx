@@ -122,23 +122,57 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
   color: #000;
 }
 
-.container{
-  margin:0;
-  /*cannot generate by canvas2image*/
-  background-image: url("../images/bg/bg1.jpeg");
-  background-color: darkgrey;
-}
-
-.container-hide{
-  display: none;
-}
-
 .canvas-hide{
   display: none;
 }
 
 .canvas-show{
   display: block;
+}
+
+
+.app-text{
+  display:table-cell;
+  width:80%;
+  vertical-align: top;
+}
+
+.app-qrcode{
+  display:table-cell;
+  width:20%;
+  text-align: right;
+}
+
+.app-qrcode-box{
+    display: inline-block;
+}
+
+.app-qrcode-box img{
+  width:60px;
+  text-align: right;
+}
+
+.app-tips{
+  font-size:12px;
+  line-height: 20px;
+  color:gray;
+  vertical-align: top;  
+}
+
+.app-name{
+  font-size:14px;
+  line-height: 24px;
+  color:gray;
+  font-weight: bold;
+  vertical-align: top;  
+}
+
+.app-desc{
+  font-size:12px;
+  font-weight: bold;
+  line-height: 16px;
+  color:darkorange;
+  vertical-align: top;  
 }
 
 .tips{
