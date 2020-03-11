@@ -106,12 +106,23 @@ function showContent(board){
 function showShareContent(){
     var strBonus = "";
     if(bonusMin>0){
-        strBonus += ""+parseFloat(new Number(bonusMin).toFixed(1));
+        strBonus += "返￥"+parseFloat(new Number(bonusMin).toFixed(1));
     }
     if(bonusMax>0 && bonusMax > bonusMin){
         strBonus += "-"+parseFloat(Number(bonusMax).toFixed(1));
     }
-    if(strBonus.length > 0){//仅对超过1元的商品显示佣金
+    //console.log("try update bouns.",strBonus);
+    $("#share-bonus").html(strBonus);
+    //默认隐藏，仅对达人开放显示
+    if(broker && broker.id){
+        $("#share-bonus").toggleClass("share-bonus",true);
+        $("#share-bonus").toggleClass("share-bonus-hide",false);
+    }else{
+        $("#share-bonus").toggleClass("share-bonus",false);
+        $("#share-bonus").toggleClass("share-bonus-hide",true);
+    }
+    /*
+    if(strBonus.length > 0){//显示佣金
         $("#share-bonus").html("返￥"+strBonus);
         $("#share-bonus").toggleClass("share-bonus",true);
         $("#share-bonus").toggleClass("share-bonus-hide",false);  
@@ -119,16 +130,17 @@ function showShareContent(){
        $("#share-bonus").toggleClass("share-bonus",false);
        $("#share-bonus").toggleClass("share-bonus-hide",true);        
     }
+    //**/
 }
 
 //根据openid查询加载broker
 function loadBrokerByOpenid(openid) {
-    console.log("try to load broker info by openid.[openid]",openid);
+    //console.log("try to load broker info by openid.[openid]",openid);
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
-            $("#author").html(broker.name);    //如果当前用户是达人，则转为其个人board
+            $("#author").html(broker.name);    //如果当前用户是达人，则转为其个人board           
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
@@ -228,8 +240,9 @@ function insertBoardItem(){
         if( item.stuff.profit.order < bonusMin){
             bonusMin = item.stuff.profit.order;
         }
-        showShareContent();//更新佣金
+        //showShareContent();//当前无佣金时也显示
     }   
+    showShareContent();//更新佣金
 
     var logoImg = "images/tasks/board.png";
     if(item.stuff && item.stuff.images && item.stuff.images.length>0){
