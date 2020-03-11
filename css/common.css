@@ -101,6 +101,46 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
   vertical-align: middle;
 }
 
+.share-img-hide{
+  display: none;
+}
+
+.share-img-show{
+  text-align: center;
+  display: block;
+}
+
+.share-img-tips-hide{
+  display: none;
+}
+
+.share-img-tips-show{
+  display: block;
+  line-height: 30px;
+  font-size: 12px;
+  text-align: center;
+  color: #000;
+}
+
+.container{
+  margin:0;
+  /*cannot generate by canvas2image*/
+  background-image: url("../images/bg/bg1.jpeg");
+  background-color: darkgrey;
+}
+
+.container-hide{
+  display: none;
+}
+
+.canvas-hide{
+  display: none;
+}
+
+.canvas-show{
+  display: block;
+}
+
 .tips{
     margin-top:10px;
     margin-bottom: 10px;

@@ -288,6 +288,14 @@ function generateImage() {
         //显示图片
        $("#share-img").toggleClass("share-img-hide",false);
        $("#share-img").toggleClass("share-img-show",true);
+       //修改图片尺寸
+        $("#share-img img").css({
+            "width": canvas.width/scale*0.85 + "px",
+            "height": canvas.height/scale*0.85 + "px",
+        });       
+        //显示提示文字
+       $("#share-img-tips").toggleClass("share-img-tips-hide",false);
+       $("#share-img-tips").toggleClass("share-img-tips-show",true);
 
          //隐藏提示信息
        $("#post-mask").toggleClass("post-mask-show",false);

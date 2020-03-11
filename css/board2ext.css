@@ -6,6 +6,7 @@
 	background-color: white;
 	border-radius: 5px;
 }
+
 a{
     color:black;
     text-decoration: none;
@@ -211,33 +212,6 @@ a{
 	font-size:12px;
 	margin-top: 5px;
 	line-height: 16px;
-}
-
-.share-img-hide{
-	display: none;
-}
-
-.share-img-show{
-	display: block;
-}
-
-.container{
-	margin:0;
-	/*cannot generate by canvas2image*/
-	background-image: url("../images/bg/bg1.jpeg");
-	background-color: darkgrey;
-}
-
-.container-hide{
-	display: none;
-}
-
-.canvas-hide{
-	display: none;
-}
-
-.canvas-show{
-	display: block;
 }
 
 .broker{
