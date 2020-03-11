@@ -25,6 +25,9 @@ $(document).ready(function ()
         delay: 100,
     });  
 
+    //显示遮罩层
+    showPostMask();
+
     //生成二维码：需要提前生成，避免时延导致显示不完整
     generateQRcode();
 
@@ -69,6 +72,16 @@ var boardItemTemplate = '<div class="board-item-wrapper">'+
                             '<div class="board-item-description">__DESCRIPTION</div>'+                                   
                         '</div>';
 
+function showPostMask(){
+    var shareContent = document.querySelector("#container");//需要截图的包裹的（原生的）DOM 对象：注意，必须是原生DOM对象，不能是jQuery对象
+    var width = shareContent.offsetWidth; //获取dom 宽度
+    var height = shareContent.offsetHeight; //获取dom 高度
+    $("#post-mask").css({
+        "width": document.body.clientWidth+"px",
+        "height": "1200px",
+    });      
+}
+
 //生成短连接及二维码
 function generateQRcode(){
     var longUrl = window.location.href.replace(/board2ext/g,boardType);//获取分享目标链接
@@ -91,6 +104,7 @@ function showContent(board){
     $("#broker-name").html(board.broker.name+ " 推荐");    //默认作者为board创建者
     $("#shop-name").html(board.title); //店铺名称
     //logo：注意使用代理避免跨域问题
+    preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
     $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");
 
     //qrcode.makeCode(window.location.href.replace(/board2ext/g,"board2"));
@@ -106,6 +120,114 @@ function showContent(board){
     //**/   
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+//以下用于优化海报生成。当前promise.finally不支持，不能工作
+
+//预加载图片，便于生成完整海报
+const preloadList = [];
+
+/**
+const preloadImg = (src) => {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            resolve();
+        }
+        img.src = src;
+    });
+}
+
+Promise.all(preloadList.map(src => preloadImg(src))).then(async () => {
+    convertToImage(container).then(canvas => {
+        // ...
+    })
+});
+//**/
+
+// 返回图片Blob地址
+const toBlobURL = (function () {
+    const urlMap = {};
+
+    // @param {string} url 传入图片资源地址
+    return function (url) {
+        // 过滤重复值
+        if (urlMap[url]) return Promise.resolve(urlMap[url]);
+
+        return new Promise((resolve, reject) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = document.createElement('img');
+
+            img.src = url;
+            img.onload = () => {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                // 关键👇
+                canvas.toBlob((blob) => {
+                    const blobURL = URL.createObjectURL(blob);
+
+                    resolve(blobURL);
+                });
+            };
+            img.onerror = (e) => {
+                reject(e);
+            };
+        });
+    };
+}());
+
+// 批量处理
+function convertToBlobImage(targetNode, timeout) {
+    if (!targetNode) return Promise.resolve();
+
+    let nodeList = targetNode;
+
+    if (targetNode instanceof Element) {
+        if (targetNode.tagName.toLowerCase() === 'img') {
+            nodeList = [targetNode];
+        } else {
+            nodeList = targetNode.getElementsByTagName('img');
+        }
+    } else if (!(nodeList instanceof Array) && !(nodeList instanceof NodeList)) {
+        throw new Error('[convertToBlobImage] 必须是Element或NodeList类型');
+    }
+
+    if (nodeList.length === 0) return Promise.resolve();
+
+    // 仅考虑<img>
+    return new Promise((resolve) => {
+        let resolved = false;
+
+        // 超时处理
+        if (timeout) {
+            setTimeout(() => {
+                if (!resolved) resolve();
+                resolved = true;
+            }, timeout);
+        }
+
+        let count = 0;
+
+        // 逐一替换<img>资源地址
+        for (let i = 0, len = nodeList.length; i < len; ++i) {
+            const v = nodeList[i];
+            let p = Promise.resolve();
+
+            if (v.tagName.toLowerCase() === 'img') {
+                p = toBlobURL(v.src).then((blob) => {
+                    v.src = blob;
+                });
+            }
+
+            p.finally(() => {
+                if (++count === nodeList.length && !resolved) resolve();
+            });
+        }
+    });
+}
+/////////////////////////////////////////////////////////////////////////////////////////**/
 
 //生成分享图片
 function generateImage() {
@@ -148,7 +270,7 @@ function generateImage() {
         context.imageSmoothingEnabled = false;
         //console.log("start convert...2",canvas.width,canvas.height);
         //【重要】将图片内容转化为blob，避免出现加载不完整的情况
-        //convertToBlobImage(document.querySelector("img"));//直接处理所有图片
+        convertToBlobImage(document.querySelector("img"));//直接处理所有图片
         // 【重要】默认转化的格式为png,也可设置为其他格式
         var img = Canvas2Image.convertToJPEG(canvas, canvas.width, canvas.height);
         //console.log("image generated.",img);
@@ -160,16 +282,17 @@ function generateImage() {
             "height": canvas.height / scale + "px",
         });
         //隐藏原有元素
-               $("#container").toggleClass("container-hide",true);
+        $("#container").toggleClass("container-hide",true);
        $("#container").toggleClass("container",false);
 
         //显示图片
        $("#share-img").toggleClass("share-img-hide",false);
        $("#share-img").toggleClass("share-img-show",true);
 
-         //隐藏画布
-       //$("#canvas").toggleClass("canvas-show",false);
-       //$("#canvas").toggleClass("canvas-hide",true);      
+         //隐藏提示信息
+       $("#post-mask").toggleClass("post-mask-show",false);
+       $("#post-mask").toggleClass("post-mask-hide",true);    
+        $("#post-mask").html("长按海报保存或分享");         
 
     });
 }
@@ -268,6 +391,10 @@ function insertBoardItem(){
     // 加载内容
     var item = items[num-1];
     if(!item)return;
+
+    //准备生成海报：
+    //将图片加入到预加载列表内：
+    preloadList.push(imgPrefix+item.stuff.images[0]);
     if(num>5){//仅加载5条，加载完成后生成图片
         generateImage();
         return;
