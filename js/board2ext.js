@@ -29,7 +29,7 @@ $(document).ready(function ()
     showPostMask();
 
     //生成二维码：需要提前生成，避免时延导致显示不完整
-    generateQRcode();
+    //generateQRcode();//在加载达人信息后显示，需要将达人ID写入URL
 
     //加载内容
     loadBoard(id); 
@@ -50,6 +50,7 @@ var boardType = "board2-waterfall";//默认为图片流
 var tmpUser = "";
 
 var items = [];//board item 列表
+var totalItems = 0;// 记录总共的item条数，由于是异步处理，需要对数量进行控制，避免数量过少时不能生成海报
 
 var columnWidth = 800;//默认宽度600px
 var columnMargin = 5;//默认留白5px
@@ -85,6 +86,9 @@ function showPostMask(){
 //生成短连接及二维码
 function generateQRcode(){
     var longUrl = window.location.href.replace(/board2ext/g,boardType);//获取分享目标链接
+    if(broker && broker.id){
+        longUrl += "&fromBroker="+broker.id;
+    }
     var header={
         "Content-Type":"application/json"
     };
@@ -122,6 +126,13 @@ function showContent(board){
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //以下用于优化海报生成。当前promise.finally不支持，不能工作
+
+Promise.prototype.finally = callback => {
+    return this.then(
+        value => this.constructor.resolve(callback()).then(() => value),
+        reason => this.constructor.resolve(callback()).then(() => { throw reason })
+    )
+}
 
 //预加载图片，便于生成完整海报
 const preloadList = [];
@@ -313,6 +324,8 @@ function loadBrokerByOpenid(openid) {
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
             $("#author").html(broker.name);    //如果当前用户是达人，则转为其个人board
+            //生成达人推广二维码
+            generateQRcode();
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
@@ -371,7 +384,9 @@ function loadBoardItems(boardId){
     util.AJAX(app.config.sx_api+"/mod/boardItem/rest/board-items/"+boardId, function (res) {
         console.log("Board::loadBoardItems load board items successfully.", res)
         //装载具体条目
-        var hits = res;
+        var hits = res&&res.length>5?res.slice(0,5):res;//如果大于5则仅取5条
+        totalItems = hits.length;
+        console.log("Board::loadBoardItems prepare post items.", hits)
         for(var i = 0 ; i < hits.length; i++){ //限定最多5条
             loadBoardItem(hits[i]);//查询具体的item条目
         }        
@@ -390,6 +405,18 @@ function loadBoardItem(item){//获取内容列表
             item.stuff = data;//装载stuff到boarditem   
             items.push(item); //装载到列表 
             insertBoardItem(); //显示到界面:避免反复刷新，在装载完成后一次性显示，注意改为同步加载
+
+            //准备生成海报：
+            //将图片加入到预加载列表内：
+            preloadList.push(imgPrefix+item.stuff.images[0]);
+            if(items.length >= totalItems){//加载完成后生成海报，默认提前限制加载条数
+                console.log("start generate post.[num,total]",items.length,totalItems);
+                window.setTimeout(generateImage,1500);//需要等待图片加载完成
+                return;
+            }else{
+                console.log("rendering items.[num,total]",items.length,totalItems);
+            }
+
         }
     })            
 }
@@ -399,14 +426,6 @@ function insertBoardItem(){
     // 加载内容
     var item = items[num-1];
     if(!item)return;
-
-    //准备生成海报：
-    //将图片加入到预加载列表内：
-    preloadList.push(imgPrefix+item.stuff.images[0]);
-    if(num>5){//仅加载5条，加载完成后生成图片
-        generateImage();
-        return;
-    }
 
     var logoImg = "images/tasks/board.png";
     if(item.stuff && item.stuff.images && item.stuff.images.length>0){
