@@ -159,16 +159,18 @@ function showShareContent(){
 
     var strBonus = "";
     if(bonus>0){
-        strBonus += (parseFloat((Math.floor(bonus*10)/10).toFixed(1)));
+        strBonus += "返￥"+(parseFloat((Math.floor(bonus*10)/10).toFixed(1)));
     }
-    if(strBonus.length > 0){//仅对超过1元的商品显示佣金
-        $("#share-bonus").html("返￥"+strBonus);
+    //if(strBonus.length > 0){//所有商品都显示分享卡片
+        $("#share-bonus").html(strBonus);
         $("#share-bonus").toggleClass("share-bonus",true);
         $("#share-bonus").toggleClass("share-bonus-hide",false);  
+    /**
     }else{
        $("#share-bonus").toggleClass("share-bonus",false);
        $("#share-bonus").toggleClass("share-bonus-hide",true);        
     }
+    //**/
 }
 
 //佣金
@@ -313,9 +315,9 @@ function index(item){//记录日志
 
 //根据openid查询加载broker
 function loadBrokerByOpenid(openid) {
-    console.log("try to load broker info by openid.[openid]",openid);
+    //console.log("try to load broker info by openid.[openid]",openid);
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
-        console.log("load broker info.",openid,res);
+        //console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
             //达人佣金
@@ -326,13 +328,14 @@ function loadBrokerByOpenid(openid) {
                 $("#profit").toggleClass("profit-show",true);
             }
             //显示分享按钮
-            //console.log("Board::insertBoardItem load share info.", item);
+            console.log("Board::insertBoardItem load share info.", stuff);
             if(stuff.profit && stuff.profit.order && stuff.profit.order >0){
                 if( stuff.profit.order > bonus){
                     bonus = stuff.profit.order;
                 }
-                showShareContent();//更新佣金
-            }            
+                //showShareContent();//显示分享card
+            }
+            showShareContent();//注意，所有单个商品均显示分享卡片            
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();

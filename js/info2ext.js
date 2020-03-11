@@ -79,7 +79,7 @@ function generateQRcode(){
         qrcode.makeCode(shortUrl);
         //开始生成海报图片
         //注意：由于二维码生成需要时间，这里需要等待一小段时间完成
-        window.setTimeout(generateImage,1000);
+        window.setTimeout(generateImage,1200);
         //generateImage(); 
     }, "POST", { "longUrl": longUrl },header);    
 }
