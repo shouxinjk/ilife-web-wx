@@ -52,6 +52,34 @@ var fromUser = "";
 var fromBroker = "";
 var broker = {};//当前达人
 
+//对于联联周边游、旅划算等，直接显示原始海报
+function show3rdPartyPost(){
+    $("#share-img").html("<img src='"+stuff.link.qrcode+"'/>");
+    //隐藏原有元素
+    $("#container").toggleClass("container-hide",true);
+   $("#container").toggleClass("container",false);
+
+    //显示图片
+   $("#share-img").toggleClass("share-img-hide",false);
+   $("#share-img").toggleClass("share-img-show",true);
+   //修改图片尺寸
+    $("#share-img img").css({
+        "width": galleryWidth*0.8 + "px"
+    });       
+    //显示提示文字
+   $("#share-img-tips").toggleClass("share-img-tips-hide",false);
+   $("#share-img-tips").toggleClass("share-img-tips-show",true);
+   //显示重新生成链接，可以重新刷新页面
+   $("#error-link").html("<a href='"+window.location.href+"'>重新生成海报</a>");
+   $("#error-link").toggleClass("share-img-tips-hide",false);
+   $("#error-link").toggleClass("share-img-tips-show",true);       
+
+     //隐藏提示信息
+   $("#post-mask").toggleClass("post-mask-show",false);
+   $("#post-mask").toggleClass("post-mask-hide",true);    
+    $("#post-mask").html("长按海报保存或分享"); 
+}
+
 function showPostMask(){
     var shareContent = document.querySelector("#container");//需要截图的包裹的（原生的）DOM 对象：注意，必须是原生DOM对象，不能是jQuery对象
     var width = shareContent.offsetWidth; //获取dom 宽度
@@ -319,8 +347,11 @@ function loadBrokerByOpenid(openid) {
             broker = res.data;    
             //填写清单信息
             $("#broker-name").html(broker.name+ " 推荐");    //默认作者为当前broker    
-            //生成达人专属二维码，并在二维创建后生成海报
-            generateQRcode();     
+            if(stuff&&stuff.link&&stuff.link.qrcode){//直接用原始二维码图片
+                show3rdPartyPost();
+            }else{//生成达人专属二维码，并在二维创建后生成海报
+                generateQRcode();   
+            }  
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
