@@ -248,7 +248,7 @@ function generateImage() {
     var height = shareContent.offsetHeight; //获取dom 高度
     var canvas = document.createElement("canvas"); //创建一个canvas节点
     //var canvas = document.querySelector("#canvas");
-    var scale = 2;//DPR(); //定义任意放大倍数 支持小数:【注意在css中需要对目标元素设置 transform: 1/scale】
+    var scale = 3;//DPR(); //定义任意放大倍数 支持小数:【注意在css中需要对目标元素设置 transform: 1/scale】
     canvas.width = width * scale; //定义canvas 宽度 * 缩放
     canvas.height = height * scale; //定义canvas高度 *缩放
     $(shareContent).css({
@@ -281,7 +281,7 @@ function generateImage() {
         context.imageSmoothingEnabled = false;
         //console.log("start convert...2",canvas.width,canvas.height);
         //【重要】将图片内容转化为blob，避免出现加载不完整的情况
-        convertToBlobImage(document.querySelector("img"));//直接处理所有图片
+        //convertToBlobImage(document.querySelector("img"));//直接处理所有图片
         // 【重要】默认转化的格式为png,也可设置为其他格式
         var img = Canvas2Image.convertToJPEG(canvas, canvas.width, canvas.height);
         //console.log("image generated.",img);

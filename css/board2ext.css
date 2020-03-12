@@ -11,7 +11,7 @@
   margin:0;
   /*cannot generate by canvas2image*/
   background-image: url("../images/bg/bg1.jpeg");
-  background-color: darkgrey;
+  /*background-color: darkgrey;*/
 }
 
 .container-hide{
