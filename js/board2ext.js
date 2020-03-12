@@ -85,10 +85,11 @@ function showPostMask(){
 
 //生成短连接及二维码
 function generateQRcode(){
-    var longUrl = window.location.href.replace(/board2ext/g,boardType);//获取分享目标链接
+    var longUrl = window.location.href.replace(/board2ext/g,boardType).replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
     if(broker && broker.id){
         longUrl += "&fromBroker="+broker.id;
     }
+    longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:"");
     var header={
         "Content-Type":"application/json"
     };
