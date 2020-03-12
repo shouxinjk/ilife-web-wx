@@ -416,7 +416,7 @@ function loadBoardItem(item){//获取内容列表
             preloadList.push(imgPrefix+item.stuff.images[0]);
             if(items.length >= totalItems){//加载完成后生成海报，默认提前限制加载条数
                 console.log("start generate post.[num,total]",items.length,totalItems);
-                window.setTimeout(generateImage,1500);//需要等待图片加载完成
+                window.setTimeout(generateImage,2000);//需要等待图片加载完成
                 return;
             }else{
                 console.log("rendering items.[num,total]",items.length,totalItems);
