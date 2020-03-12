@@ -475,8 +475,8 @@ function insertBoardItem(){
             '</div>'+ 
             "<div class='board-item-logo'>" + image +"</div>"+
             "<div class='board-item-detail'>"+ 
-                '<span class="board-item-title">'+(item.title?item.title:item.stuff.title.substring(0,10))+'</span>'+
-                "<div class='board-item-description'>"+(item.description?item.description.substring(0,20):"")+"</div>"+
+                '<div class="board-item-title">'+(item.title?item.title:item.stuff.title)+'</div>'+
+                "<div class='board-item-description'>"+(item.description?item.description:"")+"</div>"+
             "</div>"+
         "</div>"+
     "</li>");

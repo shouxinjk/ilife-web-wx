@@ -368,14 +368,24 @@ a{
 }
 
 .board-item-title{
-	width:100%;
-	line-height: 16px;
+	width:180px;
+	line-height: 20px; 
+	font-size: 14px;
+	font-weight: bold;
+    white-space:nowrap; 
+    overflow:hidden; 
+    text-overflow:ellipsis;
 }
 
 .board-item-description{
-	width:100%;
-	line-height: 14px;
-	font-size:12px;
+	width:180px;
+	height:54px;
+	line-height: 18px; 
+	font-size: 12px;
+	color: #838791;
+	letter-spacing: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .board-item{
