@@ -155,14 +155,14 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
 .app-tips{
   font-size:12px;
   line-height: 20px;
-  color:gray;
+  color:#333;
   vertical-align: top;  
 }
 
 .app-name{
   font-size:14px;
   line-height: 24px;
-  color:gray;
+  color:#BF0A10;
   font-weight: bold;
   vertical-align: top;  
 }
@@ -171,7 +171,7 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
   font-size:12px;
   font-weight: bold;
   line-height: 16px;
-  color:darkorange;
+  color:darkgreen;
   vertical-align: top;  
 }
 

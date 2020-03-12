@@ -10,7 +10,7 @@
 .container{
   margin:0;
   /*cannot generate by canvas2image*/
-  background-image: url("../images/bg/bg1.jpeg");
+  background-image: url("../images/bg/bg00.jpeg");
   /*background-color: darkgrey;*/
 }
 
@@ -415,7 +415,7 @@ a{
 
 .head{
 	font-size:18px;
-	color:gray;
+	color:#fff;
 	font-weight: bold;	
 	line-height: 40px;
 	text-align: center;
