@@ -260,6 +260,10 @@ function generateImage() {
         //显示提示文字
        $("#share-img-tips").toggleClass("share-img-tips-hide",false);
        $("#share-img-tips").toggleClass("share-img-tips-show",true);
+       //显示重新生成链接，可以重新刷新页面
+       $("#error-link").html("<a href='"+window.location.href+"'>重新生成海报</a>");
+       $("#error-link").toggleClass("share-img-tips-hide",false);
+       $("#error-link").toggleClass("share-img-tips-show",true);       
 
          //隐藏提示信息
        $("#post-mask").toggleClass("post-mask-show",false);
