@@ -124,7 +124,11 @@ function showContent(item){
         $("#qrcodeImgDiv").css('visibility', 'visible');
         $("#jumpbtn").text('长按下面的图片扫码购买');
     }else if(item.link.token && item.link.token.trim().length>0){//如果是口令
-        $('#jumpbtn').attr('data-clipboard-text',item.link.token);//将口令预先设置好    
+        var tokenStr = item.link.token; //默认是系统推广口令
+        if(broker.id&&item.link.cps[broker.id]&&item.link.cps[broker.id].token&&item.link.cps[broker.id].token.trim().length>0){//如果有达人口令，则使用达人口令
+            tokenStr = item.link.cps[broker.id].token;
+        }
+        $('#jumpbtn').attr('data-clipboard-text',tokenStr);//将口令预先设置好    
         $('#jumpbtn').html("复制口令并前往"+item.distributor.name);
     }
 
@@ -357,12 +361,12 @@ function jump(item){//支持点击事件
         if(item.link.qrcode){//如果是二维码
             //it is a QRCODE
             $("#jumpbtn").text("长按下面的图片扫码购买哦");
-        }else if(item.link.token && item.link.token.trim().length>0){//如果是口令
+        }else if(item.link.token && item.link.token.trim().length>0){//如果是口令：这里直接拷贝，在加载时已经优先写入broker特定的口令
             var clipboard = new ClipboardJS('#jumpbtn');
             clipboard.on('success', function(e) {
                 //$('#jumpbtn').attr('data-clipboard-text',item.link.token);
                 //console.info('Action:', e.action);
-                console.info('token is copied:', e.text);
+                console.info('platform default token is copied:', e.text);
                 $.toast({//浮框提示打开APP
                     heading: '需要在APP购买',
                     text: '口令已复制，打开'+item.distributor.name+'APP吧',
@@ -371,8 +375,8 @@ function jump(item){//支持点击事件
                 });              
                 //e.clearSelection();
             });            
-        }else if(item.link.cps && item.link.cps[benificiaryBrokerId]){//能够直接获得达人链接则直接显示
-            window.location.href = item.link.cps[benificiaryBrokerId];
+        }else if(item.link.cps && item.link.cps[benificiaryBrokerId]  && item.link.cps[benificiaryBrokerId].wap){//能够直接获得达人链接则直接显示
+            window.location.href = item.link.cps[benificiaryBrokerId].wap;
         }else{//否则请求其链接并显示
             getBrokerCpsLink(benificiaryBrokerId,item);
         }

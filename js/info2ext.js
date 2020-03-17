@@ -308,7 +308,7 @@ function showContent(item){
     $("#item-title").html(item.title);
 
     //图片
-    $("#item-logo").append("<img src='" + item.images[0] + "' width='80%'/>");//正文图片
+    $("#item-logo").append("<img src='" +imgPrefix+ item.images[0] + "' width='80%'/>");//正文图片
 
     //使用分类信息填写推荐语
     $("#shop-name").html(item.category&&item.category.length>0?item.category[0]:""); //店铺名称   

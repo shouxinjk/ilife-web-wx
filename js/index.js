@@ -434,8 +434,8 @@ function addItemToBoard(item){
     };     
     var data = {
         item:item._key,
-        //title:item.title,
-        title:item.tags?item.tags.join(" "):"",
+        title:item.title,
+        description:item.tags?item.tags.join(" "):"",
         board:{
             id:boardId
         }
