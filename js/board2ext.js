@@ -40,8 +40,8 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
-//使用代理避免跨域问题。后端将代理到指定的URL地址
-var imgPrefix = "http://www.biglistoflittlethings.com/3rdparty?url=";
+//使用代理避免跨域问题。后端将代理到指定的URL地址。注意：使用https
+var imgPrefix = "https://www.biglistoflittlethings.com/3rdparty?url=";
 
 //分享清单格式：board2、board2-waterfall
 var boardType = "board2-waterfall";//默认为图片流
