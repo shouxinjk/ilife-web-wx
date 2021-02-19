@@ -30,8 +30,8 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
-//使用代理避免跨域问题。后端将代理到指定的URL地址
-var imgPrefix = "http://www.biglistoflittlethings.com/3rdparty?url=";
+//使用代理避免跨域问题。后端将代理到指定的URL地址。使用https
+var imgPrefix = "https://www.biglistoflittlethings.com/3rdparty?url=";
 
 //临时用户
 var tmpUser = "";
