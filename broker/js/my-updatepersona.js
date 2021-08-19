@@ -78,6 +78,10 @@ function showPersona(persona){
     $("#personaName").val(persona.name);
     $("#personaDescription").val(persona.description);
     $("#personaTags").val(persona.tags.join(" "));
+    //加载标签列表供选择
+    loadTags();
+    //显示更多标签，供手动输入
+    showMoreTags();
     //注册事件
     $("#submitBtn").click(function(){
         updatePersona();
@@ -94,6 +98,7 @@ function showPersona(persona){
 function updatePersona(){
     var persona = {};
     persona.name = $("#personaName").val().trim().length>0?$("#personaName").val().trim():currentPersona.name;
+    /**
     persona.description = $("#personaDescription").val().trim().length>0?$("#personaDescription").val():currentPersona.description;
     var tags = $("#personaTags").val();
     if(tags.trim().length>0){
@@ -101,6 +106,7 @@ function updatePersona(){
     }else{
         persona.tags = currentPersona.tags;
     }
+    //**/
 
     var header={
         "Content-Type":"application/json",
@@ -122,6 +128,163 @@ function deletePersona(){
         console.log("Broker::My Persona deleted.", res)
         window.location.href = "my.html";//跳转到设置页面
     }, "DELETE",{},header);
+}
+
+//加载预定义用户标签
+function loadTags(){
+   var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    console.log("try to load user tags.",app.config.sx_api+"/mod/userTag/rest/tags");
+    util.AJAX(app.config.sx_api+"/mod/userTag/rest/tags", function (res) {
+        console.log("Broker::My Loaded persona tags.", res)
+        if(res){
+            showTags(res);//直接开始显示
+        }
+    }, "GET",{},header);    
+}
+
+//显示预定义标签。采用动态显示的方式
+var userTagTypes = [];//存放类别名称
+var userTags = [];//按照分类存放分类下的tags
+function showTags(tags){
+    //首先将所有tag按照类别放入二维数组
+    for(var i=0;i<tags.length;i++){
+        var tag = tags[i];
+        var tagType = tag.userTagCategory.name;
+        if(userTagTypes.indexOf(tagType)<0){
+            userTagTypes.push(tagType);
+            userTags[tagType] = [];
+        }
+        var subTags = userTags[tagType];
+        subTags.push(tag);
+        userTags[tagType] = subTags;
+    }
+    //然后按照二维数组组织HTML显示
+    var html = "";
+    for(var i=0;i<userTagTypes.length;i++){
+        var userTagByCategory = userTagTypes[i];
+        //添加标签分类
+        $("#user-tags-div").append("<div class='user-tag-wrapper' id='user-tag-wrapper-"+userTagByCategory+"'></div>");
+        //添加分类文字
+        $("#user-tag-wrapper-"+userTagByCategory).append('<div class="user-tag-category">'+userTagByCategory+'</div>');
+        //添加具体标签
+        var taglist = userTags[userTagByCategory];
+        $("#user-tag-wrapper-"+userTagByCategory).append('<div class="user-tag-list" id="user-tag-list-'+userTagByCategory+'"></div>');
+        for(var j=0;j<taglist.length;j++){
+            var tag = taglist[j];
+
+            //创建动态判定脚本，并检查是否已经选中
+            var myScript= document.createElement("script");
+            myScript.type = "text/javascript";
+            myScript.appendChild(document.createTextNode('function checkTag'+tag.id+'(doc){console.log("try to eval tag expr.",doc); return '+tag.ruleOfJudgment+';}'));
+            document.body.appendChild(myScript); 
+
+            //组织tag HTML            
+            $("#user-tag-list-"+userTagByCategory).append('<div class="user-tag" id="tag'+tag.userTagCategory.id+'-'+tag.id+'" data-tagId="'+tag.id+'" data-name="'+tag.name+'" data-rule=\''+tag.ruleOfJudgment+'\' data-categoryId="'+tag.userTagCategory.id+'" data-type="'+tag.type+'" data-property="'+tag.userMeasure.property+'" data-isExclusive="'+tag.userTagCategory.isExclusive+'" data-expr=\''+tag.expression+'\'>'+tag.name+'</div>');
+            //注册点击事件
+            $("#tag"+tag.userTagCategory.id+'-'+tag.id).click(function(e){
+                changeTag(e);
+            }); 
+    
+            //检查tag状态
+            checkTagStatus({
+                tagId:tag.id,
+                name:tag.name,
+                type:tag.type,
+                property:tag.userMeasure.property,  
+                rule:tag.ruleOfJudgment,
+                expr:tag.expression,  
+                categoryId:tag.userTagCategory.id,                              
+                isExclusive:tag.userTagCategory.isExclusive
+            });       
+        }
+    }
+}
+
+//tag点选响应事件
+function changeTag(e){
+    console.log("tag changed.",e);
+    var data = {};
+    if(e.currentTarget.dataset.type=="script"){//通过脚本直接更新
+        try{
+            data = JSON.parse(e.currentTarget.dataset.expr); 
+        }catch(err){
+            console.log("parse expression error.",e.currentTarget.dataset.expr);
+        }
+    }else if(e.currentTarget.dataset.type=="array"){//这是一个数组，则要单独做一些处理
+        var tag = e.currentTarget.dataset.name;
+        var array = currentPersona[e.currentTarget.dataset.property];
+        if(!array){
+            array=[];
+        }
+        if(array.indexOf(tag)>=0){//如果存在则删除
+            var str = array.join(" ");
+            str = str.replace(tag,"").replace(/\s+/g," ");
+            array = str.split(" ");
+        }else{
+            array.push(tag)
+        }
+        var uniqueArray = [...new Set(array)];//排重
+        data[e.currentTarget.dataset.property]=uniqueArray;
+        currentPersona[e.currentTarget.dataset.property]=uniqueArray;
+    }else{
+        console.log("what the fuck. I dont know the type.[type]"+e.currentTarget.dataset.type);
+    }
+    //change persona
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+currentPersona._key, function (res) {
+        console.log("Broker::My Persona updated by tag.", res)
+        //TODO: 修改界面显示
+        changeTagDisplay({
+            tagId:e.currentTarget.dataset.tagid,
+            name:e.currentTarget.dataset.name,
+            type:e.currentTarget.dataset.type,
+            property:e.currentTarget.dataset.property,
+            categoryId:e.currentTarget.dataset.categoryid,
+            isExclusive:e.currentTarget.dataset.isexclusive
+        });
+    }, "PATCH",data,header);    
+}
+
+//修改tag显示风格
+function changeTagDisplay(tagInfo){
+    //console.log("try to change tag style.",tagInfo);
+    if(tagInfo.isExclusive=="1" || tagInfo.isExclusive==1){    //如果是单选，则先把所有已选中的干掉，然后把选中的加上高亮
+        //把同一类标签风格都改为取消状态
+        console.log("change exclusive tag.",tagInfo)
+        $("div[id^='tag"+tagInfo.categoryId+"']").each(function(index, element) {
+             $(this).removeClass("user-tag-selected");
+             $(this).addClass("user-tag");
+        });   
+        //高亮显示当前选中的标签 
+        $("#"+tagInfo.categoryId+'-'+tagInfo.tagId).removeClass("user-tag");
+        $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).addClass("user-tag-selected");        
+    }else{//对于多选，如果当前值在列表内则加上高亮，如果不在则去掉高亮
+        console.log("\n\nchange non-exclusive tag.",tagInfo)
+        if(currentPersona[tagInfo.property] && currentPersona[tagInfo.property].indexOf(tagInfo.name)>=0){
+            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).removeClass("user-tag");
+            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).addClass("user-tag-selected");             
+        }else{
+            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).removeClass("user-tag-selected");
+            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).addClass("user-tag");             
+        }
+    }
+}
+
+//检查tag是否选中。仅用于初次加载时
+function checkTagStatus(tagInfo){
+    //console.log("try to check tag status.",tagInfo);
+    var result = false;
+    eval("result=checkTag"+tagInfo.tagId+"(currentPersona);");
+    console.log("check tag result.",result,tagInfo,currentPersona);
+    if( result ){
+        changeTagDisplay(tagInfo);
+    }
 }
 
 //load person
@@ -241,5 +404,67 @@ function changeActionType (e) {
 
     //跳转到相应页面
     window.location.href = currentActionType+".html";
+}
+
+//show editable tags
+function showMoreTags(){
+    var moreTags = currentPersona.tags;
+    for(var i=0;i<moreTags.length;i++){
+        $('#moreTags').append("<li>"+moreTags[i]+"</li>");
+    }
+    var eventTags = $('#moreTags');
+
+    var addEvent = function(text) {
+        console.log(text);
+        //$('#events_container').append(text + '<br>');
+    };
+
+    eventTags.tagit({
+        availableTags: moreTags,//TODO: 可以获取所有标签用于自动补全
+        //**
+        beforeTagAdded: function(evt, ui) {
+            if (!ui.duringInitialization) {
+                addEvent('beforeTagAdded: ' + eventTags.tagit('tagLabel', ui.tag));
+            }
+        },//**/
+        afterTagAdded: function(evt, ui) {
+            if (!ui.duringInitialization) {
+                currentPersona.tags.push(eventTags.tagit('tagLabel', ui.tag));
+                updatePersonaTags();
+                addEvent('afterTagAdded: ' + eventTags.tagit('tagLabel', ui.tag));
+            }
+        },
+        //**
+        beforeTagRemoved: function(evt, ui) {
+            addEvent('beforeTagRemoved: ' + eventTags.tagit('tagLabel', ui.tag));
+        },//**/
+        afterTagRemoved: function(evt, ui) {
+            var tags = currentPersona.tags.join(" ").replace(eventTags.tagit('tagLabel', ui.tag),"");
+            currentPersona.tags = tags.split(" ");
+            updatePersonaTags();
+            addEvent('afterTagRemoved: ' + eventTags.tagit('tagLabel', ui.tag));
+        },
+        /**
+        onTagClicked: function(evt, ui) {
+            addEvent('onTagClicked: ' + eventTags.tagit('tagLabel', ui.tag));
+        },//**/
+        onTagExists: function(evt, ui) {
+            addEvent('onTagExists: ' + eventTags.tagit('tagLabel', ui.existingTag));
+        }
+    });    
+}
+
+//修改persona的tags：每次修改后均做更新，且仅更新tags
+function updatePersonaTags(){
+    var data={
+        tags:currentPersona.tags//在发生操作后直接修改
+    }
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+currentPersona._key, function (res) {
+        console.log("Broker::My Persona tags updated.", res)
+    }, "PATCH",data,header);
 }
 
