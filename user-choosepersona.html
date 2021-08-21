@@ -8,12 +8,10 @@
     <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/waterfall.css">    
     <link rel="stylesheet" type="text/css" href="broker/css/broker.css">
-    <link rel="stylesheet" type="text/css" href="broker/css/broker-my.css?v=0.8">
-    <link rel="stylesheet" type="text/css" href="css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="broker/css/broker-my.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css">    
-    <link href="ext/tag-it/css/jquery.tagit.css" rel="stylesheet" type="text/css">
-    <link href="ext/tag-it/css/tagit.ui-zendesk.css" rel="stylesheet" type="text/css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
 </head>
@@ -51,36 +49,11 @@
     </view>
 
     <div class="tips">
-        设置好了，推荐会更加精准哦~~
+        选一个最匹配的画像吧~~
     </div> 
 
     <div id="Center">
-        <div class="persona-form">   
-            <div class="form-group">
-                <div class="user-tag-wrapper">
-                    <div class="user-tag-category">名字</div>
-                    <div class="user-tag-list"><input type="text" class="form-control" id="nickName"/></div>
-                </div> 
-            </div> 
-            <div class="form-group" id="relationship-wrapper">
-                <div class="user-tag-wrapper">
-                    <div class="user-tag-category">是我的：</div>
-                    <div class="user-tag-list"><input type="text" class="form-control" id="relationship"/></div>
-                </div> 
-            </div>             
-            <div id="user-tags-div">
-            </div>        
-            <div class="form-group" class="user-tag-wrapper">
-                <div class="user-tag-category">更多标签</div>
-                <div  class="moreTags">
-                    <ul id="moreTags">
-                    </ul>    
-                </div>            
-                <!--div class="user-tag-list"><textarea class="form-control" rows="5" id="personaTags"></textarea></div-->
-            </div>                     
-            <button type="submit" class="btn btn-default" id="submitBtn">保存</button>
-            <!--button type="submit" class="btn btn-default" id="deleteBtn">删除</button-->
-        </div>
+        <ul id="waterfall"></ul>
     </div>
 
     <!-- 加载进度与提示 -->
@@ -89,7 +62,7 @@
     </div>
 
     <div id="footer" class="footer-hide">
-
+        我是有底线的
     </div>  
 
     <div id="sx-menu">
@@ -111,14 +84,11 @@
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
 <script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
-<script type="text/javascript" src="ext/jquery-ui.min.js"></script>
 <script type="text/javascript" src="js/newWaterfall.js"></script>
 <script type="text/javascript" src="js/swiper.min.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="js/util.js?v=3.0"></script>
-<script type="text/javascript" src="js/user.js?v=1.2"></script> 
-<script type="text/javascript" src="ext/md5.min.js"></script>
-<script src="ext/tag-it/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript" src="js/user-choosepersona.js?v=1.0"></script> 
 </html>

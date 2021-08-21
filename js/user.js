@@ -78,10 +78,20 @@ function loadPersona(personaId){
         console.log("Broker::My Loaded persona by id.", res)
         if(res){
             currentPersona = res;
-            currentPerson = res;//直接引用persona属性作为当前用户设置
+            currentPerson = {//直接引用persona属性作为当前用户设置
+              ...res
+            };
+            delete  currentPerson._key;
+            delete  currentPerson._id;
+            delete  currentPerson._rev;
+            delete  currentPerson.broker;
+            delete  currentPerson.image;
+            delete  currentPerson.name;
             currentPerson.persona = res;//设置当前用户的persona信息
-            currentPerson.avatarUrl = res.image;//设置默认头像
-            currentPerson.nickName = "";//默认设置名称为空
+            if(res.image)
+                currentPerson.avatarUrl = res.image;//设置默认头像
+            if(res.name)
+                currentPerson.nickName = res.name;//默认设置名称为画像名称
             currentPerson.status = "pending";//设置为待分析用户
             showPerson(currentPerson);
         }
@@ -122,16 +132,27 @@ function updatePerson(){
 
     //创建或更新用户
     if(currentPerson._key && currentPerson._key.trim().length>0){//如果有_key则表示用户存在，直接更新
+        console.log("update existing user.",currentPerson);
         util.AJAX(app.config.data_api+"/_api/document/user_users/"+currentPerson._key, function (res) {
             console.log("User::Setting updated.", res)
-            if(from=="connections"){
-                window.location.href = "connections.html";//跳转到关心的人列表
+            if(from=="connection"){
+                window.location.href = "connection.html";//跳转到关心的人列表
             }else{
                 window.location.href = "user.html";//跳转到设置页面
             }
         }, "PATCH",currentPerson,header);
     }else{//否则创建后更新
-
+        console.log("create new user.",currentPerson);
+        var key = md5(currentPerson.persona._key+userInfo._key+new Date().getTime());//构建一个user._key
+        util.AJAX(app.config.data_api+"/user/users/"+key, function (res) {
+            console.log("User::Setting user created.", res)
+            if(from=="connection"){
+                //TODO：需要设置 用户关系
+                window.location.href = "connection.html";//跳转到关心的人列表
+            }else{//不可能走到这里，自己设置时是已经有了用户的，仅对于新增关心的人才会进来
+                console.log("how could it be?");
+            }
+        }, "POST",currentPerson,header);
     }
 }
 
