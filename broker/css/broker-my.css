@@ -1,31 +1,79 @@
-.persona{
-  width:100%;
-  display:table;
-  margin:2px auto;
+#Center{
+  background-color: #e3e2e1;
 }
 
-.persona-logo{
-  display:table-cell;
-  width:30%;
+#waterfall li>div{
+  margin:3px auto;
+  padding:3px 0;
+}
+
+.persona{
+  width:97%;
+  display:flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;  
+  margin:2px auto;
+  vertical-align: middle;
+  border:1px solid #e3e2e1;
+  border-radius: 10px;
+  background-color: white;
+}
+
+.persona-logo-wrapper{
+  display: inline; 
+  width:20%;
   text-align: center;
 }
-
-.persona-tags{
-  display:table-cell;
+.persona-logo{
+  border-radius: 25px;
+}
+.persona-action{
+  display: inline; 
+  width:10%;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  color:#514c49;
+}
+.persona-info{
+  display: inline; 
   vertical-align: top;
   width:70%;
 }
-.title{
-  font-size:16px;
-  font-weight: bold;
-  margin-bottom:10px;
-}
-
-.description{
+.persona-title{
   font-size:12px;
-  line-height: 14px;
-  margin-bottom:10px;
-  margin-top: 10px;
+  font-weight: bold;
+  color:#514c49;
+}
+.persona-description{
+  font-size:12px;
+  line-height: 16px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+
+}
+.persona-tags{
+  width:100%;
+  display:flex;
+  font-size:12px;
+  flex-flow:row wrap; /*自动换行*/
+  /*
+  white-space:nowrap;
+  overflow:hidden;   
+/**/
+}
+.persona-tag{
+  border: 1px solid #514c49;
+  border-radius: 5px;
+  background-color:#514c49;
+  color:white;
+  margin-right:2px;
+  margin-bottom:2px;
+  text-align: center;
+  font-size: 10px;
+  padding:2px;
 }
 
 .user-tag-wrapper{
@@ -42,8 +90,7 @@
 .user-tag-category{
   width:25%;
   display: inline;  
-  font-size:14px;
-  line-height: 14px;
+  font-size:12px;
   font-weight: bold;  
   vertical-align: middle;
   padding:2px;
