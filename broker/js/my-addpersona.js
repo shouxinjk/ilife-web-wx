@@ -134,7 +134,7 @@ function insertItem(){
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='persona-title'>"+item.name+"</div>"
     var description = "<div class='persona-description'>"+item.description+"</div>"
-    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +description+ tags+ "</div><div class='persona-action'>〉</div></li>");
+    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +description+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
 
     //注册事件
     $("div[data='"+item._key+"']").click(function(){
