@@ -182,7 +182,7 @@ function showTags(tags){
             document.body.appendChild(myScript); 
 
             //组织tag HTML            
-            $("#user-tag-list-"+userTagByCategory).append('<div class="user-tag" id="tag'+tag.userTagCategory.id+'-'+tag.id+'" data-tagId="'+tag.id+'" data-name="'+tag.name+'" data-rule=\''+tag.ruleOfJudgment+'\' data-categoryId="'+tag.userTagCategory.id+'" data-type="'+tag.type+'" data-property="'+tag.userMeasure.property+'" data-isExclusive="'+tag.userTagCategory.isExclusive+'" data-expr=\''+tag.expression+'\'>'+tag.name+'</div>');
+            $("#user-tag-list-"+userTagByCategory).append('<div class="user-tag" id="tag'+tag.userTagCategory.id+'-'+tag.id+'" data-tagId="'+tag.id+'" data-name="'+tag.name+'" data-rule=\''+tag.ruleOfJudgment+'\' data-categoryId="'+tag.userTagCategory.id+'" data-type="'+tag.userMeasure.type+'" data-property="'+tag.userMeasure.property+'" data-isExclusive="'+tag.userTagCategory.isExclusive+'" data-expr=\''+tag.expression+'\'>'+tag.name+'</div>');
             //注册点击事件
             $("#tag"+tag.userTagCategory.id+'-'+tag.id).click(function(e){
                 changeTag(e);
@@ -192,7 +192,7 @@ function showTags(tags){
             checkTagStatus({
                 tagId:tag.id,
                 name:tag.name,
-                type:tag.type,
+                type:tag.userMeasure.type,
                 property:tag.userMeasure.property,  
                 rule:tag.ruleOfJudgment,
                 expr:tag.expression,  
@@ -227,8 +227,14 @@ function changeTag(e){
             array.push(tag)
         }
         var uniqueArray = [...new Set(array)];//排重
-        data[e.currentTarget.dataset.property]=uniqueArray;
-        currentPersona[e.currentTarget.dataset.property]=uniqueArray;
+        var newArray = [];
+        for(var k=0;k<uniqueArray.length;k++){
+            if(uniqueArray[k]&&uniqueArray[k].trim().length>0){
+                newArray.push(uniqueArray[k].trim());
+            }
+        }
+        data[e.currentTarget.dataset.property]=newArray;
+        currentPersona[e.currentTarget.dataset.property]=newArray;
     }else{
         console.log("what the fuck. I dont know the type.[type]"+e.currentTarget.dataset.type);
     }
