@@ -31,6 +31,10 @@ $(document).ready(function ()
         loadPersona(currentPersonaId);
     }else{//否则直接读取user信息
         loadPerson(currentPersonId);//加载需要修改的用户信息，其中需要判定 person是否已经设置有画像，如果未设置，则跳转到画像选择页面
+        if(currentPersonId != userInfo._key){//如果是编辑其他用户则同时显示关系
+            console.log("try to load connection.");
+            loadConnection();
+        }
     }
 
     //注册事件：切换操作类型
@@ -65,8 +69,37 @@ var userInfo=app.globalData.userInfo;//默认为当前用户
 
 var currentPersonaId = null;
 var currentPersona = {};
+var currentConnection = null;
 
 var currentPerson = {};//默认当前修改用户为空
+
+//加载当前修改的connection
+function loadConnection(){
+    var query={
+            collection: "connections", 
+            example: { 
+                _from:"user_users/"+userInfo._key,//发起端为当前用户
+                _to:"user_users/"+currentPersonId//目的端为修改用户
+            },
+            limit:1
+        };   
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
+        //showloading(false);
+        console.log("User::Settings::loadConnection try to retrive user connections.", res);
+        if(res && res.count==0){//如果没有则表示有问题哦
+            console.log("something wrong. we cannot get user-user connections.");
+            $("#relationship").val("我关心的TA");//设置默认关系名称
+        }else{//否则更新关系名称
+            var hits = res.result;
+            currentConnection = hits[0];
+            $("#relationship").val(currentConnection.name);//设置默认关系名称
+        }
+    }, "PUT",query,header);
+}
 
 //加载用户关联的Persona
 function loadPersona(personaId){
@@ -136,7 +169,15 @@ function updatePerson(){
         util.AJAX(app.config.data_api+"/_api/document/user_users/"+currentPerson._key, function (res) {
             console.log("User::Setting updated.", res)
             if(from=="connection"){
-                window.location.href = "connection.html";//跳转到关心的人列表
+                //window.location.href = "connection.html";//跳转到关心的人列表
+                var conn={
+                    name:$("#relationship").val()?$("#relationship").val():"我关心的TA"
+                };
+                console.log("try to update connections.",conn);
+                util.AJAX(app.config.data_api+"/_api/document/connections/"+currentConnection._key, function (res) {
+                    console.log("User::Connection updated.", res)
+                    window.location.href = "connection.html";//跳转到关心的人列表
+                }, "PATCH",conn,header); 
             }else{
                 window.location.href = "user.html";//跳转到设置页面
             }
@@ -146,9 +187,20 @@ function updatePerson(){
         var key = md5(currentPerson.persona._key+userInfo._key+new Date().getTime());//构建一个user._key
         util.AJAX(app.config.data_api+"/user/users/"+key, function (res) {
             console.log("User::Setting user created.", res)
+            currentPerson = res;
+            //建立与当前登录用户的关联
             if(from=="connection"){
-                //TODO：需要设置 用户关系
-                window.location.href = "connection.html";//跳转到关心的人列表
+                //新建connection后跳转回到列表页面
+                var conn={
+                    _from:"user_users/"+userInfo._key,
+                    _to:"user_users/"+currentPerson._key,
+                    name:$("#relationship").val()?$("#relationship").val():"我关心的TA"
+                };
+                console.log("try to create connections.",conn);
+                util.AJAX(app.config.data_api+"/_api/document/connections", function (res) {
+                    console.log("User::Connection created.", res)
+                    window.location.href = "connection.html";//跳转到关心的人列表
+                }, "POST",conn,header);                 
             }else{//不可能走到这里，自己设置时是已经有了用户的，仅对于新增关心的人才会进来
                 console.log("how could it be?");
             }
@@ -326,7 +378,7 @@ function loadPerson(personId) {
         //userInfo = res;
         currentPerson = res;
         //检查是否有persona设置，如果没有则跳转到persona选择界面
-        if(res.persona){//如果有persona则显示表单
+        if(res.persona||res._key){//如果有persona则显示表单。注意：对于已经存在的用户即使没有persona，也直接显示表单
             insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
             showPerson(currentPerson);//显示设置的用户表单
             loadBrokerByOpenid(userInfo._key);//根据当前登录用户openid加载broker信息

@@ -136,7 +136,7 @@ function insertItem(){
 
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+(item.avatarUrl?item.avatarUrl:(item.headImgUrl?item.headImgUrl:"/images/avatar/default.png"))+"' width='60' height='60'/>";
+    var image = "<img src='"+(item.avatarUrl?item.avatarUrl:(item.headImgUrl?item.headImgUrl:"/images/avatar/default.png"))+"' width='50' height='50' class='persona-logo'/>";
         /**
     var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
     var tags = "<div class='itemTags'>";
@@ -151,15 +151,16 @@ function insertItem(){
     //**/
     var relation = "";
     if(connNames[item._key]){
-        relation = "<div class='relation'>"+connNames[item._key]+"</div>";
+        relation = "<div class='persona-description'>"+connNames[item._key]+"</div>";
     }
-    var title = "<div class='person-name'>"+(item.nickName?item.nickName:(item.nickname?item.nickname:"没写名字的神秘人"))+"</div>"
-    var description = "<div class='description'>"+(item.province?item.province:"")+(item.city?(" "+item.city):"")+"</div>"
-    $("#waterfall").append("<li><div class='person' data='"+item._key+"'><div class='person-logo'>" + image +"</div><div class='person-tags'>" +title +relation+description+ "</div></li>");
+    var title = "<div class='persona-title'>"+(item.nickName?item.nickName:(item.nickname?item.nickname:"没写名字的神秘人"))+"</div>"
+    //var description = "<div class='persona-description'>"+(item.province?item.province:"")+(item.city?(" "+item.city):"")+"</div>"
+    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +relation+ "</div><div class='persona-action'>&gt;</div></li>");
 
     //注册事件
     $("div[data='"+item._key+"']").click(function(){
-        //点击后跳转到对应用户推荐界面？
+        //点击后跳转到对应用户设置界面
+        window.location.href = "user.html?from=connection&id="+item._key;//跳转到设置页面，传递personId
     });
 
     num++;//下标加一
@@ -177,6 +178,11 @@ function loadPerson(personId) {
         requestQRcode(userInfo);
         loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
+    //注册添加关心的人事件
+    $("#add-connection").click(function(){
+        //点击后跳转到对应用户设置界面
+        window.location.href = "user-choosepersona.html?from=connection";//跳转到画像选择界面
+    });    
 }
 
 //更新Broker

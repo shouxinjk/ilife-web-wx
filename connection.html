@@ -10,6 +10,8 @@
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <link rel="stylesheet" type="text/css" href="css/connection.css">
     <link rel="stylesheet" type="text/css" href="css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="broker/css/broker.css">
+    <link rel="stylesheet" type="text/css" href="broker/css/broker-my.css?v=1.1">    
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css"> 
 </head>
 
@@ -49,10 +51,12 @@
         也可以给关心的人如老爸老妈精准推荐哦~~
     </div> 
     <!-- 分享二维码邀请 -->
-    <div id="qrcode" align="center"></div>
+    <div id="qrcode" align="center" style="display:none"></div>
     
     <div id="Center">
-        <ul id="waterfall"></ul>
+        <ul id="waterfall">
+            <li><div class='persona' id='add-connection'><div class='persona-logo-wrapper'></div><div class='persona-info'><div class='persona-title' style="line-height: 55px">添加关心的人</div></div><div class='persona-action'>+</div></li>
+        </ul>
     </div>
 
     <!-- 加载进度与提示 -->
@@ -88,5 +92,5 @@
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="js/util.js?v=3.0"></script>
-<script type="text/javascript" src="js/connection.js?v=5.0"></script> 
+<script type="text/javascript" src="js/connection.js?v=5.1"></script> 
 </html>
