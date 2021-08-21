@@ -1,6 +1,8 @@
+/*
 #Center{
   background-color: #e3e2e1;
 }
+/**/
 
 #waterfall li>div{
   margin:3px auto;
@@ -133,7 +135,7 @@
 }
 
 .persona-form{
-  width:75%;
+  width:85%;
   margin:10px auto;
 }
 
@@ -154,17 +156,21 @@
 }
 
 #submitBtn{
-  background-color: green;
   border:1px solid green;
-  border-radius: 5px;
-  color: white;
+  color: green;
+  border-radius: 12px;
+  min-width: 60px;
+  font-size: 12px;
+  font-weight: bold;  
 }
 
 #deleteBtn{
-  background-color: red;
   border:1px solid red;
-  border-radius: 5px;
-  color: white;
+  color: red;
+  border-radius: 12px;
+  min-width: 60px;
+  font-size: 12px;
+  font-weight: bold;  
 }
 
 .moreTags{
