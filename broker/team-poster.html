@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>达人后台-小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+    <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/team.css">
+    <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="css/broker.css">
+    <link rel="stylesheet" type="text/css" href="css/broker-my.css?v=1.0">    
+    <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
+    <link rel="stylesheet" type="text/css" href="../css/board2ext.css?v=3.4">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">   
+</head>
+<body>
+
+    <div id="container" class="container">
+        <div class="head">
+            小确幸大生活
+        </div>
+
+        <div id="body"> 
+            <div id="broker" class="broker">
+                <div id="broker-logo" class="broker-logo"></div>
+                <div id="broker-shop" class="broker-shop">
+                    <div id="broker-name" class="broker-name"></div> 
+                    <div id="shop-name" class="shop-name"></div> 
+                    <div id="content" class="content"></div> 
+                </div>
+            </div>
+            <!-- 分享二维码邀请 -->
+            <div id="qrcode" align="center"></div>            
+        </div>
+
+        <div class="foot">
+            <div id="app-text" class="app-text">
+                <div class="app-desc">Life is all about having a good time.</div>
+                <div class="app-tips">长按识别二维码进入</div> 
+                <div class="app-name">开启属于你的小确幸</div>
+            </div>    
+        </div>            
+    </div>
+    <div id="share-img-tips" class="share-img-tips-hide">长按下面的图片保存，分享给朋友</div>
+    <div id="share-img" class="share-image-hide"></div>
+    <div id="error-link" class="share-img-tips-hide"></div>
+    <div id="post-mask" class="post-mask-show">
+        <div>正在生成海报，请稍等...</div>
+        <div><img src="images/loading.gif"/></div>
+    </div>
+
+</body>
+
+<!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
+<script type="text/javascript" src="../ext/jquery-1.12.4.min.js"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+<script type="text/javascript" src="../js/jquery.cookie.js"></script>
+<script type="text/javascript" src="../js/swiper.min.js"></script>
+<script type="text/javascript" src="../js/newWaterfall.js"></script>
+<script type="text/javascript" src="../ext/toast/jquery.toast.min.js"></script>
+<script type="text/javascript" src="../ext/clipboard/clipboard.min.js"></script>
+<script type="text/javascript" src="../ext/html2canvas/flexible.js"></script>
+<script type="text/javascript" src="../ext/html2canvas/qrcode.js"></script>
+<!--script type="text/javascript" src="../ext/jquery.qrcode.min.js"></script-->
+<script type="text/javascript" src="../ext/html2canvas/html2canvas.js"></script>
+<script type="text/javascript" src="../ext/html2canvas/canvas2image.js"></script>
+<script type="text/javascript" src="../ext/html2canvas/vue-2.4.2.min.js"></script>
+<script type="text/javascript" src="../js/util.js?v=7.2"></script>
+<script type="text/javascript" src="js/team-poster.js?v=1.0"></script>
+</html>

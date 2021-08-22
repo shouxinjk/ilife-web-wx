@@ -120,11 +120,14 @@ function insertItem(){
 
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+(brokerUser.avatarUrl?brokerUser.avatarUrl:(brokerUser.headImgUrl?brokerUser.headImgUrl:"../images/avatar/default.jpg"))+"' width='60' height='60'/>";
-        /**
-    var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
-    var tags = "<div class='itemTags'>";
-    var taggingList = item.tags;
+    var image = "<img src='"+(brokerUser.avatarUrl?brokerUser.avatarUrl:(brokerUser.headImgUrl?brokerUser.headImgUrl:"../images/avatar/default.jpg"))+"' width='50' height='50'  class='persona-logo'/>";
+        //**
+    var tagTmpl = "<a class='persona-tag' href='#'>__TAG</a>";
+    var tags = "<div class='persona-tags'>";
+    var taggingList = [];
+    taggingList.push(item.level);
+    if(brokerUser.province)taggingList.push(brokerUser.province);
+    if(brokerUser.city)taggingList.push(brokerUser.city);
     for(var t in taggingList){
         var txt = taggingList[t];
         if(txt.trim().length>1 && txt.trim().length<6){
@@ -133,11 +136,12 @@ function insertItem(){
     }
     tags += "</div>";
     //**/
-    var phone= "<div class='phone'>电话："+(item.phone?item.phone:"--")+"</div>";
-    var title = "<div class='person-name'>"+(item.name?item.name:"")+(brokerUser.nickname?("("+brokerUser.nickname+")"):"")+"</div>"
+    var phone= "<div class='persona-description'>电话："+(item.phone?item.phone:"--")+"</div>";
+    var title = "<div class='persona-title'>"+(item.name?item.name:"")+(brokerUser.nickname?("("+brokerUser.nickname+")"):"")+"</div>"
     //var description = "<div class='description'>"+(brokerUser.province?brokerUser.province:"")+(brokerUser.city?(" "+brokerUser.city):"")+"</div>"
-    var description = "<div class='description'>等级："+item.level+"</div>"
-    $("#waterfall").append("<li><div class='person' data='"+item._key+"'><div class='person-logo'>" + image +"</div><div class='person-tags'>" +title +phone+description+ "</div></li>");
+    //var description = "<div class='description'>等级："+item.level+"</div>"
+    //$("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo'>" + image +"</div><div class='persona-info'>" +title +phone+description+ "</div></li>");
+    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +phone+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
 
     //注册事件
     $("div[data='"+item.id+"']").click(function(){
