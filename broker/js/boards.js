@@ -139,7 +139,7 @@ function insertItem(){
     var item = items[num-1];
     if(!item)return;
 
-    var image = "<img src='http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg' width='60' height='60'/>";
+    var image = "<img src='https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg' width='60' height='60'/>";
     var title = "<div class='title'>"+item.title+"</div>";
     var description = "<div class='description'>"+item.description+"</div>";
     var tags = "<div class='tags'>"+item.tags+"</div>";
