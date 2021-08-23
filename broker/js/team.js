@@ -30,6 +30,12 @@ $(document).ready(function ()
         changeActionType(e);
     });
 
+    //注册添加关心的人事件
+    $("#add-team-member").click(function(){
+        //点击后跳转到对应用户设置界面
+        window.location.href = "team-poster.html";//跳转到海报生成界面
+    });     
+
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -186,13 +192,7 @@ function loadBrokerByOpenid(openid) {
                 requestQRcode(res.data);
             }
         }
-    });
-
-    //注册添加关心的人事件
-    $("#add-team-member").click(function(){
-        //点击后跳转到对应用户设置界面
-        window.location.href = "team-poster.html";//跳转到海报生成界面
-    });     
+    });    
 }
 
 //请求生成二维码

@@ -20,6 +20,7 @@
   border:1px solid #e3e2e1;
   border-radius: 10px;
   background-color: white;
+  min-height: 60px;
 }
 
 .persona-logo-wrapper{

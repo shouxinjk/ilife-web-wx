@@ -36,6 +36,12 @@ $(document).ready(function ()
         changeActionType(e);
     });
 
+    //注册添加关心的人事件
+    $("#add-persona-type").click(function(){
+        //点击后跳转到对应用户设置界面
+        window.location.href = "my-addpersona.html";//跳转到海报生成界面
+    });     
+
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -117,9 +123,9 @@ function insertItem(){
 
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.image+"' width='100' height='100'/>"
-    var tagTmpl = "<a class='itemTag' href='#'>__TAG</a>";
-    var tags = "<div class='itemTags'>";
+    var image = "<img src='"+item.image+"' width='50' height='50' class='persona-logo'/>"
+    var tagTmpl = "<div class='persona-tag'>__TAG</div>";
+    var tags = "<div class='persona-tags'>";
     var taggingList = item.tags;
     for(var t in taggingList){
         var txt = taggingList[t];
@@ -132,9 +138,10 @@ function insertItem(){
     }
     tags += "</div>";
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
-    var title = "<div class='title'>"+item.name+"</div>"
-    var description = "<div class='description'>"+item.description+"</div>"
-    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo'>" + image +"</div><div class='persona-tags'>" +title +description+ tags+ "</div></li>");
+    var title = "<div class='persona-title'>"+item.name+"</div>"
+    var description = "<div class='persona-description'>"+item.description+"</div>"    
+    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +description+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
+
     num++;
 
     //注册事件
