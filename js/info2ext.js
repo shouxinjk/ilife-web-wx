@@ -92,6 +92,7 @@ function showPostMask(){
 
 //生成短连接及二维码
 function generateQRcode(){
+    console.log("start generate qrcode......");
     var longUrl = window.location.href.replace(/info2ext/g,"info").replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
     longUrl += "&fromBroker="+broker.id;
     longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:"");
@@ -99,7 +100,7 @@ function generateQRcode(){
         "Content-Type":"application/json"
     };
     util.AJAX(app.config.auth_api+"/wechat/ilife/short-url", function (res) {
-        //console.log("generate short url.",longUrl,res);
+        console.log("generate short url.",longUrl,res);
         var shortUrl = longUrl;
         if (res.status) {//获取短连接
             shortUrl = res.data.url;
@@ -479,7 +480,7 @@ function registerShareHandler(){
                     desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
+                    imgUrl: stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
