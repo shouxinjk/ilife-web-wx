@@ -27,7 +27,7 @@ $(document).ready(function ()
     });  
 //**/
     //显示遮罩层
-    showPostMask();
+    //showPostMask();
 
     //加载达人信息及二维码
     loadBrokerByOpenid(userInfo._key);//直接传递openid
@@ -37,7 +37,7 @@ $(document).ready(function ()
 util.getUserInfo();//从本地加载cookie
 var userInfo=app.globalData.userInfo;//默认为当前用户
 
-//使用代理避免跨域问题。后端将代理到指定的URL地址。注意：使用https
+//使用代理避免跨域问题。通过代理提供同源图片服务。
 var imgPrefix = "https://www.biglistoflittlethings.com/3rdparty?url=";
 
 //分享清单格式：board2、board2-waterfall
@@ -73,13 +73,14 @@ function showPostMask(){
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //以下用于优化海报生成。当前promise.finally不支持，不能工作
-
+//**
 Promise.prototype.finally = callback => {
     return this.then(
         value => this.constructor.resolve(callback()).then(() => value),
         reason => this.constructor.resolve(callback()).then(() => { throw reason })
     )
 }
+//**/
 
 //预加载图片，便于生成完整海报
 const preloadList = [];
@@ -177,7 +178,7 @@ function generateImage() {
     var height = shareContent.offsetHeight; //获取dom 高度
     var canvas = document.createElement("canvas"); //创建一个canvas节点
     //var canvas = document.querySelector("#canvas");
-    var scale = 3;//DPR(); //定义任意放大倍数 支持小数:【注意在css中需要对目标元素设置 transform: 1/scale】
+    var scale = 3;//DPR(); //定义任意放大倍数 支持小数:【注意在css中需要对目标元素设置 transform: 1/scale】//验证设为4倍能够输出清晰图片
     canvas.width = width * scale; //定义canvas 宽度 * 缩放
     canvas.height = height * scale; //定义canvas高度 *缩放
     $(shareContent).css({
@@ -192,12 +193,14 @@ function generateImage() {
     //shareContent.ownerDocument.defaultView.innerWidth = shareContent.clientWidth;
     canvas.getContext("2d").scale(scale, scale); //获取context,设置scale 
     var opts = {
-        scale: scale, // 添加的scale 参数
+        scale: scale, // 添加的scale 参数：验证设为4倍能够输出清晰图片
         canvas: canvas, //自定义 canvas
         logging: true, //日志开关，便于查看html2canvas的内部执行流程
         width: width, //dom 原始宽度
         height: height,
         useCORS: true, // 【重要】开启跨域配置
+//        allowTaint:false,
+//        proxy:"https://www.biglistoflittlethings.com/3rdparty",
     };
     //console.log("opts",opts);
     html2canvas(shareContent, opts).then(function (canvas) {
@@ -259,7 +262,7 @@ function loadBrokerByOpenid(openid) {
             if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
                 console.log("QRcode exists. try  to display.",imgPrefix+res.data.qrcodeUrl);
                 preloadList.push(imgPrefix+res.data.qrcodeUrl);//将图片加入预加载列表
-                showQRcode(res.data.qrcodeUrl);
+                showContent(res.data.qrcodeUrl);
             }else{//否则请求生成后显示
                 requestQRcode(res.data);
             }
@@ -274,13 +277,28 @@ function requestQRcode(broker) {
         console.log("Generate QRCode successfully.",res);
         if (res.status) {
             preloadList.push(imgPrefix+res.data.url);//将图片加入预加载列表
-            showQRcode(res.data.url);//显示二维码
+            showContent(res.data.url);//显示二维码
         }
     });
 }
 
 //显示二维码
-function showQRcode(url) {
-    $("#qrcode").html('<img src="'+url+'" width="200px" alt="分享二维码邀请达人加入"/>');
+function showContent(url) {
+    $("#broker-name").html(app.globalData.userInfo.nickName+ " 邀请");    //默认作者为board创建者
+    $("#shop-name").html("和好友一起推广，一起赚钱，一起用小确幸填满大生活"); //店铺名称
+    //$("#content").html("用小确幸填满大生活"); //店铺名称
+    //logo：注意使用代理避免跨域问题
+    //preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
+    $("#broker-logo").html('<img src="'+imgPrefix+app.globalData.userInfo.avatarUrl+'"/>');   
+    $("#qrcode").html('<img src="'+imgPrefix+url+'" width="200px" alt="分享二维码邀请达人加入"/>');
+    //$("#qrcode").html('<div style="width:200px;height:200px">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>');
+     var css2 = {
+        height: "200px",
+        width: "200px",
+        display:"block"
+    };
+    $("#qrcode").css(css2); 
+    //$("#qrcode").css("background-image","url(" + url+ ")"); 
+       
     generateImage();//生成分享海报
 }
