@@ -259,10 +259,10 @@ input,img{border: none;}
 #searchIcon a:hover {text-decoration:none;color: #0088CF;}
 
 .itemTags{
-    line-height: 16px;
+    line-height: 12px;
     vertical-align: middle;
-    margin-top:-5px;
-    margin-bottom:5px;
+    margin-top:-4px;
+    margin-bottom:7px;
 }
 
 .itemTag{
@@ -272,8 +272,12 @@ input,img{border: none;}
     background-color: #8BC34A;
     color:white;
     font-weight: bold;
+    font-size: 10px;
+    text-align: center;
     border-radius: 5px;
-    margin-right:2px;
+    margin-left:1px;
+    margin-right:1px;
+    margin-bottom: 2px;
     padding:2px;
     vertical-align:middle;
 }
@@ -284,6 +288,7 @@ input,img{border: none;}
   background-color: white;
   color:darkred;
   padding:2px;
+  line-height: 18px;
   vertical-align:middle;
 }
 .itemTagDistributor{
@@ -292,37 +297,41 @@ input,img{border: none;}
   background-color: white;
   color:darkgreen;
   padding:2px; 
+  line-height: 18px;
   vertical-align:middle;
 }
 
 .itemTagProfitOrder{
-  font-size:12px;
+  font-size:10px;
   font-weight: bold;
   background-color: white;
   color:darkred;
-  padding:2px;    
+  padding:2px;   
+  line-height: 16px; 
   border:1px solid darkred;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   margin-right:2px;
 }
 .itemTagProfitTeam{
-  font-size:12px;
+  font-size:10px;
   font-weight: bold;
   background-color: white;
   color:darkgreen;
   padding:2px;    
+  line-height: 16px;
   border:1px solid darkgreen;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   margin-right:2px;
 }
 .itemTagProfitCredit{
-  font-size:12px;
+  font-size:10px;
   font-weight: bold;
   background-color: white;
   color:orange;
   padding:2px;    
+  line-height: 16px;
   border:1px solid orange;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
@@ -331,54 +340,60 @@ input,img{border: none;}
   font-size:12px;
   font-weight: bold;
   color:#fe4800;   
+  line-height: 18px;
   vertical-align:middle;
 }
 
 .couponTip{
-  font-size:10px;
+  font-size:12px;
   font-weight: bold;
   color:#fe4800;   
   margin-left:2px;
+  line-height: 18px;
   vertical-align:middle;
 }
 
 .couponTipBox{
-  font-size:10px;
+  font-size:12px;
   font-weight: bold;
   color:white;
   background-color: #fe4800;  
   margin-left:2px;
   margin-right:2px;
   padding:1px;
+  line-height: 18px;
   vertical-align:middle;
 }
 
 .profitTipOrder{
-  font-size:12px;
+  font-size:10px;
   font-weight: bold;
   background-color: darkred;
   color:white;
   padding:2px;    
+  line-height: 16px;
   border:1px solid darkred;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
 }
 .profitTipTeam{
-  font-size:12px;
+  font-size:10px;
   font-weight: bold;
   background-color: darkgreen;
   color:white;
-  padding:2px;    
+  padding:2px; 
+  line-height: 16px;   
   border:1px solid darkgreen;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
 }
 .profitTipCredit{
-  font-size:12px;
+  font-size:10px;
   font-weight: bold;
   background-color: orange;
   color:white;
-  padding:2px;    
+  padding:2px;   
+  line-height: 16px; 
   border:1px solid orange;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;

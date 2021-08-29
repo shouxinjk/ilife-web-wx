@@ -244,10 +244,11 @@ function generateImage() {
        $("#error-link").toggleClass("share-img-tips-hide",false);
        $("#error-link").toggleClass("share-img-tips-show",true);
 
-         //隐藏提示信息
+       //隐藏提示信息
+       $("#post-mask").html("长按海报保存或分享");  
        $("#post-mask").toggleClass("post-mask-show",false);
        $("#post-mask").toggleClass("post-mask-hide",true);    
-        $("#post-mask").html("长按海报保存或分享");             
+                  
 
     });
 }

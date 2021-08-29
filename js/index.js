@@ -61,7 +61,11 @@ $(document).ready(function ()
     $("#findByRank").click(function(){//注册搜索事件：点击搜索好物：根据评价
         tagging = $(".search input").val().trim();
         window.location.href="index.html?filter=byRank&keyword="+tagging;
-    });        
+    });   
+
+//TODO：切换为复杂查询。需要在索引结构更新后进行
+    console.log("assemble", assembleEsQuery());     
+    console.log(JSON.stringify(assembleEsQuery()));  
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -149,6 +153,180 @@ var esQueryByRank={
     { "@timestamp": { order: "desc" }}
   ]
 };
+
+var esQueryTemplate = JSON.stringify({
+  "query":{
+    "bool":{
+      "must": [],       
+      "must_not": [],                
+      "filter": [],      
+      "should":[]
+    }
+  },
+  "sort": [
+    { "_score":   { "order": "desc" }},
+    { "@timestamp": { "order": "desc" }}
+  ]   
+});
+
+function assembleEsQuery(){
+    var userInfo = {
+        persona:{
+            tagging:{
+                must:["爱心","宠物"],
+                must_not:["狗肉","宰杀"],
+                filter:["宠物"],
+                should:["围栏"]
+            }
+        },
+        performance:{
+            a:0.15,
+            b:0.25,
+            c:0.35,
+            d:0.45,
+            e:0.55
+        },
+        capability:{
+            x:0.95,
+            y:0.85,
+            z:0.75
+        },
+        /*
+        needs:{
+            "45809fa7cdc1406eac3337545ca2ab5c":0.6,
+            "5adf1b874cf54d0b82533497d9ecd1a4":0.1
+        }
+        //**/
+    }
+
+
+    var persona = userInfo.persona;
+    if(!persona){
+        return esQuery;
+    }
+
+    var complexQuery = JSON.parse(esQueryTemplate);
+    //添加must
+    if(userInfo.tagging && userInfo.tagging.must){
+        complexQuery.query.bool.must.push({match: { full_tags: userInfo.tagging.must.join(" ")}});
+    }else if(persona.tagging && persona.tagging.must){
+        complexQuery.query.bool.must.push({match: { full_tags: persona.tagging.must.join(" ")}});
+    }else{
+        console.log("no must");
+    }
+    //添加must_not
+    if(userInfo.tagging && userInfo.tagging.must_not){
+        complexQuery.query.bool.must_not.push({match: { full_tags: userInfo.tagging.must_not.join(" ")}});
+    }else if(persona.tagging && persona.tagging.must_not){
+        complexQuery.query.bool.must_not.push({match: { full_tags: persona.tagging.must_not.join(" ")}});
+    }else{
+        console.log("no must_not");
+    }
+    //添加filter
+    if(userInfo.tagging && userInfo.tagging.filter){
+        complexQuery.query.bool.filter.push({match: { full_tags: userInfo.tagging.filter.join(" ")}});
+    }else if(persona.tagging && persona.tagging.filter){
+        complexQuery.query.bool.filter.push({match: { full_tags: persona.tagging.filter.join(" ")}});
+    }else{
+        console.log("no filter");
+    }
+    //添加should
+    if(userInfo.tagging && userInfo.tagging.should){
+        complexQuery.query.bool.should.push({match: { full_tags: userInfo.tagging.should.join(" ")}});
+    }else if(persona.tagging && persona.tagging.should){
+        complexQuery.query.bool.should.push({match: { full_tags: persona.tagging.should.join(" ")}});
+    }else{
+        console.log("no should");
+    }
+    /**
+        {
+          "gauss":{
+            "fulfillment.45809fa7cdc1406eac3337545ca2ab5c":{
+              "origin":0.7,
+              "offset":0.1,
+              "scale":0.1
+            }
+          }
+        }    
+    */
+    var nestedTemplate = JSON.stringify({
+                              "nested": {
+                                "path": "empty",
+                                "ignore_unmapped":true,
+                                "query": {
+                                  "function_score": {
+                                    "functions": [],
+                                    "score_mode": "sum",
+                                    "boost_mode": "multiply"
+                                  }
+                                }
+                              }
+                            });
+    var gaussTemplate = JSON.stringify({"gauss":{}});
+    var valTemplate = JSON.stringify({
+                          "origin":0.5,
+                          "offset":0.1,
+                          "scale":0.1
+                        });   
+    var stringTemplate = JSON.stringify({
+                          "query_string": {
+                            "query": "*",
+                            "default_field": "full_text"
+                          }
+                        });
+    //设置用户输入文字查询
+    if(tagging && tagging.trim().length>0){
+        var stringQueryJson = JSON.parse(stringTemplate);
+        stringQueryJson.query_string.query = tagging;
+        complexQuery.query.bool.should.push(stringQueryJson);
+    }
+    //设置vals
+    var valsJson = userInfo.performance;
+    if(valsJson){
+        var valsGauss = JSON.parse(nestedTemplate);
+        valsGauss.nested.path="performance";
+        Object.keys(valsJson).forEach(key => {
+            //console.info(key + ':', valsJson[key])
+            var gaussDecay = JSON.parse(gaussTemplate);
+            var val = JSON.parse(valTemplate);
+            val.origin = valsJson[key];
+            gaussDecay.gauss["performance."+key] = val;
+            valsGauss.nested.query.function_score.functions.push(gaussDecay);        
+        });
+        complexQuery.query.bool.should.push(valsGauss);
+    }
+    //设置cost
+    var costJson = userInfo.capability;
+    if(costJson){
+        var costGauss = JSON.parse(nestedTemplate);
+        costGauss.nested.path="cost";
+        Object.keys(costJson).forEach(key => {
+            //console.info(key + ':', costJson[key])
+            var gaussDecay = JSON.parse(gaussTemplate);
+            var val = JSON.parse(valTemplate);
+            val.origin = costJson[key];
+            gaussDecay.gauss["cost."+key] = val;
+            costGauss.nested.query.function_score.functions.push(gaussDecay);        
+        }); 
+        complexQuery.query.bool.should.push(costGauss);  
+    }
+    //设置satisify
+    var needsJson = userInfo.needs;
+    if(needsJson){
+        var needsGauss = JSON.parse(nestedTemplate);
+        needsGauss.nested.path="fulfillment";
+        Object.keys(needsJson).forEach(key => {
+            //console.info(key + ':', needsJson[key])
+            var gaussDecay = JSON.parse(gaussTemplate);
+            var val = JSON.parse(valTemplate);
+            val.origin = needsJson[key];
+            gaussDecay.gauss["fulfillment."+key] = val;
+            needsGauss.nested.query.function_score.functions.push(gaussDecay);        
+        });
+        complexQuery.query.bool.should.push(needsGauss); 
+    }
+    return complexQuery;     
+}
 
 var esQueryByDistance={
   from:0,
