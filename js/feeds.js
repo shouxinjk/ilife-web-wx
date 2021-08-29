@@ -248,7 +248,7 @@ function loadPersons() {
       $(".swiper-container").css("top","0");
       $(".swiper-container").css("z-index","999");
       $(".swiper-container").css("background-color","#fff");
-      $(".swiper-container").css("margin-bottom","5px");
+      //$(".swiper-container").css("margin-bottom","3px");
     
       //根据当前用户加载数据：默认使用第一个
       currentPerson = persons[0]._key;
@@ -270,8 +270,8 @@ function insertPerson(person){
     html += '<div class="swiper-slide">';
     html += '<div class="person" id="'+person._key+'" data-tagging="'+(person.tags?person.tags.join(" "):"")+'">';
     var style= person._key==currentPerson?'-selected':'';
-    html += '<img class="person-img'+style+'" src="'+person.avatarUrl+'"/>';
-    html += '<div class="person-name">'+person.nickName+'</div>';
+    html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+person.avatarUrl+'"/></div>';
+    html += '<span class="person-name">'+person.nickName+'</span>';
     html += '</div>';
     html += '</div>';
     $("#persons").append(html);
@@ -566,6 +566,12 @@ function changePerson (personId,personTagging) {
     $("#"+currentPerson+" img").addClass("person-img");
     $("#"+ids+" img").removeClass("person-img");
     $("#"+ids+" img").addClass("person-img-selected");
+
+    $("#"+currentPerson+" span").removeClass("person-name-selected");
+    $("#"+currentPerson+" span").addClass("person-name");
+    $("#"+ids+" span").removeClass("person-name");
+    $("#"+ids+" span").addClass("person-name-selected");
+
     $("#waterfall").empty();//清空原有列表
     $("#waterfall").css("height","20px");//调整瀑布流高度
     showloading(true);//显示加载状态

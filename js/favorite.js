@@ -228,13 +228,15 @@ function insertItem(){
     // 加载内容
     var item = items[num-1];
     console.log("Favorite::insertItem add item to html.",num,item);
-    var image = "<img src='"+item.images[0]+"' width='80' height='80'/>"
-    var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
-    var tags = "<div class='itemTags'>";
+    var image = "<img src='"+item.images[0]+"' width='60px' height='60px'/>"
+    var tagTmpl = "<a class='itemTagTiny' href='index.html?keyword=__TAGGING'>__TAG</a>";
+    var tags = "<div class='itemTagging'>";
+    tags += "<div class='itemTagging-summary'>";
     tags += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
     var tagTmplBlank = "<a class='itemTagBlank' href='index.html?keyword=__TAGGING'>__TAG</a>";
     tags += tagTmplBlank.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
-    tags += "<br/>";
+    tags += "</div>";
+    tags += "<div class='itemTagging-list'>";
     var taggingList = [];
     if(item.tagging && item.tagging.length>0){
         taggingList = item.tagging.split(" ");    
@@ -248,6 +250,7 @@ function insertItem(){
     if(item.categoryId && item.categoryId.trim().length>1){
         tags += tagTmpl.replace("__TAGGING",item.category).replace("__TAG",item.category);
     }
+    tags += "</div>";
     tags += "</div>";
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='fav-item-title'>"+item.title+"</div>"

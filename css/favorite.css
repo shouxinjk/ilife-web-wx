@@ -9,8 +9,43 @@
   font-weight: bold;
   line-height: 14px;
 }
-.itemTag{
-  font-size:12px;
+
+.itemTagging{
+  display:flex;
+  flex-direction:column;
+  align-content:center;
+  justify-content:flex-start;  
+}
+.itemTagging-summary{
+  display:flex;
+  flex-direction:row;
+  align-content:center;
+  justify-content:flex-start; 
+  vertical-align: middle;
+}
+.itemTagging-list{
+  display:flex;
+  flex-direction:row;
+  flex-wrap: wrap;
+  align-content:center;
+  justify-content:flex-start; 
+  vertical-align: middle;
+}
+
+.itemTagTiny{
+  white-space: nowrap; 
+  display:inline-block;
+  border:1px solid #8BC34A;
+  background-color: #8BC34A;
+  color:white;
+  font-weight: bold;
+  font-size: 10px;
+  text-align: center;
+  border-radius: 2px;
+  margin-top:2px;
+  margin-right:2px;
+  padding:1px;
+  vertical-align:middle;
 }
 .itemTagPrice{
   font-size:12px;
@@ -28,14 +63,14 @@
 }
 .fav-item-logo{
   display:table-cell;
-  width:30%;
+  width:25%;
   text-align: center;
 }
 
 .fav-item-tags{
   display:table-cell;
   vertical-align: top;
-  width:70%;
+  width:75%;
 }
 
 .user {

@@ -409,8 +409,8 @@ input,img{border: none;}
 .header input{
     width: 25rem;
     height: 3rem;
-    border-radius: 0.83333rem;
-    font-size: 1.66667rem;
+    border-radius: 5px;
+    font-size: 12px;
     border: none;
 }
 .nav{

@@ -66,16 +66,38 @@ div.title{
   justify-content:flex-start;  
   text-align: center;
 }
-.person-img{ width: 48px; height: 48px; border-radius: 50%; border: 2px solid silver; margin:0 1px;}
-.person-img-selected{ width: 48px; height: 48px; border-radius: 50%; border: 2px solid green; margin:0 1px; }
+.person-img-wrapper{
+  display: inline-block;
+  width:60px;
+  text-align: center; 
+  vertical-align: middle;
+}
+.person-img{ width: 40px; height: 40px; border-radius: 50%; margin:2px;border:2px silver solid;}
+.person-img-selected{ width: 40px; height: 40px; border-radius: 50%; margin:2px; border:2px #d14046 solid;}
 
 .person-name{ 
-  font-size:24rpx; 
-  line-height: 24rpx; 
-  width:48px;
+  display: inline;
+  text-align: center;
+  font-size:9px; 
+  font-family: sans-serif;
+  font-weight:bold;
+  line-height: 10px; 
+  width:60px;
   overflow:hidden; 
   text-overflow:ellipsis;
   color:black;
+  }
+  .person-name-selected{ 
+  display: inline;
+  text-align: center;
+  font-size:9px; 
+  font-family: sans-serif;
+  font-weight: bold;
+  line-height: 10px; 
+  width:60px;
+  overflow:hidden; 
+  text-overflow:ellipsis;
+  color:#d14046;
   }
 
 /*end of menu*/
