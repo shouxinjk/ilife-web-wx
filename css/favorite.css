@@ -52,6 +52,7 @@
   font-weight: bold;
   background-color: white;
   color:darkred;
+  line-height: 16px;
   padding:2px;
 }
 .itemTagBlank{
@@ -59,6 +60,7 @@
   font-weight: bold;
   background-color: white;
   color:darkgreen;
+  line-height: 16px;
   padding:2px; 
 }
 .fav-item-logo{

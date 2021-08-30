@@ -1,3 +1,128 @@
+.action-item{
+  display:flex;
+  flex-direction:row;
+  flex-wrap: nowrap;
+  align-content:center;
+  justify-content:flex-start; 
+  vertical-align: middle;
+}
+
+.feed-separator{
+  width:100%;
+  border-top:1px solid silver;
+  line-height: 1px;
+}
+
+.action-person-logo{
+  display:inline-block;
+  line-height: 20px;
+}
+.action-person-logo img{
+  border-radius: 10px;
+}
+
+.action-person-name{
+  display:inline-block;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 16px;
+  margin:auto 2px;
+}
+
+.action-person-time{
+  display:inline-block;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 16px;
+  margin:auto 2px;
+}
+
+.action-person-type{
+  display:inline-block;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 16px;
+  margin:auto 2px;
+}
+
+.feed-item{
+  width:100%;
+  display:table;
+  margin:2px auto;
+}
+
+.feed-item-title{
+  font-size:12px;
+  font-weight: bold;
+  line-height: 14px;
+}
+
+.itemTagging{
+  display:flex;
+  flex-direction:column;
+  align-content:center;
+  justify-content:flex-start;  
+}
+.itemTagging-summary{
+  display:flex;
+  flex-direction:row;
+  align-content:center;
+  justify-content:flex-start; 
+  vertical-align: middle;
+}
+.itemTagging-list{
+  display:flex;
+  flex-direction:row;
+  flex-wrap: wrap;
+  align-content:center;
+  justify-content:flex-start; 
+  vertical-align: middle;
+  margin-top:-4px;
+}
+
+.itemTagTiny{
+  white-space: nowrap; 
+  display:inline-block;
+  border:1px solid #8BC34A;
+  background-color: #8BC34A;
+  color:white;
+  font-weight: bold;
+  font-size: 10px;
+  text-align: center;
+  border-radius: 2px;
+  margin-top:2px;
+  margin-right:2px;
+  padding:1px;
+  vertical-align:middle;
+}
+.itemTagPrice{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:darkred;
+  line-height: 16px;
+  padding:2px;
+}
+.itemTagBlank{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:darkgreen;
+  line-height: 16px;
+  padding:2px; 
+}
+.feed-item-logo{
+  display:table-cell;
+  width:20%;
+  text-align: center;
+}
+
+.feed-item-tags{
+  display:table-cell;
+  vertical-align: top;
+  width:80%;
+}
+
 
 div.title{
     font-weight:bold;

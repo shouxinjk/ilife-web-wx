@@ -9,17 +9,19 @@ $(document).ready(function ()
     rootFontSize = rootFontSize >16 ? 16:rootFontSize;//最大为18px
     oHtml.style.fontSize = rootFontSize+ "px";   
     //计算图片流宽度：根据屏幕宽度计算，最小显示2列
+    /**
     if(width < 2*columnWidth){//如果屏幕不能并排2列，则调整图片宽度
         columnWidth = (width-columnMargin*4)/2;//由于每一个图片左右均留白，故2列有4个留白
     }    
+    //**/
     //显示加载状态
     showloading(true);
     //处理参数
     var args = getQuery();//获取参数
     //category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     $('#waterfall').NewWaterfall({
-        //width: width-20,//1列
-        width: columnWidth,//动态列宽，当前为2列
+        width: width-20,//1列
+        //width: columnWidth,//动态列宽，当前为2列
         delay: 100,
     });
 
@@ -34,8 +36,8 @@ $(document).ready(function ()
         currentPerson = app.globalData.userInfo._key;
     }
     //*/
-    //loadPersons();//加载用户
-    loadPersonas();//加载用户画像
+    loadPersons();//加载用户
+    //loadPersonas();//加载用户画像：假设用户是达人，直接尝试加载
     loadFeeds();
     //loadData();//加载数据：默认使用当前用户查询
 
@@ -53,6 +55,16 @@ var page = {//翻页控制
   size: 20,//每页条数
   total: 1,//总页数
   current: -1//当前翻页
+};
+
+var actionTypes = {
+  view:"看了",
+  share:"种草",
+  "buy-step1":"去逛了",
+  "buy-step2":"买了",
+  buy:"买了",
+  favorite:"收藏了",
+  like:"赞了"
 };
 
 var persons = [];
@@ -81,7 +93,7 @@ function loadFeeds(){
     }, 60);
 }
 
-//load feeds
+//加载用户浏览数据：根据选定用户显示其浏览历史，对于画像则显示该画像下的聚集数据
 function loadData() {
     console.log("Feed::loadData", currentPerson,currentPersonTagging);
     //设置query
@@ -163,7 +175,8 @@ function loadData() {
                 //装载具体条目
                 var hits = data.hits.hits;
                 for(var i = 0 ; i < hits.length ; i++){
-                    items.push(hits[i]._source.item);
+                    //items.push(hits[i]._source.item);
+                    items.push(hits[i]._source);
                 }
                 insertItem();
                 showloading(false);
@@ -172,9 +185,10 @@ function loadData() {
     });
   }
 
+
 //load predefined personas
 function loadPersonas() {
-    util.AJAX(app.config.data_api+"/persona/personas", function (res) {
+    util.AJAX(app.config.data_api+"/persona/personas/broker/"+app.globalData.userInfo._key, function (res) {
       var arr = res;
       //将persona作为特殊的person显示到顶部
       for (var i = 0; i < arr.length; i++) {
@@ -182,79 +196,66 @@ function loadPersonas() {
         if(personKeys.indexOf(u._key) < 0){
           u.nickName = u.name;//将persona转换为person
           u.avatarUrl = u.image;//将persona转换为person
+          u.personOrPersona = "persona";//设置标记，用于区分persona及person
           persons.push(u);
           personKeys.push(u._key);
         }
-      }
-      //将用户显示到页面
-      for (var i = 0; i < persons.length; i++) {
-        insertPerson(persons[i]);
       }  
-      //将当前用户设为高亮  
       //显示滑动条
-      var mySwiper = new Swiper ('.swiper-container', {
-          slidesPerView: 7,
-      });  
-      //调整swiper 风格，使之悬浮显示
-      $(".swiper-container").css("position","fixed");
-      $(".swiper-container").css("left","0");
-      $(".swiper-container").css("top","0");
-      $(".swiper-container").css("z-index","999");
-      $(".swiper-container").css("background-color","#fff");
-      $(".swiper-container").css("margin-bottom","5px");
-      //注册点击事件：点击后【当前该事件在移动端不生效，直接使用jquery点击事件】
-      /*
-      mySwiper.on('tap', function (e) {
-            personId = e.path[1].id;//注意：如果结构改变需要调整path取值
-          console.log('try to change person by tab.',e.path[1].id,e);
-          changePerson(personId);
-      });   
-      //*/      
-      //根据当前用户加载数据：默认使用第一个
-      currentPerson = persons[0]._key;
-      currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";
-      changePerson(currentPerson,currentPersonTagging);     
+      showSwiper(); 
     });
 }
 
 //load related persons
 function loadPersons() {
-    util.AJAX(app.config.data_api+"/user/users", function (res) {
+    util.AJAX(app.config.data_api+"/user/users/connections/"+app.globalData.userInfo._key, function (res) {
       var arr = res;
       //从列表内过滤掉当前用户：当前用户永远排在第一个
+      /*
       if (app.globalData.userInfo != null && personKeys.indexOf(app.globalData.userInfo._key) < 0){
           persons.push(app.globalData.userInfo);
           personKeys.push(app.globalData.userInfo._key);
         }
+      //**/
       for (var i = 0; i < arr.length; i++) {
         var u = arr[i];
-        if(personKeys.indexOf(u._key) < 0){
+        if(personKeys.indexOf(u._key) < 0 && u.openId){//对于未注册用户不显示
           persons.push(u);
           personKeys.push(u._key);
         }
-      }
-      //将用户显示到页面
-      for (var i = 0; i < persons.length; i++) {
-        insertPerson(persons[i]);
-      }  
-      //将当前用户设为高亮  
-      //显示滑动条
-      var mySwiper = new Swiper ('.swiper-container', {
-          slidesPerView: 7,
-      });  
-      //调整swiper 风格，使之悬浮显示
-      $(".swiper-container").css("position","fixed");
-      $(".swiper-container").css("left","0");
-      $(".swiper-container").css("top","0");
-      $(".swiper-container").css("z-index","999");
-      $(".swiper-container").css("background-color","#fff");
-      //$(".swiper-container").css("margin-bottom","3px");
-    
-      //根据当前用户加载数据：默认使用第一个
-      currentPerson = persons[0]._key;
-      currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";      
-      changePerson(currentPerson,currentPersonTagging);     
+      } 
+
+      //显示顶部滑动条
+      if(util.hasBrokerInfo()){//如果是达人，则继续装载画像
+          loadPersonas();
+      }else{//否则直接显示顶部滑动条
+          showSwiper();
+      } 
     });
+}
+
+function showSwiper(){
+    //将用户装载到页面
+    for (var i = 0; i < persons.length; i++) {
+      insertPerson(persons[i]);
+    }    
+    //显示滑动条
+    var mySwiper = new Swiper ('.swiper-container', {
+        slidesPerView: 7,
+    });  
+    //调整swiper 风格，使之悬浮显示
+    $(".swiper-container").css("position","fixed");
+    $(".swiper-container").css("left","0");
+    $(".swiper-container").css("top","0");
+    $(".swiper-container").css("z-index","999");
+    $(".swiper-container").css("background-color","#fff");
+    //$(".swiper-container").css("margin-bottom","3px");
+  
+    //将当前用户设为高亮  
+    //根据当前用户加载数据：默认使用第一个
+    currentPerson = persons[0]._key;
+    currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";      
+    changePerson(currentPerson,currentPersonTagging);    
 }
 
 //将person显示到页面
@@ -264,14 +265,15 @@ function loadPersons() {
       <view class="person-name">{{person.nickName}}</view>
 </view>
 */
+
 function insertPerson(person){
     // 显示HTML
     var html = '';
     html += '<div class="swiper-slide">';
-    html += '<div class="person" id="'+person._key+'" data-tagging="'+(person.tags?person.tags.join(" "):"")+'">';
+    html += '<div class="person" id="'+person._key+'" data-tagging="'+(person.tags?person.tags.join(" "):"*")+'">';
     var style= person._key==currentPerson?'-selected':'';
     html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+person.avatarUrl+'"/></div>';
-    html += '<span class="person-name">'+person.nickName+'</span>';
+    html += '<span class="person-name">'+(person.personOrPersona=="persona"?"★":"")+person.nickName+'</span>';
     html += '</div>';
     html += '</div>';
     $("#persons").append(html);
@@ -308,6 +310,72 @@ function showloading(flag){
 
 //将item显示到页面
 function insertItem(){
+    // 加载历史行为
+    var actionItem = items[num-1];
+    // 加载内容
+    var item = actionItem.item;
+    console.log("Favorite::insertItem add item to html.",num,item);
+    var image = "<img src='"+item.images[0]+"' width='60px' height='60px'/>"
+    var tagTmpl = "<a class='itemTagTiny' href='index.html?keyword=__TAGGING'>__TAG</a>";
+    var tags = "<div class='itemTagging'>";
+    tags += "<div class='itemTagging-summary'>";
+    tags += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
+    if(item.price.coupon>0){//优惠信息
+        tags += "<span class='couponTip'>券</span><span class='coupon' href='#'>"+item.price.coupon+"</span>";
+    }      
+    var tagTmplBlank = "<a class='itemTagBlank' href='index.html?keyword=__TAGGING'>__TAG</a>";
+    tags += tagTmplBlank.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
+    tags += "</div>";
+    tags += htmlItemProfitTags(item);//profit标签
+    tags += "<div class='itemTagging-list'>";
+    var taggingList = [];
+    if(item.tagging && item.tagging.length>0){
+        taggingList = item.tagging.split(" ");    
+    }
+    for(var t in taggingList){
+        var txt = taggingList[t];
+        if(txt.trim().length>1 && txt.trim().length<6){
+            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
+        }
+    }
+    if(item.categoryId && item.categoryId.trim().length>1){
+        tags += tagTmpl.replace("__TAGGING",item.category).replace("__TAG",item.category);
+    }
+    tags += "</div>";
+    tags += "</div>";
+    //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
+    var title = "<div class='feed-item-title'>"+item.title+"</div>"
+    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'>&nbsp;&nbsp;</div>"+htmlActionSummary(actionItem)+"<div class='feed-item' data='"+item._key+"'><div class='feed-item-logo'>" + image +"</div><div class='feed-item-tags'>" +title + tags+ "</div></li>");
+    num++;
+
+    //注册事件
+    $("div[data='"+item._key+"']").click(function(){
+        //跳转到详情页面
+        window.location.href = "info2.html?id="+item._key;
+    });
+
+    // 表示加载结束
+    showloading(false);
+    loading = false;    
+    num++;  
+}
+
+function htmlActionSummary(actionItem){
+  var currentPersonObj = persons[personKeys.indexOf(currentPerson)];
+  console.log("currentPersonObj",currentPersonObj);
+  var html = "";
+  html += "<div class='action-item'>";
+  html += "<div class='action-person-logo'><img src='"+(actionItem.user&&actionItem.user.avatarUrl?actionItem.user.avatarUrl:currentPersonObj.avatarUrl)+"' width='20px' height='20px'/></div>";//logo
+  html += "<div class='action-person-name'>"+(actionItem.user&&actionItem.user.nickName?actionItem.user.nickName:"★"+currentPersonObj.nickName)+"</div>";//name
+  html += "<div class='action-person-time'>"+getDateDiff(actionItem.timestamp)+"</div>";//time
+  html += "<div class='action-person-type'>"+(actionTypes[actionItem.action]?actionTypes[actionItem.action]:actionItem.action)+"</div>";//action
+  html += "</div>";
+  return html;
+}
+
+//将item显示到页面
+/**
+function insertItemOld(){
     var item = items[num-1];//从本地取一条item
     console.log("Feed::insertItem add item to html.",num,item);
     if(item == null)return;
@@ -351,35 +419,6 @@ function htmlItemImage(item){
     html += '</div>';
     return html;
 }
-
-/**
-function htmlItemSummaryDeprecated(item){
-    var html = '';
-    html += '<div class="shopping">';
-    html += '<div class="shopping-summary">';
-    if(item.source.length>0){
-        html += '<img class="shopping-icon" class="shopping-icon" src="http://www.shouxinjk.net/list/images/source/'+item.source+'.png"/>';
-    }
-    if(item.distributor.name.length>0){
-        html += '<text class="box-title">'+item.distributor.name+'</text>';
-    }
-    html += '</div>';
-    html += '<div class="likes">';
-    if(item.price.currency){
-        html += '<text class="currency">'+item.price.currency+'</text>';
-    }else{
-        html += '<text class="currency">¥</text>';
-    }
-    html += '<text class="price-sale">'+item.price.sale+'</text>';
-    if(item.price.bid){
-        html += '<text class="price-bid">/</text>';
-        html += '<text class="price-bid">'+item.price.bid+'</text>';
-    }
-    html += '</div>';
-    html += '</div> ';
-    return html;
-}
-//**/
 
 function htmlItemSummary(item){
     var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING' nowrap>__TAG</a>";
@@ -431,6 +470,7 @@ function htmlItemHighlights(item){
 
     return highlights; 
 }
+//**/
 
 function htmlItemProfitTags(item){ 
     var profitTags = "";
@@ -458,7 +498,7 @@ function htmlItemProfitTags(item){
         profitTags = "<div id='profit"+item._key+"' class='itemTags profit-show'>"+profitTags+"</div>";
     }else{
         profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide'></div>";
-    } 
+    }
     return profitTags;
 }
 
@@ -582,7 +622,7 @@ function changePerson (personId,personTagging) {
     items = [];//清空列表
     num = 1;//从第一条开始加载
     loadData();//重新加载数据
-  }
+  } 
 
 // 自动加载更多：此处用于测试，动态调整图片高度
 function random(min, max)
@@ -590,4 +630,42 @@ function random(min, max)
     return min + Math.floor(Math.random() * (max - min + 1))
 }
 
+// 时间戳转多少分钟之前
+function getDateDiff(dateTimeStamp) {
+    // 时间字符串转时间戳
+    var timestamp = new Date(dateTimeStamp).getTime();
+    var minute = 1000 * 60;
+    var hour = minute * 60;
+    var day = hour * 24;
+    var halfamonth = day * 15;
+    var month = day * 30;
+    var year = day * 365;
+    var now = new Date().getTime();
+    var diffValue = now - timestamp;
+    var result;
+    if (diffValue < 0) {
+        return;
+    }
+    var yearC = diffValue / year;
+    var monthC = diffValue / month;
+    var weekC = diffValue / (7 * day);
+    var dayC = diffValue / day;
+    var hourC = diffValue / hour;
+    var minC = diffValue / minute;
+    if (yearC >= 1) {
+        result = "" + parseInt(yearC) + "年前";
+    } else if (monthC >= 1) {
+        result = "" + parseInt(monthC) + "月前";
+    } else if (weekC >= 1) {
+        result = "" + parseInt(weekC) + "周前";
+    } else if (dayC >= 1) {
+        result = "" + parseInt(dayC) + "天前";
+    } else if (hourC >= 1) {
+        result = "" + parseInt(hourC) + "小时前";
+    } else if (minC >= 1) {
+        result = "" + parseInt(minC) + "分钟前";
+    } else
+        result = "刚刚";
+    return result;
+}
 
