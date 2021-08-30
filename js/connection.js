@@ -151,7 +151,7 @@ function insertItem(){
     //**/
     var relation = "";
     if(connNames[item._key]){
-        relation = "<div class='persona-description'>"+connNames[item._key]+"</div>";
+        relation = "<div class='persona-description'>"+connNames[item._key]+(item.openId?"":"(尚未加入，快邀请吧)")+"</div>";
     }
     var title = "<div class='persona-title'>"+(item.nickName?item.nickName:(item.nickname?item.nickname:"没写名字的神秘人"))+"</div>"
     //var description = "<div class='persona-description'>"+(item.province?item.province:"")+(item.city?(" "+item.city):"")+"</div>"
