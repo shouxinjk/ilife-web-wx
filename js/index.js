@@ -905,6 +905,7 @@ function loadPersonas() {
           u.nickName = u.name;//将persona转换为person
           u.avatarUrl = u.image;//将persona转换为person
           u.personOrPersona = "persona";//设置标记，用于区分persona及person
+          u.relationship = "客群";
           persons.push(u);
           personKeys.push(u._key);
         }
@@ -916,6 +917,7 @@ function loadPersonas() {
       persons.push({
         nickName:"添加客群",
         avatarUrl:"images/add-persona.png",
+        relationship:"壮大团队赚钱",
         _key:addPersonaKey
       });       
 
@@ -949,6 +951,7 @@ function loadPersons() {
       persons.push({
         nickName:"添加关心的人",
         avatarUrl:"images/add-person.png",
+        relationship:"分享赚钱",
         _key:addPersonKey
       });      
 
