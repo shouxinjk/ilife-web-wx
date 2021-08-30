@@ -30,7 +30,7 @@ $(document).ready(function ()
     tagging = args["keyword"]?args["keyword"]:""; //通过搜索跳转
     filter = args["filter"]?args["filter"]:""; //根据指定类型进行过滤
     if(tagging.trim().length>0){
-        $(".search input").attr("placeholder"," "+tagging);
+        $(".search input").attr("placeholder","🔍 "+tagging);
     }
     loadCategories(category);//加载导航目录
     $("#searchBtn").click(function(event){//注册搜索事件
