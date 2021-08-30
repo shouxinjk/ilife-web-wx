@@ -46,6 +46,10 @@ $(document).ready(function ()
     $("#submitBtn").click(function(){
         updatePerson();
     });
+    //注册按钮事件
+    $("#deleteBtn").click(function(){
+        deletePerson();
+    });    
     //查看推荐内容列表，跳转到推荐页，需要带有当前用户ID
     $("#recommendationBtn").click(function(){
         goRecommend();
@@ -222,6 +226,30 @@ function updatePerson(){
             }
         }, "POST",currentPerson,header);
     }
+}
+
+//删除关心的人。注意：仅删除关联
+function deletePerson(){
+    currentPerson.nickName = $("#nickName").val().trim().length>0?$("#nickName").val().trim():currentPersona.name;
+
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+
+    console.log("try to remove connections.",currentConnection);
+    util.AJAX(app.config.data_api+"/_api/document/connections/"+currentConnection._key, function (res) {
+        console.log("User::Connection removed.", res)
+        if(!currentPerson.openId){//如果是非注册用户，则直接删除
+            console.log("try to remove unregistered user.",currentPerson);
+            util.AJAX(app.config.data_api+"/_api/document/user_users/"+currentPerson._key, function (res) {
+                console.log("User::Setting updated.", res)
+                window.location.href = "connection.html";//跳转到关心的人列表
+            }, "DELETE",{},header);
+        }else{
+            window.location.href = "connection.html";//跳转到关心的人列表
+        }
+    }, "DELETE",{},header); 
 }
 
 //加载预定义用户标签
