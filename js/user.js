@@ -57,7 +57,11 @@ $(document).ready(function ()
     //查看用户行为列表，跳转到feed页，需要带有当前用户ID
     $("#historyBtn").click(function(){
         goActionHistory();
-    });     
+    });   
+    //分享二维码，生成用户海报
+    $("#qrcodeBtn").click(function(){
+        window.location.href="user-poster.html?userId="+app.globalData.userInfo._key+(currentPerson._key?"&toUserId="+currentPerson._key:"");
+    });       
 
 });
 
