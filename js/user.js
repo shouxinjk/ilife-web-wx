@@ -42,6 +42,19 @@ $(document).ready(function ()
         changeActionType(e);
     });
 
+    //注册按钮事件
+    $("#submitBtn").click(function(){
+        updatePerson();
+    });
+    //查看推荐内容列表，跳转到推荐页，需要带有当前用户ID
+    $("#recommendationBtn").click(function(){
+        goRecommend();
+    });
+    //查看用户行为列表，跳转到feed页，需要带有当前用户ID
+    $("#historyBtn").click(function(){
+        goActionHistory();
+    });     
+
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -144,14 +157,17 @@ function showPerson(person){
     //加载标签列表供选择
     loadTags();
     //显示更多标签，供手动输入
-    showMoreTags();
-    //注册事件
-    $("#submitBtn").click(function(){
-        updatePerson();
-    });
+    showMoreTags();   
 
     // 表示加载结束
     loading = false;
+}
+
+function goRecommend(){
+    window.location.href = "index.html?type=person&id="+currentPerson._key;
+}
+function goActionHistory(){
+    window.location.href = "feeds.html?type=person&id="+currentPerson._key;
 }
 
 //修改用户信息

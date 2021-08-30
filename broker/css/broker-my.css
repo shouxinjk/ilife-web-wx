@@ -156,6 +156,15 @@
   font-size: 12px;
 }
 
+.actionBtn{
+  border:1px solid orange;
+  color: orange;
+  border-radius: 12px;
+  min-width: 60px;
+  font-size: 12px;
+  font-weight: bold;  
+}
+
 #submitBtn{
   border:1px solid green;
   color: green;
