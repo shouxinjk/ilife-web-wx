@@ -19,6 +19,7 @@ $(document).ready(function ()
     //处理参数
     var args = getQuery();//获取参数
     //category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
+    if(args["id"])inputPerson=args["id"];//从请求中获取需要展示的person或personaId
     $('#waterfall').NewWaterfall({
         width: width-20,//1列
         //width: columnWidth,//动态列宽，当前为2列
@@ -71,6 +72,8 @@ var persons = [];
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:'0';
 var currentPersonTagging = "";//记录当前用户的标签清单，用于根据标签显示内容
 var personKeys = [];//标记已经加载的用户key，用于排重
+
+var inputPerson = null;//接收指定的personId或personaId
 
 function loadFeeds(){
     setInterval(function ()
@@ -252,9 +255,13 @@ function showSwiper(){
     //$(".swiper-container").css("margin-bottom","3px");
   
     //将当前用户设为高亮  
-    //根据当前用户加载数据：默认使用第一个
-    currentPerson = persons[0]._key;
-    currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";      
+    if(inputPerson && personKeys.indexOf(inputPerson)>-1 && persons[personKeys.indexOf(inputPerson)]){//有输入用户信息则优先使用
+      currentPerson = inputPerson;
+      currentPersonTagging = persons[personKeys.indexOf(inputPerson)].tags?persons[personKeys.indexOf(inputPerson)].tags.join(" "):"";
+    }else{//根据当前用户加载数据：默认使用第一个
+      currentPerson = persons[0]._key;
+      currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";   
+    }   
     changePerson(currentPerson,currentPersonTagging);    
 }
 
