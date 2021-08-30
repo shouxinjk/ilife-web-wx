@@ -70,3 +70,106 @@ div.title{
   font-weight: bold;
   color:#e0620d;
 }
+
+/*关心的人导航栏*/
+.swiper-container {
+    width: 100%;
+    height: 40px;
+}
+
+.swiper-placeholder {
+    width: 100%;
+    height: 40px;
+}
+.menus{
+  width:100%;
+  white-space: nowrap;
+  margin:0;
+}
+
+.menu{
+  margin-left:2px;
+  margin-right:10px;
+  font-size:14px;
+  line-height: 60px;
+  color:gray;
+  width:100%;
+  display:inline-block;
+}
+
+.menu-selected{
+  margin-left:2px;
+  margin-right:10px;
+  font-size:14px;
+  line-height: 60px;
+  color:green;
+  width:100%;
+  display:inline-block;
+}
+
+
+.person{
+  /*width:100px;*/
+  display:flex;
+  flex-direction:row;
+  vertical-align: middle;
+  border:1px solid silver;
+  align-content: center;
+  border-radius: 50px;
+  margin:2px;
+  line-height: 28px;
+  padding:2px 0;
+  background-color: red;
+  color:white;
+}
+.person-selected{
+  /*width:100px;*/
+  display:flex;
+  flex-direction:row;
+  vertical-align: middle;
+  border:1px solid silver;
+  align-content: center;
+  border-radius: 50px;
+  margin:2px;
+  line-height: 28px;
+  padding:2px 0;
+  background-color: #fff;
+  color:red;
+}
+.person-img-wrapper{
+  display: inline-block;
+  width:30px;
+  text-align: center; 
+  vertical-align: middle;
+}
+.person-img{ width: 20px; height: 20px; border-radius: 50%; margin:2px auto;}
+.person-img-selected{ width: 20px; height: 20px; border-radius: 50%;margin:2px auto;}
+
+.person-info{ 
+  display: flex;
+  flex-direction: column;
+  font-family: sans-serif;
+  color:black;
+  min-width: 20px;
+  max-width: 54px;/*注意：是手动精准调整，修改时需要仔细验证*/
+  margin: auto 0;
+  }
+
+.person-name, .person-relation{ 
+  display: inline;
+  font-size:10px; 
+  font-family: sans-serif;
+  font-weight:bold;
+  line-height: 12px; 
+  overflow:hidden; 
+  color:#fff;
+  }
+  .person-name-selected, .person-relation-selected{ 
+  display: inline;
+  font-size:10px; 
+  font-family: sans-serif;
+  font-weight: bold;
+  line-height: 12px;  
+  overflow:hidden; 
+  color:red;
+  }
