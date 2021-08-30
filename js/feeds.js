@@ -381,7 +381,7 @@ function insertItem(){
     tags += "</div>";
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='feed-item-title'>"+item.title+"</div>"
-    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'>&nbsp;&nbsp;</div>"+htmlActionSummary(actionItem)+"<div class='feed-item' data='"+item._key+"'><div class='feed-item-logo'>" + image +"</div><div class='feed-item-tags'>" +title + tags+ "</div></li>");
+    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div>"+htmlActionSummary(actionItem)+"<div class='feed-item' data='"+item._key+"'><div class='feed-item-logo'>" + image +"</div><div class='feed-item-tags'>" +title + tags+ "</div></li>");
     num++;
 
     //注册事件
@@ -402,7 +402,7 @@ function htmlActionSummary(actionItem){
   var html = "";
   html += "<div class='action-item'>";
   html += "<div class='action-person-logo'><img src='"+(actionItem.user&&actionItem.user.avatarUrl?actionItem.user.avatarUrl:currentPersonObj.avatarUrl)+"' width='20px' height='20px'/></div>";//logo
-  html += "<div class='action-person-name'>"+(actionItem.user&&actionItem.user.nickName?actionItem.user.nickName:"★"+currentPersonObj.nickName)+"</div>";//name
+  html += "<div class='action-person-name'>"+(actionItem.user&&actionItem.user.nickName?actionItem.user.nickName:currentPersonObj.nickName)+"</div>";//name
   html += "<div class='action-person-time'>"+getDateDiff(actionItem.timestamp)+"</div>";//time
   html += "<div class='action-person-type'>"+(actionTypes[actionItem.action]?actionTypes[actionItem.action]:actionItem.action)+"</div>";//action
   html += "</div>";

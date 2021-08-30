@@ -254,7 +254,7 @@ function insertItem(){
     tags += "</div>";
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='fav-item-title'>"+item.title+"</div>"
-    $("#waterfall").append("<li><div class='fav-item' data='"+item._key+"'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags'>" +title + tags+ "</div></li>");
+    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' data='"+item._key+"'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags'>" +title + tags+ "</div></li>");
     num++;
 
     //注册事件
