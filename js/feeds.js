@@ -203,7 +203,17 @@ function loadPersonas() {
           persons.push(u);
           personKeys.push(u._key);
         }
-      }  
+      }
+
+      //新增客群按钮
+      var addPersonaKey = "btn-add-persona";
+      personKeys.push(addPersonaKey);
+      persons.push({
+        nickName:"添加客群",
+        avatarUrl:"images/add-persona.png",
+        _key:addPersonaKey
+      });       
+
       //显示滑动条
       showSwiper(); 
     });
@@ -222,11 +232,20 @@ function loadPersons() {
       //**/
       for (var i = 0; i < arr.length; i++) {
         var u = arr[i];
-        if(personKeys.indexOf(u._key) < 0 && u.openId){//对于未注册用户不显示
+        if(personKeys.indexOf(u._key) < 0/* && u.openId*/){//对于未注册用户不显示
           persons.push(u);
           personKeys.push(u._key);
         }
       } 
+
+      //新增关心的人按钮
+      var addPersonKey = "btn-add-related-person";
+      personKeys.push(addPersonKey);
+      persons.push({
+        nickName:"添加关心的人",
+        avatarUrl:"images/add-person.png",
+        _key:addPersonKey
+      });      
 
       //显示顶部滑动条
       if(util.hasBrokerInfo()){//如果是达人，则继续装载画像
@@ -287,10 +306,20 @@ function insertPerson(person){
 
     //注册事件:点击后切换用户
     //通过jquery事件注入
-    $("#"+person._key).click(function(e){
-        console.log("try to change person by jQuery click event.",person._key,e.currentTarget.id,e);
-        changePerson(e.currentTarget.id,e.currentTarget.dataset.tagging);
-    });
+    if(person._key=="btn-add-related-person"){//新增关心的人，直接跳转
+      $("#"+person._key).click(function(e){
+          window.location.href="user-choosepersona.html?from=feeds";
+      });
+    }else if(person._key=="btn-add-persona"){//新增客群，直接跳转
+      $("#"+person._key).click(function(e){
+          window.location.href="broker/my-addpersona.html?from=feeds";
+      });
+    }else{//切换数据列表
+      $("#"+person._key).click(function(e){
+          console.log("try to change person by jQuery click event.",person._key,e.currentTarget.id,e);
+          changePerson(e.currentTarget.id,e.currentTarget.dataset.tagging);
+      });
+    }
 }
 
 //显示没有更多内容
