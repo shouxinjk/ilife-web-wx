@@ -94,7 +94,7 @@ function showContent(item){
     $("#title").html(item.title);
     
     //评分
-    if(item.rank.score){
+    if(item.rank && item.rank.score){
         $("#score .comment").append("<div class='label'>评价</div><div class='rank'>"+item.rank.score+"/<span class='base'>"+item.rank.base+"</span></div>");
     }else{
         $("#score .comment").append("<div class='label'>评价</div><div class='rank'><span class='empty'>暂无评分</span></div>");
@@ -114,7 +114,7 @@ function showContent(item){
     }
     $("#score .price").append(priceHtml);
 
-    $("#score .score").append("<div class='label'>推荐度</div><div class='match'>"+(item.rank.match*100)+"%</div>");
+    $("#score .score").append("<div class='label'>推荐度</div><div class='match'>"+(item.rank&&item.rank.match?item.rank.match*100+"%":"-")+"</div>");
 
     //二维码：使用海报图，将其中二维码进行裁剪
     if(item.link.qrcode){
@@ -136,7 +136,7 @@ function showContent(item){
     if(item.distributor && item.distributor.name){//来源作为标签
         $("#tags").append("<div class='tag'>"+item.distributor.name+"</div>");
     }    
-    for(var i=0;i<item.tags.length;i++){//标签云
+    for(var i=0;item.tags&&i<item.tags.length;i++){//标签云
         $("#tags").append("<div class='tag'>" + item.tags[i] + "</div>");//加载图片幻灯
     }
     //随机着色
