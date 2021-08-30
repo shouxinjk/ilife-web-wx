@@ -13,6 +13,7 @@ $(document).ready(function ()
         columnWidth = (width-columnMargin*4)/2;//由于每一个图片左右均留白，故2列有4个留白
     }
     var args = getQuery();//获取参数
+    if(args["id"])inputPerson=args["id"];//从请求中获取需要展示的person或personaId
     $('#waterfall').NewWaterfall({
         width: columnWidth,
         delay: 100,
