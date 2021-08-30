@@ -974,7 +974,7 @@ function showSwiper(){
         slidesPerView: 4,
     });  
     //调整swiper 风格，使之悬浮显示
-    $(".swiper-container").css("position","fixed");
+    $(".swiper-container").css("position","relative");
     $(".swiper-container").css("left","0");
     $(".swiper-container").css("top","40");
     $(".swiper-container").css("z-index","999");
