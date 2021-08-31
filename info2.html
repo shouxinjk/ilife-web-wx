@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="css/common.css?v=2.3">
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css"> 
-    <link rel="stylesheet" type="text/css" href="css/info2.css?v=2.0">
+    <link rel="stylesheet" type="text/css" href="css/info2.css?v=2.5">
 </head>
 <body>
 
@@ -33,19 +33,18 @@
         </div>    
 
         <div id="title" class="title side"></div>
+        <!--price&coupon-->
+        <div id="itemTagging-summary" class="itemTagging-summary"></div>
         <div id="profit" class="side profit-hide"></div>
         <div id="tags" class="side"></div>
-        <div id="score">
+        <!--div id="score">
             <div class="comment"></div>
             <div class="price"></div>
             <div class="score"></div>
-            <!--div class="link">
-                <button id="jumpbtn" type="button" class="buy-btn">去 看 看 &gt;</button>
-            </div--> 
-        </div>                 
+        </div-->                 
         <div id="link">
             <div class="link" id="jumpLinkDiv">
-                <button id="jumpbtn" type="button" data-clipboard-text="only-for-token" class="buy-btn">去 看 看 &gt;</button>
+                <button id="jumpbtn" type="button" data-clipboard-text="only-for-token" class="buy-btn-hide">去 看 看 &gt;</button>
             </div>     
             <div id="qrcodeImgDiv">
                 <img id="qrcodeImg" src=""/>
@@ -63,12 +62,10 @@
         </div>   
 
         <div id="author"></div> 
-        <div id="author-fold" class="swiper-container">
-            <!-- Additional required wrapper -->
+        <!--div id="author-fold" class="swiper-container">
             <div class="swiper-wrapper" id="persons">
-
             </div>
-        </div>              
+        </div-->              
         <div id="content"></div>  
     </div>
 
@@ -87,5 +84,5 @@
 <script type="text/javascript" src="ext/galleryview/js/jquery.timers.min.js"></script>
 <script type="text/javascript" src="ext/clipboard/clipboard.min.js"></script>
 <script type="text/javascript" src="js/util.js?v=7.2"></script>
-<script type="text/javascript" src="js/info2.js?v=6.5"></script>
+<script type="text/javascript" src="js/info2.js?v=7.0"></script>
 </html>

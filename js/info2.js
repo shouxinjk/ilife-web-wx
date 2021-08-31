@@ -35,7 +35,7 @@ $(document).ready(function ()
 
     //加载导航和关注列表
     loadCategories(category);  
-    loadHosts(id);
+    //loadHosts(id);//不需要关注列表
     
 });
 
@@ -92,7 +92,11 @@ function showContent(item){
 
     //标题
     $("#title").html(item.title);
-    
+
+    //price
+    $("#itemTagging-summary").append(htmlPrice(item));
+
+/**    
     //评分
     if(item.rank && item.rank.score){
         $("#score .comment").append("<div class='label'>评价</div><div class='rank'>"+item.rank.score+"/<span class='base'>"+item.rank.base+"</span></div>");
@@ -115,6 +119,7 @@ function showContent(item){
     $("#score .price").append(priceHtml);
 
     $("#score .score").append("<div class='label'>推荐度</div><div class='match'>"+(item.rank&&item.rank.match?item.rank.match*100+"%":"-")+"</div>");
+//**/
 
     //二维码：使用海报图，将其中二维码进行裁剪
     if(item.link.qrcode){
@@ -148,6 +153,11 @@ function showContent(item){
         $(this).css({"background-color":bgColor,"color":color});
     });
     //*/
+
+    //显示跳转按钮
+    $("#jumpbtn").removeClass("buy-btn-hide");
+    $("#jumpbtn").addClass("buy-btn-show");
+
     //广告
     //trace user action
     logstash(item,from,"view",fromUser,fromBroker,function(){
@@ -175,6 +185,22 @@ function showShareContent(){
        $("#share-bonus").toggleClass("share-bonus-hide",true);        
     }
     //**/
+}
+
+//价格标签
+function htmlPrice(item){
+    var tags = "";
+    tags += "<a class='itemTagPrice' href='#'>"+(item.price&&item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
+    if(item.price&&item.price.coupon>0){//优惠信息
+        tags += "<span class='couponTip'>券</span><span class='coupon' href='#'>"+item.price.coupon+"</span>";
+    }      
+    var tagTmplBlank = "<a class='itemTagBlank' href='index.html?keyword=__TAGGING'>__TAG</a>";
+    tags += tagTmplBlank.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);    
+    if(item.producer&&item.producer.name)
+        tags += tagTmplBlank.replace("__TAGGING",item.producer.name).replace("__TAG",item.producer.name); 
+    if(item.seller&&item.seller.name)
+        tags += tagTmplBlank.replace("__TAGGING",item.seller.name).replace("__TAG",item.seller.name); 
+    return tags;
 }
 
 //佣金

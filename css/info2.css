@@ -14,6 +14,16 @@ a{
 	width:70%;
 }
 
+.profit-show{
+  display:flex;
+  flex-direction:row;
+  align-content:center;
+  justify-content:flex-start; 
+  vertical-align: middle;
+  margin-top: 2px;
+  margin-left:4px;
+}
+
 #meta{
 	margin-left:10px;
 	width:30%;
@@ -128,19 +138,33 @@ a{
 	border-radius: 5px;
 }
 
-.buy-btn{
+.buy-btn-show{
 	background-color: #f04848;
 	width:90%;
     border: none;
-    border-radius: 2rem;
+    border-radius: 5rem;
     color: white;
-    margin: 5px;
+    margin: 2px;
     padding:0 5px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 2rem;
-    line-height: 2.8rem;
+    line-height: 3.2rem;
+}
+.buy-btn-hide{
+	background-color: #f04848;
+	width:90%;
+    border: none;
+    border-radius: 5rem;
+    color: white;
+    margin: 5px;
+    padding:0 5px;
+    text-align: center;
+    text-decoration: none;
+    display: none;
+    font-size: 2rem;
+    line-height: 3.2rem;
 }
 
 #shopping-link{
@@ -153,8 +177,7 @@ a{
 	align-content:flex-start;
 	flex-wrap: wrap;
 	padding:2px 0;
-	margin-left:5px;
-	margin-top: 5px;
+	margin-top: 2px;
 }
 #tags>div{
 	font-size: 1.2rem;
@@ -184,8 +207,9 @@ a{
 .title{
 	font-weight: bold;
 	font-size:1.6rem;
-	line-height: 2rem;
+	line-height: 1.8rem;
 	padding:5px;
+	padding-bottom:2px;
 }
 
 .person{
@@ -312,4 +336,62 @@ a{
   font-size: 14px;
   font-weight: bold;
   color:#e0620d;
+}
+
+/**price tags**/
+
+.itemTagging{
+  display:flex;
+  flex-direction:column;
+  align-content:center;
+  justify-content:flex-start;  
+}
+.itemTagging-summary{
+  display:flex;
+  flex-direction:row;
+  align-content:center;
+  justify-content:flex-start; 
+  vertical-align: middle;
+  margin-bottom: 2px;
+}
+.itemTagging-list{
+  display:flex;
+  flex-direction:row;
+  flex-wrap: wrap;
+  align-content:center;
+  justify-content:flex-start; 
+  vertical-align: middle;
+  margin-top:-4px;
+}
+
+.itemTagTiny{
+  white-space: nowrap; 
+  display:inline-block;
+  border:1px solid #8BC34A;
+  background-color: #8BC34A;
+  color:white;
+  font-weight: bold;
+  font-size: 10px;
+  text-align: center;
+  border-radius: 2px;
+  margin-top:2px;
+  margin-right:2px;
+  padding:1px;
+  vertical-align:middle;
+}
+.itemTagPrice{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:darkred;
+  line-height: 16px;
+  padding:2px;
+}
+.itemTagBlank{
+  font-size:12px;
+  font-weight: bold;
+  background-color: white;
+  color:darkgreen;
+  line-height: 16px;
+  padding:2px; 
 }
