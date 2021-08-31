@@ -151,7 +151,7 @@ function insertItem(){
     //**/
     var relation = "";
     if(connNames[item._key]){
-        relation = "<div class='persona-description'>"+connNames[item._key]+(item.openId?"":"(尚未加入，快邀请吧)")+"</div>";
+        relation = "<div class='persona-description'>"+connNames[item._key]+(item.openId?"":"(分享二维码邀请加入)")+"</div>";
     }
     var title = "<div class='persona-title'>"+(item.nickName?item.nickName:(item.nickname?item.nickname:"没写名字的神秘人"))+"</div>"
     //var description = "<div class='persona-description'>"+(item.province?item.province:"")+(item.city?(" "+item.city):"")+"</div>"
@@ -175,7 +175,7 @@ function loadPerson(personId) {
         userInfo = res;
         currentPerson = res._key;
         insertPerson(userInfo);
-        requestQRcode(userInfo);
+        //requestQRcode(userInfo);
         loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
     //注册添加关心的人事件

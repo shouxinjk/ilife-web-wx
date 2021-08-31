@@ -208,7 +208,7 @@ function updatePerson(){
         }, "PATCH",currentPerson,header);
     }else{//否则创建后更新
         console.log("create new user.",currentPerson);
-        var key = md5(currentPerson.persona._key+userInfo._key+new Date().getTime());//构建一个user._key
+        var key = md5(currentPerson.persona._key+userInfo._key+new Date().getTime(),16);//构建一个user._key。注意用短md5，构成差异，并且避免微信 二维码 scene_str 总长64位限制
         util.AJAX(app.config.data_api+"/user/users/"+key, function (res) {
             console.log("User::Setting user created.", res)
             currentPerson = res;

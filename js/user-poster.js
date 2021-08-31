@@ -33,7 +33,7 @@ $(document).ready(function ()
     //showPostMask();
 
     //加载达人信息及二维码
-    loadBrokerByOpenid(userInfo._key);//直接传递openid
+    requestQRcode(userId,toUserId);
     
 });
 
@@ -259,28 +259,10 @@ function generateImage() {
     });
 }
 
-//根据openid查询加载broker
-function loadBrokerByOpenid(openid) {
-    console.log("try to load broker info by openid.[openid]",openid);
-    util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
-        console.log("load broker info.",openid,res);
-        if (res.status) {
-            //insertBroker(res.data);//显示达人信息
-            if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
-                console.log("QRcode exists. try  to display.",imgPrefix+res.data.qrcodeUrl);
-                preloadList.push(imgPrefix+res.data.qrcodeUrl);//将图片加入预加载列表
-                showContent(res.data.qrcodeUrl);
-            }else{//否则请求生成后显示
-                requestQRcode(res.data);
-            }
-        }
-    });
-}
-
-//请求生成二维码
-function requestQRcode(userId,toUserId) {
+//请求生成二维码。userId是当前用户openId，shadowUserId为创建的虚拟用户的ID
+function requestQRcode(userId,shadowUserId) {
     console.log("try to request QRCode.[broker]",broker);
-    util.AJAX(app.config.auth_api+"/wechat/ilife/tempQRcode?userId="+userId+(toUserId?"&toUserId="+toUserId:""), function (res) {
+    util.AJAX(app.config.auth_api+"/wechat/ilife/tempQRcode?userId="+userId+(shadowUserId?"&shadowUserId="+shadowUserId:""), function (res) {
         console.log("Generate QRCode successfully.",res);
         if (res.status) {
             preloadList.push(imgPrefix+res.data.url);//将图片加入预加载列表

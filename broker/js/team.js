@@ -186,11 +186,14 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {
             insertBroker(res.data);//显示达人信息
+            //二维码需要手动点击后显示，此处不自动加载
+            /**
             if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
                 showQRcode(res.data.qrcodeUrl);
             }else{//否则请求生成后显示
                 requestQRcode(res.data);
             }
+            //**/
         }
     });    
 }
