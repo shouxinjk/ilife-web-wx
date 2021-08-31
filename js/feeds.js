@@ -224,7 +224,7 @@ function loadPersons() {
     util.AJAX(app.config.data_api+"/user/users/connections/"+app.globalData.userInfo._key, function (res) {
       var arr = res;
       //从列表内过滤掉当前用户：当前用户永远排在第一个
-      /*
+      //*
       if (app.globalData.userInfo != null && personKeys.indexOf(app.globalData.userInfo._key) < 0){
           persons.push(app.globalData.userInfo);
           personKeys.push(app.globalData.userInfo._key);
@@ -325,11 +325,15 @@ function insertPerson(person){
 //显示没有更多内容
 function shownomore(flag){
   if(flag){
-    $("#footer").toggleClass("footer-hide",false);
-    $("#footer").toggleClass("footer-show",true);
+    $("#findMoreBtn").toggleClass("findMoreBtn-hide",false);
+    $("#findMoreBtn").toggleClass("findMoreBtn-show",true);
+    //注册跳转事件：跳转到推荐页，需要带有当前用户ID
+    $("#findMoreBtn").click(function(){
+      window.location.href = "index.html?id="+currentPerson;
+    });    
   }else{
-    $("#footer").toggleClass("footer-hide",true);
-    $("#footer").toggleClass("footer-show",false);
+    $("#findMoreBtn").toggleClass("findMoreBtn-hide",true);
+    $("#findMoreBtn").toggleClass("findMoreBtn-show",false);
   }
 }
 
@@ -348,6 +352,11 @@ function showloading(flag){
 function insertItem(){
     // 加载历史行为
     var actionItem = items[num-1];
+    //检查是否还有，如果没有则显示已完成
+    if(!actionItem){
+      shownomore(true);
+      return;
+    }
     // 加载内容
     var item = actionItem.item;
     console.log("Favorite::insertItem add item to html.",num,item);
