@@ -504,6 +504,7 @@ function loadItem(key){//获取内容列表
 
             ////多站点处理：start//////////////////////////////////
             //由于当前shouxinjk.net 和 biglistoflittlethings.com 两个网站分别到不同电商平台，需要进行分隔处理
+            /**
             if(stuff.source == "jd"){//如果是京东则跳转到shouxinjk
                 if(window.location.href.indexOf("shouxinjk.net")<0){//如果不是shouxinjk.net则跳转
                     var sxUrl = window.location.href.replace(/www\.biglistoflittlethings\.com/g,"www.shouxinjk.net");
@@ -511,6 +512,7 @@ function loadItem(key){//获取内容列表
                     window.location.href = sxUrl;
                 }
             }
+            //**/
             ////多站点处理：end////////////////////////////////////
 
             //准备注册分享事件。需要等待内容加载完成后才注册
@@ -598,9 +600,11 @@ function registerShareHandler(){
 
     ////多站点处理：start//////////////////////////////////
     //由于不同平台通过不同站点，需要进行区分是shouxinjk.net还是biglistoflittlethings.com
+    /*
     if(stuff&&stuff.source=="jd"){//如果是京东，则需要指明跳转到shouxinjk.net
         shareUrl += "&toSite=shouxinjk"; 
     }
+    //**/
     ////多站点处理：end////////////////////////////////////
 
     $.ajax({
