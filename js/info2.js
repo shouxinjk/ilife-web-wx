@@ -507,6 +507,7 @@ function loadItem(key){//获取内容列表
             if(stuff.source == "jd"){//如果是京东则跳转到shouxinjk
                 if(window.location.href.indexOf("shouxinjk.net")<0){//如果不是shouxinjk.net则跳转
                     var sxUrl = window.location.href.replace(/www\.biglistoflittlethings\.com/g,"www.shouxinjk.net");
+                    sxUrl = sxUrl.replace(/https/g,"http");//注意：当前 www.shouxinjk.net仅支持 http。必须使用 http://www.shouxinjk.net作为地址，否则会导致导购信息丢失
                     window.location.href = sxUrl;
                 }
             }

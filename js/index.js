@@ -593,7 +593,7 @@ function insertItem(){
     //注册事件
     $("div[data='"+item._key+"']").click(function(){
         //跳转到详情页
-        window.location.href = "info.html?category="+category+"&id="+item._key;
+        window.location.href = "info2.html?category="+category+"&id="+item._key;
     });
 
     //如果有board则注册增加商品事件

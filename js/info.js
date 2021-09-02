@@ -78,14 +78,14 @@ function showContent(item){
     //标题
     $("#title").html(item.title);
     //评分
-    if(item.rank.score){
+    if(item.rank && item.rank.score){
         $("#score .comment").append("<div class='label'>评价</div><div class='rank'>"+item.rank.score+"/<span class='base'>"+item.rank.base+"</span></div>");
     }else{
         $("#score .comment").append("<div class='label'>评价</div><div class='rank'><span class='empty'>暂无评分</span></div>");
     }
     $("#score .price").append("<div class='label'>价格</div><div class='price-sale'><span class='price-bid'>"+(item.price.bid?item.price.bid:"")+"</span>"+item.price.sale+"</div>");
     //$("#score .price").append("<div class='label'>价格</div><div class='price-sale'>"+item.price.sale+"</div>");
-    $("#score .score").append("<div class='label'>推荐度</div><div class='match'>"+(item.rank.match*100)+"%</div>");
+    $("#score .score").append("<div class='label'>推荐度</div><div class='match'>"+(item.rank&&item.rank.match?item.rank.match*100+"%":"-")+"</div>");
 
     //二维码：使用海报图，将其中二维码进行裁剪
     if(item.link.qrcode){
@@ -113,6 +113,11 @@ function showContent(item){
         $(this).css({"background-color":bgColor,"color":color});
     });
     //*/
+
+    //显示跳转按钮
+    $("#jumpbtn").removeClass("buy-btn-hide");
+    $("#jumpbtn").addClass("buy-btn-show");
+
     //广告
     //TODO
     //trace user action
