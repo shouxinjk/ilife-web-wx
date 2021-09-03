@@ -161,6 +161,11 @@ function showPerson(person){
     }else{
         $("#relationship-wrapper").css("display","block");
     }
+    //如果用户是画像则显示分享二维码按钮，否则隐藏
+    if(person.openId){
+        $("#qrcodeBtn").css("display","none");
+        $("br").css("display","none");
+    }    
     //$("#personTags").val(person.tags?person.tags.join(" "):"");
     //加载标签列表供选择
     loadTags();
