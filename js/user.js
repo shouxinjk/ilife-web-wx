@@ -172,10 +172,10 @@ function showPerson(person){
 }
 
 function goRecommend(){
-    window.location.href = "index.html?type=person&id="+currentPerson._key;
+    window.location.href = "index.html?type="+(currentPerson.openId?"person":"persona")+"&id="+currentPerson._key;
 }
 function goActionHistory(){
-    window.location.href = "feeds.html?type=person&id="+currentPerson._key;
+    window.location.href = "feeds.html?type="+(currentPerson.openId?"person":"persona")+"&id="+currentPerson._key;
 }
 
 //修改用户信息

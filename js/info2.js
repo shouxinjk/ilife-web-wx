@@ -401,8 +401,8 @@ function jump(item){//支持点击事件
                 });              
                 //e.clearSelection();
             });            
-        }else if(item.link.cps && item.link.cps[benificiaryBrokerId]  && item.link.cps[benificiaryBrokerId].wap){//能够直接获得达人链接则直接显示
-            window.location.href = item.link.cps[benificiaryBrokerId].wap;
+        }else if(item.link.cps && item.link.cps[benificiaryBrokerId] /* && item.link.cps[benificiaryBrokerId].wap*/){//能够直接获得达人链接则直接显示
+            window.location.href = item.link.cps[benificiaryBrokerId]/*.wap*/;
         }else{//否则请求其链接并显示
             getBrokerCpsLink(benificiaryBrokerId,item);
         }
@@ -424,8 +424,8 @@ function getBrokerCpsLink(brokerId,item) {
     util.AJAX(app.config.sx_api+"/mod/cpsLinkScheme/rest/cpslink", function (res) {
         console.log("======\nload cps link info.",data,res);
         if (res.status) {//将跳转到该链接
-            window.location.href = res.link;
-            //TODO：更新到item
+            //更新到item，更新完成后跳转到cps链接地址
+            updateBrokerCpsLink(item,brokerId,res.link);
         }else{//如果不能生成链接则直接使用已有链接
             if(item.link.wap2){
                 window.location.href = item.link.wap2;
@@ -438,6 +438,24 @@ function getBrokerCpsLink(brokerId,item) {
             }
         }
     },"GET",data);
+}
+
+//更新item信息：补充达人CPS链接
+function updateBrokerCpsLink(item,brokerId,cpsLink) {
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    };   
+    var cps = {};
+    cps[brokerId]=cpsLink;//yibrokerId为key，以cpslink为value
+    var data = {link:{cps:cps}};
+    var url = app.config.data_api +"/_api/document/my_stuff/"+item._key;
+    if (app.globalData.isDebug) console.log("Info2::updateItem update item with broker cps link.[itemKey]"+item._key,data);
+    util.AJAX(url, function (res) {
+      if (app.globalData.isDebug) console.log("Info2::updateItem update item finished.", res);
+      //跳转到cps地址
+      window.location.href = cpsLink;
+    }, "PATCH", data, header);
 }
 
 /*

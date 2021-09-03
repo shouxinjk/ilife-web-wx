@@ -151,9 +151,9 @@ function insertItem(){
     //**/
     var relation = "";
     if(connNames[item._key]){
-        relation = "<div class='persona-description'>"+connNames[item._key]+(item.openId?"":"(分享二维码邀请加入)")+"</div>";
+        relation = "<div class='persona-description'>"+connNames[item._key]+(item.openId?"":"(人设对号入座)")+"</div>";
     }
-    var title = "<div class='persona-title'>"+(item.nickName?item.nickName:(item.nickname?item.nickname:"没写名字的神秘人"))+"</div>"
+    var title = "<div class='persona-title'>"+(item.nickName?item.nickName:(item.nickname?item.nickname:"没写名字的神秘人"))+(item.openId?"":"☆")+"</div>"
     //var description = "<div class='persona-description'>"+(item.province?item.province:"")+(item.city?(" "+item.city):"")+"</div>"
     $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +relation+ "</div><div class='persona-action'>&gt;</div></li>");
 

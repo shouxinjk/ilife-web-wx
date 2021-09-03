@@ -60,17 +60,20 @@ var page = {//翻页控制
 
 var actionTypes = {
   view:"看了",
-  share:"种草",
-  "buy-step1":"去逛了",
+  share:"推荐",
+  "share-post":"海报分享",
+  "share appmsg":"图文分享",
+  "buy-step1":"逛了",
   "buy-step2":"买了",
-  buy:"买了",
-  favorite:"收藏了",
+  buy:"想买",
+  favorite:"种草",
   like:"赞了"
 };
 
 var persons = [];
-var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:'0';
+var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:JSON.parse($.cookie('sxUserInfo'))._key;//本地加载当前用户
 var currentPersonTagging = "";//记录当前用户的标签清单，用于根据标签显示内容
+var currentPersonType = "person";//当前选中的是用户还是画像，默认进入时显示当前用户
 var personKeys = [];//标记已经加载的用户key，用于排重
 
 var inputPerson = null;//接收指定的personId或personaId
@@ -97,8 +100,9 @@ function loadFeeds(){
 }
 
 //加载用户浏览数据：根据选定用户显示其浏览历史，对于画像则显示该画像下的聚集数据
+//currentPersonType: person则显示指定用户的记录，persona显示该画像下所有记录
 function loadData() {
-    console.log("Feed::loadData", currentPerson,currentPersonTagging);
+    console.log("Feed::loadData","[type]"+currentPersonType, "[id]"+currentPerson,"[tagging]"+currentPersonTagging);
     //设置query
     var esQuery = {//搜索控制
       from: (page.current + 1) * page.size,
@@ -118,7 +122,7 @@ function loadData() {
         field: "itemId"//根据itemId 折叠，即：一个item仅显示一次
       },
       sort: [
-        { "weight": { order: "desc" } },//权重高的优先显示
+        //{ "weight": { order: "desc" } },//权重高的优先显示
         { "@timestamp": { order: "desc" } },//最近操作的优先显示
         { "_score": { order: "desc" } }//匹配高的优先显示
       ]
@@ -158,7 +162,7 @@ function loadData() {
     $.ajax({
         url:"https://data.pcitech.cn/actions/_search",
         type:"post",
-        data:JSON.stringify(esQueryForPersona),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
+        data:JSON.stringify(currentPersonType=="persona"?esQueryForPersona:esQuery),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
         headers:{
             "Content-Type":"application/json",
             "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
@@ -233,6 +237,10 @@ function loadPersons() {
       for (var i = 0; i < arr.length; i++) {
         var u = arr[i];
         if(personKeys.indexOf(u._key) < 0/* && u.openId*/){//对于未注册用户不显示
+          //如果是非注册用户则显示为客群
+          if(!u.openId){
+            u.personOrPersona = "persona";//设置标记，用于区分persona及person
+          }
           persons.push(u);
           personKeys.push(u._key);
         }
@@ -276,12 +284,13 @@ function showSwiper(){
     //将当前用户设为高亮  
     if(inputPerson && personKeys.indexOf(inputPerson)>-1 && persons[personKeys.indexOf(inputPerson)]){//有输入用户信息则优先使用
       currentPerson = inputPerson;
+      currentPersonType = persons[personKeys.indexOf(inputPerson)].personOrPersona?"persona":"person";
       currentPersonTagging = persons[personKeys.indexOf(inputPerson)].tags?persons[personKeys.indexOf(inputPerson)].tags.join(" "):"";
     }else{//根据当前用户加载数据：默认使用第一个
       currentPerson = persons[0]._key;
       currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";   
     }   
-    changePerson(currentPerson,currentPersonTagging);    
+    changePerson(currentPersonType,currentPerson,currentPersonTagging);    
 }
 
 //将person显示到页面
@@ -296,10 +305,10 @@ function insertPerson(person){
     // 显示HTML
     var html = '';
     html += '<div class="swiper-slide">';
-    html += '<div class="person" id="'+person._key+'" data-tagging="'+(person.tags?person.tags.join(" "):"*")+'">';
+    html += '<div class="person" id="'+person._key+'"data-type="'+(person.personOrPersona?"persona":"person")+'" data-tagging="'+(person.tags?person.tags.join(" "):"*")+'">';
     var style= person._key==currentPerson?'-selected':'';
     html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+person.avatarUrl+'"/></div>';
-    html += '<span class="person-name">'+(person.personOrPersona=="persona"?"★":"")+person.nickName+'</span>';
+    html += '<span class="person-name">'+(person.personOrPersona=="persona"?"☆":"")+person.nickName+'</span>';
     html += '</div>';
     html += '</div>';
     $("#persons").append(html);
@@ -316,8 +325,8 @@ function insertPerson(person){
       });
     }else{//切换数据列表
       $("#"+person._key).click(function(e){
-          console.log("try to change person by jQuery click event.",person._key,e.currentTarget.id,e);
-          changePerson(e.currentTarget.id,e.currentTarget.dataset.tagging);
+          console.log("try to change person by jQuery click event.",person._key,e.currentTarget.type,e.currentTarget.id,e);
+          changePerson(e.currentTarget.dataset.type,e.currentTarget.id,e.currentTarget.dataset.tagging);
       });
     }
 }
@@ -644,7 +653,7 @@ function updateItem(item) {
     }, "PATCH", item, header);
 }
 
-function changePerson (personId,personTagging) {
+function changePerson (type,personId,personTagging) {
     var ids = personId;
     if (app.globalData.isDebug) console.log("Feed::ChangePerson change person.",currentPerson,personId);
     $("#"+currentPerson+" img").removeClass("person-img-selected");
@@ -664,6 +673,7 @@ function changePerson (personId,personTagging) {
     page.current = -1;//从第一页开始查看
     currentPerson = ids;//修改当前用户
     currentPersonTagging = personTagging;//修改当前用户推荐Tagging
+    currentPersonType = type;//更改当前用户类型
     items = [];//清空列表
     num = 1;//从第一条开始加载
     loadData();//重新加载数据
