@@ -434,6 +434,11 @@ input,img{border: none;}
 }
 .nav ul .showNav{
     color: #d14046;
+    /*
+    border:1px solid #d14046;
+    border-radius: 10px;
+    padding: 2px 5px;
+    //*/
 }
 
 

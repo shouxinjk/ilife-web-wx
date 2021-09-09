@@ -47,46 +47,17 @@ $(document).ready(function ()
 
     $("#findAll").click(function(){//注册搜索事件：点击搜索全部
         tagging = $(".search input").val().trim();
-        window.location.href="index.html?keyword="+tagging;
+        //window.location.href="index.html?keyword="+tagging;
+        loadData();
     }); 
-    $("#findByPrice").click(function(){//注册搜索事件：点击搜索好价
-        tagging = $(".search input").val().trim();
-        if(filter=="byPrice"){//如果当前已经选中，再次点击则取消
-            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
-        }else{
-            window.location.href="index.html?filter=byPrice&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
-        }
-    }); 
-    $("#findByDistance").click(function(){//注册搜索事件：点击搜索附近
-        tagging = $(".search input").val().trim();
-        if(filter=="byDistance"){//如果当前已经选中，再次点击则取消
-            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
-        }else{
-            getLocation();//点击后请求授权，并且在授权后每次点击时获取当前位置，并开始搜索
-        }         
-    });  
-    $("#findByProfit").click(function(){//注册搜索事件：点击搜索高佣
-        tagging = $(".search input").val().trim();
-        if(filter=="byProfit"){//如果当前已经选中，再次点击则取消
-            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
-        }else{
-            window.location.href="index.html?filter=byProfit&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
-        }        
-    }); 
-    $("#findByRank").click(function(){//注册搜索事件：点击搜索好物：根据评价
-        tagging = $(".search input").val().trim();
-        if(filter=="byRank"){//如果当前已经选中，再次点击则取消
-            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
-        }else{
-            window.location.href="index.html?filter=byRank&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
-        }         
-    });   
 
     //加载关心的人
     loadPersons();
 
+    //加载filter并高亮
+    loadFilters(filter);
     //高亮显示当前选中的filter
-    highlightFilter();
+    //highlightFilter();
 
 //TODO：切换为复杂查询。需要在索引结构更新后进行
     //console.log("assemble", assembleEsQuery());     
@@ -1080,8 +1051,10 @@ function getCorsCoordinate(data){
         //推送到用户
         util.AJAX(app.config.data_api +"/user/users/"+app.globalData.userInfo.openId, function (res) {
             if (app.globalData.isDebug) console.log("Index::convertToBaiduLocation update person location finished.", res);
+            //重新加载数据
+            loadData();
             //直接开始搜索
-            window.location.href="index.html?filter=byDistance&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
+            //window.location.href="index.html?filter=byDistance&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
         }, "PATCH", app.globalData.userInfo, { "Api-Key": "foobar" });
     }else{
         console.log("\n\nfailed convert location.",data);
@@ -1264,6 +1237,41 @@ function changePerson (personId,personTagging) {
     num = 1;//从第一条开始加载
     loadData();//重新加载数据
   } 
+
+
+function loadFilters(currentFilter){
+    var filterTypes = ["Profit","Price","Rank","Distance"];//filter类型
+    for(var i = 0 ; i < filterTypes.length ; i++){//已经在界面显示，此处仅注册点击事件
+        if(currentFilter == filterTypes[i]){//高亮显示当前选中的filter
+            filter = currentFilter;
+            $("#findBy"+filterTypes[i]).addClass("searchBtn-highlight");
+        }
+        //注册点击事件
+        $("#findBy"+filterTypes[i]).click(function(){
+            var key = "by"+$(this).attr("data"); 
+            console.log("filter changed.[current]"+filter+"[new]"+key);
+            $("a[id^='findBy']").each(function(){//删除所有高亮
+                $(this).removeClass("searchBtn-highlight");
+            });                         
+            if(key == filter){//如果是当前选中的再次点击则取消高亮，选择“全部”
+                changeFilter("");//取消当前选中
+            }else{
+                changeFilter(key);//更换后更新内容
+                $(this).addClass("searchBtn-highlight");                 
+            }
+        })
+    }
+}
+
+function changeFilter(currentFilter){
+    filter = currentFilter;//使用当前选中的filter
+    if(filter == "byDistance"){//获取地址然后重新加载数据
+      getLocation();//点击后请求授权，并且在授权后每次点击时获取当前位置，并开始搜索
+    }else{
+      loadData();
+    }
+}
+
 
 //显示正在加载提示
 function showloading(flag){
