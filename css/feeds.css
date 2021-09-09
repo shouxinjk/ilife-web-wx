@@ -454,24 +454,6 @@ div.title{
   line-height: 1.4rem;
 }
 
-
-
-
-.footer-hide{
-	display:none;
-}
-
-.footer-show{
-	width:20%;
-	font-size:1rem;
-	color:grey;
-	margin:5px auto;
-	padding:5px;
-	border:1px solid silver;
-	border-radius: 5px;
-	text-align: center;
-}
-
 .loading-hide{
   display:none;
 }
@@ -526,28 +508,3 @@ div.title{
   color:#e0620d;
 }
 
-/**推荐更多按钮**/
-.findMoreBtn-show{
-  display:block;
-  margin:5px auto;
-  width:60%;
-  padding:5px auto;
-  border:1px solid red;
-  color: red;
-  border-radius: 12px;
-  min-width: 60px;
-  font-size: 12px;
-  font-weight: bold;  
-}
-.findMoreBtn-hide{
-  display:none;
-  margin:5px auto;
-  width:60%;
-  padding:5px auto;
-  border:1px solid red;
-  color: red;
-  border-radius: 12px;
-  min-width: 60px;
-  font-size: 12px;
-  font-weight: bold;  
-}

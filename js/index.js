@@ -658,9 +658,12 @@ function loadItems(){//获取内容列表
             "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
         },
         crossDomain: true,
+        timeout:1000,//设置超时
         success:function(data){
-            if(data.hits.hits.length==0){//如果没有内容，则显示提示文字
-                showNoMoreMsg();
+            console.log("got result",data);
+            if(data.hits.total == 0 || data.hits.hits.length == 0){//如果没有内容，则显示提示文字
+                console.log("no more results. show no more button.");
+                shownomore(true);
             }else{
                 //更新总页数
                 var total = data.hits.total;
@@ -674,7 +677,18 @@ function loadItems(){//获取内容列表
                 }
                 insertItem();
             }
-        }
+        },
+        complete: function (XMLHttpRequest, textStatus) {//调用执行后调用的函数
+            if(textStatus == 'timeout'){//如果是超时，则显示更多按钮
+              console.log("ajax超时",textStatus);
+              shownomore(true);
+            }
+        },
+        error: function () {//调用出错执行的函数
+            //请求出错处理：超时则直接显示搜索更多按钮
+            shownomore(true);
+          }
+
     })
 }
 
@@ -682,6 +696,15 @@ function loadItems(){//获取内容列表
 function insertItem(){
     // 加载内容
     var item = items[num-1];
+    //检查是否还有，如果没有则显示已完成
+    if(!item){
+      shownomore(true);
+      return;
+    }
+    //隐藏no-more-tips
+    $("#no-results-tip").toggleClass("no-result-tip-hide",true);
+    $("#no-results-tip").toggleClass("no-result-tip-show",false);    
+
     var imgWidth = columnWidth-2*columnMargin;//注意：改尺寸需要根据宽度及留白计算，例如宽度为360，左右留白5，故宽度为350
     var imgHeight = random(50, 300);//随机指定初始值
     //计算图片高度
@@ -900,19 +923,25 @@ function updateItem(item) {
     }, "PATCH", item, header);
 }
 
-//当没有更多item时显示提示信息
-function showNoMoreMsg(){
-    //todo：显示没有更多toast
-    /*
-    $.toast({
-        heading: 'Success',
-        text: '没有更多了',
-        showHideTransition: 'fade',
-        icon: 'info'
-    });   
-    //*/
-    $("#footer").toggleClass("footer-hide",false);
-    $("#footer").toggleClass("footer-show",true);
+//显示没有更多内容
+function shownomore(flag){
+  //检查是否是一条数据都没加载
+  if(items.length==0){//需要特别处理：如果没有任何数据，则需要默认设置，否则导致无法显示show more btn
+    $("#waterfall").height(10);
+    $("#no-results-tip").toggleClass("no-result-tip-hide",false);
+    $("#no-results-tip").toggleClass("no-result-tip-show",true);
+  }  
+  if(flag){
+    $("#findMoreBtn").toggleClass("findMoreBtn-hide",false);
+    $("#findMoreBtn").toggleClass("findMoreBtn-show",true);
+    //注册跳转事件：在某些情况下，搜索不到，直接回到首页，不带参数搜索
+    $("#findMoreBtn").click(function(){
+      window.location.href = "index.html";
+    });    
+  }else{
+    $("#findMoreBtn").toggleClass("findMoreBtn-hide",true);
+    $("#findMoreBtn").toggleClass("findMoreBtn-show",false);
+  }
 }
 
 //如果是达人则显示高佣入口
