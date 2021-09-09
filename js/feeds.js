@@ -168,7 +168,7 @@ function loadData() {
             "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
         },
         crossDomain: true,
-        timeout:1500,//设置超时
+        timeout:3000,//设置超时
         success:function(data){
             console.log("Feed::loadData success.",data);
             if(data.hits.total == 0 || data.hits.hits.length==0){//如果没有内容，则显示提示文字
