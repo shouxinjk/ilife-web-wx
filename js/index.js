@@ -52,15 +52,15 @@ $(document).ready(function ()
     $("#findByPrice").click(function(){//注册搜索事件：点击搜索好价
         tagging = $(".search input").val().trim();
         if(filter=="byPrice"){//如果当前已经选中，再次点击则取消
-            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
         }else{
-            window.location.href="index.html?filter=byPrice&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+            window.location.href="index.html?filter=byPrice&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
         }
     }); 
     $("#findByDistance").click(function(){//注册搜索事件：点击搜索附近
         tagging = $(".search input").val().trim();
         if(filter=="byDistance"){//如果当前已经选中，再次点击则取消
-            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
         }else{
             getLocation();//点击后请求授权，并且在授权后每次点击时获取当前位置，并开始搜索
         }         
@@ -68,17 +68,17 @@ $(document).ready(function ()
     $("#findByProfit").click(function(){//注册搜索事件：点击搜索高佣
         tagging = $(".search input").val().trim();
         if(filter=="byProfit"){//如果当前已经选中，再次点击则取消
-            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
         }else{
-            window.location.href="index.html?filter=byProfit&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+            window.location.href="index.html?filter=byProfit&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
         }        
     }); 
     $("#findByRank").click(function(){//注册搜索事件：点击搜索好物：根据评价
         tagging = $(".search input").val().trim();
         if(filter=="byRank"){//如果当前已经选中，再次点击则取消
-            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
         }else{
-            window.location.href="index.html?filter=byRank&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+            window.location.href="index.html?filter=byRank&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
         }         
     });   
 
@@ -996,13 +996,6 @@ function changeCategory(key,q){
 }
 
 function loadData(){
-    /**
-    tagging = "";
-    if(categoryTagging && categoryTagging.trim().length>0)
-        tagging += categoryTagging;
-    if(currentPersonTagging && currentPersonTagging.trim().length>0)
-        tagging += " "+currentPersonTagging;
-    //**/
     items = [];//清空列表
     $("#waterfall").empty();//清除页面元素
     num=1;//设置加载内容从第一条开始
@@ -1088,7 +1081,7 @@ function getCorsCoordinate(data){
         util.AJAX(app.config.data_api +"/user/users/"+app.globalData.userInfo.openId, function (res) {
             if (app.globalData.isDebug) console.log("Index::convertToBaiduLocation update person location finished.", res);
             //直接开始搜索
-            window.location.href="index.html?filter=byDistance&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+            window.location.href="index.html?filter=byDistance&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category+"&id="+currentPerson;
         }, "PATCH", app.globalData.userInfo, { "Api-Key": "foobar" });
     }else{
         console.log("\n\nfailed convert location.",data);
@@ -1189,9 +1182,14 @@ function showSwiper(){
     //$(".swiper-container").css("margin-bottom","3px");
   
     //将当前用户设为高亮  
-    if(inputPerson && personKeys.indexOf(inputPerson)>-1 && persons[personKeys.indexOf(inputPerson)]){//有输入用户信息则优先使用
-      currentPerson = inputPerson;
-      currentPersonTagging = persons[personKeys.indexOf(inputPerson)].tags?persons[personKeys.indexOf(inputPerson)].tags.join(" "):"";
+    if(inputPerson){
+      if(personKeys.indexOf(inputPerson)>-1 && persons[personKeys.indexOf(inputPerson)]){//有输入用户信息则优先使用
+        currentPerson = inputPerson;
+        currentPersonTagging = persons[personKeys.indexOf(inputPerson)].tags?persons[personKeys.indexOf(inputPerson)].tags.join(" "):"";
+      }else{//指定了输入用户，但用户不存在，则不使用任何用户过滤
+        currentPerson = "0";
+        currentPersonTagging = "";
+      }
     }else{//根据当前用户加载数据：默认使用第一个
       currentPerson = persons[0]._key;
       currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";   
