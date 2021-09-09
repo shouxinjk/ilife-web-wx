@@ -168,9 +168,10 @@ function loadData() {
             "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
         },
         crossDomain: true,
+        timeout:1500,//设置超时
         success:function(data){
             console.log("Feed::loadData success.",data);
-            if(data.hits.hits.length==0){//如果没有内容，则显示提示文字
+            if(data.hits.total == 0 || data.hits.hits.length==0){//如果没有内容，则显示提示文字
                 shownomore(true);
                 showloading(false);
             }else{
@@ -188,7 +189,17 @@ function loadData() {
                 insertItem();
                 showloading(false);
             }
-        }
+        },
+        complete: function (XMLHttpRequest, textStatus) {//调用执行后调用的函数
+            if(textStatus == 'timeout'){//如果是超时，则显示更多按钮
+              console.log("ajax超时",textStatus);
+              shownomore(true);
+            }
+        },
+        error: function () {//调用出错执行的函数
+            //请求出错处理：超时则直接显示搜索更多按钮
+            shownomore(true);
+          }
     });
   }
 
@@ -333,6 +344,12 @@ function insertPerson(person){
 
 //显示没有更多内容
 function shownomore(flag){
+  //检查是否是一条数据都没加载
+  if(items.length==0){//需要特别处理：如果没有任何数据，则需要默认设置，否则导致无法显示show more btn
+    $("#waterfall").height(10);
+    $("#no-results-tip").toggleClass("no-result-tip-hide",false);
+    $("#no-results-tip").toggleClass("no-result-tip-show",true);
+  }    
   if(flag){
     $("#findMoreBtn").toggleClass("findMoreBtn-hide",false);
     $("#findMoreBtn").toggleClass("findMoreBtn-show",true);
@@ -366,6 +383,10 @@ function insertItem(){
       shownomore(true);
       return;
     }
+    //隐藏no-more-tips
+    $("#no-results-tip").toggleClass("no-result-tip-hide",true);
+    $("#no-results-tip").toggleClass("no-result-tip-show",false); 
+
     // 加载内容
     var item = actionItem.item;
     console.log("Favorite::insertItem add item to html.",num,item);
