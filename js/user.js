@@ -145,7 +145,7 @@ function loadPersona(personaId){
             if(res.image)
                 currentPerson.avatarUrl = res.image;//设置默认头像
             if(res.name)
-                currentPerson.nickName = res.name;//默认设置名称为画像名称
+                currentPerson.nickName = res.name+"人设";//默认设置名称为画像名称
             currentPerson.status = "pending";//设置为待分析用户
             showPerson(currentPerson);
         }

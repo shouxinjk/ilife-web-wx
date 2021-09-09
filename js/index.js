@@ -30,6 +30,8 @@ $(document).ready(function ()
     category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     tagging = args["keyword"]?args["keyword"]:""; //通过搜索跳转
     filter = args["filter"]?args["filter"]:""; //根据指定类型进行过滤
+    if(args["categoryTagging"])categoryTagging=args["categoryTagging"];
+    if(args["personTagging"])personTagging=args["personTagging"];
     if(tagging.trim().length>0){
         $(".search input").attr("placeholder","🔍 "+tagging);
     }
@@ -49,27 +51,46 @@ $(document).ready(function ()
     }); 
     $("#findByPrice").click(function(){//注册搜索事件：点击搜索好价
         tagging = $(".search input").val().trim();
-        window.location.href="index.html?filter=byPrice&keyword="+tagging;
+        if(filter=="byPrice"){//如果当前已经选中，再次点击则取消
+            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+        }else{
+            window.location.href="index.html?filter=byPrice&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+        }
     }); 
     $("#findByDistance").click(function(){//注册搜索事件：点击搜索附近
         tagging = $(".search input").val().trim();
-        getLocation();//点击后请求授权，并且在授权后每次点击时获取当前位置，并开始搜索
+        if(filter=="byDistance"){//如果当前已经选中，再次点击则取消
+            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+        }else{
+            getLocation();//点击后请求授权，并且在授权后每次点击时获取当前位置，并开始搜索
+        }         
     });  
     $("#findByProfit").click(function(){//注册搜索事件：点击搜索高佣
         tagging = $(".search input").val().trim();
-        window.location.href="index.html?filter=byProfit&keyword="+tagging;
+        if(filter=="byProfit"){//如果当前已经选中，再次点击则取消
+            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+        }else{
+            window.location.href="index.html?filter=byProfit&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+        }        
     }); 
     $("#findByRank").click(function(){//注册搜索事件：点击搜索好物：根据评价
         tagging = $(".search input").val().trim();
-        window.location.href="index.html?filter=byRank&keyword="+tagging;
+        if(filter=="byRank"){//如果当前已经选中，再次点击则取消
+            window.location.href="index.html?keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+        }else{
+            window.location.href="index.html?filter=byRank&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
+        }         
     });   
 
     //加载关心的人
     loadPersons();
 
+    //高亮显示当前选中的filter
+    highlightFilter();
+
 //TODO：切换为复杂查询。需要在索引结构更新后进行
-    console.log("assemble", assembleEsQuery());     
-    console.log(JSON.stringify(assembleEsQuery()));  
+    //console.log("assemble", assembleEsQuery());     
+    //console.log(JSON.stringify(assembleEsQuery()));  
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -91,76 +112,28 @@ var filter = "";//通过filter区分好价、好物、附近等不同查询组�
 
 var categoryTagging = "";//记录目录切换标签，tagging = categoryTagging + currentPersonTagging
 
+function highlightFilter(){
+    if(filter=="byProfit"){
+        $("#findByProfit").addClass("searchBtn-highlight");
+    }else if(filter=="byPrice"){
+        $("#findByPrice").addClass("searchBtn-highlight");
+    }else if(filter=="byRank"){
+        $("#findByRank").addClass("searchBtn-highlight");
+    }else if(filter=="byDistance"){
+        $("#findByDistance").addClass("searchBtn-highlight");
+    }
+}
+
 var page = {
     size:20,//每页条数
     total:1,//总页数
     current:-1//当前翻页
 };
 
-var esQuery={
-    from:0,
-    size:page.size,
-    query: {
-        match_all: {}
-    },
-    sort: [
-        { "@timestamp": { order: "desc" }},
-        { "_score":   { order: "desc" }}
-    ]
-};
-
-var esQueryByPrice={
-  "from": 0,
-  "size": page.size,
-  "query": {
-    "nested": {
-      "path": "price",
-      "score_mode": "min", 
-      "query": {
-        "function_score": {
-          "query": {
-              "match_all": {}
-          },
-          "script_score": {
-            "script": "_score * (2-doc['price.sale'].value/(doc['price.bid'].value==0?doc['price.sale'].value:doc['price.bid'].value))"
-          }
-        }
-      }
-    }
-  },
-  sort: [
-    { "_score":   { order: "desc" }},
-    { "@timestamp": { order: "desc" }}
-  ]
-};
-
-
-var esQueryByRank={
-  "from": 0,
-  "size": page.size,
-  "query": {
-    "nested": {
-      "path": "rank",
-      "score_mode": "avg", 
-      "query": {
-        "function_score": {
-          "query": {
-              "match_all": {}
-          },
-          "script_score": {
-            "script": "_score * (1+doc['rank.score'].value/(doc['rank.base'].value==0?5:doc['rank.base'].value))"
-          }
-        }
-      }
-    }
-  },
-  sort: [
-    { "_score":   { order: "desc" }},
-    { "@timestamp": { order: "desc" }}
-  ]
-};
-
+//查询模板
 var esQueryTemplate = JSON.stringify({
+  "from": 0,
+  "size": page.size,    
   "query":{
     "bool":{
       "must": [],       
@@ -175,6 +148,245 @@ var esQueryTemplate = JSON.stringify({
   ]   
 });
 
+//组织关键字查询。包括三类：手动输入、来源于用户标注、来源于目录标注
+//关键字查询逻辑为： (手动OR输入) AND (用户OR标注) AND (目录OR标注);以下为单个查询样例：
+/**
+{
+    "bool" : {
+           "should" : [
+               {"match" : {"full_tags": "宠物 高原"}},
+               {"match" : {"full_text": "宠物 高原"}}
+           ],
+          "minimum_should_match": 1
+          }
+     }
+*/
+var taggingBoolQueryTextTemplate = JSON.stringify({"match" : {"full_text": ""}});//在full_text字段搜索
+var taggingBoolQueryTagsTemplate = JSON.stringify({"match" : {"full_tags": ""}});//在full_tags字段搜索
+var taggingBoolQueryShouldTemplate = JSON.stringify({
+    "bool" : {
+           "should" : [],
+          "minimum_should_match": 1
+          }
+     });
+//组建 手动输入/用户标注/目录标注 查询。将加入MUST查询
+function buildTaggingQuery(keyword){
+    var q = JSON.parse(taggingBoolQueryShouldTemplate);
+    //组织full_text查询
+    var textTerm = JSON.parse(taggingBoolQueryTextTemplate);
+    textTerm.match.full_text = keyword;
+    q.bool.should.push(textTerm);
+    //组织full_tags查询
+    /*
+    var textTags = JSON.parse(taggingBoolQueryTagsTemplate);
+    textTags.match.full_tags = keyword;
+    q.bool.should.push(textTags);
+    //**/
+    //返回组织好的bool查询
+    return q;
+}
+
+//根据价格高低计算得分：价格越高，得分越低
+var funcQueryByPrice = {
+    "nested": {
+      "path": "price",
+      "score_mode": "min", 
+      "query": {
+        "function_score": {
+          "script_score": {
+            "script": "_score * (2-doc['price.sale'].value/(doc['price.bid'].value==0?doc['price.sale'].value:doc['price.bid'].value))"
+          }
+        }
+      }
+    }
+  };
+
+//根据评价计算得分：评分越高，得分越高
+var funcQueryByRank = {
+    "nested": {
+      "path": "rank",
+      "score_mode": "avg", 
+      "query": {
+        "function_score": {
+          "script_score": {
+            "script": "_score * (1+doc['rank.score'].value/(doc['rank.base'].value==0?5:doc['rank.base'].value))"
+          }
+        }
+      }
+    }
+  };
+
+//根据佣金高低计算得分：佣金越高，得分越高
+var funcQueryByProfit =  {
+    "nested": {
+      "path": "profit",
+      "score_mode": "min", 
+      "query": {
+        "function_score": {
+          "script_score": {
+            "script": "_score * doc['profit.amount'].value"
+          }
+        }
+      }
+    }
+  };
+
+//根据距离远近计算得分：离用户越近，得分越高
+//默认中心点为成都天府广场
+var funcQueryByDistance = {
+    "function_score": {
+        "functions": [
+            {
+              "gauss": {
+                "location": { 
+                      "origin": { "lat": 30.6570, "lon": 104.0650 },
+                      "offset": "3km",
+                      "scale":  "2km"
+                }
+              }
+            }
+        ],
+        "boost_mode": "multiply"
+    }
+};
+
+//组织满足度查询：需要合并进入 buildEsQuery内部构建。当前仅为测试
+//样例模板如下：
+/*
+{
+          "nested": {
+            "path": "performance",
+            "ignore_unmapped":true,
+            "query": {
+              "function_score": {
+                "functions": [
+                  {
+                      "gauss":{
+                        "performance.a":{
+                          "origin":0.5,
+                          "offset":0.25,
+                          "scale":0.25
+                        }
+                      }
+                  },
+                  {
+                      "gauss":{
+                        "performance.a":{
+                          "origin":0.5,
+                          "offset":0.25,
+                          "scale":0.25
+                        }
+                      }
+                  },
+                  {
+                      "gauss":{
+                        "performance.c":{
+                          "origin":0.5,
+                          "offset":0.25,
+                          "scale":0.25
+                        }
+                      }
+                  },
+                  {
+                      "gauss":{
+                        "performance.b":{
+                          "origin":0.5,
+                          "offset":0.25,
+                          "scale":0.25
+                        }
+                      }
+                  },
+                  {
+                      "gauss":{
+                        "performance.e":{
+                          "origin":0.5,
+                          "offset":0.25,
+                          "scale":0.25
+                        }
+                      }
+                  }                  
+                ],
+                "score_mode": "sum",
+                "boost_mode": "multiply"
+              }
+            }
+          }
+        },    
+       {
+          "nested": {
+            "path": "cost",
+            "ignore_unmapped":true,
+            "query": {
+              "function_score": {
+                "functions": [
+                  {
+                      "gauss":{
+                        "cost.x":{
+                          "origin":0.5,
+                          "offset":0.25,
+                          "scale":0.25
+                        }
+                      }
+                  },
+                  {
+                      "gauss":{
+                        "cost.y":{
+                          "origin":0.5,
+                          "offset":0.25,
+                          "scale":0.25
+                        }
+                      }
+                  },
+                  {
+                      "gauss":{
+                        "cost.z":{
+                          "origin":0.5,
+                          "offset":0.25,
+                          "scale":0.25
+                        }
+                      }
+                  }                  
+                ],
+                "score_mode": "sum",
+                "boost_mode": "multiply"
+              }
+            }
+          }
+        },         
+        {
+          "nested": {
+            "path": "fulfillment",
+            "ignore_unmapped":true,
+            "query": {
+              "function_score": {
+                "functions": [
+                  {
+                      "gauss":{
+                        "fulfillment.45809fa7cdc1406eac3337545ca2ab5c":{
+                          "origin":0.7,
+                          "offset":0.1,
+                          "scale":0.1
+                        }
+                      },
+                      "weight":1
+                  },
+                  {
+                      "gauss":{
+                        "fulfillment.5adf1b874cf54d0b82533497d9ecd1a4":{
+                          "origin":0.1,
+                          "offset":0.1,
+                          "scale":0.1
+                        }
+                      }
+                  }            
+                ],
+                "score_mode": "sum",
+                "boost_mode": "multiply"
+              }
+            }
+          }
+        }
+*/
 function assembleEsQuery(){
     var userInfo = {
         persona:{
@@ -334,59 +546,76 @@ function assembleEsQuery(){
     return complexQuery;     
 }
 
-var esQueryByDistance={
-  from:0,
-  size:page.size,
-  query: {
-    function_score: {
-        query: {
-            match_all: {}
-        },
-        functions: [
-            {
-              gauss: {
-                location: { 
-                      origin: { lat: 27.9881, lon: 86.9250 },//默认以珠穆朗玛峰为中心
-                      offset: "2km",
-                      scale:  "3km"
-                }
-              }
-            }
-        ],
-        boost_mode: "multiply"
+
+function buildEsQuery(){
+    var complexQuery = JSON.parse(esQueryTemplate);
+    //添加must
+    if(tagging && tagging.trim().length > 0){//手动输入搜索条件
+        complexQuery.query.bool.must.push(buildTaggingQuery(tagging));
     }
-  },
+    if(currentPersonTagging && currentPersonTagging.trim().length > 0){//用户或画像标注
+        complexQuery.query.bool.must.push(buildTaggingQuery(currentPersonTagging));
+    }
+    if(categoryTagging && categoryTagging.trim().length > 0){//目录标注
+        complexQuery.query.bool.must.push(buildTaggingQuery(categoryTagging));
+    }    
+    //TODO：添加must_not
+    /*
+    if(userInfo.tagging && userInfo.tagging.must_not){
+        complexQuery.query.bool.must_not.push({match: { full_tags: userInfo.tagging.must_not.join(" ")}});
+    }else if(persona.tagging && persona.tagging.must_not){
+        complexQuery.query.bool.must_not.push({match: { full_tags: persona.tagging.must_not.join(" ")}});
+    }else{
+        console.log("no must_not");
+    }*/
+    //TODO：添加filter
+    /*
+    if(userInfo.tagging && userInfo.tagging.filter){
+        complexQuery.query.bool.filter.push({match: { full_tags: userInfo.tagging.filter.join(" ")}});
+    }else if(persona.tagging && persona.tagging.filter){
+        complexQuery.query.bool.filter.push({match: { full_tags: persona.tagging.filter.join(" ")}});
+    }else{
+        console.log("no filter");
+    }*/
+
+    //添加排序规则：byRank/byPrice/byProfit/byDistance
+    if(filter && filter.trim()=="byPrice"){//根据价格排序
+        complexQuery.query.bool.should.push(funcQueryByPrice);
+    }else if(filter && filter.trim()=="byDistance"){//根据位置进行搜索。优先从用户信息中获取经纬度，否则请求获取得到当前用户经纬度
+        //TODO 需要使用当前选中的用户进行设置：如果选中的是画像怎么办？？
+        funcQueryByDistance.function_score.functions[0].gauss.location.origin.lat = app.globalData.userInfo.location.latitude;
+        funcQueryByDistance.function_score.functions[0].gauss.location.origin.lon = app.globalData.userInfo.location.longitude;
+        complexQuery.query.bool.should.push(funcQueryByDistance);
+    }else if(filter && filter.trim()=="byProfit"){//根据佣金排序
+        complexQuery.query.bool.should.push(funcQueryByProfit);
+    }else if(filter && filter.trim()=="byRank"){//根据评价排序
+        complexQuery.query.bool.should.push(funcQueryByRank);
+    }else{
+        //do nothing
+        console.log("Unsupport filter type.[filter]",filter);
+    }
+
+    //TODO 添加vals
+    //TODO 添加cost
+    //TODO 添加satisify
+
+    //返回query
+    return complexQuery;
+}
+
+//默认查询。将通过buildEsQuery()进行校正
+var esQuery={
+    from:0,
+    size:page.size,
+    query: {
+        match_all: {}
+    },
     sort: [
-        { "_score":   { "order": "desc" }},
-        { "@timestamp": { "order": "desc" }}
+        { "@timestamp": { order: "desc" }},
+        { "_score":   { order: "desc" }}
     ]
 };
 
-
-var esQueryByProfit={
-  "from": 0,
-  "size": page.size,
-  "query": {
-    "nested": {
-      "path": "profit",
-      "score_mode": "min", 
-      "query": {
-        "function_score": {
-          "query": {
-              "match_all": {}
-          },
-          "script_score": {
-            "script": "_score * doc['profit.amount'].value"
-          }
-        }
-      }
-    }
-  },
-  sort: [
-        { "_score":   { order: "desc" }},
-        { "@timestamp": { order: "desc" }}
-    ]
-};
 
 function getBoard(){
     var boardInfo = $.cookie('board');
@@ -414,50 +643,9 @@ setInterval(function ()
 }, 60);
 
 function loadItems(){//获取内容列表
-    var q={
-        match: { 
-          full_text:"" 
-        }
-    };  
-    if(filter.trim()=="byPrice" || filter.trim()=="byScore"||filter.trim()=="byDistance"||filter.trim()=="byProfit"||filter.trim()=="byRank"){//需要进行过滤
-        if(filter.trim()=="byPrice"){
-            esQuery = esQueryByPrice;
-        }else if(filter.trim()=="byScore"){//根据评价进行搜索
-            //TODO
-        }else if(filter.trim()=="byDistance"){//根据位置进行搜索。优先从用户信息中获取经纬度，否则请求获取得到当前用户经纬度
-            esQuery = esQueryByDistance;
-            esQuery.query.function_score.functions[0].gauss.location.origin.lat = app.globalData.userInfo.location.latitude;
-            esQuery.query.function_score.functions[0].gauss.location.origin.lon = app.globalData.userInfo.location.longitude;
-        }else if(filter.trim()=="byProfit"){//根据佣金排序
-            esQuery = esQueryByProfit;
-        }else if(filter.trim()=="byRank"){//根据佣金排序
-            esQuery = esQueryByRank;
-        }
-        if(tagging.trim().length>0){//使用指定内容进行搜索
-            q.match.full_text = tagging;
-            esQuery.query.function_score.query = q;
-        }
-    }else{//无过滤
-        if(tagging.trim().length>0){//使用指定内容进行搜索
-            if(filter.trim()=="byPrice" || filter.trim()=="byProfit"||filter.trim()=="byRank"){//由于使用嵌套查询，查询关键字设置不同
-                q.match.full_text = tagging;
-                esQuery.query.nested.query.function_score.query = q;
-            }else{
-                q.match.full_text = tagging;
-                esQuery.query = q;
-            }
-        }else{//搜索全部
-            if(filter.trim()=="byPrice" || filter.trim()=="byProfit"||filter.trim()=="byRank"){//由于使用嵌套查询，查询关键字设置不同
-                esQuery.query.nested.query.function_score.query = {
-                    match_all: {}
-                };
-            }else{
-                esQuery.query = {
-                    match_all: {}
-                };
-            }            
-        }
-    }
+    //构建esQuery
+    esQuery = buildEsQuery();//完成query构建。其中默认设置了每页条数
+    console.log("\ntry search by query.[esQuery]",esQuery,"\n");
     //处理翻页
     esQuery.from = (page.current+1) * page.size;
 
@@ -489,26 +677,6 @@ function loadItems(){//获取内容列表
         }
     })
 }
-
-/*
-function loadItems(){//获取内容列表
-    $.ajax({
-        url:"https://data.shouxinjk.net/_db/sea/my/stuff",
-        type:"get",
-        data:{offset:items.length,size:20,category:category},
-        success:function(data){
-            if(data.length==0){//如果没有内容，则显示提示文字
-                showNoMoreMsg();
-            }else{
-                for(var i = 0 ; i < data.length ; i++){
-                    items.push(data[i]);
-                }
-                insertItem();
-            }
-        }
-    })
-}
-//*/
 
 //将item显示到页面
 function insertItem(){
@@ -775,10 +943,18 @@ function loadCategories(currentCategory){
             //注册点击事件
             navObj.find("li").click(function(){
                 var key = $(this).attr("data");
-                var tagging = $(this).attr("data-tagging");
-                changeCategory(key,tagging);//更换后更新内容
-                $(navObj.find("li")).removeClass("showNav");
-                $(this).addClass("showNav");
+                var tagging = $(this).attr("data-tagging");                
+                if(key == category){//如果是当前选中的再次点击则取消高亮，选择“全部”
+                    key = "all";
+                    tagging = "";
+                    changeCategory(key,tagging);//更换后更新内容
+                    $(navObj.find("li")).removeClass("showNav");
+                    $(".navUl>li:contains('全部')").addClass("showNav");
+                }else{
+                    changeCategory(key,tagging);//更换后更新内容
+                    $(navObj.find("li")).removeClass("showNav");
+                    $(this).addClass("showNav");//不好，这个是直接通过“全部”来完成的                    
+                }
             })
         }
     })    
@@ -791,16 +967,18 @@ function changeCategory(key,q){
 }
 
 function loadData(){
+    /**
     tagging = "";
     if(categoryTagging && categoryTagging.trim().length>0)
         tagging += categoryTagging;
     if(currentPersonTagging && currentPersonTagging.trim().length>0)
         tagging += " "+currentPersonTagging;
+    //**/
     items = [];//清空列表
     $("#waterfall").empty();//清除页面元素
     num=1;//设置加载内容从第一条开始
     page.current = -1;//设置浏览页面为未开始
-    console.log("query by tagging.[categoryTagging]"+categoryTagging+"[personTagging]"+currentPersonTagging+"[tagging]"+tagging);
+    console.log("query by tagging.[categoryTagging]"+categoryTagging+"[personTagging]"+currentPersonTagging+"[tagging]"+tagging+"[filter]"+filter);
     loadItems();//重新加载数据
 }
 
@@ -855,7 +1033,7 @@ function getLocation(){
                     var accuracy = res.accuracy; // 位置精度
                     //通过百度转换为统一坐标系
                     //convertToBaiduLocation(longitude,latitude,callback);//这个有跨域问题，不能直接通过ajax请求访问
-                    var baiduApi = "http://api.map.baidu.com/geoconv/v1/?coords="+longitude+","+latitude
+                    var baiduApi = "https://api.map.baidu.com/geoconv/v1/?coords="+longitude+","+latitude
                                     +"&from=3&to=5&ak=XwNTgTOf5mYaZYhQ0OiIb6GmOHsSZWul&callback=getCorsCoordinate";
                     jQuery.getScript(baiduApi);//注意：不能通过ajax请求，而只能通过脚本加载绕过跨域问题
                   }
@@ -881,7 +1059,7 @@ function getCorsCoordinate(data){
         util.AJAX(app.config.data_api +"/user/users/"+app.globalData.userInfo.openId, function (res) {
             if (app.globalData.isDebug) console.log("Index::convertToBaiduLocation update person location finished.", res);
             //直接开始搜索
-            window.location.href="index.html?filter=byDistance&keyword="+tagging;
+            window.location.href="index.html?filter=byDistance&keyword="+tagging+"&personTagging="+currentPersonTagging+"&categoryTagging="+categoryTagging+"&category="+category;
         }, "PATCH", app.globalData.userInfo, { "Api-Key": "foobar" });
     }else{
         console.log("\n\nfailed convert location.",data);
@@ -996,7 +1174,7 @@ function insertPerson(person){
     // 显示HTML
     var html = '';
     html += '<div class="swiper-slide">';
-    html += '<div class="person" id="'+person._key+'" data-tagging="'+(person.tags?person.tags.join(" "):"")+'">';
+    html += '<div class="person" id="'+person._key+'" data-tagging="'+(person.tags?person.tags:"")+'">';
     var style= person._key==currentPerson?'-selected':'';
     html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+person.avatarUrl+'"/></div>';
     html += '<div class="person-info">';
@@ -1020,7 +1198,12 @@ function insertPerson(person){
     }else{//切换数据列表
       $("#"+person._key).click(function(e){
           console.log("try to change person by jQuery click event.",person._key,e.currentTarget.id,e);
-          changePerson(e.currentTarget.id,e.currentTarget.dataset.tagging);
+          if(e.currentTarget.id == currentPerson){//如果再次点击当前选中用户，则取消选中
+            changePerson("0","");
+          }else{//否则，高亮显示选中的用户
+            changePerson(e.currentTarget.id,e.currentTarget.dataset.tagging);
+          }
+          
       });
     }
 }

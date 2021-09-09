@@ -48,12 +48,21 @@ util.getUserInfo =function (){
 
 
 util.hasBrokerInfo =function (){
+    var strHasBroker = $.cookie('hasBrokerInfo');
+    if(strHasBroker && strHasBroker.trim().length>0 && strHasBroker=="true"){//如果cookie里有 则直接返回
+        return util.getBrokerInfo();
+    }else{
+        util.checkBroker(app.globalData.userInfo._key);//注意：是异步调用，初次进入时会导致无法正常显示
+        return app.globalData.hasBrokerInfo;//有问题：这里返回应该是false
+    }
+    /**
     if(!app.globalData.hasBrokerInfo){//请求获得broker信息
         util.checkBroker(app.globalData.userInfo._key);//这里有问题，可能还未得到用户信息
     }else{//从cookie读取存储的BrokerInfo
         util.getBrokerInfo();
     }
     return app.globalData.hasBrokerInfo;
+    //**/
 }
 
 util.getBrokerInfo =function (){
