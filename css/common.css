@@ -37,7 +37,7 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
 .share-box{
   text-align: center;
   position: fixed;
-  bottom: 50px;
+  bottom: 10px;
   right: 20px;
   width:100px;
   border:1px solid #BF0A10;

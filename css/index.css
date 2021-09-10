@@ -173,3 +173,18 @@ div.title{
   overflow:hidden; 
   color:red;
   }
+
+  .share-box{
+  text-align: center;
+  position: fixed;
+  bottom: 50px;
+  right: 20px;
+  width:100px;
+  border:1px solid #BF0A10;
+  border-radius: 5px;
+  z-index: 9;
+  font-size:12px;
+  line-height: 20px;
+  color:white;
+  background-color: #fff;
+}
