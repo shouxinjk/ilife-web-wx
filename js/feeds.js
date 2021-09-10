@@ -62,10 +62,11 @@ var actionTypes = {
   view:"看了",
   share:"推荐",
   "share-post":"海报分享",
-  "share appmsg":"图文分享",
+  "share appmsg":"微信分享",
+  "share timeline":"朋友圈分享",
   "buy-step1":"逛了",
   "buy-step2":"买了",
-  buy:"想买",
+  buy:"准备买",
   favorite:"种草",
   like:"赞了"
 };

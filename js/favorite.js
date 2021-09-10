@@ -91,7 +91,7 @@ function loadData() {
         field: "itemId"//根据itemId 折叠，即：一个item仅显示一次
       },
       sort: [
-        { "weight": { order: "desc" } },//权重高的优先显示
+        //{ "weight": { order: "desc" } },//权重高的优先显示
         { "@timestamp": { order: "desc" } },//最近操作的优先显示
         { "_score": { order: "desc" } }//匹配高的优先显示
       ]
@@ -111,6 +111,7 @@ function loadData() {
       "Authorization": "Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
     };
 
+    console.log("search user action. [query]"+JSON.stringify(esQuery),esQuery);
     $.ajax({
         url:app.config.search_api+"/actions/_search",
         type:"post",
@@ -119,7 +120,7 @@ function loadData() {
             "Content-Type":"application/json",
             "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
         },
-        crossDomain: true,
+        //crossDomain: true,
         success:function(data){
             console.log("User::loadData success.",data);
             if(data.hits.hits.length==0){//如果没有内容，则显示提示文字
