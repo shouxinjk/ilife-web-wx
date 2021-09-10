@@ -1190,7 +1190,7 @@ function insertPerson(person){
     // 显示HTML
     var html = '';
     html += '<div class="swiper-slide">';
-    html += '<div class="person" id="'+person._key+'" data-tagging="'+(person.tags?person.tags:"")+'">';
+    html += '<div class="person" id="'+person._key+'" data-tagging="'+(person.tags?person.tags.join(" "):"")+'">';
     var style= person._key==currentPerson?'-selected':'';
     html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+person.avatarUrl+'"/></div>';
     html += '<div class="person-info">';
