@@ -37,7 +37,7 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
 .share-box{
   text-align: center;
   position: fixed;
-  bottom: 20px;
+  bottom: 50px;
   right: 20px;
   width:100px;
   border:1px solid #BF0A10;
@@ -78,6 +78,7 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
 }
 
 .share-btn div{
+  font-family: Arial Narrow,Arial,sans-serif;
   margin:5px auto;
   font-size: 10px;
   line-height: 16px;
@@ -97,6 +98,7 @@ body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,form,fieldset,input,textarea,p,
   border-radius: 10px;
   margin-bottom: 10px;
   width:80px;
+  padding:0 10px;
   text-align: center;
   vertical-align: middle;
 }

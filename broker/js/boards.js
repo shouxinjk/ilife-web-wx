@@ -39,6 +39,11 @@ $(document).ready(function ()
         changeActionType(e);
     });
 
+    //注册点击创建按钮事件 ：直接提交创建一个清单，然后跳转到index.html
+    $("#createBoardBtn").click(function(e){
+        createBoard();
+    });
+
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -252,3 +257,29 @@ function changeActionType (e) {
     window.location.href = currentActionType+".html";
 }
 
+
+//创建一个空白board并且跳转到首页，等待添加内容
+function createBoard(){
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    };     
+    var data = {
+        broker:{
+            id:currentBrokerId
+        },
+        title:currentBroker?currentBroker.name+" 的推荐清单":"新推荐清单",
+        description:"根据你的需求，我们精心挑选了以下清单，请查收",
+        tags:"",
+        keywords:""
+    };
+    util.AJAX(app.config.sx_api+"/mod/board/rest/board", function (res) {
+        console.log("Broker::Board::AddBoard create board successfully.", res)
+        if(res.status){
+            console.log("Broker::Board::AddBoard now jump to home page for item adding.", res)
+            $.cookie('board', JSON.stringify(res.data), { expires: 3650, path: '/' });  //把编辑中的board写入cookie便于添加item
+            //跳转到首页添加item
+            window.location.href = "../index.html?id=0&boardId="+data.id;//不带关键字，不指定用户
+        }
+    }, "POST",data,header);
+}

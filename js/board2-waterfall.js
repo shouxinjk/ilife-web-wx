@@ -46,6 +46,9 @@ $(document).ready(function ()
 
     //加载导航和关注列表
     loadCategories(category);  
+
+    //加载达人信息
+    loadBrokerInfo();
     
 });
 
@@ -74,6 +77,11 @@ var fromBroker = "";
 var broker = {};//当前达人
 var board = {};//当前board
 
+//优先从cookie加载达人信息
+function loadBrokerInfo(){
+  broker = util.getBrokerInfo();
+}
+
 var boardItemTemplate = '<div class="board-item-wrapper">'+
                             '<div class="board-item-title">'+
                               '<span class="board-item-title-head">推荐__NUMBER</span>'+
@@ -85,10 +93,16 @@ var boardItemTemplate = '<div class="board-item-wrapper">'+
 //将board内容显示到页面
 function showContent(board){
     //标题
-    $("#title").html(board.title);
+    if(broker && broker.id == board.broker.id){
+        $("#title").html(board.title+"&nbsp;&nbsp;<a class='board-modify-btn' style='color:#006cfd;' href='broker/boards-modify.html?id="+board.id+"'>修改</a>");
+    }else{
+        $("#title").html(board.title);
+    }
+    
     //作者与发布时间
     $("#author").html(board.broker.name);    //默认作者为board创建者
     $("#publish-time").html(board.updateDate.split(" ")[0]);   
+
     //摘要
     $("#content").html(board.description);
 
@@ -110,6 +124,8 @@ function showShareContent(){
     }
     if(bonusMax>0 && bonusMax > bonusMin){
         strBonus += "-"+parseFloat(Number(bonusMax).toFixed(1));
+    }else{
+        strBonus += " 起";
     }
     //console.log("try update bouns.",strBonus);
     $("#share-bonus").html(strBonus);
@@ -274,7 +290,7 @@ function insertBoardItem(){
     highlights += "</div>";
 
     var tags = "<div class='itemTags'>";
-    var taggingList = item.stuff.tagging.split(" ");
+    var taggingList = item.stuff.tagging?item.stuff.tagging.split(" "):[];
     for(var t in taggingList){
         var txt = taggingList[t];
         if(txt.trim().length>1 && txt.trim().length<6){

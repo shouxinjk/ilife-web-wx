@@ -103,7 +103,7 @@ function updateBoard(personaId){
         console.log("Broker::Board::UpdateBoard modify board successfully.", res)
         if(res.status){
             console.log("Broker::Board::UpdateBoard now jump to home page for item adding.", res)
-            $.cookie('board', null);  //保存后从cookie里删除修改状态的board
+            $.cookie('board', null,{ path: '/' });  //保存后从cookie里删除修改状态的board：注意需要和创建时保持路径一致
             window.location.href = "boards.html";//跳转到boards列表
             //window.location.href = "../board2.html?id="+boardId;//跳转到board查看界面
         }

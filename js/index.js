@@ -54,10 +54,16 @@ $(document).ready(function ()
     //加载关心的人
     loadPersons();
 
+    //加载达人信息
+    loadBrokerInfo();
+
     //加载filter并高亮
     loadFilters(filter);
     //高亮显示当前选中的filter
     //highlightFilter();
+
+    //显示清单分享浮框
+    showShareContent();
 
 //TODO：切换为复杂查询。需要在索引结构更新后进行
     //console.log("assemble", assembleEsQuery());     
@@ -65,6 +71,8 @@ $(document).ready(function ()
 });
 
 util.getUserInfo();//从本地加载cookie
+
+var broker = {};
 
 //加载board信息
 var boardId = null;
@@ -82,6 +90,11 @@ var tagging = ""; //当前目录关联的查询关键词，搜索时直接通过
 var filter = "";//通过filter区分好价、好物、附近等不同查询组合
 
 var categoryTagging = "";//记录目录切换标签，tagging = categoryTagging + currentPersonTagging
+
+//优先从cookie加载达人信息
+function loadBrokerInfo(){
+  broker = util.getBrokerInfo();
+}
 
 function highlightFilter(){
     if(filter=="byProfit"){
@@ -592,8 +605,11 @@ function getBoard(){
     var boardInfo = $.cookie('board');
     console.log("load board from cookie.",boardInfo);
     if(boardInfo && boardInfo.trim().length>0){
+        console.log("get board info from cookie.",boardInfo);
         var board = JSON.parse(boardInfo);
-        boardId = board.id;
+        boardId = board?board.id:null;
+    }else{
+      console.log("no board from cookie.",boardInfo);
     }
 }
 
@@ -1272,6 +1288,93 @@ function changeFilter(currentFilter){
     }
 }
 
+function showShareContent(){
+    console.log("start display board card.[boardId]"+boardId);
+    //默认隐藏，仅对达人开放显示
+    if(util.hasBrokerInfo()){
+        //显示浮框  
+        $("#share-box").toggleClass("share-box",true);
+        $("#share-box").toggleClass("share-box-hide",false);   
+        if(boardId && boardId.trim().length > 0){//如果已经有在编辑清单，则直接显示发布按钮
+          //分享链接：默认用图片列表形式
+          $("#share-instruction").html("选取商品并<br/>添加到清单");
+          $("#share-link").html("编辑&分享");
+          $("#share-link").attr("href","board2-waterfall.html?id="+boardId);
+          //设置提示
+          //$("#share-bonus").html("推广提示");       
+        }else{//否则显示创建按钮
+          //分享链接：默认用图片列表形式
+          $("#share-instruction").html("清单能够将多个商品<br/>一起打包推送");
+          $("#share-link").html("创建清单");
+          $("#share-link").click(function(event){//注册点击事件
+              if(broker.id){
+                createBoard();//直接建立一个清单
+              }else{
+                console.log("fatal error. there is no broker info. please check.......");
+              }
+              
+          });
+          //设置提示
+          //$("#share-bonus").html("推广提示");     
+        }
+    }else{
+        $("#share-bonus").toggleClass("share-bonus",false);
+        $("#share-bonus").toggleClass("share-bonus-hide",true);
+    }
+    /*
+    if(strBonus.length > 0){//显示佣金
+        $("#share-bonus").html("返￥"+strBonus);
+        $("#share-bonus").toggleClass("share-bonus",true);
+        $("#share-bonus").toggleClass("share-bonus-hide",false);  
+    }else{
+       $("#share-bonus").toggleClass("share-bonus",false);
+       $("#share-bonus").toggleClass("share-bonus-hide",true);        
+    }
+    //**/
+}
+
+//创建一个空白board并等待添加内容
+function createBoard(){
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    };     
+    var boardkeywords = "";
+    if(tagging && tagging.trim().length>0){//优先根据输入设置关键字
+      boardkeywords = tagging;
+    }else if(categoryTagging && categoryTagging.trim().length>0){//其次是分类标注
+      boardkeywords = categoryTagging;
+    }else if(currentPersonTagging && currentPersonTagging.trim().length>0){//再次是用户标注
+      boardkeywords = currentPersonTagging;
+    }
+    var data = {
+        broker:{
+            id:broker.id
+        },
+        title:broker?broker.name+" 的推荐清单":"新推荐清单",
+        description:"根据你的需求，我们精心挑选了以下清单，请查收",
+        tags:boardkeywords,
+        keywords:boardkeywords
+    };
+    util.AJAX(app.config.sx_api+"/mod/board/rest/board", function (res) {
+        console.log("Broker::Board::AddBoard create board successfully.", res)
+        if(res.status){
+            console.log("Broker::Board::AddBoard now jump to home page for item adding.", res)
+            $.cookie('board', JSON.stringify(res.data), { expires: 3650, path: '/' });  //把编辑中的board写入cookie便于添加item
+            //修改当前board信息
+            getBoard();
+            loadData();//重新加载数据：以便于显示“添加清单”按钮
+            showShareContent();//刷新分享按钮，提示分享
+            //显示提示浮框
+            $.toast({//浮框提示已添加成功
+                heading: '清单已创建',
+                text: '请选择商品添加到清单内',
+                showHideTransition: 'fade',
+                icon: 'success'
+            });            
+        }
+    }, "POST",data,header);
+}
 
 //显示正在加载提示
 function showloading(flag){

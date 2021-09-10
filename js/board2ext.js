@@ -455,7 +455,7 @@ function insertBoardItem(){
     highlights += "</div>";
 
     var tags = "<div class='itemTags'>";
-    var taggingList = item.stuff.tagging.split(" ");
+    var taggingList = item.stuff.tagging?item.stuff.tagging.split(" "):[];
     for(var t in taggingList){
         var txt = taggingList[t];
         if(txt.trim().length>1 && txt.trim().length<6){
