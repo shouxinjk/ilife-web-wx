@@ -127,8 +127,10 @@ var esQueryTemplate = JSON.stringify({
     }
   },
   "sort": [
+  /*
     { "_score":   { "order": "desc" }},
     { "@timestamp": { "order": "desc" }}
+    //**/
   ]   
 });
 
@@ -170,7 +172,16 @@ function buildTaggingQuery(keyword){
     return q;
 }
 
+
+var sortByScore = { "_score":   { "order": "desc" }};
+var sortByTimestamp = { "@timestamp":   { "order": "desc" }};
+
+var sortByPrice = { "price.sale":   { "nested_path" : "price","order": "asc" }};
+var sortByRank = { "rank.score":   { "nested_path" : "rank","order": "desc" }};
+var sortByProfit = { "profit.order":   { "nested_path" : "profit","order": "desc" }};
+
 //根据价格高低计算得分：价格越高，得分越低
+//注意：这里添加了数值检查，如果price.sale为0 则直接得分1
 var funcQueryByPrice = {
     "nested": {
       "path": "price",
@@ -178,7 +189,7 @@ var funcQueryByPrice = {
       "query": {
         "function_score": {
           "script_score": {
-            "script": "_score * (2-doc['price.sale'].value/(doc['price.bid'].value==0?doc['price.sale'].value:doc['price.bid'].value))"
+            "script": "_score * (doc['price.sale'].value==0?1:(2-doc['price.sale'].value/(doc['price.bid'].value==0?doc['price.sale'].value:doc['price.bid'].value)))"
           }
         }
       }
@@ -565,19 +576,26 @@ function buildEsQuery(){
     //添加排序规则：byRank/byPrice/byProfit/byDistance
     if(filter && filter.trim()=="byPrice"){//根据价格排序
         complexQuery.query.bool.should.push(funcQueryByPrice);
+        //complexQuery.sort.push(sortByPrice);
     }else if(filter && filter.trim()=="byDistance"){//根据位置进行搜索。优先从用户信息中获取经纬度，否则请求获取得到当前用户经纬度
         //TODO 需要使用当前选中的用户进行设置：如果选中的是画像怎么办？？
         funcQueryByDistance.function_score.functions[0].gauss.location.origin.lat = app.globalData.userInfo.location.latitude;
         funcQueryByDistance.function_score.functions[0].gauss.location.origin.lon = app.globalData.userInfo.location.longitude;
         complexQuery.query.bool.should.push(funcQueryByDistance);
     }else if(filter && filter.trim()=="byProfit"){//根据佣金排序
-        complexQuery.query.bool.should.push(funcQueryByProfit);
+        //complexQuery.query.bool.should.push(funcQueryByProfit);
+        complexQuery.sort.push(sortByProfit);
     }else if(filter && filter.trim()=="byRank"){//根据评价排序
-        complexQuery.query.bool.should.push(funcQueryByRank);
+        //complexQuery.query.bool.should.push(funcQueryByRank);
+        complexQuery.sort.push(sortByRank);
     }else{
         //do nothing
         console.log("Unsupport filter type.[filter]",filter);
     }
+
+    //默认根据得分及时间排序
+    complexQuery.sort.push(sortByScore);
+    complexQuery.sort.push(sortByTimestamp);
 
     //TODO 添加vals
     //TODO 添加cost
