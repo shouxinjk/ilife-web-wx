@@ -105,6 +105,11 @@ function generateQRcode(){
         if (res.status) {//获取短连接
             shortUrl = res.data.url;
         }
+        //bug修复：qrcode在生成二维码时，如果链接长度是192-217之间会导致无法生成，需要手动补齐
+        if(shortUrl.length>=192 && shortUrl.length <=217){
+            shortUrl += "&placehold=fix-qrcode-bug-url-between-192-217";
+        }
+        console.log("generate qrcode by short url.[length]"+shortUrl.length,shortUrl);
         var qrcode = new QRCode("app-qrcode-box");
         qrcode.makeCode(shortUrl);
         //开始生成海报图片
