@@ -152,3 +152,38 @@
   border-radius: 5px;
   color: white;
 }
+
+
+
+.add-new-wrapper{
+  width:97%;
+  display:flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;  
+  margin:2px auto;
+  vertical-align: middle;
+  border:1px solid #e3e2e1;
+  border-radius: 10px;
+  background-color: white;
+  min-height: 60px;
+}
+.add-new-title{
+  display: inline; 
+  font-size:16px;
+  font-weight: bold;
+  color:#514c49;
+  text-align: center;
+  margin:auto 0px;
+  vertical-align: middle;
+}
+.add-new-logo-wrapper{
+  width:20%;
+  display: inline; 
+  font-size:20px;
+  font-weight: bold;
+  color:#514c49;
+  text-align: center;
+  margin:auto 0px;
+  vertical-align: middle;
+}

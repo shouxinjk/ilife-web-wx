@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
     <link rel="stylesheet" type="text/css" href="css/broker.css">
-    <link rel="stylesheet" type="text/css" href="css/boards.css?v=1.1">
+    <link rel="stylesheet" type="text/css" href="css/boards.css?v=1.3">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -57,11 +57,17 @@
     </view>
 
     <div class="tips">
-        将多个商品放到一起，推广效果更好。<a id="filterBoardBtn" href="#">查看清单</a> &nbsp;&nbsp; <a id="createBoardBtn" href="#">新建清单</a>
+        将多个商品放到一起，推广效果更好。<a id="filterBoardBtn" href="#">查看清单</a><!--a id="createBoardBtn" href="#">新建清单</a-->
     </div> 
 
     <div id="Center">
-        <ul id="waterfall"></ul>
+        <ul id="waterfall">
+            <li><div class='add-new-wrapper' id='createBoardBtn'>
+                    <div class='add-new-logo-wrapper'>+</div>
+                    <div class='add-new-title'>添加新的清单</div>
+                </div>
+            </li>            
+        </ul>
     </div>
 
     <!-- 加载进度与提示 -->
@@ -98,5 +104,5 @@
 <script type="text/javascript" src="../ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
-<script type="text/javascript" src="js/boards.js?v=2.6"></script> 
+<script type="text/javascript" src="js/boards.js?v=2.7"></script> 
 </html>
