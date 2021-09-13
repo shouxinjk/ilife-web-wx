@@ -32,6 +32,9 @@ $(document).ready(function ()
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
+    //加载达人信息
+    loadBrokerInfo();
+
     loadPerson(currentPerson);//加载用户
 
     //注册事件：切换操作类型
@@ -85,6 +88,13 @@ var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;
 var userInfo=app.globalData.userInfo;//默认为当前用户
 
 var currentBroker = null;
+var broker = {};//当前达人
+
+//优先从cookie加载达人信息
+function loadBrokerInfo(){
+  broker = util.getBrokerInfo();
+  currentBroker = broker.id;
+}
 
 function registerTimer(brokerId){
     currentBroker = brokerId;
@@ -159,18 +169,33 @@ function insertItem(){
     var item = items[num-1];
     if(!item)return;
 
+    console.log("add board item.[current broker]"+currentBroker+"[board broker]"+item.broker.id+"[operation]"+(item.broker.id == currentBroker?"编辑":"克隆"));
+
     var image = "<img src='https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg' width='60' height='60'/>";
     var title = "<div class='title'>"+item.title+"</div>";
     var description = "<div class='description'>"+item.description+"</div>";
     var tags = "<div class='tags'>"+item.tags+"</div>";
-    var btns = "<div class='btns'><a href='../index.html?keyword="+item.keywords+"&boardId="+item.id+"'>添加商品</a>&nbsp;<a href='boards-modify.html?id="+item.id+"'>编辑</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享文字列表</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享图片列表</a></div>";
+    var btns = "<div class='btns'><a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享文字列表</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享图片列表</a></div>";
+    if(item.broker.id == currentBroker){
+        btns = "<div class='btns'><a href='../index.html?keyword="+item.keywords+"&boardId="+item.id+"'>添加商品</a>&nbsp;<a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享文字列表</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享图片列表</a></div>";
+    }
     $("#waterfall").append("<li><div class='task' data='"+item.id+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title+ tags +description+btns+"</div></li>");
     num++;
 
     //注册事件
     $("div[data='"+item.id+"']").click(function(){
-        //跳转到编辑界面
-        window.location.href = "boards-modify.html?id="+item.id;
+        //判断当前达人是否是board创建达人
+        if(item.broker.id == currentBroker){//如果是当前board创建达人，则直接跳转
+            window.location.href = "boards-modify.html?id="+item.id;            
+        }else{//否则，先克隆一个再编辑
+            console.log("try to clone board.[boardId]"+item.id+"[brokerId]"+currentBroker);
+            util.AJAX(app.config.sx_api+"/mod/board/rest/board/clone/"+item.id+"/"+currentBroker, function (res) {
+                console.log("clone broker successfully.",res);
+                //跳转到编辑界面
+                window.location.href = "boards-modify.html?id="+res.data.id;    
+            },"POST",null,{ "Content-Type":"application/json" });
+        }
+
     });
 
     // 表示加载结束

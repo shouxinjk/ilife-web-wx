@@ -39,6 +39,9 @@ $(document).ready(function ()
     }
     //**/
 
+    //加载达人信息
+    loadBrokerInfo();
+
     //加载内容
     loadBoard(id); 
     //加载清单item列表
@@ -46,10 +49,7 @@ $(document).ready(function ()
 
     //加载导航和关注列表
     loadCategories(category);  
-
-    //加载达人信息
-    loadBrokerInfo();
-    
+ 
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -93,10 +93,19 @@ var boardItemTemplate = '<div class="board-item-wrapper">'+
 //将board内容显示到页面
 function showContent(board){
     //标题
-    if(broker && broker.id == board.broker.id){
+    console.log("display edit button.[current broker id]"+broker.id+"[board broker id]"+board.broker.id);
+    if(broker && broker.id == board.broker.id){//如果是当前达人则可以直接修改
         $("#title").html(board.title+"&nbsp;&nbsp;<a class='board-modify-btn' style='color:#006cfd;' href='broker/boards-modify.html?id="+board.id+"'>修改</a>");
-    }else{
-        $("#title").html(board.title);
+    }else{//否则先克隆后再需改
+        $("#title").html(board.title+"&nbsp;&nbsp;<a id='cloneBoardBtn' class='board-modify-btn' style='color:#006cfd;'>克隆</a>");
+        $("#cloneBoardBtn").click(function(){
+            console.log("try to clone board.[boardId]"+board.id+"[brokerId]"+broker.id);
+            util.AJAX(app.config.sx_api+"/mod/board/rest/board/clone/"+board.id+"/"+broker.id, function (res) {
+                console.log("clone broker successfully.",res);
+                //跳转到编辑界面
+                window.location.href = "broker/boards-modify.html?id="+res.data.id;    
+            },"POST",null,{ "Content-Type":"application/json" });            
+        });
     }
     
     //作者与发布时间
