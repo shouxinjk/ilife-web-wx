@@ -18,6 +18,8 @@ $(document).ready(function ()
         width: columnWidth,
         delay: 100,
     });
+    //加载达人信息
+    loadBrokerInfo();    
     //判定是否有编辑中的board
     getBoard();//先从cookie内加载
     if(args["boardId"]){//如果参数中有boardId则优先使用
@@ -53,9 +55,6 @@ $(document).ready(function ()
 
     //加载关心的人
     loadPersons();
-
-    //加载达人信息
-    loadBrokerInfo();
 
     //加载filter并高亮
     loadFilters(filter);
@@ -1369,7 +1368,7 @@ function createBoard(){
         broker:{
             id:broker.id
         },
-        title:broker?broker.name+" 的推荐清单":"新推荐清单",
+        title:broker&&broker.name?broker.name+" 的推荐清单":"新的推荐清单",
         description:"根据你的需求，我们精心挑选了以下清单，请查收",
         tags:boardkeywords,
         keywords:boardkeywords
