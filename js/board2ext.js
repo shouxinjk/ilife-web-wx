@@ -86,10 +86,18 @@ function showPostMask(){
 //生成短连接及二维码
 function generateQRcode(){
     var longUrl = window.location.href.replace(/board2ext/g,boardType).replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
+    //添加分享达人
     if(broker && broker.id){
         longUrl += "&fromBroker="+broker.id;
+    }else{
+        longUrl += "&fromBroker=system";
     }
-    longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:"");
+    //添加分享用户
+    if( app.globalData.userInfo && app.globalData.userInfo._key){
+        longUrl += "&fromUser="+app.globalData.userInfo._key;
+    }else{
+        longUrl += "&fromUser=system";
+    }
     var header={
         "Content-Type":"application/json"
     };
@@ -99,6 +107,11 @@ function generateQRcode(){
         if (res.status) {//获取短连接
             shortUrl = res.data.url;
         }
+        //bug修复：qrcode在生成二维码时，如果链接长度是192-217之间会导致无法生成，需要手动补齐
+        if(shortUrl.length>=192 && shortUrl.length <=217){
+            shortUrl += "&placehold=fix-qrcode-bug-url-between-192-217";
+        }
+        console.log("generate qrcode by short url.[length]"+shortUrl.length,shortUrl);
         var qrcode = new QRCode("app-qrcode-box");
         qrcode.makeCode(shortUrl);
     }, "POST", { "longUrl": longUrl },header);    
