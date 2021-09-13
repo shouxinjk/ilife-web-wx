@@ -43,6 +43,21 @@ $(document).ready(function ()
     $("#createBoardBtn").click(function(e){
         createBoard();
     });
+    
+    //修改过滤按钮文字
+    if(filter=="all"){
+        $("#filterBoardBtn").html("只看我的");
+    }else{
+        $("#filterBoardBtn").html("查看全部");
+    }
+    //过滤清单列表：仅显示自己的清单，或显示所有清单
+    $("#filterBoardBtn").click(function(e){
+        if(filter=="all"){
+            window.location.href = "boards.html?filter=my";
+        }else{
+            window.location.href = "boards.html?filter=all";
+        }
+    });
 
 });
 
@@ -54,7 +69,7 @@ var loading = false;
 var dist = 500;
 var num = 1;//需要加载的内容下标
 
-var filter = "byBroker";//byBroker、all。数据查询规则：默认为根据BrokerId查询，可以为查询全部
+var filter = "all";//my、all。数据查询规则：默认为查询全部
 
 var items = [];//所有画像列表
 var page = {
