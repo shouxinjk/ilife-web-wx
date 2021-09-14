@@ -96,7 +96,8 @@ function updateBoard(personaId){
     var data = {
         title:$("#boardTitle").val(),
         description:$("#boardDescription").val(),
-        tags:$("#boardTags").val(),
+        //tags:$("#boardTags").val(),
+        tags:$("#boardKeywords").val(),//tags直接用keywords
         keywords:$("#boardKeywords").val()
     };
     util.AJAX(app.config.sx_api+"/mod/board/rest/board/"+boardId, function (res) {
@@ -167,7 +168,7 @@ function loadBoard(boardId){
 function displayBoard(board){
     $("#boardTitle").val(board.title?board.title:"");
     $("#boardDescription").val(board.description?board.description:"");
-    $("#boardTags").val(board.tags?board.tags:"");
+    //$("#boardTags").val(board.tags?board.tags:"");
     $("#boardKeywords").val(board.keywords?board.keywords:"");
 }
 
