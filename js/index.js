@@ -1377,7 +1377,9 @@ function createBoard(){
         console.log("Broker::Board::AddBoard create board successfully.", res)
         if(res.status){
             console.log("Broker::Board::AddBoard now jump to home page for item adding.", res)
-            $.cookie('board', JSON.stringify(res.data), { expires: 3650, path: '/' });  //把编辑中的board写入cookie便于添加item
+            var expDate = new Date();
+            expDate.setTime(expDate.getTime() + (15 * 60 * 1000)); // 15分钟后自动失效：避免用户不主动修改
+            $.cookie('board', JSON.stringify(res.data), { expires: expDate, path: '/' });  //把编辑中的board写入cookie便于添加item
             //修改当前board信息
             getBoard();
             loadData();//重新加载数据：以便于显示“添加清单”按钮
