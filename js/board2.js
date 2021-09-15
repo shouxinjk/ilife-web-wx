@@ -90,7 +90,7 @@ function showContent(board){
     console.log("display edit button.[current broker id]"+broker.id+"[board broker id]"+board.broker.id);
     if(broker && broker.id == board.broker.id){//如果是当前达人则可以直接修改
         $("#title").html(board.title+"&nbsp;&nbsp;<a class='board-modify-btn' style='color:#006cfd;' href='broker/boards-modify.html?id="+board.id+"'>修改</a>");
-    }else{//否则先克隆后再需改
+    }else if(broker && broker.id){//如果不是编辑达人，则先克隆后再需改
         $("#title").html(board.title+"&nbsp;&nbsp;<a id='cloneBoardBtn' class='board-modify-btn' style='color:#006cfd;'>克隆</a>");
         $("#cloneBoardBtn").click(function(){
             console.log("try to clone board.[boardId]"+board.id+"[brokerId]"+broker.id);
@@ -100,6 +100,8 @@ function showContent(board){
                 window.location.href = "broker/boards-modify.html?id="+res.data.id;    
             },"POST",null,{ "Content-Type":"application/json" });            
         });
+    }else{//普通用户则只显示标题
+        $("#title").html(board.title);
     }
 
     //作者与发布时间

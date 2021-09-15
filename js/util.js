@@ -248,6 +248,7 @@ function logstash(item,client,action,fromUser="",fromBroker="",fn){//记录日�
             "Accept":"application/vnd.kafka.v2+json"
         },
         success:function(result){
+            console.log("user action comitted.",result);
             fn(result);
         }
     })            
