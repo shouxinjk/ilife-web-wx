@@ -90,6 +90,10 @@ var userInfo=app.globalData.userInfo;//默认为当前用户
 var currentBroker = null;
 var broker = {};//当前达人
 
+var sxTimer = null;
+var sxStartTimestamp=new Date().getTime();//定时器如果超过2分
+var sxLoopCount = 100;//定时器运行100次即停止，即3秒
+
 //优先从cookie加载达人信息
 function loadBrokerInfo(){
   broker = util.getBrokerInfo();
@@ -98,7 +102,7 @@ function loadBrokerInfo(){
 
 function registerTimer(brokerId){
     currentBroker = brokerId;
-    setInterval(function ()
+    sxTimer = setInterval(function ()
     {
         console.log("Timer Boards::registerTimer start load boards Timer.");
         if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
@@ -116,11 +120,25 @@ function registerTimer(brokerId){
                 }else{
                     loadItemsByBroker();
                 }
+
+                //有用户操作则恢复计数器
+                console.log("reset loop count.");
+                sxLoopCount = 100;                
             }else{//否则使用本地内容填充
                 insertItem();
             }
         }
+
+        //计数器自减，到时即停止
+        if(--sxLoopCount<0){
+            unregisterTimer();
+        }
     }, 300);
+}
+
+function unregisterTimer(){
+    console.log("clear timer.");
+    clearInterval(sxTimer);
 }
 
 //加载特定于达人的任务列表
@@ -167,7 +185,10 @@ function loadAllItems(){
 function insertItem(){
     // 加载内容
     var item = items[num-1];
-    if(!item)return;
+    if(!item){
+        shownomore(true);
+        return;
+    }
 
     console.log("add board item.[current broker]"+currentBroker+"[board broker]"+item.broker.id+"[operation]"+(item.broker.id == currentBroker?"编辑":"克隆"));
 
@@ -256,6 +277,7 @@ function insertBroker(broker){
 //显示没有更多内容
 function shownomore(flag){
   if(flag){
+    unregisterTimer();
     $("#footer").toggleClass("footer-hide",false);
     $("#footer").toggleClass("footer-show",true);
   }else{
