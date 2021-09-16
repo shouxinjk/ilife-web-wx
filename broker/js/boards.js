@@ -92,7 +92,7 @@ var broker = {};//当前达人
 
 var sxTimer = null;
 var sxStartTimestamp=new Date().getTime();//定时器如果超过2分
-var sxLoopCount = 100;//定时器运行100次即停止，即3秒
+var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
 
 //优先从cookie加载达人信息
 function loadBrokerInfo(){
