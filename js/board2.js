@@ -124,10 +124,14 @@ function showContent(board){
 function showShareContent(){
     var strBonus = "";
     if(bonusMin>0){
-        strBonus += "返￥"+parseFloat(new Number(bonusMin).toFixed(1));
+        strBonus += "返￥"+(parseFloat(new Number(bonusMin).toFixed(1))>0?parseFloat(new Number(bonusMin).toFixed(1)):parseFloat(new Number(bonusMin).toFixed(2)));
     }
     if(bonusMax>0 && bonusMax > bonusMin){
         strBonus += "-"+parseFloat(Number(bonusMax).toFixed(1));
+    }else if(bonusMin>0){
+        strBonus += " 起";
+    }else{
+        strBonus += "推广积分";
     }
 
     $("#share-bonus").html(strBonus);

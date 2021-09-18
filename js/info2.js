@@ -173,7 +173,9 @@ function showShareContent(){
 
     var strBonus = "";
     if(bonus>0){
-        strBonus += "返￥"+(parseFloat((Math.floor(bonus*10)/10).toFixed(1)));
+        strBonus += "返￥"+(parseFloat((Math.floor(bonus*10)/10).toFixed(1))>0?parseFloat((Math.floor(bonus*10)/10).toFixed(1)):parseFloat((Math.floor(bonus*10)/10).toFixed(2)));
+    }else{
+        strBonus = "推广积分";
     }
     //if(strBonus.length > 0){//所有商品都显示分享卡片
         $("#share-bonus").html(strBonus);
