@@ -453,11 +453,29 @@ function updateBrokerCpsLink(item,brokerId,cpsLink) {
     var data = {link:{cps:cps}};
     var url = app.config.data_api +"/_api/document/my_stuff/"+item._key;
     if (app.globalData.isDebug) console.log("Info2::updateItem update item with broker cps link.[itemKey]"+item._key,data);
-    util.AJAX(url, function (res) {
-      if (app.globalData.isDebug) console.log("Info2::updateItem update item finished.", res);
-      //跳转到cps地址
-      window.location.href = cpsLink;
-    }, "PATCH", data, header);
+    $.ajax({
+        url:url,
+        type:"PATCH",
+        data:JSON.stringify(data),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
+        headers:header,
+        timeout:2000,//设置超时
+        success:function(res){//正确返回则跳转到返回地址
+          if (app.globalData.isDebug) console.log("Info2::updateItem update item finished.", res);
+          //跳转到cps地址
+          window.location.href = cpsLink;
+        },
+        complete: function (XMLHttpRequest, textStatus) {//调用执行后调用的函数
+            if(textStatus == 'timeout'){//如果是超时，则直接跳转到cps地址，忽略更新stuff失败
+              console.log("ajax timeout. jump to cps link directly.",textStatus);
+              window.location.href = cpsLink;
+            }
+        },
+        error: function () {//调用出错执行的函数
+            console.log("error occured while update cps link to stuff. jump to cps link directly.");
+            window.location.href = cpsLink;
+          }
+
+    });
 }
 
 /*
