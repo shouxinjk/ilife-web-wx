@@ -352,7 +352,7 @@ function loadBrokerByOpenid(openid) {
         if (res.status) {
             broker = res.data;    
             //填写清单信息
-            $("#broker-name").html(broker.name+ " 推荐");    //默认作者为当前broker    
+            $("#broker-name").html((broker.name?broker.name:app.globalData.userInfo.nickName)+ " 推荐");    //默认作者为当前broker    
             if(stuff&&stuff.link&&stuff.link.qrcode){//直接用原始二维码图片
                 show3rdPartyPost();
             }else{//生成达人专属二维码，并在二维创建后生成海报

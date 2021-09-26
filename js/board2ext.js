@@ -111,7 +111,7 @@ function generateQRcode(){
 
 //将board内容显示到页面
 function showContent(board){
-    $("#broker-name").html(board.broker.name+ " 推荐");    //默认作者为board创建者
+    $("#broker-name").html((board.broker.name?board.broker.name:app.globalData.userInfo.nickName)+ " 推荐");    //默认作者为board创建者
     $("#shop-name").html(board.title); //店铺名称
     //logo：注意使用代理避免跨域问题
     preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表

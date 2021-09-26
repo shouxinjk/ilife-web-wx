@@ -111,7 +111,7 @@ function showContent(board){
     }
     
     //作者与发布时间
-    $("#author").html(board.broker.name);    //默认作者为board创建者
+    $("#author").html(board.broker.name?board.broker.name:app.globalData.userInfo.nickName);    //默认作者为board创建者
     $("#publish-time").html(board.updateDate.split(" ")[0]);   
 
     //摘要
