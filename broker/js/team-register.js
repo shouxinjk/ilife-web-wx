@@ -55,7 +55,7 @@ var newBroker = {
     phone: "",
     hierarchy: "3",
     level: "推广达人",
-    status: "active",
+    status: "ready",
     upgrade: "无"
 };
 
