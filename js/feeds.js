@@ -60,15 +60,15 @@ var page = {//翻页控制
 
 var actionTypes = {
   view:"看了",
-  share:"推荐",
+  share:"分享",
   "share-post":"海报分享",
   "share appmsg":"微信分享",
   "share timeline":"朋友圈分享",
-  "buy-step1":"逛了",
-  "buy-step2":"买了",
-  buy:"准备买",
+  "buy step1":"很感兴趣",
+  "buy step2":"准备剁手",
+  buy:"拔草",
   favorite:"种草",
-  like:"赞了"
+  like:"喜欢"
 };
 
 var persons = [];
