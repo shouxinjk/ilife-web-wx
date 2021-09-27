@@ -286,7 +286,7 @@ function requestQRcode(broker) {
 //显示二维码
 function showContent(url) {
     $("#broker-name").html(app.globalData.userInfo.nickName+ " 邀请");    //默认作者为board创建者
-    $("#shop-name").html("和好友一起推广，一起赚钱，一起用小确幸填满大生活"); //店铺名称
+    $("#shop-name").html("分享赚钱，自购省钱<br/>一起用小确幸填满大生活"); //店铺名称
     //$("#content").html("用小确幸填满大生活"); //店铺名称
     //logo：注意使用代理避免跨域问题
     //preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
