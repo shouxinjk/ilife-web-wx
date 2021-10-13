@@ -326,11 +326,14 @@ function createBoard(){
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     };     
+    var authorName = app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName:null;
+    if(currentBroker&&currentBroker.name)
+        authorName = currentBroker.name;
     var data = {
         broker:{
             id:currentBroker
         },
-        title:currentBroker&&currentBroker.name?currentBroker.name+" 的推荐清单":"新推荐清单",
+        title:authorName?authorName+" 的推荐清单":"新推荐清单",
         description:"根据你的需求，我们精心挑选了以下清单，请查收",
         tags:"",
         keywords:""

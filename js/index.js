@@ -1368,7 +1368,8 @@ function createBoard(){
         broker:{
             id:broker.id
         },
-        title:broker&&broker.name?broker.name+" 的推荐清单":"新的推荐清单",
+        title:app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName+" 的推荐清单":"新的推荐清单",
+        //title:broker&&broker.name?broker.name+" 的推荐清单":"新的推荐清单",
         description:"根据你的需求，我们精心挑选了以下清单，请查收",
         tags:boardkeywords,
         keywords:boardkeywords
