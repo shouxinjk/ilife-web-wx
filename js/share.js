@@ -14,12 +14,13 @@ $(document).ready(function ()
 
     ////多站点处理：start//////////////////////////////////
     //由于存在多个网站，需要根据toSite参数区分重定向地址：
+    /**
     var toSite = getQuery()["toSite"];//获取toSite参数，如果为空则不做处理
     if(toSite && toSite =="shouxinjk"){//如果是京东，则跳转到shouxinjk.net
         redirect_uri="http://www.shouxinjk.net/ilife-web-wx/dispatch.html";
     }
     ////多站点处理：end////////////////////////////////////
-
+    //**/
 
     var response_type="code";
     var scope="snsapi_base";//静默授权，只需要获取openid

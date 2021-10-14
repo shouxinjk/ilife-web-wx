@@ -342,6 +342,27 @@ function showContent(item){
         //do nothing
     });      
     //*/
+    
+    //分享海报日志
+    //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system
+    var shareBrokerId = "system";//默认为平台直接分享
+    if(broker&&broker.id){//如果当前分享用户本身是达人，则直接引用其自身ID
+        shareBrokerId=broker.id;
+    }else if(fromBroker && fromBroker.trim().length>0){//如果当前用户不是达人，但页面带有前述达人，则使用前述达人ID
+        shareBrokerId=fromBroker;
+    }
+    //计算分享用户：如果是注册用户则使用当前用户，否则默认为平台用户
+    var shareUserId = "system";//默认为平台直接分享
+    if(tmpUser&&tmpUser.trim().length>0){//如果是临时用户进行记录。注意有时序关系，需要放在用户信息检查之前。
+        shareUserId = tmpUser;
+    }
+    if(app.globalData.userInfo && app.globalData.userInfo._key){//如果为注册用户，则使用当前用户
+        shareUserId = app.globalData.userInfo._key;
+    }    
+    logstash(stuff,"mp","share poster",shareUserId,shareBrokerId,function(res){
+        console.log("分享海报",res);
+    }); 
+
 }
 
 //根据openid查询加载broker

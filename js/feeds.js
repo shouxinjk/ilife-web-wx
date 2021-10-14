@@ -61,7 +61,8 @@ var page = {//翻页控制
 var actionTypes = {
   view:"看了",
   share:"分享",
-  "share-post":"海报分享",
+  "share poster":"海报分享",
+  "share board poster":"清单海报分享",
   "share appmsg":"微信分享",
   "share timeline":"朋友圈分享",
   "buy step1":"很感兴趣",
