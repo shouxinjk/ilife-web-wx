@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />  
+    <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css"> 
+    <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css?v=4.7">
+    <link rel="stylesheet" type="text/css" href="css/waterfall.css">   
+    <link rel="stylesheet" type="text/css" href="css/index.css?v=2.0">
+</head>
+
+<body>
+    <div class="header">
+        <div class="search">
+            <span style="margin-left:-10px">&nbsp;</span>
+            <input id="searchTxt" placeholder="🔍 Life is all about having a good time"><a id="findAll" class="searchBtn">搜索</a><a id="findByDistance" data="Distance" class="searchBtn">附近</a><a id="findByPrice" data="Price" class="searchBtn">好价</a><a id="findByRank" data="Rank" class="searchBtn">好物</a><a id="findByProfit" data="Profit" class="searchBtn-hide">高佣</a>        
+        </div>       
+    </div>
+
+    <!-- 关联用户 -->
+    <div class="swiper-container menus">
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper btn-area" id="persons">
+
+        </div>
+    </div>    
+    <!--div class="swiper-placeholder"></div-->
+
+    <!-- 关联类目及主题 -->
+    <div class="nav">
+        <ul class="navUl">
+        </ul>
+    </div>   
+
+    <div id="no-results-tip" class="no-result-tip-hide">没找到符合条件的内容，请重新搜索</div>
+
+    <div id="Center">
+        <ul id="waterfall"></ul>
+    </div>
+
+    <div id="footer" class="footer">
+        <button class="btn btn-default findMoreBtn-hide" id="findMoreBtn">搜索更多</button>
+    </div>   
+
+    <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
+
+    <!-- 分享按钮 -->
+    <div id="share-box" class="share-box-hide">
+        <div id="share-tips" class="share-tips">达人分享</div>
+        <div id="share-bonus" class="share-bonus"></div>
+        <div id="share-btn" class="share-btn">
+            <div id="share-instruction">清单分享更高效</div>
+            <a id="share-link" href="#">&nbsp;&nbsp;立即分享&nbsp;&nbsp;</a>
+        </div>
+    </div>  
+
+  <!--div id="sx-menu">
+    <a href="index.html" class="menu-btn">
+        <img src="images/smile-happy-selected.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt-selected">&nbsp;推荐</div>
+    </a>
+    <a href="feeds.html" class="menu-btn">
+        <img src="images/biglist.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;发现</div>
+    </a>
+    <a href="user.html" class="menu-btn">
+        <img src="images/my.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;我</div>
+    </a>        
+  </div-->
+      
+</body>
+
+<script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="js/newWaterfall.js"></script>
+<script type="text/javascript" src="js/swiper.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
+<script type="text/javascript" src="js/util.js?v=2.4"></script>
+<script type="text/javascript" src="js/index_mp.js?v=2.2"></script>
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script> 
+</html>

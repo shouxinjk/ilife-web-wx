@@ -26,7 +26,7 @@ var util = new Object();
 util.hasUserInfo =function (){
   util.getUserInfo();//从cookie读取存储的UserInfo
   if (app.globalData.userInfo) {
-    return app.globalData.userInfo.country.length>0;
+    return app.globalData.userInfo._key.length>0;
   } else {
     return false;
   }
