@@ -697,10 +697,11 @@ function insertItem(){
     var copyBtns = "";
     //copyBtns = "<div  style='width:100%;margin:auto;display:flex;flex-direction: row;align-items: center;'>";
     //
-    //copyBtns += "<div style='margin:0;line-height:10px;'><a href='#' class='boardOption' style='color:#ccc'>请选择卡片样式:</a></div>";
-    copyBtns += "<div style='margin:0;line-height:10px;margin-left:15px;'><a  id='copy-imageText"+item._key+"' data-item='"+item._key+"' class='boardOption'>图文卡片</a></div>";
-    copyBtns += "<div style='margin:0;line-height:10px;margin-left:5px;'><a  id='copy-banner"+item._key+"' data-item='"+item._key+"' class='boardOption'>横幅卡片</a></div>";
-    copyBtns += "<div style='margin:0;line-height:10px;margin-left:5px;'><a  id='copy-square"+item._key+"' data-item='"+item._key+"' class='boardOption'>方形卡片</a></div>";
+    copyBtns += "<div style='margin:0;line-height:10px;margin-left:15px;'><a  id='copy-imageText"+item._key+"' data-item='"+item._key+"' class='boardOption'>图文</a></div>";
+    copyBtns += "<div style='margin:0;line-height:10px;margin-left:5px;'><a  id='copy-banner"+item._key+"' data-item='"+item._key+"' class='boardOption'>横幅</a></div>";
+    copyBtns += "<div style='margin:0;line-height:10px;margin-left:5px;'><a  id='copy-square"+item._key+"' data-item='"+item._key+"' class='boardOption'>方形</a></div>";
+    copyBtns += "<div style='margin:0;line-height:10px;margin-left:5px;'><a  id='copy-textLink"+item._key+"' data-item='"+item._key+"' class='boardOption'>文字链接</a></div>";
+    copyBtns += "<div style='margin:0;line-height:10px;margin-left:5px;'><a  id='copy-url"+item._key+"' data-item='"+item._key+"' class='boardOption'>仅链接</a></div>";
     //copyBtns += "</div>";
 
     var cardHtml = "";
@@ -786,6 +787,20 @@ function insertItem(){
               cardHtml += "</div>"; 
             cardHtml += "</div>";
         /////////////结束：方形卡片样式///////////
+
+
+        /////////////文字链接：只需要把文字写上就行了///////////
+         cardHtml += "<div id='textLink"+item._key+"' style='width:90%;display:none;'>";
+         cardHtml += "【"+item.distributor.name+"】"+item.title;
+         cardHtml += "</div>";
+        /////////////结束：文字链接样式///////////
+
+        /////////////单独链接：啥也不用写：会直接忽略的///////////
+         cardHtml += "<div id='url"+item._key+"' style='width:90%;display:none;'>";
+         cardHtml += "【"+item.distributor.name+"】"+item.title;
+         cardHtml += "</div>";
+        /////////////结束：文字链接样式///////////
+
       cardHtml += "</div>";
       //操作按钮
       cardHtml += "<div id='cardWrapper"+item._key+"' style='width:98%;padding-left:10px;display:flex;flex-direction: row;align-items: left;'>";
@@ -827,12 +842,30 @@ function insertItem(){
     //注册事件：copy方形卡片：小程序样式
     $("#copy-square"+item._key).click(function(){
         console.log("trigger copy event");
-        pendingCopyCardType = "square";//修改卡片类型为banner
+        pendingCopyCardType = "square";//修改卡片类型为square
         pendingCopyItem = item._key;//修改当前选中item
         //获取CPS链接，并触发拷贝事件
         checkCpsLink(item);
         //document.execCommand("copy");//触发拷贝事件
     });
+
+    //注册事件：copy文字链接
+    $("#copy-textLink"+item._key).click(function(){
+        console.log("trigger copy event");
+        pendingCopyCardType = "textLink";//修改为textLink
+        pendingCopyItem = item._key;//修改当前选中item
+        //获取CPS链接，并触发拷贝事件
+        checkCpsLink(item);
+    });
+
+    //注册事件：copy链接
+    $("#copy-url"+item._key).click(function(){
+        console.log("trigger copy event");
+        pendingCopyCardType = "url";//修改类型为url
+        pendingCopyItem = item._key;//修改当前选中item
+        //获取CPS链接，并触发拷贝事件
+        checkCpsLink(item);
+    });    
 
     // 表示加载结束
     loading = false;
@@ -861,6 +894,11 @@ function copyItem(event){
     htmlWithLink += '<a href="https://www.biglistoflittlethings.com/ilife-web-wx/bridge.html?url='+encodeURIComponent(pendingItemCpsLink)+'">';    
     htmlWithLink += cardhtml;
     htmlWithLink += '</a>';
+
+    //对于拷贝URL进行特殊处理
+    if(pendingCopyCardType=="url"){
+      htmlWithLink = 'https://www.biglistoflittlethings.com/ilife-web-wx/bridge.html?url='+encodeURIComponent(pendingItemCpsLink); 
+    }
     console.log("copy html with link to clipboard.",htmlWithLink);
     event.clipboardData.setData('text/html', htmlWithLink);
 
