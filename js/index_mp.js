@@ -63,6 +63,7 @@ var from = "mp";//链接来源，默认为公众号进入
 var fromUser = "";
 
 //记录当前拷贝的item
+var pendingCopyCardType = "imageText";//默认为图文卡片
 var pendingCopyItem = "";
 var pendingItemCpsLink = "";//记录拷贝时item的CPS链接
 //使用代理避免跨域问题。后端将代理到指定的URL地址。使用https
@@ -633,16 +634,20 @@ function insertItem(){
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
     var image = "<img src='"+imgPrefix+item.images[0]+"' width='"+imgWidth+"' height='"+imgHeight+"' style='margin:0 auto'/>"
     //var tagTmpl = "<strong style='white-space:nowrap;display:inline-block;border:1px solid #8BC34A;background-color: #8BC34A;color:white;font-weight: bold;font-size: 10px;text-align: center;border-radius: 5px;margin-left:2px;margin-right:1px;margin-top:-2px;padding:2px;vertical-align:middle;'>__TAG</strong>";
-    var highlights = "<div class='itemTags' style='line-height: 12px;vertical-align: middle;'>";
-    highlights += "<strong style='font-size:12px;font-weight: bold;background-color: white;color:darkred;padding:2px;line-height: 18px;vertical-align:middle;'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</strong>";
-    if(item.price.coupon>0){
-        highlights += "<span class='couponTip' style='font-size:12px;font-weight: bold;color:#fe4800;margin-left:2px;line-height: 18px;vertical-align:middle;'>券</span><span class='coupon' href='#' style='font-size:12px;font-weight: bold;color:#fe4800;line-height: 18px;vertical-align:middle;'>"+item.price.coupon+"</span>";
+    var highlights = "<div class='itemTags' style='line-height: 18px;'>";
+    var prices = "";
+    prices += "<strong style='font-size:14px;font-weight: bold;background-color: white;color:darkred;padding:2px;'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</strong>";
+    if(item.price.coupon>0&&item.price.coupon<item.price.sale){//有些券金额比售价还高，不显示
+        prices += "<strong style='font-size:14px;font-weight: bold;color:#fe4800;margin-left:2px;'>券</strong><strong href='#' style='font-size:14px;font-weight: bold;color:#fe4800;'>"+item.price.coupon+"</strong>";
     }    
-    //distributor
-    //highlights += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);//.replace("itemTag","itemTagDistributor");
-    highlights += "<strong class='itemTag' href='#' style='font-size:12px;font-weight: bold;background-color: white;color:darkgreen;padding:2px;line-height: 18px;vertical-align:middle;'>"+item.distributor.name+"</strong>";
-
+    //购买按钮
+    var buyButton = "<strong style='float:right;margin-right:10px;background-color:darkred;color:white;text-align:right;padding-left:5px;padding-right:5px;font-size:14px;border-radius:3px;' id='view-"+item._key+"' data-item='"+item._key+"'>去看看</strong>";
     highlights += "</div>";
+
+    //distributor
+    var distributor = "<div><strong class='itemTag' href='#' style='font-size:13px;font-weight: bold;background-color: white;color:darkgreen;padding:2px;line-height: 18px;vertical-align:middle;border:0'>"+item.distributor.name+"</strong></div>";
+
+
 
     var profitTags = "";
     if(util.hasBrokerInfo()){//如果是推广达人则显示佣金
@@ -650,15 +655,15 @@ function insertItem(){
         if(item.profit&&item.profit.type=="3-party"){//如果已经存在则直接加载
           if(item.profit&&item.profit.order){
               profitTags += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span></div>";
-              if(item.profit&&item.profit.team&&item.profit.team>0.1)profitTags += "<div class='itemTags profit-show' style='margin:0;margin-top:2px;'><span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.profit.team*10)/10).toFixed(1)))+"</span></div>";
+              if(item.profit&&item.profit.team&&item.profit.team>0.1)profitTags += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.profit.team*10)/10).toFixed(1)))+"</span></div>";
           }else if(item.profit&&item.profit.credit&&item.profit.credit>0){
-              profitTags += "<div class='itemTags profit-show' style='margin:0;margin-top:2px;'><span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(item.profit.credit*10)/10).toFixed(0)))+"</span></div>";
+              profitTags += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(item.profit.credit*10)/10).toFixed(0)))+"</span></div>";
           }
         }else if(item.profit && item.profit.type=="2-party"){//如果是2方分润则请求计算
-            profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide' style='margin-bottom:0;'></div>";
+            //profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide' style='margin-bottom:0;'></div>";
             getItemProfit2Party(item);
         }else{//表示尚未计算。需要请求计算得到该item的profit信息
-            profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide' style='margin-bottom:0;'></div>";
+            //profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide' style='margin-bottom:0;'></div>";
             getItemProfit(item);
         }
     }
@@ -686,37 +691,109 @@ function insertItem(){
     }
     tags += "</div>";
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
-    var title = "<div class='title' style='font-weight:bold;font-size:12px;line-height: 14px;'>"+item.title+"</div>"
+    var title = "<div class='title' style='font-weight:bold;font-size:11px;line-height: 16px;'>"+item.title+"</div>"
 
     //增加拷贝按钮、查看详情按钮
-    var boartBtns = "";
-    //boartBtns = "<div  style='width:100%;margin:auto;display:flex;flex-direction: row;align-items: center;'>";
-    boartBtns += "<div style='margin:0;line-height:10px;'><a  id='view-"+item._key+"' data-item='"+item._key+"' class='boardOption'>查看详情</a></div>";
-    boartBtns += "<div style='margin:0;line-height:10px;'><a  id='copy-"+item._key+"' data-item='"+item._key+"' class='boardOption'>拷贝卡片</a></div>";
-    //boartBtns += "</div>";
+    var copyBtns = "";
+    //copyBtns = "<div  style='width:100%;margin:auto;display:flex;flex-direction: row;align-items: center;'>";
+    //
+    //copyBtns += "<div style='margin:0;line-height:10px;'><a href='#' class='boardOption' style='color:#ccc'>请选择卡片样式:</a></div>";
+    copyBtns += "<div style='margin:0;line-height:10px;margin-left:15px;'><a  id='copy-imageText"+item._key+"' data-item='"+item._key+"' class='boardOption'>图文卡片</a></div>";
+    copyBtns += "<div style='margin:0;line-height:10px;margin-left:5px;'><a  id='copy-banner"+item._key+"' data-item='"+item._key+"' class='boardOption'>横幅卡片</a></div>";
+    copyBtns += "<div style='margin:0;line-height:10px;margin-left:5px;'><a  id='copy-square"+item._key+"' data-item='"+item._key+"' class='boardOption'>方形卡片</a></div>";
+    //copyBtns += "</div>";
 
     var cardHtml = "";
-    cardHtml += "<div class='cardWrapper' style='width:100%;margin:auto;display:flex;flex-direction: row;align-items: center;'>";
+    cardHtml += "<div class='cardWrapper' style='width:100%;margin:auto;display:flex;flex-direction: column;align-items: center;'>";
       //卡片内容
-      //cardHtml += "<a id='cps"+item._key+"' href='"+item.link.wap2+"'>";//默认使用系统达人的链接
-        cardHtml += "<div id='"+item._key+"' style='width:80%;margin:auto;display:flex;flex-direction: row;align-items: center;border-radius:5px;'>";
-          //图片
-          cardHtml += "<div style='width:30%;margin:auto;align-items: center;padding-right:5px;'>";
-            cardHtml += image;
-          cardHtml += "</div>";   
-          //标题、价格、标签
-          cardHtml += "<div style='width:70%;margin:auto;display:flex;flex-direction: column;align-items: left;'>";
-            cardHtml += highlights;
-            cardHtml += title;
-            cardHtml += tags;
-          cardHtml += "</div>"; 
-        cardHtml += "</div>";
-      //cardHtml += "</a>";
+      cardHtml += "<div style='border:2px dashed silver;width:95%'>";//卡片边框
+        ////////图文卡片样式////////////
+          //*
+          cardHtml += "<div id='imageText"+item._key+"' style='width:90%;margin:auto;display:flex;flex-direction: row;align-items: center;border-radius:5px;'>";
+            //图片
+            cardHtml += "<div style='width:30%;margin:auto;align-items: center;padding-right:5px;'>";
+              cardHtml += image;
+            cardHtml += "</div>";   
+            //标题、价格、标签
+            cardHtml += "<div style='width:70%;display:flex;flex-direction: column;align-items: left;'>";
+              cardHtml += distributor;
+              cardHtml += title;
+              cardHtml += tags;
+              cardHtml += "<div class='itemTags' style='line-height: 18px;'>";     
+                cardHtml += prices;  
+                cardHtml += buyButton;
+              cardHtml += "</div>";
+            cardHtml += "</div>"; 
+          cardHtml += "</div>";
+          //**/
+        ////////结束：图文卡片样式////////////
+
+        /////////////条幅卡片样式//////////////////////
+          cardHtml += "<div id='banner"+item._key+"' style='width:90%;margin:auto;display:none;flex-direction: column;align-items: center;'>";
+              //图片
+              cardHtml += "<div style='width:100%;margin:auto;align-items: center;height:130px;background-position:center;background-size:cover;background-repeat:no-repeat;background-image:url("+imgPrefix+(item.logo?item.logo:item.images[0])+")'>";
+                //cardHtml += "<img src='"+imgPrefix+(item.logo?item.logo:item.images[0])+"' width='100%' height='210' style='margin:0 auto;object-fit:cover;'/>" 
+              cardHtml += "</div>";  
+              //图片用背景，采用空白div填补高度
+              //cardHtml += "<div style='width:100%;bottom:0;font-weight:bold;font-size:11px;line-height: 120px;'>&nbsp;</div>";
+              //标题:浮动显示在图片底部
+              cardHtml += "<div style='width:100%;bottom:0;font-weight:bold;font-size:11px;line-height: 18px;'>";
+                cardHtml += item.title;           
+              cardHtml += "</div>";                             
+              //价格、标签
+              cardHtml += "<div style='width:100%;display:flex;flex-direction: row;align-items: left;'>";
+                //distributor、价格
+                cardHtml += "<div class='itemTags' style='line-height: 18px;width:70%;float:left;'>";
+                  //电商平台:distributor
+                  cardHtml += "<strong href='#' style='font-size:14px;font-weight: bold;background-color: white;color:darkgreen;padding:2px;line-height: 18px;border:0'>"+item.distributor.name+"</strong>";  
+                  //价格
+                  cardHtml += prices;              
+                cardHtml += "</div>";      
+                //购买按钮
+                cardHtml += "<div style='line-height: 18px;width:30%;text-align:right;float:right;z-index:99'>";
+                cardHtml += "<strong style='float:right;margin-right:10px;background-color:darkred;color:#fff;text-align:right;padding-left:5px;padding-right:5px;font-size:14px;border-radius:3px;' id='view-"+item._key+"' data-item='"+item._key+"'>去看看</strong>";
+                cardHtml += "</div>";                      
+              cardHtml += "</div>"; 
+            cardHtml += "</div>";
+        /////////////结束：条幅卡片样式//////////////////////
+
+
+        /////////////方形卡片样式///////////
+         cardHtml += "<div id='square"+item._key+"' style='width:90%;margin:auto;display:none;flex-direction: column;align-items: center;'>";
+              //图片
+              cardHtml += "<div style='width:300px;margin:auto;align-items: center;height:300px;background-position:center;background-size:cover;background-repeat:no-repeat;background-image:url("+imgPrefix+(item.logo?item.logo:item.images[0])+")'>";
+                //cardHtml += "<img src='"+imgPrefix+(item.logo?item.logo:item.images[0])+"' width='100%' height='210' style='margin:0 auto;object-fit:cover;'/>" 
+              cardHtml += "</div>";  
+              //图片用背景，采用空白div填补高度
+              //cardHtml += "<div style='width:100%;bottom:0;font-weight:bold;font-size:11px;line-height: 120px;'>&nbsp;</div>";
+              //标题:浮动显示在图片底部
+              cardHtml += "<div style='width:300px;bottom:0;font-weight:bold;font-size:11px;line-height: 18px;'>";
+                cardHtml += item.title;           
+              cardHtml += "</div>";                             
+              //价格、标签
+              cardHtml += "<div style='width:300px;display:flex;flex-direction: row;align-items: left;'>";
+                //distributor、价格
+                cardHtml += "<div class='itemTags' style='line-height: 18px;width:70%;float:left;'>";
+                  //电商平台:distributor
+                  cardHtml += "<strong href='#' style='font-size:14px;font-weight: bold;background-color: white;color:darkgreen;padding:2px;line-height: 18px;border:0'>"+item.distributor.name+"</strong>";  
+                  //价格
+                  cardHtml += prices;              
+                cardHtml += "</div>";      
+                //购买按钮
+                cardHtml += "<div style='line-height: 18px;width:30%;text-align:right;float:right;z-index:99'>";
+                cardHtml += "<strong style='float:right;margin-right:10px;background-color:darkred;color:white;text-align:right;padding-left:5px;padding-right:5px;font-size:14px;border-radius:3px;' id='view-"+item._key+"' data-item='"+item._key+"'>去看看</strong>";
+                cardHtml += "</div>";                      
+              cardHtml += "</div>"; 
+            cardHtml += "</div>";
+        /////////////结束：方形卡片样式///////////
+      cardHtml += "</div>";
       //操作按钮
-      cardHtml += "<div style='width:20%;padding-left:10px;display:flex;flex-direction: column;align-items: left;'>";
+      cardHtml += "<div id='cardWrapper"+item._key+"' style='width:98%;padding-left:10px;display:flex;flex-direction: row;align-items: left;'>";
         cardHtml += profitTags;
-        cardHtml += boartBtns;
-      cardHtml += "</div>";    
+        cardHtml += copyBtns;
+      cardHtml += "</div>";  
+      //间隔空白 
+      cardHtml += "<div style='line-height:15px;'>&nbsp</div>";  
     cardHtml += "</div>";
     $("#waterfall").append("<li>"+cardHtml+"</li>");
     num++;
@@ -728,14 +805,34 @@ function insertItem(){
     });
 
     //注册事件：copy图文卡片
-    $("#copy-"+item._key).click(function(){
+    $("#copy-imageText"+item._key).click(function(){
         console.log("trigger copy event");
+        pendingCopyCardType = "imageText";//修改卡片类型为图文
         pendingCopyItem = item._key;//修改当前选中item
         //获取CPS链接，并触发拷贝事件
         checkCpsLink(item);
         //document.execCommand("copy");//触发拷贝事件
     });
 
+    //注册事件：copy条幅卡片
+    $("#copy-banner"+item._key).click(function(){
+        console.log("trigger copy event");
+        pendingCopyCardType = "banner";//修改卡片类型为banner
+        pendingCopyItem = item._key;//修改当前选中item
+        //获取CPS链接，并触发拷贝事件
+        checkCpsLink(item);
+        //document.execCommand("copy");//触发拷贝事件
+    });
+
+    //注册事件：copy方形卡片：小程序样式
+    $("#copy-square"+item._key).click(function(){
+        console.log("trigger copy event");
+        pendingCopyCardType = "square";//修改卡片类型为banner
+        pendingCopyItem = item._key;//修改当前选中item
+        //获取CPS链接，并触发拷贝事件
+        checkCpsLink(item);
+        //document.execCommand("copy");//触发拷贝事件
+    });
 
     // 表示加载结束
     loading = false;
@@ -743,11 +840,14 @@ function insertItem(){
 
 //拷贝商品图文卡片到剪贴板，便于粘贴到微信文章
 function copyItem(event){
-    console.log("start copy item.[itemKey]"+pendingCopyItem,event);
+    console.log("start copy item.[itemKey]"+pendingCopyItem,pendingCopyCardType,event);
     event.preventDefault();//阻止默认行为
-    var cardhtml = document.getElementById(pendingCopyItem).outerHTML//带着链接一起拷贝
+    var cardhtml = document.getElementById(pendingCopyCardType+pendingCopyItem).outerHTML//带着链接一起拷贝
+                        .replace(/display:none/g,"display:flex")//模式切换为显示
                         .replace(/div/g,"section")
                         .replace(/span/g,"strong")
+                        .replace(/13px/g,"16px")//distributor字体调整
+                        .replace(/11px/g,"14px")//title字体调整
                         //.replace(/80%/,"70%")//更改card宽度
                         .replace(/width="80"/g,'width="100"');
     console.log("html copied.[itemKey]"+pendingCopyItem,cardhtml,broker);   
@@ -765,7 +865,7 @@ function copyItem(event){
     event.clipboardData.setData('text/html', htmlWithLink);
 
     $.toast({//浮框提示已添加成功
-        heading: '图文卡片以复制',
+        heading: '图文卡片已复制',
         text: '请粘贴到相应位置查看',
         showHideTransition: 'fade',
         icon: 'success'
@@ -781,15 +881,18 @@ function checkCpsLink(item){//支持点击事件
     }/**else if(fromBroker && fromBroker.trim().length>0){
         benificiaryBrokerId=fromBroker;
     }//**/
+    //记录发表日志
     logstash(item,from,"publish",fromUser,benificiaryBrokerId,function(){
-        var target = item.url;
-        if(item.link.cps && item.link.cps[benificiaryBrokerId]){//能够直接获得达人链接则直接显示
-            pendingItemCpsLink=item.link.cps[benificiaryBrokerId];
-            document.execCommand("copy");//触发拷贝事件
-        }else{//否则请求其链接并显示
-            getBrokerCpsLink(benificiaryBrokerId,item);
-        }
-    });     
+      //do nothing
+    });   
+    //处理cps链接
+    var target = item.url;
+    if(item.link.cps && item.link.cps[benificiaryBrokerId]){//能够直接获得达人链接则直接显示
+        pendingItemCpsLink=item.link.cps[benificiaryBrokerId];
+        document.execCommand("copy");//触发拷贝事件
+    }else{//否则请求其链接并显示
+        getBrokerCpsLink(benificiaryBrokerId,item);
+    }      
 }
 
 //根据Broker查询得到CPS链接
@@ -910,9 +1013,12 @@ function getItemProfit2Party(item) {
         }
         //显示到界面
         if(html.trim().length>0){
+            $("#cardWrapper"+item._key).prepend(html);
+            /**
             $("#profit"+item._key).html(html);
             $("#profit"+item._key).toggleClass("profit-hide",false);
             $("#profit"+item._key).toggleClass("profit-show",true);
+            //**/
         }
         //更新到item
         if(item.profit==null){
@@ -950,9 +1056,12 @@ function getItemProfit(item) {
         }
         //显示到界面
         if(html.trim().length>0){
+            $("#cardWrapper"+item._key).prepend(html);
+            /**
             $("#profit"+item._key).html(html);
             $("#profit"+item._key).toggleClass("profit-hide",false);
             $("#profit"+item._key).toggleClass("profit-show",true);
+            //**/
         }
         //更新到item
         if(item.profit==null){
