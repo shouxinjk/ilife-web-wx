@@ -13,18 +13,16 @@ $(document).ready(function ()
     $('#waterfall').NewWaterfall({
         width: columnWidth,
         delay: 100,
-    });
-    //设置默认用户：由于需要微信扫码绑定，如果不绑定，默认设置为系统用户
-    setDefaultUser();
-
-    //加载达人信息
-    loadBrokerInfo();    
+    });  
 
     category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     tagging = args["keyword"]?args["keyword"]:""; //通过搜索跳转
     filter = args["filter"]?args["filter"]:""; //根据指定类型进行过滤
     from = args["from"]?args["from"]:"mp";//来源于选品工具，包括公众号流量主、知乎、头条、简书等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
+
+    console.log("got params from & fromUser from query.",from,fromUser);
+
     if(args["categoryTagging"])categoryTagging=args["categoryTagging"];
     if(args["personTagging"])personTagging=args["personTagging"];
     if(tagging.trim().length>0){
@@ -46,8 +44,19 @@ $(document).ready(function ()
         loadData();
     }); 
 
-    //加载关心的人
-    loadPersons();
+    //检查用户绑定情况。包含扫码后的用户信息获取
+    //console.log("start check sxAuth.....");
+    //checkUserBinding();
+
+    //设置默认用户：由于需要微信扫码绑定，如果不绑定，默认设置为系统用户
+    //setDefaultUser();
+    loadUserInfoByOpenid(fromUser);
+
+    //加载达人信息：在用户加载完成后自动加载
+    //loadBrokerInfoByOpenid(fromUser);  
+
+    //加载关心的人：在用户加载完成后自动加载
+    //loadPersons();
 
     //加载filter并高亮
     loadFilters(filter);
@@ -92,57 +101,71 @@ var filter = "";//通过filter区分好价、好物、附近等不同查询组�
 
 var categoryTagging = "";//记录目录切换标签，tagging = categoryTagging + currentPersonTagging
 
-function setDefaultUser(){
-  if(!app.globalData.userInfo){//默认设置为系统达人
-    app.globalData.userInfo =   {
-      "_key": "o8HmJ1ItjXilTlFtJNO25-CAQbbg",
-      "_id": "user_users/o8HmJ1ItjXilTlFtJNO25-CAQbbg",
-      "_rev": "_dF6hjWK---",
-      "country": "中国",
-      "qrScene": null,
-      "qrSceneStr": null,
-      "subscribeTime": null,
-      "subscribe": null,
-      "city": "成都",
-      "openId": "o8HmJ1ItjXilTlFtJNO25-CAQbbg",
-      "sex": 2,
-      "groupId": null,
-      "tagIds": null,
-      "language": "en",
-      "remark": null,
-      "province": "四川",
-      "headImgUrl": "https://thirdwx.qlogo.cn/mmopen/vi_32/Jn08jY1xaEVyIq75FA9IqtuWyeDcschvKlicMVgeTuicQnBZyeCtibeo8GA1OSUibAPJVUe073zBblZia3lYKNibezcg/132",
-      "sexDesc": "女",
-      "nickname": "Judy胆小心不细",
-      "subscribeScene": null,
-      "avatarUrl": "https://thirdwx.qlogo.cn/mmopen/vi_32/Jn08jY1xaEVyIq75FA9IqtuWyeDcschvKlicMVgeTuicQnBZyeCtibeo8GA1OSUibAPJVUe073zBblZia3lYKNibezcg/132",
-      "privileges": [],
-      "nickName": "Judy胆小心不细",
-      "unionId": null,
-      "updateOn": "2021-10-14T14:10:10.746Z"
-    };
-    //设置默认达人。仅设置ID
-    broker = {
-      id:"77276df7ae5c4058b3dfee29f43a3d3b",
-      name:"Judy胆小心不细"
-    }
-  }
+//检查是否已经绑定公众号账户
+function checkUserBinding(){
+  //读取cookie，得到授权信息，如果是未授权则通知跳转到扫码界面
+  var sxAuthInfo = $.cookie('sxAuth');
+  console.log("load sxAuth from cookie.",sxAuthInfo);
+  if(sxAuthInfo && sxAuthInfo.trim().length>0){
+      console.log("get sxAuth info from cookie.",sxAuthInfo);
+      var sxAuth = JSON.parse(sxAuthInfo);
+      if(sxAuth.ready){//已经绑定，啥也不干
+        //do nothing
+      }else if(sxAuth.code && sxAuth.state){//未绑定，但已经有了state和code，是刚刚扫码了，直接尝试获取用户信息
+        //通知跳转到login界面
+        var msg = {
+          sxNavigateTo:"https://www.biglistoflittlethings.com/ilife-web-wx/login.html?code="+sxAuth.code+"&state="+sxAuth.state
+        };
+        console.log("post message.sxAuth cookie.",sxAuth,msg);
+        window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分        
+      }else{//这个就不知道啥情况了，直接显示二维码重新扫。如果是扫码过期也会进入这里
+        var msg = {
+          sxNavigateTo:"https://www.biglistoflittlethings.com/ilife-web-wx/login-qrcode.html"
+        };
+        console.log("post message.sxAuth cookie error.",sxAuth,msg);
+        window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分
+      }
+  }else{//通知显示扫码界面
+        var msg = {
+          sxNavigateTo:"https://www.biglistoflittlethings.com/ilife-web-wx/login-qrcode.html"
+        };
+        console.log("post message. no sxAuth cookie.",msg);
+        window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分
+  }  
 }
 
-//优先从cookie加载达人信息
-function loadBrokerInfo(){
-  broker = util.getBrokerInfo();
+//直接读取用户信息
+function loadUserInfoByOpenid(openid){
+  util.checkPerson({openId:openid},function(res){
+    app.globalData.userInfo = res;//直接从请求获取信息
+    loadBrokerInfoByOpenid(openid);//用户加载后再加载达人信息
+    loadPersons();//用户加载后加载关联用户及客群
+    //更新broker头像及名称
+    //注意有同源问题，通过postMessage完成
+    var brokerMessage = {
+      sxBrokerLogo:app.globalData.userInfo.avatarUrl,
+      sxBrokerName:app.globalData.userInfo.nickName
+    };
+    //window.parent.postMessage(JSON.stringify(brokerMessage), "https://www.biglistoflittlethings.com");//设定origin
+    window.parent.postMessage(brokerMessage, "*");//不设定origin，直接通过属性区分
+    console.log("post broker message.",brokerMessage);
+  });
+}
 
-  //更新broker头像及名称
-  //注意有同源问题，通过postMessage完成
-  var brokerMessage = {
-    sxBrokerLogo:app.globalData.userInfo.avatarUrl,
-    sxBrokerName:app.globalData.userInfo.nickName,
-    sxBrokerRealName:broker.name
-  };
-  //window.parent.postMessage(JSON.stringify(brokerMessage), "https://www.biglistoflittlethings.com");//设定origin
-  window.parent.postMessage(brokerMessage, "*");//不设定origin，直接通过属性区分
-  console.log("post broker message.",brokerMessage);
+//直接读取达人信息
+function loadBrokerInfoByOpenid(openid){
+  util.checkBroker(openid,function(res){
+    //broker = util.getBrokerInfo();
+    broker = res.data;//直接从请求获取信息
+    //更新broker头像及名称
+    //注意有同源问题，通过postMessage完成
+    var brokerMessage = {
+      sxBrokerRealName:broker.name
+    };
+    //window.parent.postMessage(JSON.stringify(brokerMessage), "https://www.biglistoflittlethings.com");//设定origin
+    window.parent.postMessage(brokerMessage, "*");//不设定origin，直接通过属性区分
+    console.log("post broker message.",brokerMessage);
+  });
 }
 
 function highlightFilter(){
