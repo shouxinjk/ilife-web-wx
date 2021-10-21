@@ -73,6 +73,7 @@ var fromUser = "";
 
 //记录当前拷贝的item
 var pendingCopyCardType = "imageText";//默认为图文卡片
+var pendingCopyFormat = "text/html";//默认为html
 var pendingCopyItem = "";
 var pendingItemCpsLink = "";//记录拷贝时item的CPS链接
 //使用代理避免跨域问题。后端将代理到指定的URL地址。使用https
@@ -846,6 +847,7 @@ function insertItem(){
     $("#copy-imageText"+item._key).click(function(){
         console.log("trigger copy event");
         pendingCopyCardType = "imageText";//修改卡片类型为图文
+        pendingCopyFormat = "text/html";//html
         pendingCopyItem = item._key;//修改当前选中item
         //获取CPS链接，并触发拷贝事件
         checkCpsLink(item);
@@ -856,6 +858,7 @@ function insertItem(){
     $("#copy-banner"+item._key).click(function(){
         console.log("trigger copy event");
         pendingCopyCardType = "banner";//修改卡片类型为banner
+        pendingCopyFormat = "text/html";//html
         pendingCopyItem = item._key;//修改当前选中item
         //获取CPS链接，并触发拷贝事件
         checkCpsLink(item);
@@ -866,6 +869,7 @@ function insertItem(){
     $("#copy-square"+item._key).click(function(){
         console.log("trigger copy event");
         pendingCopyCardType = "square";//修改卡片类型为square
+        pendingCopyFormat = "text/html";//html
         pendingCopyItem = item._key;//修改当前选中item
         //获取CPS链接，并触发拷贝事件
         checkCpsLink(item);
@@ -876,6 +880,7 @@ function insertItem(){
     $("#copy-textLink"+item._key).click(function(){
         console.log("trigger copy event");
         pendingCopyCardType = "textLink";//修改为textLink
+        pendingCopyFormat = "text/html";//html
         pendingCopyItem = item._key;//修改当前选中item
         //获取CPS链接，并触发拷贝事件
         checkCpsLink(item);
@@ -885,6 +890,7 @@ function insertItem(){
     $("#copy-url"+item._key).click(function(){
         console.log("trigger copy event");
         pendingCopyCardType = "url";//修改类型为url
+        pendingCopyFormat = "text/plain";//仅文字
         pendingCopyItem = item._key;//修改当前选中item
         //获取CPS链接，并触发拷贝事件
         checkCpsLink(item);
@@ -923,7 +929,7 @@ function copyItem(event){
       htmlWithLink = 'https://www.biglistoflittlethings.com/ilife-web-wx/bridge.html?url='+encodeURIComponent(pendingItemCpsLink); 
     }
     console.log("copy html with link to clipboard.",htmlWithLink);
-    event.clipboardData.setData('text/html', htmlWithLink);
+    event.clipboardData.setData(pendingCopyFormat, htmlWithLink);
 
     $.toast({//浮框提示已添加成功
         heading: '图文卡片已复制',
