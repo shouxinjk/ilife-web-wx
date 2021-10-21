@@ -1341,6 +1341,7 @@ function loadPersonas() {
       }
 
       //新增客群按钮
+      /**
       var addPersonaKey = "btn-add-persona";
       personKeys.push(addPersonaKey);
       persons.push({
@@ -1348,7 +1349,8 @@ function loadPersonas() {
         avatarUrl:"images/add-persona.png",
         relationship:"壮大团队赚钱",
         _key:addPersonaKey
-      });       
+      });    
+      //**/   
 
       //显示滑动条
       showSwiper(); 
@@ -1375,6 +1377,7 @@ function loadPersons() {
       } 
 
       //新增关心的人按钮
+      /**
       var addPersonKey = "btn-add-related-person";
       personKeys.push(addPersonKey);
       persons.push({
@@ -1382,7 +1385,8 @@ function loadPersons() {
         avatarUrl:"images/add-person.png",
         relationship:"分享赚钱",
         _key:addPersonKey
-      });      
+      });    
+      //**/  
 
       //显示顶部滑动条
       if(util.hasBrokerInfo()){//如果是达人，则继续装载画像
