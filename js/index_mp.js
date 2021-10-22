@@ -15,6 +15,11 @@ $(document).ready(function ()
         delay: 100,
     });  
 
+    //监听父窗口postmessage
+    listenPostMessage();
+    //检查toolbar状态
+    checkToolbarStatus();
+
     category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     tagging = args["keyword"]?args["keyword"]:""; //通过搜索跳转
     filter = args["filter"]?args["filter"]:""; //根据指定类型进行过滤
@@ -147,7 +152,6 @@ function loadUserInfoByOpenid(openid){
       sxBrokerLogo:app.globalData.userInfo.avatarUrl,
       sxBrokerName:app.globalData.userInfo.nickName
     };
-    //window.parent.postMessage(JSON.stringify(brokerMessage), "https://www.biglistoflittlethings.com");//设定origin
     window.parent.postMessage(brokerMessage, "*");//不设定origin，直接通过属性区分
     console.log("post broker message.",brokerMessage);
   });
@@ -158,12 +162,19 @@ function loadBrokerInfoByOpenid(openid){
   util.checkBroker(openid,function(res){
     //broker = util.getBrokerInfo();
     broker = res.data;//直接从请求获取信息
+
+    //直接写入cookie，避免同源问题
+    document.cookie = "sxBrokerInfo="+JSON.stringify(res.data)+"; SameSite=None; Secure";
+    document.cookie = "hasBrokerInfo="+res.status+"; SameSite=None; Secure";
+
+    //TODO：在加载达人后再加载数据，避免brokerInfo缺失
+    startQueryDataLoop();
+
     //更新broker头像及名称
     //注意有同源问题，通过postMessage完成
     var brokerMessage = {
       sxBrokerRealName:broker.name
     };
-    //window.parent.postMessage(JSON.stringify(brokerMessage), "https://www.biglistoflittlethings.com");//设定origin
     window.parent.postMessage(brokerMessage, "*");//不设定origin，直接通过属性区分
     console.log("post broker message.",brokerMessage);
   });
@@ -567,21 +578,25 @@ function getBoard(){
     }
 }
 
-setInterval(function ()
-{
-    if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+//开始查询数据
+function startQueryDataLoop(){
+    setInterval(function ()
     {
-        // 表示开始加载
-        loading = true;
+        if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+        {
+            // 表示开始加载
+            loading = true;
 
-        // 加载内容
-        if(items.length < num){//如果内容未获取到本地则继续获取
-            loadItems();
-        }else{//否则使用本地内容填充
-            insertItem();
+            // 加载内容
+            if(items.length < num){//如果内容未获取到本地则继续获取
+                loadItems();
+            }else{//否则使用本地内容填充
+                insertItem();
+            }
         }
-    }
-}, 60);
+    }, 60);  
+}
+
 
 function loadItems(){//获取内容列表
     //构建esQuery
@@ -1638,4 +1653,62 @@ function showloading(flag){
     $("#loading").toggleClass("loading-hide",true);
     $("#loading").toggleClass("loading-show",false);    
   }
+}
+
+//检查工具面板显示状态
+function checkToolbarStatus(){
+    console.log("try to check toolbar status..."); 
+    var sxToolbarStatus = {};
+    if($.cookie('sxToolbarStatus') && $.cookie('sxToolbarStatus').trim().length>0){
+        sxToolbarStatus = JSON.parse($.cookie('sxToolbarStatus') );
+    } 
+    console.log("try to post toolbar  status to parent document.",sxToolbarStatus);   
+    window.parent.postMessage({
+        sxCookie:{
+            action: 'return',
+            key:'sxToolbarStatus',
+            value:sxToolbarStatus
+        }
+    }, '*');    
+}
+
+//监听postMessage事件：在工具条发生变化时，将状态写入cookie
+function listenPostMessage(){
+    console.log("child window start listening....");
+    var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+    var eventer = window[eventMethod];
+    var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
+
+    // Listen to message from child window
+    eventer(messageEvent,function(e) {
+        var key = e.message ? "message" : "data";
+        var data = e[key];
+        console.log("got message from parent window.",data);
+        if(data&&data.sxCookie){//实现缓存数据交换
+            var sxCookie  = data.sxCookie;
+            if (sxCookie.action == 'set'){//存数据到cookie
+                //直接写入cookie：键值包括sxToolbarStatus
+                console.log("save cookie",sxCookie);
+                document.cookie = sxCookie.key+"="+JSON.stringify(sxCookie.value)+"; SameSite=None; Secure";
+                //由于窗口显示变化，需要设置是否加载数据标志
+                if(sxCookie.key == 'sxToolbarStatus'){//根据状态设置是否加载数据
+                  if(sxCookie.value.show){//展示面板，则设置数据等待加载
+                      loading = false;
+                  }else{
+                      loading = true;
+                  }
+                }
+            }else if (sxCookie.action == 'get') {//从cookie读取数据并返回上层窗口
+                console.log("try to post message to parent document.",data);
+                window.parent.postMessage({
+                    sxCookie:{
+                        action: 'return',
+                        key:sxCookie.key,
+                        value:$.cookie(sxCookie.key)?JSON.parse($.cookie(sxCookie.key)):{}
+                        //value:window.localStorage.getItem(sxCookie.key)?JSON.parse(window.localStorage.getItem(sxCookie.key)):{}
+                    }
+                }, '*');
+            };
+        }
+    },false);
 }

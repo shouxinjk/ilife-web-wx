@@ -16,13 +16,11 @@ $(document).ready(function ()
     //监听父窗口postmessage
     listenPostMessage();
 
-    //checkUserBinding();
-    window.parent.postMessage({
-      sxCookie:{
-        action:"get",
-        key:"sxAuth"
-      }
-    }, "*");//向父窗口发出消息，查询sxAuth
+    //检查账户绑定
+    checkUserBinding();
+
+    //检查toolbar状态
+    checkToolbarStatus();
 
 });
 
@@ -64,6 +62,9 @@ function getQrcodeScanResult(ticket){
                     ready:true,
                     openid:res.openid
                 };
+
+                /**
+                //通过postMessage在寄主页面写cookie ：废弃
                 console.log("write code and state to cookie.", sxAuth);
                 //临时存储已经绑定的openid：注意，因安全策略限制，不能在iframe内直接存储cookie。通过postMessage及localstorge完成
                 var msg = {
@@ -75,15 +76,16 @@ function getQrcodeScanResult(ticket){
                 };
                 window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分
                 console.log("post message to parent window.",msg);
-
-                //$.cookie('sxAuth', JSON.stringify(sxAuth), { expires: 3650, path: '/' });   
-                //localStorage.setItem('sxAuth', JSON.stringify(sxAuth));          
+                //**/
+ 
+                setSxCookie(sxAuth);        
 
                 //发送通知消息，切换页面：添加随机数，确保每次刷新
                 var msg = {
                   sxNavigateTo:"https://www.biglistoflittlethings.com/ilife-web-wx/index_mp.html?from=mp-orgnization&fromUser="+res.openid+"&nonce="+new Date().getTime()
                 };
                 console.log("post message to redirect to index page.",sxAuth,msg);
+                //通过postMessage通知跳转到列表页面
                 window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分               
             }
         }
@@ -93,9 +95,10 @@ function getQrcodeScanResult(ticket){
 //检查是否已经绑定公众号账户
 //等待父窗口返回后调用
 //sxAuth:{ready:true,openid:openid}
-function checkUserBinding(sxAuth){
+function checkUserBinding(){
+    var sxAuth = getSxCookie();
     console.log("get sxAuth info from sxCookie.",sxAuth);
-    if(sxAuth.ready&&sxAuth.openid){//已经绑定，直接跳转
+    if(sxAuth && sxAuth.ready && sxAuth.openid){//已经绑定，直接跳转
       //通知跳转到列表
       var msg = {
         sxNavigateTo:"https://www.biglistoflittlethings.com/ilife-web-wx/index_mp.html?from=mp-orgnization&fromUser="+sxAuth.openid
@@ -108,8 +111,25 @@ function checkUserBinding(sxAuth){
     } 
 }
 
+//检查工具面板显示状态
+function checkToolbarStatus(){
+    console.log("try to check toolbar status..."); 
+    var sxToolbarStatus = {};
+    if($.cookie('sxToolbarStatus') && $.cookie('sxToolbarStatus').trim().length>0){
+        sxToolbarStatus = JSON.parse($.cookie('sxToolbarStatus') );
+    } 
+    console.log("try to post toolbar  status to parent document.",sxToolbarStatus);   
+    window.parent.postMessage({
+        sxCookie:{
+            action: 'return',
+            key:'sxToolbarStatus',
+            value:sxToolbarStatus
+        }
+    }, '*');    
+}
 
-//监听postMessage事件
+
+//监听postMessage事件：在工具条发生变化时，将状态写入cookie
 function listenPostMessage(){
     var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
     var eventer = window[eventMethod];
@@ -122,12 +142,44 @@ function listenPostMessage(){
         console.log("got message",data);
         if(data&&data.sxCookie){//实现缓存数据交换
             var sxCookie  = data.sxCookie;
-            if (sxCookie.action == 'return' && sxCookie.key== 'sxAuth'){
+            if (sxCookie.action == 'set'){//存数据到cookie
+                //直接写入cookie：键值包括sxToolbarStatus
+                console.log("save cookie",sxCookie);
+                document.cookie = sxCookie.key+"="+JSON.stringify(sxCookie.value)+"; SameSite=None; Secure";
                 //接收到父窗口返回的缓存值
-                checkUserBinding(sxCookie.value);
+                //checkUserBinding(sxCookie.value);
+            }else if (sxCookie.action == 'get') {//从cookie读取数据并返回上层窗口
+                console.log("try to post message to parent document.",data);
+                window.parent.postMessage({
+                    sxCookie:{
+                        action: 'return',
+                        key:sxCookie.key,
+                        value:$.cookie(sxCookie.key)?JSON.parse($.cookie(sxCookie.key)):{}
+                        //value:window.localStorage.getItem(sxCookie.key)?JSON.parse(window.localStorage.getItem(sxCookie.key)):{}
+                    }
+                }, '*');
             };
         }
     },false);
+}
+
+//获取cookie
+function getSxCookie(){
+    var sxAuthInfo = $.cookie('sxAuth');
+    var sxAuth = {};
+    if(sxAuthInfo && sxAuthInfo.trim().length>0){
+        sxAuth = JSON.parse(sxAuthInfo);
+    }
+    console.log("get sxAuth from cookie.",sxAuth);   
+    return sxAuth;
+}
+
+//写入cookie
+function setSxCookie(sxAuth){
+    console.log("write sxAuth to cookie.",sxAuth);   
+    //$.cookie('sxAuth', JSON.stringify(sxAuth), { expires: 3650, path: '/' });
+    //支持cookie存取
+    document.cookie = "sxAuth="+JSON.stringify(sxAuth)+"; SameSite=None; Secure";
 }
 
 
