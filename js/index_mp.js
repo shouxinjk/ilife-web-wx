@@ -602,7 +602,7 @@ function loadItems(){//获取内容列表
     //构建esQuery
     esQuery = buildEsQuery();//完成query构建。其中默认设置了每页条数
     console.log("\ntry search by query.[esQuery]",esQuery,"\n");
-    //处理翻页
+    //处理翻页insert
     esQuery.from = (page.current+1) * page.size;
 
     $.ajax({
@@ -693,7 +693,7 @@ function insertItem(){
         showHighProfitLink();//显示高佣链接入口
         if(item.profit&&item.profit.type=="3-party"){//如果已经存在则直接加载
           if(item.profit&&item.profit.order){
-              profitTags += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span></div>";
+              profitTags += "<div class='itemTags profit-show' style='margin:0;' id='profit-tip-"+item._key+"'><span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span></div>";
               if(item.profit&&item.profit.team&&item.profit.team>0.1)profitTags += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.profit.team*10)/10).toFixed(1)))+"</span></div>";
           }else if(item.profit&&item.profit.credit&&item.profit.credit>0){
               profitTags += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(item.profit.credit*10)/10).toFixed(0)))+"</span></div>";
@@ -843,6 +843,7 @@ function insertItem(){
       cardHtml += "</div>";
       //操作按钮
       cardHtml += "<div id='cardWrapper"+item._key+"' style='width:98%;padding-left:10px;display:flex;flex-direction: row;align-items: left;'>";
+        //if(!$("#profit-tip-"+item._key))//部分情况下可能由于出现重复条目，导致佣金提示显示两次，此处强行保护
         cardHtml += profitTags;
         cardHtml += copyBtns;
       cardHtml += "</div>";  
@@ -1084,7 +1085,7 @@ function getItemProfit2Party(item) {
         var showProfit = false;
         var html = "";
         if (res.order) {//店返
-            html += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(res.order*10)/10).toFixed(1)))+"</span></div>";
+            html += "<div class='itemTags profit-show' style='margin:0;' id='profit-tip-"+item._key+"'><span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(res.order*10)/10).toFixed(1)))+"</span></div>";
             if(res.team && res.team>0.1){//过小的团返不显示
                 html += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(res.team*10)/10).toFixed(1)))+"</span></div>";
             }
@@ -1094,7 +1095,7 @@ function getItemProfit2Party(item) {
             console.log("===error===\nnothing to show.",item,res);
         }
         //显示到界面
-        if(html.trim().length>0){
+        if(html.trim().length>0 /* && !$("#profit-tip-"+item._key)*/){//由于数据可能重复，导致提示会出现多次，强制检查是否重复
             $("#cardWrapper"+item._key).prepend(html);
             /**
             $("#profit"+item._key).html(html);
@@ -1127,7 +1128,7 @@ function getItemProfit(item) {
         var showProfit = false;
         var html = "";
         if (res.order) {//店返
-            html += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(res.order*10)/10).toFixed(1)))+"</span></div>";
+            html += "<div class='itemTags profit-show' style='margin:0;' id='profit-tip-"+item._key+"'><span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(res.order*10)/10).toFixed(1)))+"</span></div>";
             if(res.team && res.team>0.1){//过小的团返不显示
                 html += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(res.team*10)/10).toFixed(1)))+"</span></div>";
             }
@@ -1137,7 +1138,7 @@ function getItemProfit(item) {
             console.log("===error===\nnothing to show.",item,res);
         }
         //显示到界面
-        if(html.trim().length>0){
+        if(html.trim().length>0 /* && !$("#profit-tip-"+item._key)*/){//由于数据可能重复，导致提示会出现多次，强制检查是否重复
             $("#cardWrapper"+item._key).prepend(html);
             /**
             $("#profit"+item._key).html(html);
