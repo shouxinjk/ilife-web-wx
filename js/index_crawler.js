@@ -28,6 +28,15 @@ $(document).ready(function ()
     //加载用户信息，同时会加载达人信息
     loadUserInfoByOpenid(fromUser);  
 
+    //在页面初次加载时，直接检查本地pendingItem，有则直接显示
+    /**
+    if($.cookie("sxPendingItem") && $.cookie("sxPendingItem").trim().length > 0 ){
+        isCollected = true;//认为是已经采集完成
+        currentItem = JSON.parse( $.cookie("sxPendingItem") );
+        showContent(currentItem);
+    }
+    //**/
+
     //注册提交标注数据事件
     $("#submitFormBtn").click(function(){
         submitItemForm();
@@ -168,9 +177,9 @@ function startQueryDataLoop(){
 
 function loadItems(){//获取内容列表
     console.log("start load items from cookie.");
-    var sxPendingItemsInfo = $.cookie('sxPendingItems');//存储的就是列表，[{},{},{}]
-    if(sxPendingItemsInfo && sxPendingItemsInfo.trim().length>0){
-      items = JSON.parse(sxPendingItemsInfo);
+    var sxPendingItemInfo = $.cookie('sxPendingItem');//存储的就是列表，[{},{},{}]
+    if(sxPendingItemInfo && sxPendingItemInfo.trim().length>0){
+      items = JSON.parse(sxPendingItemInfo);
       insertItem();
     }else{
       shownomore(true);
@@ -584,7 +593,7 @@ function loadProps(categoryId){
         success:function(items){
             console.log(items);
             //在回调内：1，根据返回结果组装待展示数据，字段包括：name、property、value、flag(如果在则为0，不在为1)
-            var props = currentItem.props|[];//临时记录当前stuff的属性列表
+            var props = currentItem.props?currentItem.props:[];//临时记录当前stuff的属性列表
               nodes = [];
               for( k in items ){
                 var item = items[k];
@@ -643,26 +652,41 @@ function loadProps(categoryId){
                 width: "100%",
                 //height: "400px",
          
-                inserting: true,
+                inserting: false,
                 editing: true,
                 sorting: false,
                 paging: false,
                 onItemInserted:function(row){
                     console.log("item inserted",row);
-                    var prop = row.item;
                     //更新到当前修改item属性列表内
                     if(!currentItem.props)
                         currentItem.props = [];
-                    currentItem.props[prop.name] = prop.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
+                    //由于采用的是键值对，需要进行遍历。考虑到浏览器影响，此处未采用ES6 Map对象
+                    var props = [];//新建一个数组
+                    var prop = {};
+                    prop[row.item.name] = row.item.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
+                    props.push(prop);
+                    currentItem.props.forEach((item, index) => {//将其他元素加入
+                      console.log("foreach props.[index]"+index,item);
+                      if(!item[row.item.name])
+                        props.push(item);
+                    });
+                    currentItem.props = props;
                     console.log("item props updated",currentItem);                 
                 },
                 onItemUpdated:function(row){
                     console.log("item updated",row);
-                    var prop = row.item;
-                    //更新到当前修改item属性列表内
-                    if(!currentItem.props)
-                        currentItem.props = [];
-                    currentItem.props[prop.name] = prop.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
+                    //由于采用的是键值对，需要进行遍历。考虑到浏览器影响，此处未采用ES6 Map对象
+                    var props = [];//新建一个数组
+                    var prop = {};
+                    prop[row.item.name] = row.item.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
+                    props.push(prop);
+                    currentItem.props.forEach((item, index) => {//将其他元素加入
+                      console.log("foreach props.[index]"+index,item);
+                      if(!item[row.item.name])
+                        props.push(item);                      
+                    });
+                    currentItem.props = props; 
                     console.log("item props updated",currentItem);   
                 },
 
@@ -686,9 +710,12 @@ function loadProps(categoryId){
 //显示tag编辑框
 function showTagging(tags){
     var moreTags = tags;
+    //**
     for(var i=0;i<moreTags.length;i++){
-        $('#tagging').append("<li>"+moreTags[i]+"</li>");
+        if(moreTags[i].trim().length>0)
+            $('#tagging').append("<li>"+moreTags[i]+"</li>");
     }
+
     var eventTags = $('#tagging');
 
     var addEvent = function(text) {
@@ -707,8 +734,9 @@ function showTagging(tags){
         afterTagAdded: function(evt, ui) {
             if (!ui.duringInitialization) {
                 if(!currentItem.tagging)
-                    currentItem.tagging = [];
-                currentItem.tagging.push(eventTags.tagit('tagLabel', ui.tag));
+                    currentItem.tagging = "";
+                currentItem.tagging += " "+eventTags.tagit('tagLabel', ui.tag);
+                //currentItem.tagging.push(eventTags.tagit('tagLabel', ui.tag));
                 addEvent('afterTagAdded: ' + eventTags.tagit('tagLabel', ui.tag));
             }
         },
@@ -718,9 +746,8 @@ function showTagging(tags){
         },//**/
         afterTagRemoved: function(evt, ui) {
             if(!currentItem.tagging)
-                currentItem.tagging = [];
-            var tags = currentItem.tagging.join(" ").replace(eventTags.tagit('tagLabel', ui.tag),"");
-            currentItem.tagging = tags.split(" ");
+                currentItem.tagging = "";
+            currentItem.tagging = currentItem.tagging.replace(eventTags.tagit('tagLabel', ui.tag),"").trim();
             addEvent('afterTagRemoved: ' + eventTags.tagit('tagLabel', ui.tag));
         },
         /**
@@ -816,15 +843,15 @@ function listenPostMessage(){
                         //value:window.localStorage.getItem(sxCookie.key)?JSON.parse(window.localStorage.getItem(sxCookie.key)):{}
                     }
                 }, '*');
-            }else if (sxCookie.action == 'save') {//存储数据到sxPendingItems
+            }else if (sxCookie.action == 'save') {//存储数据到sxPendingItem
                 console.log("try to save data to cookie.",sxCookie);
                 if(sxCookie.key == 'sxPendingItem'){
                     console.log("check sxPendingItem exists.",sxCookie.value);
                     /**
                     //从cookie获取已有数据
                     var pendingItems = [];//默认为空数组
-                    if($.cookie('sxPendingItems') && $.cookie('sxPendingItems').trim().length>2 ){
-                        pendingItems = JSON.parse($.cookie('sxPendingItems'));
+                    if($.cookie('sxPendingItem') && $.cookie('sxPendingItem').trim().length>2 ){
+                        pendingItems = JSON.parse($.cookie('sxPendingItem'));
                     }
 
                     //检查是否已经在队列里
@@ -841,27 +868,59 @@ function listenPostMessage(){
                         if(!isCollected){//仅展示一次
                             var tmpItem = sxCookie.value;
                             currentItem = tmpItem;
-                            insertItem(tmpItem);//显示到界面
-                            loadCategories();//显示类目选择器
-                            //隐藏等待提示
-                            $("#loadingTipDiv").css("display","none");
-                            //设置标注表单
-                            $("#title").val(tmpItem.title);
-                            $("#summary").val(tmpItem.summary);
-                            //显示标注表单
-                            $("#labelingFormDiv").css("display","block");
-                            showTagging(tmpItem.tagging?tmpItem.tagging:(tmpItem.tags?tmpItem.tags:[]));
+                            loadItem(hex_md5(currentItem.url));//默认认为是新采集的条目，生成新的key
                             isCollected = true;
                         }
 
                         //写入cookie：注意：cookie尺寸很只有4096字节，仅存储最后一个
                         console.log("save sxPendingItem to cookie.",sxCookie.value);
-                        document.cookie = "sxPendingItems="+JSON.stringify(sxCookie.value)+"; SameSite=None; Secure";                
+                        document.cookie = "sxPendingItem="+JSON.stringify(sxCookie.value)+"; SameSite=None; Secure";                
                     //}
                 }
             };
         }
     },false);
+}
+
+//查询单个条目：要复用服务器端已经标注的数据，避免重复劳动
+function loadItem(key){//获取内容列表
+    $.ajax({
+        url:"https://data.shouxinjk.net/_db/sea/my/stuff/"+key,
+        type:"get",
+        data:{},
+        success:function(data){
+            //存入cookie，在切换界面时直接读取
+            document.cookie = "sxPendingItem="+JSON.stringify(data)+"; SameSite=None; Secure"; 
+            showContent(data);
+        },
+        error: function(xhr){
+            //超时后直接尝试显示本地内容
+            console.log('load item error. show local item. [status] ' + xhr.status, xhr.statusText);
+            showContent();
+        },
+        timeout: 3000 // sets timeout to 3 seconds
+    })            
+}
+
+//显示数据到界面
+function showContent(item){
+    if(item && item._key)//如果查询到有已经存在的内容，则使用该内容
+        currentItem = item;
+    insertItem(currentItem);//显示当前采集的内容条目
+    //以下显示标注表单
+    loadCategories();//显示类目选择器
+    //隐藏等待提示
+    $("#loadingTipDiv").css("display","none");
+    //设置标注表单
+    $("#title").val(currentItem.title);
+    $("#summary").val(currentItem.summary);
+    //显示标注表单
+    $("#labelingFormDiv").css("display","block");
+    //显示标签列表，如果为空则用默认tags
+    var tags = currentItem.tags?currentItem.tags:[];
+    if(currentItem.tagging && currentItem.tagging.trim().length>0)
+        tags = currentItem.tagging.trim().split(" ")
+    showTagging(tags);    
 }
 
 function submitItemForm(){
@@ -880,7 +939,7 @@ function submitItemForm(){
 
     //仅提交标注数据，其他数据不做提交，避免覆盖服务器侧数据更新
     var changedItem = {
-        _key:currentItem._key|hex_md5(currentItem.url),
+        _key:currentItem._key?currentItem._key:hex_md5(currentItem.url),
         task:{
             user:currentItem.task.user
         },
@@ -908,7 +967,7 @@ function submitItemForm(){
         }]
     };
     $.ajax({
-        url:"http://kafka-rest.shouxinjk.net/topics/stuff",
+        url:"https://data.shouxinjk.net/kafka-rest/topics/stuff",
         type:"post",
         data:JSON.stringify(data),//注意：不能使用JSON对象
         headers:{

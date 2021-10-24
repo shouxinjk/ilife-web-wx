@@ -88,9 +88,15 @@ function getQrcodeScanResult(ticket){
                 var msg = {
                   sxNavigateTo:targetUrl+"?from=mp-orgnization&fromUser="+res.openid+"&nonce="+new Date().getTime()
                 };
+
+                //对于采集器，首次扫码登录后由于数据已经采集发送完成，需要刷新页面再次触发采集
+                if(targetUrl.indexOf("index_crawler")>0)//如果目标页面是采集页面
+                    msg.sxRefresh = true;
+
                 console.log("post message to redirect to index page.",sxAuth,msg);
                 //通过postMessage通知跳转到列表页面
-                window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分               
+                window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分    
+                //**/           
             }
         }
     });
