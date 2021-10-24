@@ -62,6 +62,7 @@ var actionTypes = {
   view:"看了",
   share:"分享",
   "publish":"发布",
+  "collect":"上架",  
   "share poster":"海报分享",
   "share board poster":"清单海报分享",
   "share appmsg":"微信分享",
