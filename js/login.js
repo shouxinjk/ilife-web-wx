@@ -16,6 +16,7 @@ $(document).ready(function ()
     if(args["targetUrl"]){
         targetUrl = decodeURIComponent(args["targetUrl"]);
     }
+    console.log("got targetUrl",targetUrl):
 
     //监听父窗口postmessage
     listenPostMessage();
