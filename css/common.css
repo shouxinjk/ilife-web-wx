@@ -508,3 +508,11 @@ input,img{border: none;}
   font-size: 12px;
   font-weight: bold;
 }
+.formLabel{
+  margin-top:5px;
+  padding-left:10px;
+  margin-bottom: 2px;
+}
+.ui-helper-hidden-accessible{
+  display:none;/*隐藏tagit搜索提示*/
+}

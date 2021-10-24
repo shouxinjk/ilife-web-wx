@@ -2,6 +2,7 @@
 显示微信登录二维码
 **/
 var client = "web";
+var targetUrl = "https://www.biglistoflittlethings.com/ilife-web-wx/index_mp.html";//支持登录后跳转到多个地址，默认为发布界面
 // 文档加载完毕后执行
 $(document).ready(function ()
 {
@@ -12,6 +13,9 @@ $(document).ready(function ()
        client = "wap";
     }
     var args = getQuery();//获取参数
+    if(args["targetUrl"]){
+        targetUrl = decodeURIComponent(args["targetUrl"]);
+    }
 
     //监听父窗口postmessage
     listenPostMessage();
@@ -82,7 +86,7 @@ function getQrcodeScanResult(ticket){
 
                 //发送通知消息，切换页面：添加随机数，确保每次刷新
                 var msg = {
-                  sxNavigateTo:"https://www.biglistoflittlethings.com/ilife-web-wx/index_mp.html?from=mp-orgnization&fromUser="+res.openid+"&nonce="+new Date().getTime()
+                  sxNavigateTo:targetUrl+"?from=mp-orgnization&fromUser="+res.openid+"&nonce="+new Date().getTime()
                 };
                 console.log("post message to redirect to index page.",sxAuth,msg);
                 //通过postMessage通知跳转到列表页面
@@ -101,7 +105,7 @@ function checkUserBinding(){
     if(sxAuth && sxAuth.ready && sxAuth.openid){//已经绑定，直接跳转
       //通知跳转到列表
       var msg = {
-        sxNavigateTo:"https://www.biglistoflittlethings.com/ilife-web-wx/index_mp.html?from=mp-orgnization&fromUser="+sxAuth.openid
+        sxNavigateTo:targetUrl+"?from=mp-orgnization&fromUser="+sxAuth.openid+"&nonce="+new Date().getTime()
       };
       console.log("post message.sxAuth cookie.",sxAuth,msg);
       window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分   

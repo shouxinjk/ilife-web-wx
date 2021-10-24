@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />  
+    <link href="ext/tag-it/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+    <link href="ext/tag-it/css/tagit.ui-zendesk.css" rel="stylesheet" type="text/css">    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">     
+    <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
+    <!--link rel="stylesheet" type="text/css" href="css/swiper.min.css"--> 
+    <link rel="stylesheet" type="text/css" href="ext/cascade-select/cascader.css?v=0.7">    
+    <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
+    <link type="text/css" rel="stylesheet" href="ext/jsgrid-1.5.3/jsgrid.min.css" /> 
+    <link type="text/css" rel="stylesheet" href="ext/jsgrid-1.5.3/jsgrid-theme.min.css" />    
+    <link rel="stylesheet" type="text/css" href="css/common.css?v=5.0">
+    <link rel="stylesheet" type="text/css" href="css/waterfall.css">   
+    <link rel="stylesheet" type="text/css" href="css/index.css?v=2.2">     
+</head>
+
+<body style="background-color: #fff">
+    <!-- 提供采集数据 和 数据源两个入口 -->
+    <div class="nav">
+        <ul class="navUl">
+            <li id="sxItemForm">商品详情</li>
+            <!--li id="sxItemList">历史数据</li-->
+            <li id="sxItemSourceList">数据源</li>
+        </ul>
+    </div>   
+
+    <div id="no-results-tip" class="no-result-tip-hide">更多数据请查看支持数据源</div>
+
+    <div id="Center">
+        <ul id="waterfall"></ul>
+    </div>
+
+    <!-- 进入时等待提示 -->
+    <div id="loadingTipDiv">
+        <div style="width:100%;margin-top:50px;line-height:40px;text-align: center;vertical-align: middle;">
+            正在加载数据，请稍等...
+        </div>
+        <div style="width:100%;text-align: center;vertical-align: middle;">
+            <img src="images/loading.gif"/>
+        </div>  
+    </div>    
+
+    <div id="labelingFormDiv" style="width:96%;display:none;padding-left:10px;font-size:12px;font-weight:bold;">
+        <!--类目选择器-->
+        <div>
+            <label for="category-wrap" class="formLabel">类别</label>
+            <div id="category-wrap" class="cascader-wrap"></div>
+        </div>
+
+        <!--标题-->
+        <div>
+            <label for="title" class="formLabel">标题</label>
+            <input id="title" value="" style="width:100%;border:1px solid silver;height:38px;line-height: 24px;padding:5px;border:1px solid #dcdfe6;"></input>
+        </div>  
+
+        <!--摘要-->
+        <div>
+            <label for="summary" class="formLabel">摘要</label>
+            <textarea id="summary" rows="4" style="width:100%;border:1px solid silver;line-height: 24px;padding:5px;border:1px solid #dcdfe6;"></textarea>
+        </div> 
+
+        <!--标签--> 
+        <div class="tag-wrapper">
+            <label for="tagging" class="formLabel">标签</label>
+            <div  class="tagging">
+                <ul id="tagging" style="font-size:12px;border:1px solid #dcdfe6;">
+                </ul>    
+            </div>            
+        </div>      
+
+        <!--属性列表-->
+        <div id="propsDiv" style="display:none">
+            <label class="formLabel">属性</label>
+            <div id="propsList"></div>
+        </div> 
+
+        <!--提交按钮-->
+        <div>
+            <button id="submitFormBtn" type="button" class="findMoreBtn-show" style="margin-top:20px;font-size:14px;background-color:green;border-color:green;color:white;padding-left:10px;padding-right:10px;width:50%;">提 交 数 据</button>
+        </div>
+
+        <div id="footer" class="footer">
+            <button class="btn btn-default findMoreBtn-hide" id="findMoreBtn">搜索更多</button>
+        </div>   
+
+        <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
+
+        <!-- 分享按钮 -->
+        <div id="share-box" class="share-box-hide">
+            <div id="share-tips" class="share-tips">达人分享</div>
+            <div id="share-bonus" class="share-bonus"></div>
+            <div id="share-btn" class="share-btn">
+                <div id="share-instruction">清单分享更高效</div>
+                <a id="share-link" href="#">&nbsp;&nbsp;立即分享&nbsp;&nbsp;</a>
+            </div>
+        </div>  
+    </div> 
+  <!--div id="sx-menu">
+    <a href="index.html" class="menu-btn">
+        <img src="images/smile-happy-selected.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt-selected">&nbsp;推荐</div>
+    </a>
+    <a href="feeds.html" class="menu-btn">
+        <img src="images/biglist.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;发现</div>
+    </a>
+    <a href="user.html" class="menu-btn">
+        <img src="images/my.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;我</div>
+    </a>        
+  </div-->
+      
+</body>
+
+<script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="ext/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/newWaterfall.js"></script>
+<!--script type="text/javascript" src="js/swiper.min.js"></script-->
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
+<script type="text/javascript" src="ext/jsgrid-1.5.3/jsgrid.min.js"></script>
+<script type="text/javascript" src="ext/cascade-select/cascader.js?v=1.8"></script>
+<script type="text/javascript" src="js/md5.js?v=2.5"></script>
+<script type="text/javascript" src="js/util.js?v=2.5"></script>
+<script type="text/javascript" src="js/index_crawler.js?v=1.8"></script>
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script> 
+<script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+<script src="ext/tag-it/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
+</html>
