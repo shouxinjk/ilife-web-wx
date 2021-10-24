@@ -676,6 +676,8 @@ function loadProps(categoryId){
                 },
                 onItemUpdated:function(row){
                     console.log("item updated",row);
+                    if(!currentItem.props)
+                        currentItem.props = [];                    
                     //由于采用的是键值对，需要进行遍历。考虑到浏览器影响，此处未采用ES6 Map对象
                     var props = [];//新建一个数组
                     var prop = {};
