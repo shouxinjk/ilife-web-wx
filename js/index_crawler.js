@@ -252,10 +252,12 @@ function insertItem(item){
           }
         }else if(item.profit && item.profit.type=="2-party"){//如果是2方分润则请求计算
             //profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide' style='margin-bottom:0;'></div>";
-            getItemProfit2Party(item);
+            //采集时不立即对佣金进行计算，统一由后端任务自动完成
+            //getItemProfit2Party(item);
         }else{//表示尚未计算。需要请求计算得到该item的profit信息
             //profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide' style='margin-bottom:0;'></div>";
-            getItemProfit(item);
+            //采集时不立即对佣金进行计算，统一由后端任务自动完成
+            //getItemProfit(item);
         }
     }
 
