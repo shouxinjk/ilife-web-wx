@@ -856,7 +856,16 @@ function insertItem(){
     //注册事件：在新tab页内显示商品详情
     $("#view-"+item._key).click(function(){
         //跳转到详情页
-        window.open("info2.html?category="+category+"&id="+item._key);
+        //window.open("info2.html?category="+category+"&id="+item._key);
+        var toUrl = item.url;
+        if(item.link.web2)
+          toUrl = item.link.web2;
+        console.log("try to redirect.",toUrl);
+        var msg = {
+          sxRedirect:toUrl,
+          sxTargetWindow:"_new"
+        };
+        window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分                   
     });
 
     //注册事件：copy图文卡片
