@@ -867,16 +867,19 @@ function listenPostMessage(){
                         //pendingItems.push(sxCookie.value);
                         //items.push(sxCookie.value);//加入当前队列中
                         //loading=false;//继续加载
+
+                        //直接用最新数据更换缓存内容
+                        currentItem = sxCookie.value;
+                        //写入cookie：注意：cookie尺寸很只有4096字节，仅存储最后一个
+                        console.log("save sxPendingItem to cookie.",sxCookie.value);
+                        document.cookie = "sxPendingItem="+JSON.stringify(sxCookie.value)+"; SameSite=None; Secure";  
+                        //显示到界面，注意只需要加载一次即可                        
                         if(!isCollected){//仅展示一次
-                            var tmpItem = sxCookie.value;
-                            currentItem = tmpItem;
                             loadItem(hex_md5(currentItem.url));//默认认为是新采集的条目，生成新的key
                             isCollected = true;
                         }
 
-                        //写入cookie：注意：cookie尺寸很只有4096字节，仅存储最后一个
-                        console.log("save sxPendingItem to cookie.",sxCookie.value);
-                        document.cookie = "sxPendingItem="+JSON.stringify(sxCookie.value)+"; SameSite=None; Secure";                
+              
                     //}
                 }
             };
@@ -956,7 +959,7 @@ function submitItemForm(){
     if(currentItem.props)
         changedItem.props = currentItem.props;
 
-    console.log("try to commit data.",currentItem,changedItem);
+    console.log("try to commit data.",currentItem/*,changedItem*/);
 
     //记录采集历史：重要，单个达人或机构能够根据历史获取其采集的历史列表 
     logstash(currentItem,"toolbar","collect",currentItem.task.user,broker.id,function(){
@@ -965,7 +968,7 @@ function submitItemForm(){
 
     var data = {
         records:[{
-            value:changedItem
+            value:currentItem//changedItem
         }]
     };
     $.ajax({
