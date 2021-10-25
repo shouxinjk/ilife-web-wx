@@ -28,6 +28,9 @@ $(document).ready(function ()
     //加载用户信息，同时会加载达人信息
     loadUserInfoByOpenid(fromUser);  
 
+    //加载支持的数据源列表
+    loadPlatformSources();
+
     //在页面初次加载时，直接检查本地pendingItem，有则直接显示
     /**
     if($.cookie("sxPendingItem") && $.cookie("sxPendingItem").trim().length > 0 ){
@@ -36,6 +39,15 @@ $(document).ready(function ()
         showContent(currentItem);
     }
     //**/
+    //注册操作事件：显示标注面板
+    $("#sxItemFormBtn").click(function(){
+        showLabelingFormDiv();
+    });     
+
+    //注册操作事件：显示数据源面板
+    $("#sxItemSourceListBtn").click(function(){
+        showPlatformSourceDiv();
+    }); 
 
     //注册提交标注数据事件
     $("#submitFormBtn").click(function(){
@@ -993,3 +1005,66 @@ function submitItemForm(){
 
 }
 
+//加载支持的数据源列表，并显示到界面
+function loadPlatformSources(){
+    var query={
+            collection: "platforms", 
+            example: { 
+                status:"ready"//查询状态为ready的链接列表
+            },
+            limit:100
+        };   
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
+        //showloading(false);
+        console.log("try to retrive platforms.", res);
+        if(res && res.count==0){//如果没有则表示有问题
+            console.log("something wrong. we cannot get platforms");
+            insertPlatforms(null);
+        }else{//否则更新关系名称
+            console.log('display platforms',res);
+            insertPlatforms(res.result);
+        }
+    }, "PUT",query,header);
+}
+
+function insertPlatforms(platforms){
+    if(!platforms || platforms.length == 0){
+        //显示提示信息
+        return;
+    }
+    platforms.forEach((item, index) => {//逐个显示
+      console.log("insert platform.[index]"+index,item);
+      var html = '<div id="platform-link-'+index+'"" class="findMoreBtn-show" class="findMoreBtn-show" style="min-width:80px;width:110px;padding-left:10px;padding-right:10px;text-align:center;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;border-color:#fd5638;color:#fd5638;">';
+      //html += '<a href="'+item.url+'" target="_new" >';
+      html += item.name  +(item.category?" "+item.category:"");
+      //html += '</a>';
+      html += '</div>';      
+      $("#platformList").append(html);
+
+      //注册点击事件
+        $("#platform-link-"+index).click(function(){
+            console.log("try to redirect.",item.url);
+            var msg = {
+              sxRedirect:item.url,
+              sxTargetWindow:"_new"
+            };
+            window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分            
+        }); 
+    });    
+}
+
+//显示标注表单面板
+function showLabelingFormDiv(){
+    $("#platformListDiv").css("display","none");
+    $("#labelingFormDiv").css("display","block");
+}
+
+//显示数据源面板
+function showPlatformSourceDiv(){
+    $("#platformListDiv").css("display","block");
+    $("#labelingFormDiv").css("display","none");
+}

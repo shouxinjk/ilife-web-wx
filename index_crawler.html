@@ -24,9 +24,9 @@
     <!-- 提供采集数据 和 数据源两个入口 -->
     <div class="nav">
         <ul class="navUl">
-            <li id="sxItemForm">商品详情</li>
+            <li id="sxItemFormBtn">商品详情</li>
             <!--li id="sxItemList">历史数据</li-->
-            <li id="sxItemSourceList">数据源</li>
+            <li id="sxItemSourceListBtn">数据源</li>
         </ul>
     </div>   
 
@@ -46,6 +46,7 @@
         </div>  
     </div>    
 
+    <!--标注表单界面-->
     <div id="labelingFormDiv" style="width:96%;display:none;padding-left:10px;font-size:12px;font-weight:bold;">
         <!--类目选择器-->
         <div>
@@ -92,15 +93,21 @@
         <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
 
         <!-- 分享按钮 -->
-        <div id="share-box" class="share-box-hide">
+        <!--div id="share-box" class="share-box-hide">
             <div id="share-tips" class="share-tips">达人分享</div>
             <div id="share-bonus" class="share-bonus"></div>
             <div id="share-btn" class="share-btn">
                 <div id="share-instruction">清单分享更高效</div>
                 <a id="share-link" href="#">&nbsp;&nbsp;立即分享&nbsp;&nbsp;</a>
             </div>
-        </div>  
+        </div-->  
     </div> 
+
+    <!--数据源列表界面-->
+    <div id="platformListDiv" style="width:96%;display:none;padding-left:10px;font-size:12px;font-weight:bold;display:none;">
+        <label class="formLabel">更多数据源</label>
+        <div id="platformList" style="display:grid;justify-content: space-between;grid-template-columns: repeat(auto-fill, 100px); grid-gap: 5px;border-top:1px solid silver;margin-top:5px;padding-top:5px;"></div>
+    </div>
   <!--div id="sx-menu">
     <a href="index.html" class="menu-btn">
         <img src="images/smile-happy-selected.png" width="20px" height="20px"/>
@@ -128,7 +135,7 @@
 <script type="text/javascript" src="ext/cascade-select/cascader.js?v=1.8"></script>
 <script type="text/javascript" src="js/md5.js?v=2.5"></script>
 <script type="text/javascript" src="js/util.js?v=2.5"></script>
-<script type="text/javascript" src="js/index_crawler.js?v=2.6"></script>
+<script type="text/javascript" src="js/index_crawler.js?v=2.7"></script>
 <script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script> 
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script src="ext/tag-it/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
