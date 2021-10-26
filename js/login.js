@@ -38,7 +38,7 @@ function showWxQrcode(){
         success:function(res){
             console.log("got qrcode and redirect.",res);
             //显示二维码
-            $("#wxQrcodeDiv").html("<img width='240' src='"+res.url+"' style='margin-left:80px;'/>");
+            $("#wxQrcodeDiv").html("<img width='240' src='"+res.url+"' style='display:block;margin:0 auto;'/>");
             $("#sxName").css("display","block");
             $("#sxTips").css("display","block");
             //开始轮询扫码结果
@@ -97,6 +97,8 @@ function getQrcodeScanResult(ticket){
                 console.log("post message to redirect to index page.",sxAuth,msg);
                 //通过postMessage通知跳转到列表页面
                 window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分    
+                //通过web进入的则直接打开窗口。注意：该条执行在toolbar模式会报错。但不影响结果。
+                window.location = targetUrl+"?from=web&fromUser="+sxAuth.openid; 
                 //**/           
             }
         }
@@ -116,6 +118,8 @@ function checkUserBinding(){
       };
       console.log("post message.sxAuth cookie.",sxAuth,msg);
       window.parent.postMessage(msg, "*");//不设定origin，直接通过属性区分   
+      //通过web进入的则直接打开窗口。注意：该条执行在toolbar模式会报错。但不影响结果。
+      window.location = targetUrl+"?from=web&fromUser="+sxAuth.openid;      
     }else{//直接显示二维码重新扫，包括扫码过期的情况
       console.log("cannot find openid from cookie. please rescan because cookie missing.",sxAuth);
       showWxQrcode();

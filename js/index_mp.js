@@ -177,6 +177,11 @@ function loadBrokerInfoByOpenid(openid){
     };
     window.parent.postMessage(brokerMessage, "*");//不设定origin，直接通过属性区分
     console.log("post broker message.",brokerMessage);
+
+    //如果是从web进入则显示达人面板
+    if(from=="web"){
+      showCurrentBrokerInfo();
+    }
   });
 }
 
@@ -672,7 +677,7 @@ function insertItem(){
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
     var image = "<img src='"+imgPrefix+item.images[0]+"' width='"+imgWidth+"' height='"+imgHeight+"' style='margin:0 auto'/>"
-    //var tagTmpl = "<strong style='white-space:nowrap;display:inline-block;border:1px solid #8BC34A;background-color: #8BC34A;color:white;font-weight: bold;font-size: 10px;text-align: center;border-radius: 5px;margin-left:2px;margin-right:1px;margin-top:-2px;padding:2px;vertical-align:middle;'>__TAG</strong>";
+    var tagTmpl = "<strong style='white-space:nowrap;display:inline-block;border:1px solid #8BC34A;background-color: #8BC34A;color:white;font-weight: bold;font-size: 10px;text-align: center;border-radius: 5px;margin-left:2px;margin-right:1px;margin-top:-2px;padding:2px;vertical-align:middle;'>__TAG</strong>";
     var highlights = "<div class='itemTags' style='line-height: 18px;'>";
     var prices = "";
     prices += "<strong style='font-size:14px;font-weight: bold;background-color: white;color:darkred;padding:2px;'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</strong>";
@@ -1435,7 +1440,7 @@ function showSwiper(){
     }    
     //显示滑动条
     var mySwiper = new Swiper ('.swiper-container', {
-        slidesPerView: 4,
+        slidesPerView: from=="web"?parseInt(document.getElementsByTagName('html')[0].clientWidth/100):4,
     });  
     //调整swiper 风格，使之悬浮显示
     $(".swiper-container").css("position","relative");
@@ -1721,4 +1726,33 @@ function listenPostMessage(){
             };
         }
     },false);
+}
+
+//显示登录达人信息：仅对于来源于web有效
+function showCurrentBrokerInfo(){
+    var html = "";
+    html += "<div id='sxDiv' style='position:fixed;z-index:2147483646;top:5px;right:5px;width:300px;height:80px;border-radius:5px;'>";
+    //broker info
+    html += '<div id="brokerInfoDiv" class="info">';
+    html += '<div class="info-general">';
+    html += '<img id="broker-logo" class="general-icon" src="'+app.globalData.userInfo.avatarUrl+'" height="60px"/>';
+    html += '</div>';
+    html += '<div class="info-detail">';
+    html += '<div id="broker-name" class="info-text info-blank" style="color:#000;font-weight:bold;font-size:14px;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;">'+app.globalData.userInfo.nickName+'</div>';
+    html += '<div class="info-text info-blank" id="brokerHint"  style="color:#000;font-family:Microsoft YaHei,Arial,sans-serif;font-wight:normal;">请筛选需要的商品<br/>选定后点击拷贝，并粘贴到正文即可</div>';
+    html += '</div>';
+    html += '</div>';  
+    $("body").append(html);
+
+    if(app.globalData.userInfo._key){//更新达人名称，同时显示 切换按钮。点击切换后将删除sxCookie
+        var brokerName = "Hi,"+app.globalData.userInfo.nickName/*+(broker&&broker.name&&broker.name.trim().length>0&&broker.name!==app.globalData.userInfo.nickName?("("+broker.name+")"):"")*/;
+        brokerName += "&nbsp;<a href='#' style='font-size:12px;color:silver' id='sxChangeBroker' alt='切换账户'><img width='12' text='切换账户' style='vertical-align:middle; margin: 0 auto; ' src='https://www.biglistoflittlethings.com/ilife-web-wx/images/change.png'/></a>";
+        $("#broker-name").html(brokerName);
+        $("#sxChangeBroker").click(function(event){
+            //删除sxCookie
+            document.cookie = "sxAuth="+JSON.stringify({})+"; SameSite=None; Secure";
+            //返回到登录页面
+            window.location = "login.html";
+        });
+    }  
 }
