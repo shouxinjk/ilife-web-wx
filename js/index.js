@@ -649,10 +649,9 @@ setInterval(function ()
 function loadItems(){//获取内容列表
     //构建esQuery
     esQuery = buildEsQuery();//完成query构建。其中默认设置了每页条数
-    console.log("\ntry search by query.[esQuery]",esQuery,"\n");
     //处理翻页
     esQuery.from = (page.current+1) * page.size;
-
+    console.log("\ntry search by query.[esQuery]",esQuery,"\n");
     $.ajax({
         url:"https://data.pcitech.cn/stuff/_search",
         type:"post",
@@ -842,7 +841,7 @@ function getItemProfit2Party(item) {
         category:item.categoryId?item.categoryId:""
     };
     util.AJAX(app.config.sx_api+"/mod/commissionScheme/rest/profit-2-party", function (res) {
-        console.log("\ngot profit info.",data,res);
+        //console.log("\ngot profit info.",data,res);
         var showProfit = false;
         var html = "";
         if (res.order) {//店返
@@ -882,7 +881,7 @@ function getItemProfit(item) {
     };
     console.log("try to query item profit",data);
     util.AJAX(app.config.sx_api+"/mod/commissionScheme/rest/profit", function (res) {
-        console.log("got profit info.",item,res);
+        //console.log("got profit info.",item,res);
         var showProfit = false;
         var html = "";
         if (res.order) {//店返
@@ -1200,7 +1199,9 @@ function showSwiper(){
       currentPerson = persons[0]._key;
       currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";   
     }   
-    changePerson(currentPerson,currentPersonTagging);    
+    //当前不需要切换，默认显示全部
+    //changePerson(currentPerson,currentPersonTagging);   
+    highlightPerson(currentPerson,currentPersonTagging);      
 }
 
 function insertPerson(person){
@@ -1270,6 +1271,26 @@ function changePerson (personId,personTagging) {
     num = 1;//从第一条开始加载
     loadData();//重新加载数据
   } 
+
+//仅高亮person，不重新加载数据
+function highlightPerson (personId,personTagging) {
+    var ids = personId;
+    if (app.globalData.isDebug) console.log("Index::highlightPerson highlight person.",currentPerson,personId);
+    $("#"+currentPerson).removeClass("person-selected");
+    $("#"+currentPerson).addClass("person");
+    $("#"+ids).removeClass("person");
+    $("#"+ids).addClass("person-selected");   
+
+    $("#"+currentPerson+" img").removeClass("person-img-selected");
+    $("#"+currentPerson+" img").addClass("person-img");
+    $("#"+ids+" img").removeClass("person-img");
+    $("#"+ids+" img").addClass("person-img-selected");
+
+    $("#"+currentPerson+" span").removeClass("person-name-selected");
+    $("#"+currentPerson+" span").addClass("person-name");
+    $("#"+ids+" span").removeClass("person-name");
+    $("#"+ids+" span").addClass("person-name-selected");
+  }   
 
 
 function loadFilters(currentFilter){
