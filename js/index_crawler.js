@@ -12,7 +12,7 @@ $(document).ready(function ()
     from = args["from"]?args["from"]:"mp";//来源于选品工具，包括公众号流量主、知乎、头条、简书等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
 
-    console.log("got params from & fromUser from query.",from,fromUser);
+    if(_sxdebug)console.log("got params from & fromUser from query.",from,fromUser);
 
     $('#waterfall').NewWaterfall({
         width: columnWidth,
@@ -55,6 +55,9 @@ $(document).ready(function ()
     });     
  
 });
+
+//调试标志
+var _sxdebug = false;
 
 //记录分享用户、分享达人
 var from = "orgnization";//数据来源，默认为机构达人
@@ -102,7 +105,7 @@ function loadUserInfoByOpenid(openid){
       sxBrokerName:app.globalData.userInfo.nickName
     };
     window.parent.postMessage(brokerMessage, "*");//不设定origin，直接通过属性区分
-    console.log("post broker message.",brokerMessage);
+    if(_sxdebug)console.log("post broker message.",brokerMessage);
   });
 }
 
@@ -125,7 +128,7 @@ function loadBrokerInfoByOpenid(openid){
       sxBrokerRealName:broker.name
     };
     window.parent.postMessage(brokerMessage, "*");//不设定origin，直接通过属性区分
-    console.log("post broker message.",brokerMessage);
+    if(_sxdebug)console.log("post broker message.",brokerMessage);
   });
 }
 
@@ -136,7 +139,7 @@ function loadCategories(){
         type:"get",
         success:function(res){
             //装载categories
-            console.log("got all categories",res);
+            if(_sxdebug)console.log("got all categories",res);
             categories = res;  
             //显示级联选择
             showCascader(currentItem.meta?currentItem.meta.category:null);
@@ -155,7 +158,7 @@ function showCascader(categoryId){
         separator: '/', // 分割符 山西-太原-小店区 || 山西/太原/小店区
         clearable: false, // 是否可一键删除已选
         onSelect:function(selectedCategory){//回调函数，参数带有选中标签的ID和label。回传为：{id:[],label:[]}//其中id为最末级选中节点，label为所有层级标签
-            console.log("crawler::category item selected.",selectedCategory);
+            if(_sxdebug)console.log("crawler::category item selected.",selectedCategory);
             //更新当前item的category。注意更新到meta.category下
             currentItem.meta = {category:selectedCategory.id[0]};//仅保存叶子节点
             //加载属性值列表
@@ -188,7 +191,7 @@ function startQueryDataLoop(){
 
 
 function loadItems(){//获取内容列表
-    console.log("start load items from cookie.");
+    if(_sxdebug)console.log("start load items from cookie.");
     var sxPendingItemInfo = $.cookie('sxPendingItem');//存储的就是列表，[{},{},{}]
     if(sxPendingItemInfo && sxPendingItemInfo.trim().length>0){
       items = JSON.parse(sxPendingItemInfo);
@@ -224,7 +227,7 @@ function insertItem(item){
     var orgHeight = img.height;
     imgHeight = orgHeight/orgWidth*imgWidth;
     //计算文字高度：按照1倍行距计算
-    //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
+    //if(_sxdebug)console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
     var image = "<img src='"+imgPrefix+item.images[0]+"' width='"+imgWidth+"' height='"+imgHeight+"' style='margin:0 auto'/>"
     //var tagTmpl = "<strong style='white-space:nowrap;display:inline-block;border:1px solid #8BC34A;background-color: #8BC34A;color:white;font-weight: bold;font-size: 10px;text-align: center;border-radius: 5px;margin-left:2px;margin-right:1px;margin-top:-2px;padding:2px;vertical-align:middle;'>__TAG</strong>";
     var highlights = "<div class='itemTags' style='line-height: 18px;'>";
@@ -356,9 +359,9 @@ function getBrokerCpsLink(brokerId,item) {
         //category:item.categoryId?item.categoryId:"",
         url:item.link.wap
     };
-    console.log("try to generate broker specified url",data);
+    if(_sxdebug)console.log("try to generate broker specified url",data);
     util.AJAX(app.config.sx_api+"/mod/cpsLinkScheme/rest/cpslink", function (res) {
-        console.log("======\nload cps link info.",data,res);
+        if(_sxdebug)console.log("======\nload cps link info.",data,res);
         if (res.status) {//用返回的cps链接
             pendingItemCpsLink=res.link;
             //更新到item，更新完成后跳转到cps链接地址
@@ -386,7 +389,7 @@ function updateBrokerCpsLink(item,brokerId,cpsLink) {
     cps[brokerId]=cpsLink;//yibrokerId为key，以cpslink为value
     var data = {link:{cps:cps}};
     var url = app.config.data_api +"/_api/document/my_stuff/"+item._key;
-    if (app.globalData.isDebug) console.log("Info2::updateItem update item with broker cps link.[itemKey]"+item._key,data);
+    if (app.globalData.isDebug) if(_sxdebug)console.log("Info2::updateItem update item with broker cps link.[itemKey]"+item._key,data);
     $.ajax({
         url:url,
         type:"PATCH",
@@ -394,18 +397,18 @@ function updateBrokerCpsLink(item,brokerId,cpsLink) {
         headers:header,
         timeout:2000,//设置超时
         success:function(res){//正确返回则跳转到返回地址
-          if (app.globalData.isDebug) console.log("Info2::updateItem update item finished.", res);
+          if (app.globalData.isDebug) if(_sxdebug)console.log("Info2::updateItem update item finished.", res);
           //跳转到cps地址
           //window.location.href = cpsLink;
         },
         complete: function (XMLHttpRequest, textStatus) {//调用执行后调用的函数
             if(textStatus == 'timeout'){//如果是超时，则直接跳转到cps地址，忽略更新stuff失败
-              console.log("ajax timeout. jump to cps link directly.",textStatus);
+              if(_sxdebug)console.log("ajax timeout. jump to cps link directly.",textStatus);
               //window.location.href = cpsLink;
             }
         },
         error: function () {//调用出错执行的函数
-            console.log("error occured while update cps link to stuff. jump to cps link directly.");
+            if(_sxdebug)console.log("error occured while update cps link to stuff. jump to cps link directly.");
             //window.location.href = cpsLink;
           }
 
@@ -414,7 +417,7 @@ function updateBrokerCpsLink(item,brokerId,cpsLink) {
 
 //添加item到board
 function addItemToBoard(item){
-    console.log("Index::addItemToBoard try to add item to board.", item)
+    if(_sxdebug)console.log("Index::addItemToBoard try to add item to board.", item)
     var header={
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
@@ -428,9 +431,9 @@ function addItemToBoard(item){
         }
     };
     util.AJAX(app.config.sx_api+"/mod/boardItem/rest/board-item/", function (res) {
-        console.log("Index::addItemToBoard item added successfully.", res)
+        if(_sxdebug)console.log("Index::addItemToBoard item added successfully.", res)
         if(res.status){
-            console.log("Index::addItemToBoard item added successfully", res)
+            if(_sxdebug)console.log("Index::addItemToBoard item added successfully", res)
             $.toast({//浮框提示已添加成功
                 heading: '已添加到清单',
                 text: '可以继续添加商品或编辑清单',
@@ -450,7 +453,7 @@ function getItemProfit2Party(item) {
         category:item.categoryId?item.categoryId:""
     };
     util.AJAX(app.config.sx_api+"/mod/commissionScheme/rest/profit-2-party", function (res) {
-        console.log("\ngot profit info.",data,res);
+        if(_sxdebug)console.log("\ngot profit info.",data,res);
         var showProfit = false;
         var html = "";
         if (res.order) {//店返
@@ -461,7 +464,7 @@ function getItemProfit2Party(item) {
         }else if(res.credit&&res.credit>0){//如果没有现金则显示积分
             html += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(res.credit*10)/10).toFixed(0)))+"</span></div>";
         }else{//这里应该是出了问题，既没有现金也没有积分
-            console.log("===error===\nnothing to show.",item,res);
+            if(_sxdebug)console.log("===error===\nnothing to show.",item,res);
         }
         //显示到界面
         if(html.trim().length>0 /* && !$("#profit-tip-"+item._key)*/){//由于数据可能重复，导致提示会出现多次，强制检查是否重复
@@ -491,9 +494,9 @@ function getItemProfit(item) {
         price:item.price.sale,
         category:item.categoryId?item.categoryId:""
     };
-    console.log("try to query item profit",data);
+    if(_sxdebug)console.log("try to query item profit",data);
     util.AJAX(app.config.sx_api+"/mod/commissionScheme/rest/profit", function (res) {
-        console.log("got profit info.",item,res);
+        if(_sxdebug)console.log("got profit info.",item,res);
         var showProfit = false;
         var html = "";
         if (res.order) {//店返
@@ -504,7 +507,7 @@ function getItemProfit(item) {
         }else if(res.credit&&res.credit>0){//如果没有现金则显示积分
             html += "<div class='itemTags profit-show' style='margin:0;'><span class='profitTipCredit'>积分</span><span class='itemTagProfitCredit' href='#'>"+(parseFloat((Math.floor(res.credit*10)/10).toFixed(0)))+"</span></div>";
         }else{//这里应该是出了问题，既没有现金也没有积分
-            console.log("===error===\nnothing to show.",item,res);
+            if(_sxdebug)console.log("===error===\nnothing to show.",item,res);
         }
         //显示到界面
         if(html.trim().length>0 /* && !$("#profit-tip-"+item._key)*/){//由于数据可能重复，导致提示会出现多次，强制检查是否重复
@@ -534,9 +537,9 @@ function updateItem(item) {
         Authorization:"Basic aWxpZmU6aWxpZmU="
     };
     var url = app.config.data_api +"/_api/document/my_stuff/"+item._key;
-    if (app.globalData.isDebug) console.log("Index::updateItem update item.",item);
+    if (app.globalData.isDebug) if(_sxdebug)console.log("Index::updateItem update item.",item);
     util.AJAX(url, function (res) {
-      if (app.globalData.isDebug) console.log("Index::updateItem update item finished.", res);
+      if (app.globalData.isDebug) if(_sxdebug)console.log("Index::updateItem update item finished.", res);
       //do nothing
     }, "PATCH", item, header);
 }
@@ -579,7 +582,7 @@ function loadData(){
     $("#waterfall").empty();//清除页面元素
     num=1;//设置加载内容从第一条开始
     page.current = -1;//设置浏览页面为未开始
-    console.log("start load data.");
+    if(_sxdebug)console.log("start load data.");
     loadItems();//重新加载数据
 }
 
@@ -605,13 +608,13 @@ function loadProps(categoryId){
         type:"get",
         data:{},
         success:function(items){
-            console.log(items);
+            if(_sxdebug)console.log(items);
             //在回调内：1，根据返回结果组装待展示数据，字段包括：name、property、value、flag(如果在则为0，不在为1)
             var props = currentItem.props?currentItem.props:[];//临时记录当前stuff的属性列表
               nodes = [];
               for( k in items ){
                 var item = items[k];
-                console.log("measure:"+JSON.stringify(item));
+                if(_sxdebug)console.log("measure:"+JSON.stringify(item));
                 var name=item.name;
                 var property = item.property;
                 var value = props[property]?props[property]:"";
@@ -643,7 +646,7 @@ function loadProps(categoryId){
               //添加未出现的property
                 for(j in props){
                     var prop = props[j];
-                    console.log("un matched prop:"+JSON.stringify(prop));
+                    if(_sxdebug)console.log("un matched prop:"+JSON.stringify(prop));
                     var property="";
                     var value = "";
                     for (var key in prop){
@@ -659,7 +662,7 @@ function loadProps(categoryId){
                     }
                     nodes.push( node );
                 }
-              console.log("prop Nodes:"+JSON.stringify(nodes));
+              if(_sxdebug)console.log("prop Nodes:"+JSON.stringify(nodes));
               //return data;            
             //在回调内：2，组装并显示数据表格
             $("#propsList").jsGrid({
@@ -671,7 +674,7 @@ function loadProps(categoryId){
                 sorting: false,
                 paging: false,
                 onItemInserted:function(row){
-                    console.log("item inserted",row);
+                    if(_sxdebug)console.log("item inserted",row);
                     //更新到当前修改item属性列表内
                     if(!currentItem.props)
                         currentItem.props = [];
@@ -681,15 +684,15 @@ function loadProps(categoryId){
                     prop[row.item.name] = row.item.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
                     props.push(prop);
                     currentItem.props.forEach((item, index) => {//将其他元素加入
-                      console.log("foreach props.[index]"+index,item);
+                      if(_sxdebug)console.log("foreach props.[index]"+index,item);
                       if(!item[row.item.name])
                         props.push(item);
                     });
                     currentItem.props = props;
-                    console.log("item props updated",currentItem);                 
+                    if(_sxdebug)console.log("item props updated",currentItem);                 
                 },
                 onItemUpdated:function(row){
-                    console.log("item updated",row);
+                    if(_sxdebug)console.log("item updated",row);
                     if(!currentItem.props)
                         currentItem.props = [];                    
                     //由于采用的是键值对，需要进行遍历。考虑到浏览器影响，此处未采用ES6 Map对象
@@ -698,12 +701,12 @@ function loadProps(categoryId){
                     prop[row.item.name] = row.item.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
                     props.push(prop);
                     currentItem.props.forEach((item, index) => {//将其他元素加入
-                      console.log("foreach props.[index]"+index,item);
+                      if(_sxdebug)console.log("foreach props.[index]"+index,item);
                       if(!item[row.item.name])
                         props.push(item);                      
                     });
                     currentItem.props = props; 
-                    console.log("item props updated",currentItem);   
+                    if(_sxdebug)console.log("item props updated",currentItem);   
                 },
 
                 data: nodes,
@@ -735,7 +738,7 @@ function showTagging(tags){
     var eventTags = $('#tagging');
 
     var addEvent = function(text) {
-        console.log(text);
+        if(_sxdebug)console.log(text);
         //$('#events_container').append(text + '<br>');
     };
 
@@ -808,12 +811,12 @@ function index(item){//记录日志
 
 //检查工具面板显示状态
 function checkToolbarStatus(){
-    console.log("try to check toolbar status..."); 
+    if(_sxdebug)console.log("try to check toolbar status..."); 
     var sxToolbarStatus = {};
     if($.cookie('sxToolbarStatus') && $.cookie('sxToolbarStatus').trim().length>0){
         sxToolbarStatus = JSON.parse($.cookie('sxToolbarStatus') );
     } 
-    console.log("try to post toolbar  status to parent document.",sxToolbarStatus);   
+    if(_sxdebug)console.log("try to post toolbar  status to parent document.",sxToolbarStatus);   
     window.parent.postMessage({
         sxCookie:{
             action: 'return',
@@ -825,7 +828,7 @@ function checkToolbarStatus(){
 
 //监听postMessage事件：在工具条发生变化时，将状态写入cookie
 function listenPostMessage(){
-    console.log("child window start listening....");
+    if(_sxdebug)console.log("child window start listening....");
     var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
     var eventer = window[eventMethod];
     var messageEvent = eventMethod == "attachEvent" ? "onmessage" : "message";
@@ -834,12 +837,12 @@ function listenPostMessage(){
     eventer(messageEvent,function(e) {
         var key = e.message ? "message" : "data";
         var data = e[key];
-        console.log("got message from parent window.",data);
+        if(_sxdebug)console.log("got message from parent window.",data);
         if(data&&data.sxCookie){//实现缓存数据交换
             var sxCookie  = data.sxCookie;
             if (sxCookie.action == 'set'){//存数据到cookie
                 //直接写入cookie：键值包括sxToolbarStatus
-                console.log("save cookie",sxCookie);
+                if(_sxdebug)console.log("save cookie",sxCookie);
                 document.cookie = sxCookie.key+"="+JSON.stringify(sxCookie.value)+"; SameSite=None; Secure";
                 //由于窗口显示变化，需要设置是否加载数据标志
                 if(sxCookie.key == 'sxToolbarStatus'){//根据状态设置是否加载数据
@@ -850,7 +853,7 @@ function listenPostMessage(){
                   }
                 }
             }else if (sxCookie.action == 'get') {//从cookie读取数据并返回上层窗口
-                console.log("try to post message to parent document.",data);
+                if(_sxdebug)console.log("try to post message to parent document.",data);
                 window.parent.postMessage({
                     sxCookie:{
                         action: 'return',
@@ -860,9 +863,9 @@ function listenPostMessage(){
                     }
                 }, '*');
             }else if (sxCookie.action == 'save') {//存储数据到sxPendingItem
-                console.log("try to save data to cookie.",sxCookie);
+                if(_sxdebug)console.log("try to save data to cookie.",sxCookie);
                 if(sxCookie.key == 'sxPendingItem'){
-                    console.log("check sxPendingItem exists.",sxCookie.value);
+                    if(_sxdebug)console.log("check sxPendingItem exists.",sxCookie.value);
                     /**
                     //从cookie获取已有数据
                     var pendingItems = [];//默认为空数组
@@ -885,7 +888,7 @@ function listenPostMessage(){
                         //直接用最新数据更换缓存内容
                         currentItem = sxCookie.value;
                         //写入cookie：注意：cookie尺寸很只有4096字节，仅存储最后一个
-                        console.log("save sxPendingItem to cookie.",sxCookie.value);
+                        if(_sxdebug)console.log("save sxPendingItem to cookie.",sxCookie.value);
                         document.cookie = "sxPendingItem="+JSON.stringify(sxCookie.value)+"; SameSite=None; Secure";  
                         //显示到界面，注意只需要加载一次即可                        
                         if(!isCollected){//仅展示一次
@@ -914,7 +917,7 @@ function loadItem(key){//获取内容列表
         },
         error: function(xhr){
             //超时后直接尝试显示本地内容
-            console.log('load item error. show local item. [status] ' + xhr.status, xhr.statusText);
+            if(_sxdebug)console.log('load item error. show local item. [status] ' + xhr.status, xhr.statusText);
             showContent();
         },
         timeout: 3000 // sets timeout to 3 seconds
@@ -973,7 +976,7 @@ function submitItemForm(){
     if(currentItem.props)
         changedItem.props = currentItem.props;
 
-    console.log("try to commit data.",currentItem/*,changedItem*/);
+    if(_sxdebug)console.log("try to commit data.",currentItem/*,changedItem*/);
 
     //记录采集历史：重要，单个达人或机构能够根据历史获取其采集的历史列表 
     logstash(currentItem,"toolbar","collect",currentItem.task.user,broker.id,function(){
@@ -1022,12 +1025,12 @@ function loadPlatformSources(){
     }; 
     util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
         //showloading(false);
-        console.log("try to retrive platforms.", res);
+        if(_sxdebug)console.log("try to retrive platforms.", res);
         if(res && res.count==0){//如果没有则表示有问题
-            console.log("something wrong. we cannot get platforms");
+            if(_sxdebug)console.log("something wrong. we cannot get platforms");
             insertPlatforms(null);
         }else{//否则更新关系名称
-            console.log('display platforms',res);
+            if(_sxdebug)console.log('display platforms',res);
             insertPlatforms(res.result);
         }
     }, "PUT",query,header);
@@ -1039,7 +1042,7 @@ function insertPlatforms(platforms){
         return;
     }
     platforms.forEach((item, index) => {//逐个显示
-      console.log("insert platform.[index]"+index,item);
+      if(_sxdebug)console.log("insert platform.[index]"+index,item);
       var html = '<div id="platform-link-'+index+'"" class="findMoreBtn-show" class="findMoreBtn-show" style="min-width:80px;width:110px;padding-left:10px;padding-right:10px;text-align:center;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;border-color:#fd5638;color:#fd5638;">';
       //html += '<a href="'+item.url+'" target="_new" >';
       html += item.name  +(item.category?" "+item.category:"");
@@ -1049,7 +1052,7 @@ function insertPlatforms(platforms){
 
       //注册点击事件
         $("#platform-link-"+index).click(function(){
-            console.log("try to redirect.",item.url);
+            if(_sxdebug)console.log("try to redirect.",item.url);
             var msg = {
               sxRedirect:item.url,
               sxTargetWindow:"_new"
