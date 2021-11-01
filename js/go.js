@@ -30,7 +30,7 @@ function jump(id){//获取详细内容
         data:{},
         success:function(item){
             //先记录日志
-            logstash(item,from,"buy step2",shareUserId,shareBrokerId,function(){});
+            logstash(item,from,"buy step2",fromUser,fromBroker,function(){});
             //获取达人链接并跳转
             if(item.link.cps && item.link.cps[fromBroker] ){//能够直接获得达人链接则直接显示
                 window.location.href = item.link.cps[fromBroker];
