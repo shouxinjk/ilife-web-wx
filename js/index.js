@@ -14,12 +14,27 @@ $(document).ready(function ()
     }
     var args = getQuery();//获取参数
     if(args["id"])inputPerson=args["id"];//从请求中获取需要展示的person或personaId
+    from = args["from"]?args["from"]:"mp";//来源于公众号、企业微信、web端
+    fromUser = args["fromUser"]?args["fromUser"]:"o8HmJ1ItjXilTlFtJNO25-CAQbbg";//从连接中获取分享用户ID：默认设置为Judy
+
+    console.log("got params from & fromUser from query.",from,fromUser);
+
     $('#waterfall').NewWaterfall({
         width: columnWidth,
         delay: 100,
     });
-    //加载达人信息
-    loadBrokerInfo();    
+    if(from=="wework" || from=="web"){//如果是来源于企业微信或web端则单独加载
+      loadUserInfoByOpenid(fromUser);//加载过程：加载用户信息、加载达人信息、加载关心的人并触发加载数据
+    }else{//根据微信公众号登录流程获取达人信息，并加载关心的人
+      //加载达人信息
+      loadBrokerInfo();    
+      //加载关心的人
+      loadPersons();
+      //在加载达人后再加载数据，避免brokerInfo缺失
+      //TODO：注意，这里不严谨，需要调整为在回调中加载，否则可能出现数据缺失
+      startQueryDataLoop();
+    }
+
     //判定是否有编辑中的board
     getBoard();//先从cookie内加载
     if(args["boardId"]){//如果参数中有boardId则优先使用
@@ -53,9 +68,6 @@ $(document).ready(function ()
         loadData();
     }); 
 
-    //加载关心的人
-    loadPersons();
-
     //加载filter并高亮
     loadFilters(filter);
     //高亮显示当前选中的filter
@@ -71,7 +83,13 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
-var broker = {};
+var broker = {
+  id:"77276df7ae5c4058b3dfee29f43a3d3b"//默认设为Judy达人
+};
+
+//记录分享用户、分享达人
+var from = "mp";//链接来源，页面来源有三类：公众号、企业微信、web端。从公众号进入为默认处理，其他的需要特殊处理
+var fromUser = "";
 
 //加载board信息
 var boardId = null;
@@ -89,6 +107,47 @@ var tagging = ""; //当前目录关联的查询关键词，搜索时直接通过
 var filter = "";//通过filter区分好价、好物、附近等不同查询组合
 
 var categoryTagging = "";//记录目录切换标签，tagging = categoryTagging + currentPersonTagging
+
+
+//直接读取用户信息:从企业微信或web进入时，默认需要携带fromUser信息 ，根据fromUser加载用户及达人数据
+function loadUserInfoByOpenid(openid){
+  util.checkPerson({openId:openid},function(res){
+    app.globalData.userInfo = res;//直接从请求获取信息
+    loadBrokerInfoByOpenid(openid);//用户加载后再加载达人信息
+    loadPersons();//用户加载后加载关联用户及客群
+  });
+}
+//直接读取达人信息
+function loadBrokerInfoByOpenid(openid){
+  util.checkBroker(openid,function(res){
+    broker = res.data;//直接从请求获取信息
+
+    //直接写入cookie，避免同源问题
+    document.cookie = "sxBrokerInfo="+JSON.stringify(res.data)+"; SameSite=None; Secure";
+    document.cookie = "hasBrokerInfo="+res.status+"; SameSite=None; Secure";
+
+    //TODO：在加载达人后再加载数据，避免brokerInfo缺失
+    startQueryDataLoop();
+  });
+}
+//开始查询数据
+function startQueryDataLoop(){
+    setInterval(function ()
+    {
+        if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+        {
+            // 表示开始加载
+            loading = true;
+
+            // 加载内容
+            if(items.length < num){//如果内容未获取到本地则继续获取
+                loadItems();
+            }else{//否则使用本地内容填充
+                insertItem();
+            }
+        }
+    }, 60);  
+}
 
 //优先从cookie加载达人信息
 function loadBrokerInfo(){
@@ -629,7 +688,7 @@ function getBoard(){
       console.log("no board from cookie.",boardInfo);
     }
 }
-
+/**
 setInterval(function ()
 {
     if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
@@ -645,6 +704,7 @@ setInterval(function ()
         }
     }
 }, 60);
+//**/
 
 function loadItems(){//获取内容列表
     //构建esQuery
