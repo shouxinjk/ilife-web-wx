@@ -120,10 +120,13 @@ function loadUserInfoByOpenid(openid){
 //直接读取达人信息
 function loadBrokerInfoByOpenid(openid){
   util.checkBroker(openid,function(res){
-    broker = res.data;//直接从请求获取信息
+    broker = {//直接从请求获取信息：注意，企业微信不能正确处理带有中文字符部分，此处仅存储id
+      id:res.data.id,
+      openid:res.data.openid
+    }
 
     //直接写入cookie，避免同源问题
-    document.cookie = "sxBrokerInfo="+JSON.stringify(res.data)+"; SameSite=None; Secure";
+    document.cookie = "sxBrokerInfo="+JSON.stringify(broker)+"; SameSite=None; Secure";
     document.cookie = "hasBrokerInfo="+res.status+"; SameSite=None; Secure";
 
     //TODO：在加载达人后再加载数据，避免brokerInfo缺失
@@ -1236,7 +1239,8 @@ function showSwiper(){
     }    
     //显示滑动条
     var mySwiper = new Swiper ('.swiper-container', {
-        slidesPerView: 4,
+        //slidesPerView: 4,
+        slidesPerView: from=="web"?parseInt(document.getElementsByTagName('html')[0].clientWidth/100):4,
     });  
     //调整swiper 风格，使之悬浮显示
     $(".swiper-container").css("position","relative");
