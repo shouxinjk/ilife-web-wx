@@ -23,7 +23,7 @@ $(document).ready(function ()
         width: columnWidth,
         delay: 100,
     });
-    if(from=="wework" || from=="web"){//如果是来源于企业微信或web端则单独加载
+    if(from=="wework" || from=="web"){//如果是来源于企业微信或web端则单独加载：注意，此处仅为临时解决方案，能够显示首页，但进入后无法切换
       loadUserInfoByOpenid(fromUser);//加载过程：加载用户信息、加载达人信息、加载关心的人并触发加载数据
     }else{//根据微信公众号登录流程获取达人信息，并加载关心的人
       //加载达人信息
@@ -113,6 +113,12 @@ var categoryTagging = "";//记录目录切换标签，tagging = categoryTagging 
 function loadUserInfoByOpenid(openid){
   util.checkPerson({openId:openid},function(res){
     app.globalData.userInfo = res;//直接从请求获取信息
+    var sxUserInfo={//存入cookie，企业微信不能处理中文，只能存储id
+      openid:res.openid,
+      avatarUrl:res.avatarUrl,
+      nickName:res.nickName
+    };
+    document.cookie = "sxUserInfo="+JSON.stringify(sxUserInfo)+"; SameSite=None; Secure";
     loadBrokerInfoByOpenid(openid);//用户加载后再加载达人信息
     loadPersons();//用户加载后加载关联用户及客群
   });
