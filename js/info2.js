@@ -154,6 +154,9 @@ function showContent(item){
     });
     //*/
 
+    //显示雷达图
+    showRadar();
+
     //显示跳转按钮
     $("#jumpbtn").removeClass("buy-btn-hide");
     $("#jumpbtn").addClass("buy-btn-show");
@@ -608,6 +611,79 @@ function loadCategories(currentCategory){
     })    
 }
 
+//generate and show radar chart
+//TODO: to query result for specified item
+//step1: query featured measures by meta.category
+//step2: query calculated featured measure data by itemKey
+//step3: assemble single item dataset
+//step 4-6 : query and assemble category average data set
+//step 7: show radar chart
+function showRadar(){
+    var margin = {top: 60, right: 60, bottom: 60, left: 60},
+        width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right,
+        height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
+            
+    //query item measure data
+    var data = [
+              [//iPhone
+                {axis:"电池寿命",value:0.74},
+                {axis:"品牌",value:0.56},
+                {axis:"售后",value:0.72},
+                {axis:"使用成本",value:0.58},
+                {axis:"设计",value:0.94},
+                {axis:"网络",value:0.64},
+                {axis:"屏幕",value:0.04},
+                {axis:"价格",value:0.42},
+                {axis:"可用性",value:0.72},
+                {axis:"美誉度",value:0.52},
+                {axis:"潮流",value:0.48},
+                {axis:"智能化",value:1.0}          
+              ],[//Samsung
+                {axis:"电池寿命",value:0.54},
+                {axis:"品牌",value:0.132},
+                {axis:"售后",value:0.56},
+                {axis:"使用成本",value:0.7},
+                {axis:"设计",value:0.76},
+                {axis:"网络",value:0.80},
+                {axis:"屏幕",value:0.26},
+                {axis:"价格",value:0.7},
+                {axis:"可用性",value:0.82},
+                {axis:"美誉度",value:0.62},
+                {axis:"潮流",value:0.7},                
+                {axis:"智能化",value:0.76}
+              ],[//Nokia Smartphone
+                {axis:"电池寿命",value:0.52},
+                {axis:"品牌",value:0.20},
+                {axis:"售后",value:0.42},
+                {axis:"使用成本",value:0.60},
+                {axis:"设计",value:0.58},
+                {axis:"网络",value:0.42},
+                {axis:"屏幕",value:0.68},
+                {axis:"价格",value:0.82},
+                {axis:"可用性",value:0.92},
+                {axis:"美誉度",value:0.7},
+                {axis:"潮流",value:0.58},                
+                {axis:"智能化",value:0.60}
+              ]
+            ];
+
+    //generate radar chart.
+    //TODO: to put in ajax callback
+    var color = d3.scaleOrdinal(["#EDC951","#CC333F","#00A0B0"]);
+        
+    var radarChartOptions = {
+      w: width,
+      h: height,
+      margin: margin,
+      maxValue: 1,
+      levels: 5,
+      roundStrokes: true,
+      color: color
+    };
+    //genrate radar
+    RadarChart("#radar", data, radarChartOptions);
+}
+
 function registerShareHandler(){
     //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system
     var shareBrokerId = "system";//默认为平台直接分享
@@ -702,7 +778,21 @@ function registerShareHandler(){
                             console.log("分享到微信",res);
                         }); 
                     }
-                });            
+                });  
+                //分享到微博
+                wx.onMenuShareWeibo({
+                    title:stuff?stuff.title:"小确幸，大生活", // 分享标题
+                    desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
+                    success: function () {
+                      // 用户点击了分享后执行的回调函数
+                        logstash(stuff,"mp","share weibo",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到微博",res);
+                        }); 
+                    }
+                });                             
             });
         }
     })    
