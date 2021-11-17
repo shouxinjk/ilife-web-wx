@@ -154,9 +154,6 @@ function showContent(item){
     });
     //*/
 
-    //显示雷达图
-    showRadar();
-
     //显示跳转按钮
     $("#jumpbtn").removeClass("buy-btn-hide");
     $("#jumpbtn").addClass("buy-btn-show");
@@ -355,6 +352,14 @@ function loadBrokerByOpenid(openid) {
         //console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
+            //显示评价图：TODO 当前仅用于测试
+            if(broker.openid=="o8HmJ1EdIUR8iZRwaq1T7D_nPIYc" || broker.openid=="o8HmJ1ItjXilTlFtJNO25-CAQbbg"){
+                //显示雷达图
+                showRadar();
+                //显示评价树
+                showDimensionBurst();//(item.meta.category);
+            }
+
             //达人佣金
             var profitHtml = htmlItemProfitTags(stuff);
             if(profitHtml.trim().length>0){
@@ -682,6 +687,49 @@ function showRadar(){
     };
     //genrate radar
     RadarChart("#radar", data, radarChartOptions);
+}
+
+//图形化显示客观评价树
+function showDimensionBurst(categoryId){
+    //测试数据
+    var testData=[
+        {categoryId:"ff240a6e909e45c2ae0c8f77241cda25",categoryName:"目的地"},
+        {categoryId:"7363d428d1f1449a904f5d34aaa8f1f7",categoryName:"亲子"},
+        {categoryId:"91349a6a41ce415caf5b81084927857a",categoryName:"酒店"}
+    ];
+    var testDataIndex = new Date().getTime()%3;
+
+    //根据category获取客观评价数据
+    var data={
+        categoryId:testData[testDataIndex].categoryId
+        //categoryId:"ff240a6e909e45c2ae0c8f77241cda25" //目的地
+        //categoryId:"7363d428d1f1449a904f5d34aaa8f1f7" //亲子
+        //categoryId:"91349a6a41ce415caf5b81084927857a" //酒店 categoryId
+        //,parentId:"d1668f8b3c9748cd806462a45651827b"
+    };
+    console.log("try to load dimension data.",data);
+    util.AJAX(app.config.sx_api+"/mod/itemDimension/rest/dim-tree-by-category", function (res) {
+        console.log("======\nload dimension.",data,res);
+        if (res.length>0) {//显示图形
+            showSunBurst({name:testData[testDataIndex].categoryName,children:res});
+        }else{//没有则啥也不干
+            //do nothing
+            console.log("failed load dimension tree.",data);
+        }
+    },"GET",data);    
+}
+
+function showSunBurst(data){
+    Sunburst("#sunburst",data, {
+      value: d => d.weight, // weight 
+      label: d => d.name, // name
+      title: (d, n) => `${n.ancestors().reverse().map(d => d.data.name).join(".")}\n${n.value.toLocaleString("en")}`, // hover text
+//      link: (d, n) => n.children
+//        ? `https://github.com/prefuse/Flare/tree/master/flare/src/${n.ancestors().reverse().map(d => d.data.name).join("/")}`
+//        : `https://github.com/prefuse/Flare/blob/master/flare/src/${n.ancestors().reverse().map(d => d.data.name).join("/")}.as`,
+      width: 400,
+      height: 400
+    })
 }
 
 function registerShareHandler(){
