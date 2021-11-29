@@ -1006,7 +1006,35 @@ function submitItemForm(){
             });
             //切换到来源页面，便于进入其他站点继续采集数据
         }
-    })  
+    });
+
+    //同时将当前的类目映射添加到platform_categories
+    if(currentItem.meta && currentItem.meta.category){
+        var platform_category = {
+            _key:hex_md5(currentItem.source+currentItem.category),
+            source:currentItem.source,
+            name:currentItem.category,
+            mappingId:currentItem.meta.category,
+            mappingName:currentItem.meta.categoryName
+        };
+        console.log("try to commit platform category.",platform_category);
+        $.ajax({
+            url:"https://data.shouxinjk.net/_db/sea/category/platform_categories",
+            type:"post",
+            data:JSON.stringify(platform_category),//注意：不能使用JSON对象
+            //data:data,
+            headers:{
+                "Content-Type":"application/json",
+                "Accept": "application/json"
+            },
+            success:function(res){
+                console.log("upsert success.",res);
+            },
+            error:function(){
+                console.log("upsert failed.",platform_category);
+            }
+        }); 
+    }    
 
 }
 
