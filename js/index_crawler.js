@@ -125,6 +125,9 @@ function loadBrokerInfoByOpenid(openid){
     //更新broker头像及名称
     //注意有同源问题，通过postMessage完成
     var brokerMessage = {
+      sxBrokerLogo:app.globalData.userInfo.avatarUrl,
+      sxBrokerName:app.globalData.userInfo.nickName,     
+      sxBrokerOrgnization:broker.orgnization.name,   
       sxBrokerRealName:broker.name
     };
     window.parent.postMessage(brokerMessage, "*");//不设定origin，直接通过属性区分
@@ -160,7 +163,9 @@ function showCascader(categoryId){
         onSelect:function(selectedCategory){//回调函数，参数带有选中标签的ID和label。回传为：{id:[],label:[]}//其中id为最末级选中节点，label为所有层级标签
             if(_sxdebug)console.log("crawler::category item selected.",selectedCategory);
             //更新当前item的category。注意更新到meta.category下
-            currentItem.meta = {category:selectedCategory.id[0]};//仅保存叶子节点
+            currentItem.meta = {category:selectedCategory.id[0],categoryName:selectedCategory.label[0]};//仅保存叶子节点
+            currentItem.status.classify = "ready";
+            currentItem.timestamp.classify = new Date();
             //加载属性值列表
             loadProps(selectedCategory.id[0]);
         }
@@ -956,6 +961,14 @@ function submitItemForm(){
         var sxAuth = JSON.parse($.cookie("sxAuth"));
         if(sxAuth.openid){
             currentItem.task.user = sxAuth.openid;
+        }
+    }
+
+    //添加orgnnzation信息
+    if($.cookie("sxBrokerInfo") && $.cookie("sxBrokerInfo").trim().length>0){
+        var sxBrokerInfo = JSON.parse($.cookie("sxBrokerInfo"));
+        if(sxBrokerInfo.orgnization){
+            currentItem.task.orgnization = sxBrokerInfo.orgnization.id;
         }
     }
 
