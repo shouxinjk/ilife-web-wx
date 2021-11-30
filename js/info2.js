@@ -356,8 +356,6 @@ function loadBrokerByOpenid(openid) {
             if(broker.openid=="o8HmJ1EdIUR8iZRwaq1T7D_nPIYc" || broker.openid=="o8HmJ1ItjXilTlFtJNO25-CAQbbg"){
                 //显示雷达图
                 showRadar();
-                //显示评价树
-                showDimensionBurst();//(item.meta.category);
             }
 
             //达人佣金
@@ -548,6 +546,10 @@ function loadItem(key){//获取内容列表
             showContent(data);
             stuff = data;//本地保存，用于分享等后续操作
 
+            //显示评价树
+            if(stuff.meta && stuff.meta.category)
+                showDimensionBurst();
+
             ////多站点处理：start//////////////////////////////////
             //由于当前shouxinjk.net 和 biglistoflittlethings.com 两个网站分别到不同电商平台，需要进行分隔处理
             /**
@@ -690,7 +692,7 @@ function showRadar(){
 }
 
 //图形化显示客观评价树
-function showDimensionBurst(categoryId){
+function showDimensionBurst(){
     //测试数据
     var testData=[
         {categoryId:"ff240a6e909e45c2ae0c8f77241cda25",categoryName:"目的地"},
@@ -701,7 +703,8 @@ function showDimensionBurst(categoryId){
 
     //根据category获取客观评价数据
     var data={
-        categoryId:testData[testDataIndex].categoryId
+        categoryId:stuff.meta.category
+        //categoryId:testData[testDataIndex].categoryId
         //categoryId:"ff240a6e909e45c2ae0c8f77241cda25" //目的地
         //categoryId:"7363d428d1f1449a904f5d34aaa8f1f7" //亲子
         //categoryId:"91349a6a41ce415caf5b81084927857a" //酒店 categoryId
@@ -711,7 +714,8 @@ function showDimensionBurst(categoryId){
     util.AJAX(app.config.sx_api+"/mod/itemDimension/rest/dim-tree-by-category", function (res) {
         console.log("======\nload dimension.",data,res);
         if (res.length>0) {//显示图形
-            showSunBurst({name:testData[testDataIndex].categoryName,children:res});
+            //showSunBurst({name:testData[testDataIndex].categoryName,children:res});
+            showSunBurst({name:stuff.meta.categoryName?stuff.meta.categoryName:"评价规则",children:res});
         }else{//没有则啥也不干
             //do nothing
             console.log("failed load dimension tree.",data);
