@@ -101,6 +101,7 @@ var dist = 500;
 var num = 1;//需要加载的内容下标
 
 var items = [];//所有内容列表
+var itemKeys = [];//记录itemKey列表，用于排重。服务器端存在重复数据
 var category  = 0; //当前目录ID
 var tagging = ""; //当前目录关联的查询关键词，搜索时直接通过该字段而不是category进行
 var filter = "";//通过filter区分好价、好物、附近等不同查询组合
@@ -633,7 +634,10 @@ function loadItems(){//获取内容列表
                 //装载具体条目
                 var hits = data.hits.hits;
                 for(var i = 0 ; i < hits.length ; i++){
-                    items.push(hits[i]._source);
+                    if(itemKeys.indexOf(hits[i]._source._key)<0){
+                      itemKeys.push(hits[i]._source._key);
+                      items.push(hits[i]._source);
+                    }
                 }
                 insertItem();
             }
@@ -1259,6 +1263,7 @@ function changeCategory(key,q){
 
 function loadData(){
     items = [];//清空列表
+    itemKeys = [];//同步清空itemKey列表
     $("#waterfall").empty();//清除页面元素
     num=1;//设置加载内容从第一条开始
     page.current = -1;//设置浏览页面为未开始
@@ -1400,6 +1405,23 @@ function loadPersons() {
       if (app.globalData.userInfo != null && personKeys.indexOf(app.globalData.userInfo._key) < 0){
           var myself = app.globalData.userInfo;
           myself.relationship = "自己";
+          //加载broker信息，如果是机构达人，则更改其关系、tag
+          var sxBrokerInfo = $.cookie('sxBrokerInfo');
+          console.log("load broker info from cookie.",sxBrokerInfo);
+          if(sxBrokerInfo && sxBrokerInfo.trim().length>0){
+            console.log("get sxBrokerInfo info from cookie.",sxBrokerInfo);
+            var sxBroker = JSON.parse(sxBrokerInfo);
+            if(sxBroker.orgnization && sxBroker.orgnization.name && sxBroker.orgnization.name.trim().length>0)
+              myself.relationship = sxBroker.orgnization.name;
+            if(sxBroker.orgnization && sxBroker.orgnization.id && sxBroker.orgnization.id.trim().length>0){
+              if(myself.tags && Array.isArray(myself.tags))
+                myself.tags.push(sxBroker.orgnization.id);
+              else{
+                myself.tags = [];
+                myself.tags.push(sxBroker.orgnization.id);
+              }
+            }
+          }
           persons.push(myself);
           personKeys.push(myself._key);
       }
