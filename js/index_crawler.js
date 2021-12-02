@@ -978,11 +978,13 @@ function submitItemForm(){
         task:{
             user:currentItem.task.user
         },
-        meta:{
-            category:currentItem.meta.category
-        },
         title:currentItem.title,
         summary:currentItem.summary
+    }
+    if(currentItem.meta && currentItem.meta.category){
+        changedItem.meta = {
+            category:currentItem.meta.category
+        }
     }
     if(currentItem.tagging)
         changedItem.tagging = currentItem.tagging;
