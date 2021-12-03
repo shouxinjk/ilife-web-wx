@@ -1403,27 +1403,34 @@ function loadPersons() {
       var arr = res;
       //从列表内过滤掉当前用户：当前用户永远排在第一个
       if (app.globalData.userInfo != null && personKeys.indexOf(app.globalData.userInfo._key) < 0){
+          //添加当前用户自己   
           var myself = app.globalData.userInfo;
           myself.relationship = "自己";
-          //加载broker信息，如果是机构达人，则更改其关系、tag
+          persons.push(myself);
+          personKeys.push(myself._key);        
+          //加载broker信息，如果是机构达人，则将机构作为第一个关心的人。直接在当前用户上更改其关系、tag
           var sxBrokerInfo = $.cookie('sxBrokerInfo');
           console.log("load broker info from cookie.",sxBrokerInfo);
           if(sxBrokerInfo && sxBrokerInfo.trim().length>0){
+            var orgnization = {
+                nickName:app.globalData.userInfo.nickName,
+                avatarUrl:app.globalData.userInfo.avatarUrl,
+                relationship:"机构用户",
+                _key:"orgnization"              
+            };
             console.log("get sxBrokerInfo info from cookie.",sxBrokerInfo);
             var sxBroker = JSON.parse(sxBrokerInfo);
             if(sxBroker.orgnization && sxBroker.orgnization.name && sxBroker.orgnization.name.trim().length>0)
-              myself.relationship = sxBroker.orgnization.name;
+              orgnization.relationship = sxBroker.orgnization.name;
             if(sxBroker.orgnization && sxBroker.orgnization.id && sxBroker.orgnization.id.trim().length>0){
-              if(myself.tags && Array.isArray(myself.tags))
-                myself.tags.push(sxBroker.orgnization.id);
-              else{
-                myself.tags = [];
-                myself.tags.push(sxBroker.orgnization.id);
-              }
-            }
+              orgnization.tags = [];
+              orgnization.tags.push(sxBroker.orgnization.id);
+              console.log("orgnization info.",orgnization);
+              persons.push(orgnization);
+              personKeys.push(orgnization._key);               
+            }           
           }
-          persons.push(myself);
-          personKeys.push(myself._key);
+          //end of orgnization 
       }
       for (var i = 0; i < arr.length; i++) {
         var u = arr[i];
