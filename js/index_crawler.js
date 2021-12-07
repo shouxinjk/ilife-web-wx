@@ -604,9 +604,29 @@ function showloading(flag){
 
 
 //根据ItemCategory类别，获取对应的属性配置，并与数据值融合显示
+//0，获取property mapping，采用同步方式。获取后作为属性比对。根据name或者props.name对照
 //1，根据key进行合并显示，以itemCategory下的属性为主，能够对应上的key显示绿色，否则显示红色
 //2，数据显示，有对应于key的数值则直接显示，否则留空等待填写
 function loadProps(categoryId){
+    //同步获取propertyMapping：根据source、category（注意是原始类目名称，不是标准类目）、name（name或者props.name）查找
+    var propMapping = {};
+    $.ajax({
+        url:"https://data.shouxinjk.net/_db/sea/property/platform_properties/get-mapping",
+        type:"post",
+        async: false,//同步调用
+        data:JSON.stringify({
+            source:currentItem.source,
+            category:currentItem.category
+        }),
+        success:function(result){
+            if(_sxdebug)console.log(result);
+            result.data.forEach((item, index) => {//将其他元素加入
+              if(_sxdebug)console.log("foreach props.[index]"+index,item);
+              propMapping[item.name.replace(/\./g,"_")]=item.mappingName;
+            });   
+            console.log("got property mapping.",propMapping);         
+        }
+    });
     //根据categoryId获取所有measure清单，字段包括name、property
     $.ajax({
         url:"https://data.shouxinjk.net/ilife/a/mod/measure/measures?category="+categoryId,
@@ -638,6 +658,10 @@ function loadProps(categoryId){
                         value = prop[_key];
                         props.splice(j, 1);//删除该元素
                         break;
+                    }else if(propMapping[_key] || propMapping["props_"+_key] || propMapping[_key.replace(/\./g,"_")]){//从prop mapping中进行匹配，采用name，或者props_name进行查找
+                        value = prop[_key];
+                        props.splice(j, 1);//删除该元素
+                        break;                        
                     }
                 }
                 var node = {
