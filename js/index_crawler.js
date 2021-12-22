@@ -658,7 +658,7 @@ function loadProps(categoryId){
                         value = prop[_key];
                         props.splice(j, 1);//删除该元素
                         break;
-                    }else if(propMapping[_key] || propMapping["props_"+_key] || propMapping[_key.replace(/\./g,"_")]){//从prop mapping中进行匹配，采用name，或者props_name进行查找
+                    }else if(propMapping[_key]===name || propMapping["props_"+_key]===name || propMapping[_key.replace(/\./g,"_")]===name){//从prop mapping中进行匹配，采用name，或者props_name进行查找
                         value = prop[_key];
                         props.splice(j, 1);//删除该元素
                         break;                        

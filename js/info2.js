@@ -674,9 +674,78 @@ function showRadar(){
               ]
             ];
 
+    //获取类目下的特征维度列表：注意是同步调用
+    var featuredDimension = [];
+    $.ajax({
+        url:app.config.sx_api+"/mod/itemDimension/rest/featured-dimension",
+        type:"get",
+        async:false,//同步调用
+        data:{categoryId:stuff.meta.category},
+        success:function(json){
+            console.log("===got featured dimension===\n",json);
+            featuredDimension = json;
+        }
+    });  
+    
+    //未能获取维度列表则直接返回
+    if(!featuredDimension || featuredDimension.length ==0)
+        return;
+
+    //根据itemKey获取评价结果
+    //feature = 1；dimensionType：0客观评价，1主观评价
+    var itemScore = {};
+    $.ajax({
+        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where feature=1 and dimensionType=0 and itemKey='"+stuff._key+"' format JSON",
+        type:"get",
+        async:false,//同步调用
+        data:{},
+        success:function(json){
+            console.log("===got item score===\n",json);
+            for(var i=0;i<json.rows;i++){
+                itemScore[json.data[i].dimensionId] = json.data[i].score;
+            }
+        }
+    });  
+
+    //根据categoryId获取评价结果
+    //feature = 1；dimensionType：0客观评价，1主观评价
+    var categoryScore = {};
+    $.ajax({
+        url:app.config.analyze_api+"?query=select dimensionId,avg(score) as score from ilife.info where feature=1 and dimensionType=0 and categoryId='"+stuff.meta.category+"' group by dimensionId format JSON",
+        type:"get",
+        async:false,//同步调用
+        data:{},
+        success:function(json){
+            console.log("===got category score===\n",json);
+            for(var i=0;i<json.rows;i++){
+                categoryScore[json.data[i].dimensionId] = json.data[i].score;
+            }
+        }
+    }); 
+
+    //组装展示数据：根据维度遍历。
+    var itemArray = [];
+    var categoryArray = [];
+    for(var i=0;i<featuredDimension.length;i++){
+        var dimId = featuredDimension[i].id;
+        var dimName = featuredDimension[i].name;
+        itemArray.push({
+            axis:dimName,
+            value:itemScore[dimId]?itemScore[dimId]:0.5
+        });
+        categoryArray.push({
+            axis:dimName,
+            value:categoryScore[dimId]?categoryScore[dimId]:0.75
+        });       
+    }
+
+    data = [];
+    data.push(itemArray);
+    data.push(categoryArray);
+
     //generate radar chart.
     //TODO: to put in ajax callback
-    var color = d3.scaleOrdinal(["#EDC951","#CC333F","#00A0B0"]);
+    var color = d3.scaleOrdinal(["#CC333F","#EDC951","#00A0B0"]);
         
     var radarChartOptions = {
       w: width,
@@ -689,6 +758,26 @@ function showRadar(){
     };
     //genrate radar
     RadarChart("#radar", data, radarChartOptions);
+    //如果是达人则显示生成带图表海报入口
+    if(broker&&broker.id){
+        $("#saveRadar").css("display","block");
+        $("#saveRadar").click(function(){
+            var canvas = $("#radar svg")[0];
+            console.log("got canvas.",canvas);
+            //调用方法转换即可，转换结果就是uri,
+            var width = $(canvas).attr("width");
+            var height = $(canvas).attr("height");
+            var options = {
+                left:0,
+                top:0,
+                width:Number(width),
+                height:Number(height)
+            };
+            svgAsPngUri(canvas, options, function(uri) {
+                $("#radarImg").append('<img width="'+Number(width)+'" height="'+Number(height)+'" src="' + uri + '" alt="请长按保存"/>');
+            });        
+        }); 
+    }
 }
 
 //图形化显示客观评价树
@@ -733,7 +822,26 @@ function showSunBurst(data){
 //        : `https://github.com/prefuse/Flare/blob/master/flare/src/${n.ancestors().reverse().map(d => d.data.name).join("/")}.as`,
       width: 400,
       height: 400
-    })
+    });
+    /**
+    $("#saveSunburst").css("display","block");
+    $("#saveSunburst").click(function(){
+        var canvas = $("#sunburst svg")[0];
+        console.log("got canvas.",canvas);
+        //调用方法转换即可，转换结果就是uri,
+        var width = $(canvas).attr("width");
+        var height = $(canvas).attr("height");
+        var options = {
+            left:-1*Number(width)/2,
+            top:-1*Number(height)/2,
+            width:Number(width),
+            height:Number(height)
+        };
+        svgAsPngUri(canvas, options, function(uri) {
+            $("#sunburstImg").append('<img width="'+Number(width)+'" height="'+Number(height)+'" src="' + uri + '" alt="请长按保存"/>');
+        });        
+    });    
+    //**/
 }
 
 function registerShareHandler(){
