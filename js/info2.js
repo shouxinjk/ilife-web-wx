@@ -352,11 +352,9 @@ function loadBrokerByOpenid(openid) {
         //console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
-            //显示评价图：TODO 当前仅用于测试
-            if(broker.openid=="o8HmJ1EdIUR8iZRwaq1T7D_nPIYc" || broker.openid=="o8HmJ1ItjXilTlFtJNO25-CAQbbg"){
-                //显示雷达图
+            //显示评价图：
+            if(stuff.meta && stuff.meta.category)
                 showRadar();
-            }
 
             //达人佣金
             var profitHtml = htmlItemProfitTags(stuff);
@@ -760,7 +758,8 @@ function showRadar(){
     RadarChart("#radar", data, radarChartOptions);
     //如果是达人则显示生成带图表海报入口
     if(broker&&broker.id){
-        $("#saveRadar").css("display","block");
+        //显示生成海报按钮
+        //$("#saveRadar").css("display","block");
         $("#saveRadar").click(function(){
             var canvas = $("#radar svg")[0];
             console.log("got canvas.",canvas);
