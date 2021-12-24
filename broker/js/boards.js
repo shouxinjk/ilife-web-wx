@@ -66,6 +66,9 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
+//设置默认logo
+var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
+
 var columnWidth = 800;//默认宽度600px
 var columnMargin = 5;//默认留白5px
 var loading = false;
@@ -190,9 +193,11 @@ function insertItem(){
         return;
     }
 
+    if(item.logo)
+        logo = item.logo;
     console.log("add board item.[current broker]"+currentBroker+"[board broker]"+item.broker.id+"[operation]"+(item.broker.id == currentBroker?"编辑":"克隆"));
 
-    var image = "<img src='https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg' width='60' height='60'/>";
+    var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
     var title = "<div class='title'>"+item.title+"</div>";
     var description = "<div class='description'>"+item.description+"</div>";
     var tags = "<div class='tags'>"+item.tags+"</div>";

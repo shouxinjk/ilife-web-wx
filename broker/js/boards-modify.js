@@ -48,7 +48,6 @@ $(document).ready(function ()
 util.getUserInfo();//从本地加载cookie
 
 var logo = "https://www.biglistoflittlethings.com/list/images/logo.jpeg";//board logo 默认值
-//var logo = "https://kaola-pop.oss.kaolacdn.com/bd96370bf34c4961afb49801579d4842_800_800.jpg";
 var boardLogoNames = [];
 var boardLogoUrls = [];
 
@@ -153,14 +152,14 @@ function deleteBoardItem(item){
 }
 
 function showLogoSelect(){
-    //添加23张默认logo图片到列表
-    /**
-    for(var i=0;i<23;i++){
-        boardLogoUrls.push("https://www.biglistoflittlethings.com/list/images/logo"+i+".jpeg");
-        boardLogoNames.push("系统Logo "+(i+1));
-    }
-    //**/
-    //装载options
+    //添加23张默认logo图片到列表：对于没有条目的优先以默认图片
+    if(boardLogoUrls.length==0){
+        for(var i=1;i<13;i++){
+            boardLogoUrls.push("https://www.biglistoflittlethings.com/list/images/logo"+i+".jpeg");
+            boardLogoNames.push("系统Logo "+i);
+        }
+    }    
+    //装载options：
     for(var i=0;i<boardLogoUrls.length;i++){
         var selected  = boardLogoUrls[i]==logo?"selected":"";
         $("#boardLogo").append('<option data-img-src="'+boardLogoUrls[i]+'" data-img-alt="'+boardLogoNames[i]+'" value="'+boardLogoUrls[i]+'" '+selected+'>  '+boardLogoNames[i]+'  </option>');
