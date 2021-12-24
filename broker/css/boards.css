@@ -187,3 +187,8 @@
   margin:auto 0px;
   vertical-align: middle;
 }
+
+img.image_picker_image{
+  width:60px;
+  height:60px;
+}

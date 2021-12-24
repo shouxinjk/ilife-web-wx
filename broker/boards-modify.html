@@ -7,9 +7,10 @@
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="../ext/image-picker/image-picker.css">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
     <link rel="stylesheet" type="text/css" href="css/broker.css">
-    <link rel="stylesheet" type="text/css" href="css/boards.css?v=1.1">
+    <link rel="stylesheet" type="text/css" href="css/boards.css?v=1.11">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -67,6 +68,10 @@
               <input type="text" class="form-control" id="boardTitle" placeholder="想一个简短的标题"/>
             </div>
             <div class="form-group">
+              <label for="boardLogo">Logo:</label>
+              <select id="boardLogo" class="image-picker show-html"></select>
+            </div>            
+            <div class="form-group">
               <label for="boardDescription">描述:</label>
               <textarea class="form-control" rows="3" id="boardDescription" placeholder="再想一些吸引人的推荐语"></textarea>
             </div>     
@@ -121,7 +126,8 @@
 <script type="text/javascript" src="../js/swiper.min.js"></script>
 <script type="text/javascript" src="../js/jquery.cookie.js"></script>
 <script type="text/javascript" src="../ext/toast/jquery.toast.min.js"></script>
+<script type="text/javascript" src="../ext/image-picker/image-picker.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
-<script type="text/javascript" src="js/boards-modify.js?v=1.9"></script> 
+<script type="text/javascript" src="js/boards-modify.js?v=1.91"></script> 
 </html>

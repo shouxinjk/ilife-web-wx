@@ -47,6 +47,11 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
+var logo = "https://www.biglistoflittlethings.com/list/images/logo.jpeg";//board logo 默认值
+//var logo = "https://kaola-pop.oss.kaolacdn.com/bd96370bf34c4961afb49801579d4842_800_800.jpg";
+var boardLogoNames = [];
+var boardLogoUrls = [];
+
 var columnWidth = 800;//默认宽度600px
 var columnMargin = 5;//默认留白5px
 var loading = false;
@@ -95,6 +100,7 @@ function updateBoard(personaId){
     };     
     var data = {
         title:$("#boardTitle").val(),
+        logo:logo,//采用已经保存的值传递
         description:$("#boardDescription").val(),
         //tags:$("#boardTags").val(),
         tags:$("#boardKeywords").val(),//tags直接用keywords
@@ -146,6 +152,30 @@ function deleteBoardItem(item){
     }, "PUT",{},{});
 }
 
+function showLogoSelect(){
+    //添加23张默认logo图片到列表
+    /**
+    for(var i=0;i<23;i++){
+        boardLogoUrls.push("https://www.biglistoflittlethings.com/list/images/logo"+i+".jpeg");
+        boardLogoNames.push("系统Logo "+(i+1));
+    }
+    //**/
+    //装载options
+    for(var i=0;i<boardLogoUrls.length;i++){
+        var selected  = boardLogoUrls[i]==logo?"selected":"";
+        $("#boardLogo").append('<option data-img-src="'+boardLogoUrls[i]+'" data-img-alt="'+boardLogoNames[i]+'" value="'+boardLogoUrls[i]+'" '+selected+'>  '+boardLogoNames[i]+'  </option>');
+    }
+    //显示组件：
+    $("#boardLogo").imagepicker({
+          hide_select : true,
+          show_label  : false,
+          changed: function(select, newvalues, oldvalues, event){
+            console.log("item changed..newvalues.",newvalues);
+            logo = newvalues[0];//设置logo
+          }
+        });
+}
+
 //根据boardId查询board信息
 function loadBoard(boardId){
     var header={
@@ -170,6 +200,10 @@ function displayBoard(board){
     $("#boardDescription").val(board.description?board.description:"");
     //$("#boardTags").val(board.tags?board.tags:"");
     $("#boardKeywords").val(board.keywords?board.keywords:"");
+    //添加logo
+    if(board.logo){
+        logo = board.logo;
+    }
 }
 
 //根据boardId查询所有item列表
@@ -184,7 +218,9 @@ function loadItems(boardId){
         var hits = res;
         for(var i = 0 ; i < hits.length ; i++){
             loadItem(hits[i]);//查询具体的item条目
-        }        
+        }    
+        //显示logo选择框
+        showLogoSelect();    
     }, "GET",{},header);
 }
 
@@ -193,6 +229,7 @@ function loadItem(item){//获取内容列表
     $.ajax({
         url:"https://data.shouxinjk.net/_db/sea/my/stuff/"+item.item,
         type:"get",
+        async:false,//同步调用，否则无法加载logo
         data:{},
         success:function(data){
             item.stuff = data;//装载stuff到boarditem   
@@ -211,6 +248,9 @@ function insertItem(){
     var logoImg = "images/tasks/board.png";
     if(item.stuff && item.stuff.images && item.stuff.images.length>0){
         logoImg = item.stuff.images[0];//默认用第一张图片做logo
+        //作为board候选logo
+        boardLogoUrls.push(logoImg);
+        boardLogoNames.push("商品Logo "+num);
     }
 
     //显示所关联stuff内容
