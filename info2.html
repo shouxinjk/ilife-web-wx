@@ -6,10 +6,13 @@
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
     <link rel="stylesheet" type="text/css" href="ext/galleryview/css/galleryview.css">
     <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="ext/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="ext/star-rating-svg/star-rating-svg.css">
+    <link rel="stylesheet" type="text/css" href="ext/cascade-select/cascader.css?v=0.7">   
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="css/common.css?v=2.3">
-    <link rel="stylesheet" type="text/css" href="css/swiper.min.css"> 
-    <link rel="stylesheet" type="text/css" href="css/info2.css?v=2.5">
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">     
+    <link rel="stylesheet" type="text/css" href="css/info2.css?v=2.71">
 </head>
 <body>
 
@@ -51,17 +54,55 @@
             </div>  
         </div> 
 
-        <div id="radar">
-        </div> 
-        <div id="radarImg">
-            <button id="saveRadar" style="display:none;margin:0 auto;color:blue;margin-bottom:10px;">生成带有上图的物体系海报</button>
-        </div>         
 
-        <div id="sunburst" style="width:80%;padding-left:10%;">
-        </div> 
-        <div id="sunburstImg">
-            <button id="saveSunburst" style="display:none">生成物体系海报</button>
-        </div>        
+        <div id="tabs" style="margin-top:5px">
+          <ul>
+            <li><a href="#tabs-images">图说</a></li>
+            <li><a href="#tabs-data">数说</a></li>
+            <li><a href="#tabs-seller">卖家说</a></li>
+            <li><a href="#tabs-buyer">买家说</a></li>
+          </ul>
+          <!-- 图片列表 -->
+          <div id="tabs-images">
+            <div id="content"></div> 
+          </div>
+          <!-- 数据图表 -->
+          <div id="tabs-data">
+            <!-- 雷达图：包含当前商品及品类平均值 -->
+            <div id="radar">
+            </div> 
+            <div id="radarImg">
+                <button id="saveRadar" style="display:none;margin:0 auto;color:blue;margin-bottom:10px;">生成带有上图的物体系海报</button>
+            </div>         
+            <!-- Sunburst：显示当前类目评价规则 -->
+            <div id="sunburst" style="width:80%;padding-left:10%;">
+            </div> 
+            <div id="sunburstImg">
+                <button id="saveSunburst" style="display:none">生成物体系海报</button>
+            </div>   
+            <!--类目选择器：在没有类目时能够发起标注-->
+            <div id="category-wrapper-tip" class="prop-key" style="display:none;width:100%;text-align: left">请选择商品分类查看：</div>  
+            <div id="category-wrapper" class="cascader-wrap"></div>    
+          </div>
+          <!-- 参数及标签 -->
+          <div id="tabs-seller">
+            <div id="platform-logo"></div> 
+            <div id="props"></div> 
+          </div>
+          <!-- 评分、评论数、评论关键词 -->
+          <div id="tabs-buyer">
+                <div id="user-tags"></div> 
+                <div id="rank"></div> 
+                <div id="user-actions"></div> 
+                <div id="no-results-tip" class="no-result-tip-hide">你是发现新宝藏的第一人哦~~</div>
+                <!-- 瀑布流 -->
+                <div id="Center" style="width:90%;margin:0 auto;">
+                    <ul id="waterfall"></ul>
+                </div>            
+          </div>    
+        </div>          
+
+       
 
         <!-- 分享按钮 -->
         <div id="share-box" class="share-box-hide">
@@ -78,7 +119,7 @@
             <div class="swiper-wrapper" id="persons">
             </div>
         </div-->              
-        <div id="content"></div>  
+         
     </div>
 
     <div class="foot"></div>
@@ -88,17 +129,21 @@
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
 <script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
-<script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="js/swiper.min.js"></script>
 <script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="ext/galleryview/js/jquery.galleryview.js?v=1.0"></script>
 <script type="text/javascript" src="ext/galleryview/js/jquery.timers.min.js"></script>
 <script type="text/javascript" src="ext/clipboard/clipboard.min.js"></script>
+<script type="text/javascript" src="ext/jquery-ui.min.js"></script>
+<script type="text/javascript" src="ext/star-rating-svg/jquery.star-rating-svg.min.js"></script>
+<script type="text/javascript" src="ext/cascade-select/cascader.js?v=1.8"></script>
 <script type="text/javascript" src="ext/saveSvgAsPng.js"></script>
 <script type="text/javascript" src="ext/d3/d3.min.js"></script>
 <script type="text/javascript" src="ext/d3/radarchart.js"></script>
 <script type="text/javascript" src="ext/d3/partition-sunburst.js?v=0.2"></script>
-<script type="text/javascript" src="js/util.js?v=7.4"></script>
-<script type="text/javascript" src="js/info2.js?v=8.8"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+<script type="text/javascript" src="js/md5.js?v=2.5"></script>
+<script type="text/javascript" src="js/util.js?v=7.5"></script>
+<script type="text/javascript" src="js/info2.js?v=8.91"></script>
 </html>

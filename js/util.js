@@ -12,6 +12,7 @@ app.globalData={
     };
 app.config={
     auth_api:"https://data.shouxinjk.net/ilife-wechat",//获取UserInfo后端服务
+    res_api:"https://www.biglistoflittlethings.com/static",//静态资源如图片服务
     sx_api:"https://data.shouxinjk.net/ilife/a",//服务端数据服务
     data_api:"https://data.shouxinjk.net/_db/sea",//数据存取服务
     analyze_api:"https://data.shouxinjk.net/clickhouse",//分析数据服务

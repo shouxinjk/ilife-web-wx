@@ -36,10 +36,73 @@ $(document).ready(function ()
     //加载导航和关注列表
     loadCategories(category);  
     //loadHosts(id);//不需要关注列表
+
+    //显示tabs
+    $( "#tabs" ).tabs();
     
 });
 
 util.getUserInfo();//从本地加载cookie
+
+
+var columnWidth = 300;//默认宽度300px
+var columnMargin = 5;//默认留白5px
+
+var loading = false;
+var dist = 500;
+var num = 1;//需要加载的内容下标
+
+var items = [];//用户行为列表
+var page = {//翻页控制
+  size: 20,//每页条数
+  total: 1,//总页数
+  current: -1//当前翻页
+};
+
+var totalActions = 0;//记录用户行为总数
+var actionTypes = {
+  view:"看了",
+  share:"分享",
+  "publish":"发布",
+  "collect":"上架",  
+  "share poster":"海报分享",
+  "share board poster":"清单海报分享",
+  "share appmsg":"微信分享",
+  "share timeline":"朋友圈分享",
+  "buy step1":"很感兴趣",
+  "buy step2":"准备剁手",
+  buy:"拔草",
+  favorite:"种草",
+  like:"喜欢"
+};
+
+//统计用户行为数量
+var actionCounts = {
+  view:0,
+  share:0,
+  buy:0,
+  favorite:0,//前端采集
+  like:0,
+  rank:0
+};
+
+//用户行为转换：将不同种类分享合并为同一个行为
+var actionTypeConvert = {
+  view:"view",
+  share:"share",
+  "publish":"share",
+  "collect":"view",  
+  "share poster":"share",
+  "share board poster":"share",
+  "share appmsg":"share",
+  "share timeline":"share",
+  "buy step1":"buy",
+  "buy step2":"buy",
+  buy:"buy",
+  favorite:"like",
+  like:"like",
+  rank:"rank"
+};
 
 //临时用户
 var tmpUser = "";
@@ -60,11 +123,19 @@ var fromUser = "";
 var fromBroker = "";
 var broker = {};//当前达人
 
+//支持的类目
+var sxCategories = [];
+var cascader = null;//级联选择器实例
+
+var _sxdebug = true;
+
 //将item显示到页面
 function showContent(item){
     //分享链接
     $("#share-link").attr("href","info2ext.html?id="+id);    
     //购买按钮
+    if(item.distributor && item.distributor.name)
+        $("#jumpbtn").text("立即前往 "+item.distributor.name+" >> ");
     /*
     if(item.distributor && item.distributor.images && item.distributor.images.length>0)$("#shopping-summary").append("<img src='"+item.distributor.images[0]+"'/>");
     if(item.seller && item.seller.images && item.seller.images.length>0)$("#shopping-summary").append("<img src='"+item.seller.images[0]+"'/>");
@@ -138,12 +209,73 @@ function showContent(item){
     }
 
     //标签
+    /**
     if(item.distributor && item.distributor.name){//来源作为标签
         $("#tags").append("<div class='tag'>"+item.distributor.name+"</div>");
-    }    
+    }   
+    //**/ 
     for(var i=0;item.tags&&i<item.tags.length;i++){//标签云
         $("#tags").append("<div class='tag'>" + item.tags[i] + "</div>");//加载图片幻灯
     }
+
+    //数说：显示生成的评价结果图
+    if(item.meta && item.meta.category){
+        //会生成评价结果图表，此处不做任何处理
+    }else{
+        //显示提示信息
+        //$("#tabs-data").html("<div class='prop-value'>尚未生成，请稍等……</div>");
+        //表示没有类目，提示选择类目完成标注
+        //**
+        $("#category-wrapper-tip").css("display","block");
+        $("#category-wrap").css("display","block");
+        loadSxCategories();
+        //**/
+    }
+
+    //卖家说：平台logo
+    $("#platform-logo").append("<img src='"+app.config.res_api+"/logo/distributor/"+item.source+".png' alt='"+item.distributor.name+"'/>");
+    if(item.props && item.props.length>0){
+        item.props.forEach(function(json){
+            for (var key in json){
+                $("#props").append("<div class='prop-row'><div class='prop-key'>"+key+"</div><div class='prop-value'>"+json[key]+"</div></div>");
+            }            
+        });
+    }
+
+    //买家说：评价
+    if(item.rank && item.rank.score){
+        $("#rank").append("<div class='prop-row'><div class='prop-key'>用户评分</div><div class='prop-value item-score'></div></div>");
+        $(".item-score").starRating({
+            readOnly:true,
+            starSize: 15,
+            initialRating: item.rank.score,
+            ratedColors:['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#00ffff','#40e0d0','#9acd32','#32cd32','#228b22'],
+            callback: function(currentRating, $el){
+                // make a server call here
+            }
+        });
+    }
+    if(item.rank && item.rank.count){
+        updateActionCount("rank",item.rank.count);
+        //$("#rank").append("<div class='prop-row'><div class='prop-key'>打分人数</div><div class='prop-value'>"+item.rank.count+"</div></div>");
+    }
+    for (var actionType in actionTypes){//注意：这里需要发起多次搜索，可能导致性能问题
+        loadCountByAction(actionType);
+    } 
+    if(item.tagging && item.tagging.length>0){
+        var usertags = "";
+        item.tagging.forEach(function(tagItem){
+            usertags += "<div class='tag'>"+tagItem+"</div>";
+        });
+        $("#rank").append("<div class='prop-row'><div class='prop-key'>用户标签</div><div class='prop-value tags'>"+usertags+"</div></div>");
+    }
+    //加载用户行为：注意，需要到等到stuff加载后才开始
+    showloading(true);
+    loadFeeds();    
+    
+    //TODO：添加主题及推荐信息
+        
+
     //随机着色
     /*
     $("#tags").find("div").each(function(){
@@ -163,6 +295,66 @@ function showContent(item){
     logstash(item,from,"view",fromUser,fromBroker,function(){
         //do nothing
     });      
+}
+
+//加载类目数据，加载完成后显示级联选择器
+function loadSxCategories(){
+    $.ajax({
+        url:"https://data.shouxinjk.net/ilife/a/mod/itemCategory/all-categories?parentId=1",
+        type:"get",
+        success:function(res){
+            //装载categories
+            if(_sxdebug)console.log("got all categories",res);
+            sxCategories = res;  
+            //显示级联选择
+            showCascader(null);
+        }
+    })    
+}
+
+//注意：在cascade中引用Array.flat()方法，但微信浏览器未实现，需要补充
+Object.defineProperty(Array.prototype, 'flat', {
+    value: function(depth = 1) {
+      return this.reduce(function (flat, toFlatten) {
+        return flat.concat((Array.isArray(toFlatten) && (depth>1)) ? toFlatten.flat(depth-1) : toFlatten);
+      }, []);
+    }
+});
+
+//显示级联选择器
+function showCascader(categoryId){
+    cascader = new eo_cascader(sxCategories, {
+        elementID: 'category-wrapper',
+        multiple: false, // 是否多选
+        // 非编辑页，checkedValue 传入 null
+        // 编辑时 checkedValue 传入最后一级的 ID 即可
+        checkedValue: categoryId?[categoryId] : null,
+        separator: '/', // 分割符 山西-太原-小店区 || 山西/太原/小店区
+        clearable: false, // 是否可一键删除已选
+        onSelect:function(selectedCategory){//回调函数，参数带有选中标签的ID和label。回传为：{id:[],label:[]}//其中id为最末级选中节点，label为所有层级标签
+            if(_sxdebug)console.log("crawler::category item selected.",selectedCategory);
+            //更新当前item的category。注意更新到meta.category下
+            stuff.meta = {category:selectedCategory.id[0],categoryName:selectedCategory.label[selectedCategory.label.length-1]};//仅保存叶子节点
+            stuff.status.classify = "ready";
+            stuff.status.load = "pending";
+            stuff.timestamp.classify = new Date();
+            //加载属性值列表
+            //loadProps(selectedCategory.id[0]);
+            //提交类目
+            submitItemForm();
+            //重新生成图表
+            showRadar();
+            showDimensionBurst();
+            //隐藏级联选择组件
+            $("#category-wrapper-tip").css("display","none");
+            $("#category-wrapper").css("display","none");            
+        }
+    });
+    //对于已经设置的类目则直接显示属性列表
+    /**
+    if(stuff.meta && stuff.meta.category)
+        loadProps(item.meta.category);
+    //**/
 }
 
 //分享浮框
@@ -541,8 +733,8 @@ function loadItem(key){//获取内容列表
         type:"get",
         data:{},
         success:function(data){
-            showContent(data);
             stuff = data;//本地保存，用于分享等后续操作
+            showContent(data);
 
             //显示评价树
             if(stuff.meta && stuff.meta.category)
@@ -841,6 +1033,546 @@ function showSunBurst(data){
         });        
     });    
     //**/
+}
+
+
+function submitItemForm(){
+    //获取变化的数据
+    currentItem = stuff;
+
+    //添加当前采集达人数据
+    if($.cookie("sxAuth") && $.cookie("sxAuth").trim().length>0){
+        var sxAuth = JSON.parse($.cookie("sxAuth"));
+        if(sxAuth.openid){
+            currentItem.task.user = sxAuth.openid;
+        }
+    }
+
+    //仅提交标注数据，其他数据不做提交，避免覆盖服务器侧数据更新
+    var changedItem = {
+        _key:currentItem._key?currentItem._key:hex_md5(currentItem.url),
+        task:{
+            user:currentItem.task.user
+        },
+        title:currentItem.title,
+        summary:currentItem.summary
+    }
+    if(currentItem.meta && currentItem.meta.category){
+        changedItem.meta = {
+            category:currentItem.meta.category
+        }
+    }
+    if(currentItem.tagging)
+        changedItem.tagging = currentItem.tagging;
+    if(currentItem.props)
+        changedItem.props = currentItem.props;
+
+    if(_sxdebug)console.log("try to commit data.",currentItem/*,changedItem*/);
+
+    //记录采集历史：重要，单个达人或机构能够根据历史获取其采集的历史列表 
+    logstash(currentItem,"mp","label",currentItem.task.user,broker.id,function(){
+      //do nothing
+    }); 
+
+    var data = {
+        records:[{
+            value:currentItem//changedItem
+        }]
+    };
+    $.ajax({
+        url:"https://data.shouxinjk.net/kafka-rest/topics/stuff",
+        type:"post",
+        data:JSON.stringify(data),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/vnd.kafka.json.v2+json",
+            "Accept":"application/vnd.kafka.v2+json"
+        },
+        success:function(result){
+            //do nothing
+            /**
+            $.toast({
+                heading: 'Success',
+                text: '已提交成功',
+                showHideTransition: 'fade',
+                icon: 'success'
+            });
+            //**/
+            //切换到来源页面，便于进入其他站点继续采集数据
+        }
+    });
+
+    //同时将当前的类目映射添加到platform_categories
+    if(currentItem.meta && currentItem.meta.category){
+        var platform_category = {
+            _key:hex_md5(currentItem.source+currentItem.category),
+            source:currentItem.source,
+            name:currentItem.category,
+            mappingId:currentItem.meta.category,
+            mappingName:currentItem.meta.categoryName
+        };
+        console.log("try to commit platform category.",platform_category);
+        $.ajax({
+            url:"https://data.shouxinjk.net/_db/sea/category/platform_categories",
+            type:"post",
+            data:JSON.stringify(platform_category),//注意：不能使用JSON对象
+            //data:data,
+            headers:{
+                "Content-Type":"application/json",
+                "Accept": "application/json"
+            },
+            success:function(res){
+                console.log("upsert success.",res);
+            },
+            error:function(){
+                console.log("upsert failed.",platform_category);
+            }
+        }); 
+    }    
+
+}
+
+//根据ItemCategory类别，获取对应的属性配置，并与数据值融合显示
+//0，获取property mapping，采用同步方式。获取后作为属性比对。根据name或者props.name对照
+//1，根据key进行合并显示，以itemCategory下的属性为主，能够对应上的key显示绿色，否则显示红色
+//2，数据显示，有对应于key的数值则直接显示，否则留空等待填写
+function loadProps(categoryId){
+    //同步获取propertyMapping：根据source、category（注意是原始类目名称，不是标准类目）、name（name或者props.name）查找
+    var propMapping = {};
+    $.ajax({
+        url:"https://data.shouxinjk.net/_db/sea/property/platform_properties/get-mapping",
+        type:"post",
+        async: false,//同步调用
+        data:JSON.stringify({
+            source:currentItem.source,
+            category:currentItem.category
+        }),
+        success:function(result){
+            if(_sxdebug)console.log(result);
+            result.data.forEach((item, index) => {//将其他元素加入
+              if(_sxdebug)console.log("foreach props.[index]"+index,item);
+              propMapping[item.name.replace(/\./g,"_")]=item.mappingName;
+            });   
+            console.log("got property mapping.",propMapping);         
+        }
+    });
+    //根据categoryId获取所有measure清单，字段包括name、property
+    $.ajax({
+        url:"https://data.shouxinjk.net/ilife/a/mod/measure/measures?category="+categoryId,
+        type:"get",
+        data:{},
+        success:function(items){
+            if(_sxdebug)console.log(items);
+            //在回调内：1，根据返回结果组装待展示数据，字段包括：name、property、value、flag(如果在则为0，不在为1)
+            var props = currentItem.props?currentItem.props:[];//临时记录当前stuff的属性列表
+              nodes = [];
+              for( k in items ){
+                var item = items[k];
+                if(_sxdebug)console.log("measure:"+JSON.stringify(item));
+                var name=item.name;
+                var property = item.property;
+                var value = props[property]?props[property]:"";
+                for(j in props){
+                    var prop = props[j];
+                    var _key = "";
+                    for ( var key in prop){//从prop内获取key
+                        _key = key;
+                        break;
+                    }  
+                    if(_key===property){//如果存在对应property：这是理想情况，多数情况下都只能通过name匹配
+                        value = prop[_key];
+                        props.splice(j, 1);//删除该元素
+                        break;
+                    }else if(_key===name){//如果匹配上name 也进行同样的处理
+                        value = prop[_key];
+                        props.splice(j, 1);//删除该元素
+                        break;
+                    }else if(propMapping[_key]===name || propMapping["props_"+_key]===name || propMapping[_key.replace(/\./g,"_")]===name){//从prop mapping中进行匹配，采用name，或者props_name进行查找
+                        value = prop[_key];
+                        props.splice(j, 1);//删除该元素
+                        break;                        
+                    }
+                }
+                var node = {
+                    "name" :  name,
+                    "property":property,
+                    "value":value,
+                    //"flag":true
+                }
+                nodes.push( node );
+              }
+              //添加未出现的property
+                for(j in props){
+                    var prop = props[j];
+                    if(_sxdebug)console.log("un matched prop:"+JSON.stringify(prop));
+                    var property="";
+                    var value = "";
+                    for (var key in prop){
+                        property = key;
+                        value = prop[key];
+                        break;
+                    }                   
+                    var node = {
+                        "name" :  property,//属性名直接作为显示名称
+                        "property":property,
+                        "value":value,
+                        //"flag":false
+                    }
+                    nodes.push( node );
+                }
+              if(_sxdebug)console.log("prop Nodes:"+JSON.stringify(nodes));
+              //return data;            
+            //在回调内：2，组装并显示数据表格
+            $("#propsList").jsGrid({
+                width: "100%",
+                //height: "400px",
+         
+                inserting: false,
+                editing: true,
+                sorting: false,
+                paging: false,
+                onItemInserted:function(row){
+                    if(_sxdebug)console.log("item inserted",row);
+                    //更新到当前修改item属性列表内
+                    if(!currentItem.props)
+                        currentItem.props = [];
+                    //由于采用的是键值对，需要进行遍历。考虑到浏览器影响，此处未采用ES6 Map对象
+                    var props = [];//新建一个数组
+                    var prop = {};
+                    prop[row.item.name] = row.item.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
+                    props.push(prop);
+                    currentItem.props.forEach((item, index) => {//将其他元素加入
+                      if(_sxdebug)console.log("foreach props.[index]"+index,item);
+                      if(!item[row.item.name])
+                        props.push(item);
+                    });
+                    currentItem.props = props;
+                    if(_sxdebug)console.log("item props updated",currentItem);                 
+                },
+                onItemUpdated:function(row){
+                    if(_sxdebug)console.log("item updated",row);
+                    if(!currentItem.props)
+                        currentItem.props = [];                    
+                    //由于采用的是键值对，需要进行遍历。考虑到浏览器影响，此处未采用ES6 Map对象
+                    var props = [];//新建一个数组
+                    var prop = {};
+                    prop[row.item.name] = row.item.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
+                    props.push(prop);
+                    currentItem.props.forEach((item, index) => {//将其他元素加入
+                      if(_sxdebug)console.log("foreach props.[index]"+index,item);
+                      if(!item[row.item.name])
+                        props.push(item);                      
+                    });
+                    currentItem.props = props; 
+                    if(_sxdebug)console.log("item props updated",currentItem);   
+                },
+
+                data: nodes,
+         
+                fields: [
+                    {title:"名称", name: "name", type: "text", width: 100 },
+                    //{title:"属性", name: "property", type: "text", width: 50 },
+                    {title:"数值", name: "value", type: "text",width:200},
+                    //{ name: "Matched", type: "checkbox", title: "Is Matched", sorting: false },
+                    { type: "control" ,editButton: true,deleteButton: false,   width: 50}
+                ]
+            });   
+            //显示属性列表
+            $("#propsDiv").css("display","block");         
+        }
+    })     
+}
+
+//加载用户行为，作为买家说行为记录：
+//统计指定行为数量：
+function loadCountByAction(actionType) {
+    console.log("Feed::loadActionSum");
+    //设置query
+    var esQuery = {//搜索控制
+      from: 0,
+      size: 10,//数量不关注，仅处理结果中的总记录数即可
+      query: {
+        bool: {
+          must: [
+            {
+              "match": {
+                "itemId": stuff._key
+              }
+            },
+            {
+              "match": {
+                "action": actionType
+              }
+            }            
+          ]
+        }
+      },/*
+      collapse: {
+        field: "userId"//根据userId 折叠，即：一个user仅显示一次
+      },//*/
+      sort: [
+        //{ "weight": { order: "desc" } },//权重高的优先显示
+        { "@timestamp": { order: "desc" } },//最近操作的优先显示
+        { "_score": { order: "desc" } }//匹配高的优先显示
+      ]
+    };
+
+    //设置请求头
+    var esHeader = {
+      "Content-Type": "application/json",
+      "Authorization": "Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
+    };
+
+    $.ajax({
+        url:"https://data.pcitech.cn/actions/_search",
+        type:"post",
+        data:JSON.stringify(esQuery),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
+        },
+        crossDomain: true,
+        timeout:3000,//设置超时
+        success:function(data){
+            console.log("Feed::loadData success.",data);
+            if(data.hits.total == 0 ){
+                //do nothing
+            }else{
+                //更新操作数量
+                updateActionCount(actionType,data.hits.total);
+            }
+        }
+    });
+  }
+
+//加载用户浏览数据：根据选定用户显示其浏览历史，对于画像则显示该画像下的聚集数据
+//currentPersonType: person则显示指定用户的记录，persona显示该画像下所有记录
+function loadData() {
+    console.log("Feed::loadData");
+    //设置query
+    var esQuery = {//搜索控制
+      from: (page.current + 1) * page.size,
+      size: page.size,
+      query: {
+        bool: {
+          must: [
+            {
+              "match": {
+                "itemId": stuff._key
+              }
+            }
+          ]
+        }
+      },//*
+      collapse: {
+        field: "userId"//根据userId 折叠，即：一个user仅显示一次
+      },//*/
+      sort: [
+        //{ "weight": { order: "desc" } },//权重高的优先显示
+        { "@timestamp": { order: "desc" } },//最近操作的优先显示
+        { "_score": { order: "desc" } }//匹配高的优先显示
+      ]
+    };
+
+    //设置请求头
+    var esHeader = {
+      "Content-Type": "application/json",
+      "Authorization": "Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
+    };
+
+    $.ajax({
+        url:"https://data.pcitech.cn/actions/_search",
+        type:"post",
+        data:JSON.stringify(esQuery),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
+        },
+        crossDomain: true,
+        timeout:3000,//设置超时
+        success:function(data){
+            console.log("Feed::loadData success.",data);
+            if(data.hits.total == 0 || data.hits.hits.length==0){//如果没有内容，则显示提示文字
+                shownomore(true);
+                showloading(false);
+            }else{
+                //更新总页数
+                var total = data.hits.total;
+                page.total = (total + page.size - 1) / page.size;
+                //更新当前翻页
+                page.current = page.current + 1;
+                //装载具体条目
+                var hits = data.hits.hits;
+                for(var i = 0 ; i < hits.length ; i++){
+                    //items.push(hits[i]._source.item);
+                    items.push(hits[i]._source);
+                }
+                insertItem();
+                showloading(false);
+            }
+        },
+        complete: function (XMLHttpRequest, textStatus) {//调用执行后调用的函数
+            if(textStatus == 'timeout'){//如果是超时，则显示更多按钮
+              console.log("ajax超时",textStatus);
+              shownomore(true);
+            }
+        },
+        error: function () {//调用出错执行的函数
+            //请求出错处理：超时则直接显示搜索更多按钮
+            shownomore(true);
+          }
+    });
+  }
+
+//加载feeds
+function loadFeeds(){
+    setInterval(function ()
+    {
+        //console.log("interval",$(window).scrollTop(),$(document).height(),$(window).height(),$(document).height() - $(window).height() - dist);
+        if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+        {
+            // 表示开始加载
+            loading = true;
+
+            // 加载内容
+            if(items.length < num){//如果内容未获取到本地则继续获取
+                //console.log("load from remote ");
+                loadData();
+            }else{//否则使用本地内容填充
+                //console.log("load from locale ");
+                insertItem();
+            }
+        }
+    }, 60);
+}  
+
+//将feed item显示到页面
+function insertItem(){
+    // 加载历史行为
+    var actionItem = items[num-1];
+    //检查是否还有，如果没有则显示已完成
+    if(!actionItem){
+      shownomore(true);
+      return;
+    }
+    //隐藏no-more-tips
+    $("#no-results-tip").toggleClass("no-result-tip-hide",true);
+    $("#no-results-tip").toggleClass("no-result-tip-show",false); 
+
+    // 加载内容：显示用户及行为列表
+      var html = "";
+      html += "<div class='action-item'>";
+      html += "<div class='action-person-logo'><img src='"+(actionItem.user&&actionItem.user.avatarUrl?actionItem.user.avatarUrl:currentPersonObj.avatarUrl)+"' width='40px' height='40px'/></div>";//logo
+      html += "<div class='action-info'>";
+      html += "<div class='action-person-name'>"+(actionItem.user&&actionItem.user.nickName?actionItem.user.nickName:currentPersonObj.nickName)+"</div>";//name
+      html += "<div class='action-person-type'>"+(actionTypes[actionItem.action]?actionTypes[actionItem.action]:actionItem.action)+"</div>";//action
+      html += "<div class='action-person-time'>"+getDateDiff(actionItem.timestamp)+"</div>";//time
+      html += "</div>";
+      html += "</div>";
+    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div>"+html+"</li>");
+    num++;
+
+    //注册事件
+    if(actionItem.user&&actionItem.user._key){
+        $("div[data='"+actionItem.user._key+"']").click(function(){
+            //跳转到详情页面
+            window.location.href = "feeds.html?id="+actionItem.user._key;
+        });
+    }
+
+    // 表示加载结束
+    showloading(false);
+    loading = false;    
+    num++;  
+}
+
+//统计用户行为数量，并更新界面显示
+function updateActionCount(actionType,count){
+    //判断行为类型后计数+1
+    var countKey = actionTypeConvert[actionType];
+    actionCounts[countKey] = actionCounts[countKey]+count;
+    totalActions = totalActions+count;
+    showUserActions();
+}
+
+function showUserActions(){
+    $("#user-actions").empty();//先把已有内容清空掉
+    if(totalActions>0){//如果啥行为都没有就别展示了
+        var html = "<div class='prop-row'><div class='prop-key'>用户热度</div><div class='prop-value user-actions'>";
+        for (var key in actionCounts){
+            var count = actionCounts[key];
+            if(key && count >0 )
+                html += "<div class='user-actions-number user-actions-number-"+key+"'>"+" "+count+"</div>";
+        }                   
+        html += "</div></div>";
+        $("#user-actions").append(html);
+    }
+}
+
+//显示正在加载提示
+function showloading(flag){
+  if(flag){
+    $("#loading").toggleClass("loading-hide",false);
+    $("#loading").toggleClass("loading-show",true);
+  }else{
+    $("#loading").toggleClass("loading-hide",true);
+    $("#loading").toggleClass("loading-show",false);    
+  }
+}
+
+//显示没有更多内容
+function shownomore(flag){
+  //检查是否是一条数据都没加载
+  if(items.length==0){//需要特别处理：如果没有任何数据，则需要默认设置，否则导致无法显示show more btn
+    $("#waterfall").height(10);
+    $("#no-results-tip").toggleClass("no-result-tip-hide",false);
+    $("#no-results-tip").toggleClass("no-result-tip-show",true);
+  }    
+  if(flag){
+    $("#findMoreBtn").toggleClass("findMoreBtn-hide",false);
+    $("#findMoreBtn").toggleClass("findMoreBtn-show",true);   
+  }else{
+    $("#findMoreBtn").toggleClass("findMoreBtn-hide",true);
+    $("#findMoreBtn").toggleClass("findMoreBtn-show",false);
+  }
+}
+
+// 时间戳转多少分钟之前
+function getDateDiff(dateTimeStamp) {
+    // 时间字符串转时间戳
+    var timestamp = new Date(dateTimeStamp).getTime();
+    var minute = 1000 * 60;
+    var hour = minute * 60;
+    var day = hour * 24;
+    var halfamonth = day * 15;
+    var month = day * 30;
+    var year = day * 365;
+    var now = new Date().getTime();
+    var diffValue = now - timestamp;
+    var result;
+    if (diffValue < 0) {
+        return;
+    }
+    var yearC = diffValue / year;
+    var monthC = diffValue / month;
+    var weekC = diffValue / (7 * day);
+    var dayC = diffValue / day;
+    var hourC = diffValue / hour;
+    var minC = diffValue / minute;
+    if (yearC >= 1) {
+        result = "" + parseInt(yearC) + "年前";
+    } else if (monthC >= 1) {
+        result = "" + parseInt(monthC) + "月前";
+    } else if (weekC >= 1) {
+        result = "" + parseInt(weekC) + "周前";
+    } else if (dayC >= 1) {
+        result = "" + parseInt(dayC) + "天前";
+    } else if (hourC >= 1) {
+        result = "" + parseInt(hourC) + "小时前";
+    } else if (minC >= 1) {
+        result = "" + parseInt(minC) + "分钟前";
+    } else
+        result = "刚刚";
+    return result;
 }
 
 function registerShareHandler(){

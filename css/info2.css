@@ -395,3 +395,211 @@ a{
   line-height: 16px;
   padding:2px; 
 }
+
+#tabs li>a{
+	font-size: 1.6rem;
+	font-weight:bold;
+}
+
+#platform-logo{
+	width:90%;
+}
+#platform-logo>img{
+	margin: 10px auto;
+	width:60%;
+}
+
+.prop-row{
+  margin:5px auto;
+  width:90%;
+  display:flex;
+  flex-direction:row;
+  flex-wrap: nowrap;
+  align-content:center;
+  justify-content:flex-start; 
+  vertical-align: middle;	
+}
+
+.prop-key{
+	font-size:1.4rem;
+	font-weight:bold;
+	line-height: 1.8rem;
+	width:20%;
+	margin: auto;
+}
+.prop-value{
+	font-size:1.4rem;
+	line-height: 1.8rem;
+	width:80%;
+}
+.tags{
+	display:flex;
+	justify-content:flex-start;
+	align-content:flex-start;
+	flex-wrap: wrap;
+	padding:2px 0;
+	margin-top: 2px;
+}
+.tags>div{
+	font-size: 1.2rem;
+	padding:5px;
+	margin:2.5px;
+	font-weight: bold;
+	border:1px solid silver;
+	border-radius: 5px;
+	background-color: #fff;
+}
+
+.action-item{
+  display:flex;
+  flex-direction:row;
+  flex-wrap: nowrap;
+  align-content:center;
+  justify-content:flex-start; 
+  vertical-align: middle;
+  width:90%;
+}
+
+.feed-separator{
+  /*position: relative;*/
+}
+.feed-separator:before {
+    content: " ";
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    height: 1px;
+    border-top: 1px solid #e5e5e5;
+    color: #e5e5e5;
+    -webkit-transform-origin: 0 0;
+    transform-origin: 0 0;
+    -webkit-transform: scaleY(0.5);
+    transform: scaleY(0.5);
+    /*z-index: 2;*/
+}
+
+.action-person-logo{
+  display:inline-block;
+  width:20%;
+  line-height: 40px;
+}
+.action-person-logo img{
+  border-radius: 20px;
+}
+.action-info{
+  display:flex;
+  flex-direction:column;
+  flex-wrap: nowrap;
+  width:80%;
+  line-height: 40px;
+}
+
+.action-person-name{
+  display:inline-block;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 16px;
+  margin:auto 2px;
+}
+
+.action-person-time{
+  display:inline-block;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 16px;
+  margin:auto 2px;
+}
+
+.action-person-type{
+  display:inline-block;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 16px;
+  margin:auto 2px;
+}
+
+
+.user-actions{
+  width:80%;
+  height:36px;
+  display:flex;
+  font-size:14px;
+  flex-direction:row;
+  justify-content:flex-start;  
+  flex-wrap: nowrap;
+  align-items: center;
+  text-align: center;  
+}
+.user-actions-number{
+  line-height: 36px;
+  font-size:18rpx;
+  float:right;
+  padding-left: 18px; 
+  position: relative; 
+  font-weight: normal;  
+  margin-right:5px;
+}
+.user-actions-number::before{ 
+	content: ''; 
+	height: 16px; 
+	width: 16px; 
+	background: url("http://www.shouxinjk.net/list/images/favorite-16.png") no-repeat 50% 50%;  
+	position: absolute; 
+	top:10px; 
+	left: 0; 
+}
+.user-actions-number-rank::before{ 
+	content: ''; 
+	height: 16px; 
+	width: 16px; 
+	background: url("http://www.shouxinjk.net/list/images/action/rank-16.png") no-repeat 50% 50%;  
+	position: absolute; 
+	top:10px; 
+	left: 0; 
+}
+.user-actions-number-share::before{ 
+	content: ''; 
+	height: 16px; 
+	width: 16px; 
+	background: url("http://www.shouxinjk.net/list/images/action/share-16.png") no-repeat 50% 50%;  
+	position: absolute; 
+	top:10px; 
+	left: 0; 
+}
+.user-actions-number-buy::before{ 
+	content: ''; 
+	height: 16px; 
+	width: 16px; 
+	background: url("http://www.shouxinjk.net/list/images/action/buy-16.png") no-repeat 50% 50%;  
+	position: absolute; 
+	top:10px; 
+	left: 0; 
+}
+.user-actions-number-like::before{ 
+	content: ''; 
+	height: 16px; 
+	width: 16px; 
+	background: url("http://www.shouxinjk.net/list/images/action/like-16.png") no-repeat 50% 50%;  
+	position: absolute; 
+	top:10px; 
+	left: 0; 
+}
+.user-actions-number-view::before{ 
+	content: ''; 
+	height: 16px; 
+	width: 16px; 
+	background: url("http://www.shouxinjk.net/list/images/action/view-16.png") no-repeat 50% 50%;  
+	position: absolute; 
+	top:10px; 
+	left: 0; 
+}
+.user-actions-number-favorite::before{ 
+	content: ''; 
+	height: 16px; 
+	width: 16px; 
+	background: url("http://www.shouxinjk.net/list/images/action/favorite-16.png") no-repeat 50% 50%;  
+	position: absolute; 
+	top:10px; 
+	left: 0; 
+}
