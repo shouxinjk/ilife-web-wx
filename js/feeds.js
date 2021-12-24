@@ -70,6 +70,7 @@ var actionTypes = {
   "buy step1":"很感兴趣",
   "buy step2":"准备剁手",
   buy:"拔草",
+  label:"标注",
   favorite:"种草",
   like:"喜欢"
 };

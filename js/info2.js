@@ -65,13 +65,14 @@ var actionTypes = {
   share:"分享",
   "publish":"发布",
   "collect":"上架",  
-  "share poster":"海报分享",
-  "share board poster":"清单海报分享",
-  "share appmsg":"微信分享",
-  "share timeline":"朋友圈分享",
+  "share poster":"分享海报",
+  "share board poster":"分享清单",
+  "share appmsg":"分享给好友",
+  "share timeline":"分享到朋友圈",
   "buy step1":"很感兴趣",
   "buy step2":"准备剁手",
-  buy:"拔草",
+  buy:"买了",
+  label:"标注",
   favorite:"种草",
   like:"喜欢"
 };
@@ -89,6 +90,7 @@ var actionCounts = {
 //用户行为转换：将不同种类分享合并为同一个行为
 var actionTypeConvert = {
   view:"view",
+  label:"view",
   share:"share",
   "publish":"share",
   "collect":"view",  
@@ -220,14 +222,14 @@ function showContent(item){
 
     //数说：显示生成的评价结果图
     if(item.meta && item.meta.category){
-        //会生成评价结果图表，此处不做任何处理
+        //会生成评价结果图表，隐藏类目选择器
+        $("#category-wrapper").css("display","none");
     }else{
         //显示提示信息
         //$("#tabs-data").html("<div class='prop-value'>尚未生成，请稍等……</div>");
         //表示没有类目，提示选择类目完成标注
         //**
         $("#category-wrapper-tip").css("display","block");
-        $("#category-wrap").css("display","block");
         loadSxCategories();
         //**/
     }
@@ -881,6 +883,9 @@ function showRadar(){
     if(!featuredDimension || featuredDimension.length ==0)
         return;
 
+    //显示标题：
+    $("#radarTitle").css("display","block");
+
     //根据itemKey获取评价结果
     //feature = 1；dimensionType：0客观评价，1主观评价
     var itemScore = {};
@@ -1004,6 +1009,9 @@ function showDimensionBurst(){
 }
 
 function showSunBurst(data){
+    //显示标题：
+    $("#sunburstTitle").css("display","block");
+    //显示sunburst图表    
     Sunburst("#sunburst",data, {
       value: d => d.weight, // weight 
       label: d => d.name, // name
