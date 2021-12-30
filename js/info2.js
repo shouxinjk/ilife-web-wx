@@ -823,48 +823,7 @@ function showRadar(){
         height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
             
     //query item measure data
-    var data = [
-              [//iPhone
-                {axis:"电池寿命",value:0.74},
-                {axis:"品牌",value:0.56},
-                {axis:"售后",value:0.72},
-                {axis:"使用成本",value:0.58},
-                {axis:"设计",value:0.94},
-                {axis:"网络",value:0.64},
-                {axis:"屏幕",value:0.04},
-                {axis:"价格",value:0.42},
-                {axis:"可用性",value:0.72},
-                {axis:"美誉度",value:0.52},
-                {axis:"潮流",value:0.48},
-                {axis:"智能化",value:1.0}          
-              ],[//Samsung
-                {axis:"电池寿命",value:0.54},
-                {axis:"品牌",value:0.132},
-                {axis:"售后",value:0.56},
-                {axis:"使用成本",value:0.7},
-                {axis:"设计",value:0.76},
-                {axis:"网络",value:0.80},
-                {axis:"屏幕",value:0.26},
-                {axis:"价格",value:0.7},
-                {axis:"可用性",value:0.82},
-                {axis:"美誉度",value:0.62},
-                {axis:"潮流",value:0.7},                
-                {axis:"智能化",value:0.76}
-              ],[//Nokia Smartphone
-                {axis:"电池寿命",value:0.52},
-                {axis:"品牌",value:0.20},
-                {axis:"售后",value:0.42},
-                {axis:"使用成本",value:0.60},
-                {axis:"设计",value:0.58},
-                {axis:"网络",value:0.42},
-                {axis:"屏幕",value:0.68},
-                {axis:"价格",value:0.82},
-                {axis:"可用性",value:0.92},
-                {axis:"美誉度",value:0.7},
-                {axis:"潮流",value:0.58},                
-                {axis:"智能化",value:0.60}
-              ]
-            ];
+    var data = [];
 
     //获取类目下的特征维度列表：注意是同步调用
     var featuredDimension = [];
@@ -953,28 +912,77 @@ function showRadar(){
     };
     //genrate radar
     RadarChart("#radar", data, radarChartOptions);
-    //如果是达人则显示生成带图表海报入口
-    if(broker&&broker.id){
-        //显示生成海报按钮
-        //$("#saveRadar").css("display","block");
-        $("#saveRadar").click(function(){
-            var canvas = $("#radar svg")[0];
-            console.log("got canvas.",canvas);
-            //调用方法转换即可，转换结果就是uri,
-            var width = $(canvas).attr("width");
-            var height = $(canvas).attr("height");
-            var options = {
-                left:0,
-                top:0,
-                width:Number(width),
-                height:Number(height)
-            };
-            svgAsPngUri(canvas, options, function(uri) {
-                $("#radarImg").append('<img width="'+Number(width)+'" height="'+Number(height)+'" src="' + uri + '" alt="请长按保存"/>');
-            });        
-        }); 
-    }
+
+    //将生成的客观评价图片提交到fdfs
+    var canvas = $("#radar svg")[0];
+    console.log("got canvas.",canvas);
+    //调用方法转换即可，转换结果就是uri,
+    var width = $(canvas).attr("width");
+    var height = $(canvas).attr("height");
+    var options = {
+        left:0,
+        top:0,
+        width:Number(width),
+        height:Number(height)
+    };
+    svgAsPngUri(canvas, options, function(uri) {
+        //console.log("image uri.",dataURLtoFile(uri,"dimension.png"));
+        //$("#radarImg").append('<img width="'+Number(width)+'" height="'+Number(height)+'" src="' + uri + '" alt="请长按保存"/>');
+        //TODO： 将图片提交到服务器端。保存文件名为：itemKey-d.png
+        uploadPngFile(uri, "measure-radra.png", "measure");//文件上传后将在stuff.media下增加{measure:imagepath}键值对
+    });        
 }
+
+//上传图片文件到服务器端保存，用于海报生成
+//mediaKey：用于指出在item.media下的key
+function uploadPngFile(dataurl, filename, mediaKey){
+    var formData = new FormData();
+    formData.append("files", dataURLtoFile(dataurl, filename));//注意，使用files作为字段名
+    if(stuff.media&&stuff.media[mediaKey]&&stuff.media[mediaKey].indexOf("group")>0){//已经生成过的会直接存储图片链接，链接中带有group信息
+        var oldFileId = stuff.media[mediaKey].split("group")[1];//返回group后的字符串，后端将解析
+        console.log("got old fileid.[fileId]"+oldFileId);
+        formData.append("fileId", oldFileId);//传递之前已经存储的文件ID，即group之后的部分，后端根据该信息完成历史文件删除
+    }else{
+        formData.append("fileId", "");//否则设为空
+    }
+    $.ajax({
+         type:'POST',
+         url:app.config.sx_api+"/rest/api/upload",
+         data:formData,
+         contentType:false,
+         processData:false,//必须设置为false，不然不行
+         dataType:"json",
+         mimeType:"multipart/form-data",
+         success:function(data){//把返回的数据更新到item
+            console.log("chart file uploaded. try to update item info.",data);
+            console.log("image path",app.config.file_api+"/"+data.fullpath);
+            //将返回的media存放到stuff
+            if(data.fullpath && data.group.length>0 && data.fullpath.length>6){//仅在成功返回后才操作
+                if(!stuff.media)
+                    stuff.media = {};
+                stuff.media[mediaKey] = app.config.file_api+"/"+data.fullpath;
+                submitItemForm();//提交修改
+            }
+         }
+     }); 
+}
+
+//转换base64为png文件
+function dataURLtoFile(dataurl, filename) {
+  // 获取到base64编码
+  const arr = dataurl.split(',')
+  // 将base64编码转为字符串
+  const bstr = window.atob(arr[1])
+  let n = bstr.length
+  const u8arr = new Uint8Array(n) // 创建初始化为0的，包含length个元素的无符号整型数组
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new File([u8arr], filename, {
+    type: 'image/png',//固定为png格式
+  })
+}
+
 
 //图形化显示客观评价树
 function showDimensionBurst(){
@@ -1022,25 +1030,24 @@ function showSunBurst(data){
       width: 400,
       height: 400
     });
-    /**
-    $("#saveSunburst").css("display","block");
-    $("#saveSunburst").click(function(){
-        var canvas = $("#sunburst svg")[0];
-        console.log("got canvas.",canvas);
-        //调用方法转换即可，转换结果就是uri,
-        var width = $(canvas).attr("width");
-        var height = $(canvas).attr("height");
-        var options = {
+
+    //将生成的客观评价图片提交到fdfs
+    var canvas = $("#sunburst svg")[0];
+    console.log("got canvas.",canvas);
+    //调用方法转换即可，转换结果就是uri,
+    var width = $(canvas).attr("width");
+    var height = $(canvas).attr("height");
+    var options = {
             left:-1*Number(width)/2,
             top:-1*Number(height)/2,
             width:Number(width),
             height:Number(height)
         };
-        svgAsPngUri(canvas, options, function(uri) {
-            $("#sunburstImg").append('<img width="'+Number(width)+'" height="'+Number(height)+'" src="' + uri + '" alt="请长按保存"/>');
-        });        
-    });    
-    //**/
+    svgAsPngUri(canvas, options, function(uri) {
+        //console.log("image uri.",dataURLtoFile(uri,"dimension.png"));
+        //将图片提交到服务器端。保存文件文件key为：measure-scheme
+        uploadPngFile(uri, "measure-sunburst.png", "measure-scheme");//文件上传后将在stuff.media下增加{measure-scheme:imagepath}键值对
+    });  
 }
 
 
