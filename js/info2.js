@@ -233,6 +233,19 @@ function showContent(item){
         loadSxCategories();
         //**/
     }
+    //显示已经生成的海报：仅显示客观评价海报
+    var showPoster = false;
+    if(showPoster && item.poster){
+        var total = 0;
+        for(j in item.poster){
+            var posterUrl = item.poster[j];
+            $("#poster").append("<div class='prop-row'><img style='object-fill:cover;width:100%' src='"+posterUrl+"'/></div>");
+            total ++;
+        }
+        if(total>0)
+            $("#posterTitle").css("display","block");
+    }
+
 
     //卖家说：平台logo
     $("#platform-logo").append("<img src='"+app.config.res_api+"/logo/distributor/"+item.source+".png' alt='"+item.distributor.name+"'/>");
@@ -547,8 +560,11 @@ function loadBrokerByOpenid(openid) {
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
             //显示评价图：
-            if(stuff.meta && stuff.meta.category)
-                showRadar();
+            if(stuff.meta && stuff.meta.category){
+                showRadar();//显示评价图
+                if(!stuff.poster)
+                    requestPosterScheme();//请求并生成海报：仅在没生成海报时才自动请求生成全部海报               
+            }
 
             //达人佣金
             var profitHtml = htmlItemProfitTags(stuff);
@@ -739,8 +755,9 @@ function loadItem(key){//获取内容列表
             showContent(data);
 
             //显示评价树
-            if(stuff.meta && stuff.meta.category)
+            if(stuff.meta && stuff.meta.category){
                 showDimensionBurst();
+            }
 
             ////多站点处理：start//////////////////////////////////
             //由于当前shouxinjk.net 和 biglistoflittlethings.com 两个网站分别到不同电商平台，需要进行分隔处理
@@ -920,6 +937,8 @@ function showRadar(){
     var width = $(canvas).attr("width");
     var height = $(canvas).attr("height");
     var options = {
+        encoderOptions:1,
+        scale:2,
         left:0,
         top:0,
         width:Number(width),
@@ -983,6 +1002,89 @@ function dataURLtoFile(dataurl, filename) {
   })
 }
 
+//生成商品海报：先获得海报列表
+function requestPosterScheme(){
+    //仅对已经确定类目的商品进行
+    if(!stuff.meta || !stuff.meta.category)
+        return;
+
+    $.ajax({
+        url:app.config.sx_api+"/mod/posterTemplate/rest/item-templates",
+        type:"get",
+        data:{categoryId:stuff.meta.category},
+        success:function(schemes){
+            console.log("\n===got item poster scheme ===\n",schemes);
+            //遍历海报并生成
+            for(var i=0;i<schemes.length;i++){
+                //传递broker/stuff/userInfo作为海报生成参数
+                requestPoster(schemes[i],broker,stuff,app.globalData.userInfo);
+            }
+        }
+    });  
+}
+
+//生成海报，返回海报图片URL
+//注意：海报模板中适用条件及参数仅能引用这三个参数
+function requestPoster(scheme,xBroker,xItem,xUser){
+    //判断海报模板是否匹配当前条目
+    var isOk = true;
+    if(scheme.condition && scheme.condition.length>0){//如果设置了适用条件则进行判断
+        console.log("\n===try eval poster condition===\n",scheme.condition);
+        try{
+            isOk = eval(scheme.condition);
+        }catch(err){
+            console.log("\n=== eval poster condition error===\n",err);
+        }
+        console.log("\n===result eval poster condition===\n",isOk);
+    }
+    if(!isOk){//如果不满足则直接跳过
+        console.log("condition not satisifed. ignore.");
+        return;       
+    }
+
+    //检查是否已经生成，如果已经生成则不在重新生成
+    if(stuff.poster && stuff.poster[scheme.id]){
+        console.log("\n=== poster exists. ignore.===\n");
+        return;
+    }
+
+    //准备海报参数
+    console.log("\n===try eval poster options===\n",scheme.options);
+    try{
+        eval(scheme.options);//注意：脚本中必须使用 var xParam = {}形式赋值
+    }catch(err){
+        console.log("\n=== eval poster options error===\n",err);
+        return;//这里出错了就别玩了
+    }
+    console.log("\n===eval poster options===\n",xParam);
+    var options = {//merge参数配置
+                  ...app.config.poster_options,//静态参数：accessKey、accessSecret信息
+                  ...xParam //动态参数：配置时定义
+                }
+    console.log("\n===start request poster with options===\n",options);
+    //请求生成海报
+    $.ajax({
+        url:app.config.poster_api+"/api/link",
+        type:"post",
+        data:JSON.stringify(options),
+        success:function(res){
+            console.log("\n===got item poster info ===\n",res);
+            //将海报信息更新到stuff
+            if(res.code==0 && res.url && res.url.length>0){
+                if(!stuff.poster)
+                    stuff.poster = {};
+                stuff.poster[scheme.id] = res.url;//以schemeId作为键值存储poster
+                submitItemForm();//提交修改
+                //显示到界面
+                var showPoster = false;
+                if(showPoster){
+                    $("#poster").append("<div class='prop-row'><img style='object-fill:cover;width:100%' src='"+res.url+"'/></div>");
+                    $("#posterTitle").css("display","block"); 
+                }
+            }
+        }
+    });     
+}
 
 //图形化显示客观评价树
 function showDimensionBurst(){
@@ -1038,6 +1140,8 @@ function showSunBurst(data){
     var width = $(canvas).attr("width");
     var height = $(canvas).attr("height");
     var options = {
+            encoderOptions:1,
+            scale:2,
             left:-1*Number(width)/2,
             top:-1*Number(height)/2,
             width:Number(width),

@@ -14,12 +14,19 @@ app.config={
     auth_api:"https://data.shouxinjk.net/ilife-wechat",//获取UserInfo后端服务
     res_api:"https://www.biglistoflittlethings.com/static",//静态资源如图片服务
     sx_api:"https://data.shouxinjk.net/ilife/a",//服务端数据服务
+    mp_api:"https://mp.biglistoflittlethings.com",//wordpress媒体平台
     data_api:"https://data.shouxinjk.net/_db/sea",//数据存取服务
-    file_api:"http://file.shouxinjk.net",//数据存取服务
+    file_api:"https://file.shouxinjk.net",//数据存取服务
+    poster_api:"https://poster.biglistoflittlethings.com",//海报生成服务
     analyze_api:"https://data.shouxinjk.net/clickhouse",//分析数据服务
     search_api:"https://data.pcitech.cn",//搜索服务:内容搜索后缀为 /stuff/_search
-    message_api:"https://data.shouxinjk.net/kafka-rest"//日志等消息服务（kafka）
+    message_api:"https://data.shouxinjk.net/kafka-rest",//日志等消息服务（kafka）
+    poster_options:{//海报基础参数配置
+                  accessKey: "ApfrIzxCoK1DwNZO",
+                  secretKey: "EJCwlrnv6QZ0PCdvrWGi"
+                }
 };
+
 
 ///////////////////////////////////////////////////////
 //Start of util. we create a util object
