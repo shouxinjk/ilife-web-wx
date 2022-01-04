@@ -63,15 +63,15 @@ var totalActions = 0;//记录用户行为总数
 var actionTypes = {
   view:"看了",
   share:"分享",
-  "publish":"发布",
-  "collect":"上架",  
+  "publish":"分享",
+  "collect":"发现",  
   "share poster":"分享海报",
-  "share board poster":"分享清单",
+  "share board poster":"打包分享",
   "share appmsg":"分享给好友",
   "share timeline":"分享到朋友圈",
   "buy step1":"很感兴趣",
-  "buy step2":"准备剁手",
-  buy:"买了",
+  "buy step2":"拔草",
+  buy:"拔草",
   label:"标注",
   favorite:"种草",
   like:"喜欢"
@@ -274,6 +274,17 @@ function showContent(item){
         updateActionCount("rank",item.rank.count);
         //$("#rank").append("<div class='prop-row'><div class='prop-key'>打分人数</div><div class='prop-value'>"+item.rank.count+"</div></div>");
     }
+
+    //推荐语
+    if(item.advice){
+        var advice = "";
+        for(key in item.advice){
+            advice += "<div style='width:100%;margin:5px 0;'>"+item.advice[key]+"</div>";
+        }
+        $("#advice").append("<div class='prop-row'><div class='prop-key'>推荐者说</div><div class='prop-value'>"+advice+"</div></div>");
+    }    
+
+    //用户行为列表
     for (var actionType in actionTypes){//注意：这里需要发起多次搜索，可能导致性能问题
         loadCountByAction(actionType);
     } 
@@ -952,8 +963,44 @@ function showRadar(){
     });        
 }
 
+//上传图片到fast-poster，便于海报生成
+//**
+function uploadPngFile(dataurl, filename, mediaKey){
+    var formData = new FormData();
+    formData.append("file", dataURLtoFile(dataurl, filename));//注意，使用files作为字段名
+    if(stuff.media&&stuff.media[mediaKey]&&stuff.media[mediaKey].indexOf("group")>0){//已经生成过的会直接存储图片链接，链接中带有group信息
+        var oldFileId = stuff.media[mediaKey].split("group")[1];//返回group后的字符串，后端将解析
+        console.log("got old fileid.[fileId]"+oldFileId);
+        formData.append("fileId", oldFileId);//传递之前已经存储的文件ID，即group之后的部分，后端根据该信息完成历史文件删除
+    }else{
+        formData.append("fileId", "");//否则设为空
+    }
+    $.ajax({
+         type:'POST',
+         url:app.config.poster_api+"/api/upload",
+         data:formData,
+         contentType:false,
+         processData:false,//必须设置为false，不然不行
+         dataType:"json",
+         mimeType:"multipart/form-data",
+         success:function(data){//把返回的数据更新到item
+            console.log("chart file uploaded. try to update item info.",data);
+            console.log("image path",app.config.file_api+"/"+data.fullpath);
+            //将返回的media存放到stuff
+            if(data.code ==0 && data.url.length>0 ){//仅在成功返回后才操作
+                if(!stuff.media)
+                    stuff.media = {};
+                stuff.media[mediaKey] = app.config.poster_api+"/"+data.url;
+                submitItemForm();//提交修改
+            }
+         }
+     }); 
+}
+//**/
+
 //上传图片文件到服务器端保存，用于海报生成
 //mediaKey：用于指出在item.media下的key
+/**
 function uploadPngFile(dataurl, filename, mediaKey){
     var formData = new FormData();
     formData.append("files", dataURLtoFile(dataurl, filename));//注意，使用files作为字段名
@@ -985,6 +1032,7 @@ function uploadPngFile(dataurl, filename, mediaKey){
          }
      }); 
 }
+//**/
 
 //转换base64为png文件
 function dataURLtoFile(dataurl, filename) {
