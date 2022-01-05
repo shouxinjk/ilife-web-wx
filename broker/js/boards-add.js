@@ -75,8 +75,11 @@ function createBoard(personaId){
             id:currentBrokerId
         },
         title:$("#boardTitle").val(),
+        logo:"",
         description:$("#boardDescription").val(),
         tags:$("#boardTags").val(),
+        poster:JSON.stringify({}),
+        article:JSON.stringify({}),        
         keywords:$("#boardKeywords").val()
     };
     util.AJAX(app.config.sx_api+"/mod/board/rest/board", function (res) {
