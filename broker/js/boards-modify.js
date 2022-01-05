@@ -75,6 +75,7 @@ var currentPersona = {};
 
 var currentBrokerId = null;
 var boardId = null;
+var board = {};//存储当前编辑board
 
 var boardItemFormTemplate = '<div class="board-item-form">'+
             //*
@@ -97,14 +98,28 @@ function updateBoard(personaId){
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     };     
+    /**
     var data = {
         title:$("#boardTitle").val(),
         logo:logo,//采用已经保存的值传递
         description:$("#boardDescription").val(),
         //tags:$("#boardTags").val(),
+        poster:JSON.stringify(board.poster),
+        article:JSON.stringify(board.article),
         tags:$("#boardKeywords").val(),//tags直接用keywords
         keywords:$("#boardKeywords").val()
     };
+    //**/
+    var data_str = JSON.stringify(board);//重要：避免影响board数据，通过转换后建立新的对象
+    var data = JSON.parse(data_str);
+    data.poster = JSON.stringify(board.poster);
+    data.article = JSON.stringify(board.article);
+    data.title = $("#boardTitle").val();
+    data.logo = logo;
+    data.description = $("#boardDescription").val();
+    data.tags = $("#boardKeywords").val();//tags直接用keywords
+    data.keywords = $("#boardKeywords").val();
+
     util.AJAX(app.config.sx_api+"/mod/board/rest/board/"+boardId, function (res) {
         console.log("Broker::Board::UpdateBoard modify board successfully.", res)
         if(res.status){
@@ -187,8 +202,25 @@ function loadBoard(boardId){
             console.log("Broker::Board::loadBoard now insert board info.", res);
             var expDate = new Date();
             expDate.setTime(expDate.getTime() + (15 * 60 * 1000)); // 15分钟后自动失效：避免用户不主动修改            
-            $.cookie('board', JSON.stringify(res.data), { expires: expDate, path: '/' });  //把编辑中的board写入cookie便于添加item
-            displayBoard(res.data);
+            $.cookie('board', JSON.stringify(res.data), { expires: expDate, path: '/' });  //把编辑中的board写入cookie便于添加itemload
+            board  = res.data;
+            //解析article
+            try{
+                var json = JSON.parse(board.article);//注意是JSON string，需要解析
+                board.article = json;
+            }catch(err){
+                console.log("failed parse board article");
+                board.article = {};
+            }
+            //解析poster
+            try{
+                var json = JSON.parse(board.poster);//注意是JSON string，需要解析
+                board.poster = json;
+            }catch(err){
+                console.log("failed parse board poster");
+                board.poster = {};
+            }
+            displayBoard(board);
         }
     }, "GET",{},header);
 }
