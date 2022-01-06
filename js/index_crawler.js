@@ -57,7 +57,7 @@ $(document).ready(function ()
 });
 
 //调试标志
-var _sxdebug = false;
+var _sxdebug = true;
 
 //记录分享用户、分享达人
 var from = "orgnization";//数据来源，默认为机构达人
@@ -610,23 +610,26 @@ function showloading(flag){
 function loadProps(categoryId){
     //同步获取propertyMapping：根据source、category（注意是原始类目名称，不是标准类目）、name（name或者props.name）查找
     var propMapping = {};
-    $.ajax({
-        url:"https://data.shouxinjk.net/_db/sea/property/platform_properties/get-mapping",
-        type:"post",
-        async: false,//同步调用
-        data:JSON.stringify({
-            source:currentItem.source,
-            category:currentItem.category
-        }),
-        success:function(result){
-            if(_sxdebug)console.log(result);
-            result.data.forEach((item, index) => {//将其他元素加入
-              if(_sxdebug)console.log("foreach props.[index]"+index,item);
-              propMapping[item.name.replace(/\./g,"_")]=item.mappingName;
-            });   
-            console.log("got property mapping.",propMapping);         
-        }
-    });
+    //如果存在类目，则根据类目查找对应的标准目录映射。
+    if(currentItem.category && currentItem.category.trim().length>0){//注意：仅对于存在类目的情况有效
+        $.ajax({
+            url:"https://data.shouxinjk.net/_db/sea/property/platform_properties/get-mapping",
+            type:"post",
+            async: false,//同步调用
+            data:JSON.stringify({
+                source:currentItem.source,
+                category:currentItem.category
+            }),
+            success:function(result){
+                if(_sxdebug)console.log(result);
+                result.data.forEach((item, index) => {//将其他元素加入
+                  if(_sxdebug)console.log("foreach props.[index]"+index,item);
+                  propMapping[item.name.replace(/\./g,"_")]=item.mappingName;
+                });   
+                console.log("got property mapping.",propMapping);         
+            }
+        });
+    }
     //根据categoryId获取所有measure清单，字段包括name、property
     $.ajax({
         url:"https://data.shouxinjk.net/ilife/a/mod/measure/measures?category="+categoryId,
@@ -635,7 +638,17 @@ function loadProps(categoryId){
         success:function(items){
             if(_sxdebug)console.log(items);
             //在回调内：1，根据返回结果组装待展示数据，字段包括：name、property、value、flag(如果在则为0，不在为1)
-            var props = currentItem.props?currentItem.props:[];//临时记录当前stuff的属性列表
+            //var props = currentItem.props?currentItem.props:[];//临时记录当前stuff的属性列表
+            var props = [];//注意：由于采集脚本中props存在 对象 和 数组两种情况，此处需要进行处理：统一转换为数组
+            if(Array.isArray(currentItem.props)){
+                props = currentItem.props;
+            }else{//将对象转换为Array
+                for(propKey in currentItem.props){
+                    var kv = {};
+                    kv[propKey] = currentItem.props[propKey];
+                    props.push(kv);
+                }
+            }
               nodes = [];
               for( k in items ){
                 var item = items[k];
