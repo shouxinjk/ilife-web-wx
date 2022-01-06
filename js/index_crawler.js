@@ -163,7 +163,7 @@ function showCascader(categoryId){
         onSelect:function(selectedCategory){//回调函数，参数带有选中标签的ID和label。回传为：{id:[],label:[]}//其中id为最末级选中节点，label为所有层级标签
             if(_sxdebug)console.log("crawler::category item selected.",selectedCategory);
             //更新当前item的category。注意更新到meta.category下
-            currentItem.meta = {category:selectedCategory.id[0],categoryName:selectedCategory.label[0]};//仅保存叶子节点
+            currentItem.meta = {category:selectedCategory.id[0],categoryName:selectedCategory.label[categoryName:selectedCategory.label.length-1]};//仅保存叶子节点
             currentItem.status.classify = "ready";
             currentItem.timestamp.classify = new Date();
             //加载属性值列表
