@@ -364,6 +364,8 @@ function showCascader(categoryId){
             stuff.status.classify = "ready";
             stuff.status.load = "pending";
             stuff.timestamp.classify = new Date();
+            //更新类目映射：修改后直接提交修改
+            changeCategoryMapping();  
             //加载属性值列表
             //loadProps(selectedCategory.id[0]);
             //提交类目
@@ -381,6 +383,39 @@ function showCascader(categoryId){
     if(stuff.meta && stuff.meta.category)
         loadProps(item.meta.category);
     //**/
+}
+
+//修改目录映射
+function changeCategoryMapping(){
+    var name = "";
+    if(Array.isArray(stuff.category)){
+        name = stuff.category[stuff.category.length-1];
+    }else if(stuff.category){
+        var array = stuff.category.split(" ");
+        name = array[array.length-1];
+    }
+    var platform_category = {
+        platform:stuff.source,
+        name:name,
+        categoryId:stuff.meta.category
+    };
+    console.log("try to commit platform category.",platform_category);
+    $.ajax({
+        url:"https://data.shouxinjk.net/ilife/a/mod/platformCategory/rest/mapping",
+        type:"post",
+        data:JSON.stringify(platform_category),//注意：不能使用JSON对象
+        //data:data,
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },
+        success:function(res){
+            console.log("upsert success.",res);
+        },
+        error:function(){
+            console.log("upsert failed.",platform_category);
+        }
+    }); 
 }
 
 //分享浮框

@@ -163,16 +163,128 @@ function showCascader(categoryId){
         onSelect:function(selectedCategory){//回调函数，参数带有选中标签的ID和label。回传为：{id:[],label:[]}//其中id为最末级选中节点，label为所有层级标签
             if(_sxdebug)console.log("crawler::category item selected.",selectedCategory);
             //更新当前item的category。注意更新到meta.category下
-            currentItem.meta = {category:selectedCategory.id[0],categoryName:selectedCategory.label[categoryName:selectedCategory.label.length-1]};//仅保存叶子节点
+            currentItem.meta = {category:selectedCategory.id[0],categoryName:selectedCategory.label[selectedCategory.label.length-1]};//仅保存叶子节点
             currentItem.status.classify = "ready";
             currentItem.timestamp.classify = new Date();
             //加载属性值列表
             loadProps(selectedCategory.id[0]);
+            //更新类目映射：修改后直接提交修改
+            changeCategoryMapping();            
+            //显示批量更新stuff类目按钮：注意：由于是更改所有stuff，效率很低
+            $("#btnBatchUpdateStuff").css("display","block");
         }
     });
     //对于已经设置的类目则直接显示属性列表
     if(currentItem.meta && currentItem.meta.category)
         loadProps(currentItem.meta.category);
+}
+
+
+//批量修改my_stuff
+//将my_stuff中classify=pending,且source、category与当前stuff相同的同时修改
+//TODO : 太耗时。需要调整为异步处理
+function batchUpdateStuffCategory(item){
+    var data = {
+        source:item.source,
+        category:item.category,
+        mappingId:item.meta.category
+    };
+    if(_sxdebug)console.log("try to mapping stuff category.",data);
+    $.ajax({
+        url:"https://data.shouxinjk.net/_db/sea/my/stuff/mapping/category",
+        type:"patch",
+        data:JSON.stringify(data),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept":"application/json"
+        },
+        success:function(result){
+            console.log("已更新所有同类目Stuff",result);
+            $.toast({
+                heading: 'Success',
+                text: '已更新所有同类目Stuff',
+                showHideTransition: 'fade',
+                icon: 'success'
+            });
+        }
+    });
+}
+
+//批量修改my_stuff及platform_categories
+//更新platform_categories中的设置条目：注意：由于my_stuff内无cid，不能采用insert方式，只用更新方式。另外，如果已经设置，则以此处更新优先
+//TODO：需要修改为更新stuff，当前是更新category mapping
+function batchUpdatePlatformCategories(item){
+    var name = "";
+    var names = [];
+    if(Array.isArray(item.category)){
+        name = item.category[item.category.length-1];
+        names = item.category;
+    }else if(item.category){
+        var array = item.category.split(" ");
+        name = array[array.length-1];
+        names = array;
+    }
+    var platform_category = {
+        platform:item.source,
+        name:name,
+        categoryId:item.meta.category
+    };
+    console.log("try to commit platform category.",platform_category);
+    $.ajax({
+        url:"https://data.shouxinjk.net/ilife/a/mod/platformCategory/rest/mapping",
+        type:"post",
+        data:JSON.stringify(platform_category),//注意：不能使用JSON对象
+        //data:data,
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },
+        success:function(res){
+            console.log("upsert success.",res);
+            $.toast({
+                heading: 'Success',
+                text: '已更新所有标准类目相同的Stuff',
+                showHideTransition: 'fade',
+                icon: 'success'
+            });
+        },
+        error:function(){
+            console.log("upsert failed.",platform_category);
+        }
+    }); 
+}
+
+//修改目录映射
+function changeCategoryMapping(){
+    var name = "";
+    if(Array.isArray(currentItem.category)){
+        name = currentItem.category[currentItem.category.length-1];
+    }else if(currentItem.category){
+        var array = currentItem.category.split(" ");
+        name = array[array.length-1];
+    }
+    var platform_category = {
+        platform:currentItem.source,
+        name:name,
+        categoryId:currentItem.meta.category
+    };
+    console.log("try to commit platform category.",platform_category);
+    $.ajax({
+        url:"https://data.shouxinjk.net/ilife/a/mod/platformCategory/rest/mapping",
+        type:"post",
+        data:JSON.stringify(platform_category),//注意：不能使用JSON对象
+        //data:data,
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },
+        success:function(res){
+            console.log("upsert success.",res);
+        },
+        error:function(){
+            console.log("upsert failed.",platform_category);
+        }
+    }); 
 }
 
 //开始查询数据
@@ -613,20 +725,20 @@ function loadProps(categoryId){
     //如果存在类目，则根据类目查找对应的标准目录映射。
     if(currentItem.category && currentItem.category.trim().length>0){//注意：仅对于存在类目的情况有效
         $.ajax({
-            url:"https://data.shouxinjk.net/_db/sea/property/platform_properties/get-mapping",
-            type:"post",
+            url:"https://data.shouxinjk.net/ilife/a/mod/platformProperty/rest/mapping?platform="+currentItem.source+"&category="+currentItem.category,
+            type:"get",
             async: false,//同步调用
-            data:JSON.stringify({
-                source:currentItem.source,
-                category:currentItem.category
-            }),
             success:function(result){
-                if(_sxdebug)console.log(result);
-                result.data.forEach((item, index) => {//将其他元素加入
-                  if(_sxdebug)console.log("foreach props.[index]"+index,item);
-                  propMapping[item.name.replace(/\./g,"_")]=item.mappingName;
-                });   
-                console.log("got property mapping.",propMapping);         
+                if(_sxdebug)console.log("got prop mappings.",result);
+                if(result.success && result.data && result.data.length>0){
+                    result.data.forEach((item, index) => {//将其他元素加入
+                      if(_sxdebug)console.log("foreach props.[index]"+index,item);
+                      propMapping[item.name.replace(/\./g,"_")]=item.mappingName;
+                    });   
+                    if(_sxdebug)console.log("got property mapping.",propMapping);  
+                }else{
+                    if(_sxdebug)console.log("no property mapping returned.");  
+                }
             }
         });
     }
@@ -973,6 +1085,11 @@ function showContent(item){
     insertItem(currentItem);//显示当前采集的内容条目
     //以下显示标注表单
     loadCategories();//显示类目选择器
+    //注册批量更新stuff类目按钮
+    $("#btnBatchUpdateStuff").click(function(){
+        batchUpdateStuffCategory(item);//根据当前设置批量修改其他同类目stuff
+        //batchUpdatePlatformCategories(item);//根据当前设置批量修改其他同类目platform_categories
+    });    
     //隐藏等待提示
     $("#loadingTipDiv").css("display","none");
     //设置标注表单
