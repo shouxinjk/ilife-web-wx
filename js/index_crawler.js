@@ -57,7 +57,7 @@ $(document).ready(function ()
 });
 
 //调试标志
-var _sxdebug = true;
+var _sxdebug = false;
 
 //记录分享用户、分享达人
 var from = "orgnization";//数据来源，默认为机构达人

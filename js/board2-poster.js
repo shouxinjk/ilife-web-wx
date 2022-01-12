@@ -14,57 +14,38 @@ $(document).ready(function ()
     //处理参数
     var args = getQuery();
     var category = args["category"]; //当前目录
-    id = args["id"];//当前board id
+    var id = args["id"];//当前board id
 
     from = args["from"]?args["from"]:"mp";//可能为groupmessage,timeline等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
+    boardType = args["type"]?args["type"]:"board2-waterfall";//从连接中获取清单类型，默认为waterfall
 
     posterId = args["posterId"]?args["posterId"]:null;//从连接中获取海报ID，默认为空。如果没有则跳转到默认海报生成
 
-    //计算图片流宽度：根据屏幕宽度计算，最小显示2列
-    if(width < 2*columnWidth){//如果屏幕不能并排2列，则调整图片宽度
-        columnWidth = (width-columnMargin*4)/2;//由于每一个图片左右均留白，故2列有4个留白
-    }
-
-    $('#waterfall').NewWaterfall({
-        width: columnWidth,
-        delay: 100,
-    });  
-
-    //需要判定进入来源：如果是通过分享链接进入则要重新获取openid
-
-    //判断屏幕大小，如果是大屏则跳转
-    /**
-    if(width>=800){
-        window.location.href=window.location.href.replace(/info2.html/g,"info.html");
-    }
-    //**/
-
-    //加载达人信息
-    loadBrokerInfo();
+    //生成二维码：需要提前生成，避免时延导致显示不完整
+    //generateQRcode();//在加载达人信息后显示，需要将达人ID写入URL
 
     //加载内容
     loadBoard(id); 
     //加载清单item列表
     loadBoardItems(id);
-
-    //加载导航和关注列表
-    loadCategories(category);  
- 
+    
 });
 
 util.getUserInfo();//从本地加载cookie
 
-//board id
-var id = "null";
-var bonusMin = 0;
-var bonusMax = 0;
+//使用代理避免跨域问题。后端将代理到指定的URL地址。注意：使用https
+var imgPrefix = "https://www.biglistoflittlethings.com/3rdparty?url=";
+
+//分享清单格式：board2、board2-waterfall
+var boardType = "board2-waterfall";//默认为图片流
 
 //临时用户
 var tmpUser = "";
 
 var items = [];//board item 列表
+var totalItems = 0;// 记录总共的item条数，由于是异步处理，需要对数量进行控制，避免数量过少时不能生成海报
 
 var columnWidth = 800;//默认宽度600px
 var columnMargin = 5;//默认留白5px
@@ -79,105 +60,90 @@ var fromBroker = "";
 var broker = {};//当前达人
 var board = {};//当前board
 
-var posterId = null;//海报模板ID
+var posterId = null;//海报scheme
+var brokerQrcode = null;//存放达人二维码url
 
-//优先从cookie加载达人信息
-function loadBrokerInfo(){
-  broker = util.getBrokerInfo();
+//生成短连接及二维码
+function generateQRcode(){
+    var longUrl = window.location.href.replace(/board2ext/g,boardType).replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
+    //添加分享达人及分享用户
+    if(broker && broker.id)    
+        longUrl += "&fromBroker="+broker.id;
+    longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:"");
+    var header={
+        "Content-Type":"application/json"
+    };
+    util.AJAX(app.config.auth_api+"/wechat/ilife/short-url", function (res) {
+        console.log("generate short url.",res);
+        var shortUrl = longUrl;
+        if (res.status) {//获取短连接
+            shortUrl = res.data.url;
+        }
+        //bug修复：qrcode在生成二维码时，如果链接长度是192-217之间会导致无法生成，需要手动补齐
+        if(shortUrl.length>=192 && shortUrl.length <=217){
+            shortUrl += "&placehold=fix-qrcode-bug-url-between-192-217";
+        }
+        console.log("generate qrcode by short url.[length]"+shortUrl.length,shortUrl);
+        var qrcode = new QRCode("app-qrcode-box");
+        qrcode.makeCode(shortUrl);
+        setTimeout(uploadPngFile,300);//需要图片装载完成后才能获取
+    }, "POST", { "longUrl": longUrl },header);  
 }
 
-var boardItemTemplate = '<div class="board-item-wrapper">'+
-                            '<div class="board-item-title">'+
-                              '<span class="board-item-title-head">推荐__NUMBER</span>'+
-                              '<span class="board-item-title-text">__TITLE</span>'+
-                            '</div>'+   
-                            '<div class="board-item-description">__DESCRIPTION</div>'+                                   
-                        '</div>';
-
-//将board内容显示到页面
-function showContent(board){
-    //标题
-    console.log("display edit button.[current broker id]"+broker.id+"[board broker id]"+board.broker.id);
-    if(broker && broker.id == board.broker.id){//如果是当前达人则可以直接修改
-        $("#title").html(board.title+"&nbsp;&nbsp;<a class='board-modify-btn' style='color:#006cfd;' href='broker/boards-modify.html?id="+board.id+"'>修改</a>");
-    }else if(broker && broker.id){//如果不是编辑达人，则先克隆后再需改
-        $("#title").html(board.title+"&nbsp;&nbsp;<a id='cloneBoardBtn' class='board-modify-btn' style='color:#006cfd;'>克隆</a>");
-        $("#cloneBoardBtn").click(function(){
-            console.log("try to clone board.[boardId]"+board.id+"[brokerId]"+broker.id);
-            util.AJAX(app.config.sx_api+"/mod/board/rest/board/clone/"+board.id+"/"+broker.id, function (res) {
-                console.log("clone broker successfully.",res);
-                //跳转到编辑界面
-                window.location.href = "broker/boards-modify.html?id="+res.data.id;    
-            },"POST",null,{ "Content-Type":"application/json" });            
-        });
-    }else{//普通用户则只显示标题
-        $("#title").html(board.title);
-    }
-    
-    //作者与发布时间
-    $("#author").html(board.broker.name?board.broker.name:app.globalData.userInfo.nickName);    //默认作者为board创建者
-    $("#publish-time").html(board.updateDate.split(" ")[0]);   
-
-    //摘要
-    $("#content").html(board.description);
-
-    //分享链接
-    if(posterId){//如果指定海报ID
-        $("#share-link").attr("href","board2-poster.html?type=board2-waterfall&id="+id+"&posterId="+posterId);
-    }else{
-        $("#share-link").attr("href","board2ext.html?type=board2-waterfall&id="+id);
-    }
-
-    //TODO:记录board浏览历史
-    /*
-    logstash(item,from,"view",fromUser,fromBroker,function(){
-        //do nothing
-    });   
-    //**/   
+//上传二维码到poster服务器，便于生成使用
+function uploadPngFile(dataurl, filename){
+    dataurl = $("#app-qrcode-box img").attr("src");
+    filename = "broker-qrcode-"+broker.id+".png";
+    console.log("try to upload qrcode.",dataurl,filename);
+    var formData = new FormData();
+    formData.append("file", dataURLtoFile(dataurl, filename));//注意，使用files作为字段名
+    $.ajax({
+         type:'POST',
+         url:app.config.poster_api+"/api/upload",
+         data:formData,
+         contentType:false,
+         processData:false,//必须设置为false，不然不行
+         dataType:"json",
+         mimeType:"multipart/form-data",
+         success:function(data){//把返回的数据更新到item
+            console.log("qrcode file uploaded. try to update item info.",data);
+            if(data.code ==0 && data.url.length>0 ){//仅在成功返回后才操作
+                brokerQrcode = data.url;
+                console.log("qrcode image.[url]"+app.config.poster_api+"/"+data.url);
+                //生成海报
+                requestPosterScheme();//全部加载完成后显示海报
+            }
+         }
+     }); 
 }
 
-function showShareContent(){
-    var strBonus = "";
-    if(bonusMin>0){
-        strBonus += "返￥"+(parseFloat(new Number(bonusMin).toFixed(1))>0?parseFloat(new Number(bonusMin).toFixed(1)):parseFloat(new Number(bonusMin).toFixed(2)));
-    }
-    if(bonusMax>0 && bonusMax > bonusMin){
-        strBonus += "-"+parseFloat(Number(bonusMax).toFixed(1));
-    }else if(bonusMin>0){
-        strBonus += " 起";
-    }else{
-        strBonus += "推广积分";
-    }
-    //console.log("try update bouns.",strBonus);
-    $("#share-bonus").html(strBonus);
-    //默认隐藏，仅对达人开放显示
-    if(broker && broker.id){
-        $("#share-bonus").toggleClass("share-bonus",true);
-        $("#share-bonus").toggleClass("share-bonus-hide",false);
-    }else{
-        $("#share-bonus").toggleClass("share-bonus",false);
-        $("#share-bonus").toggleClass("share-bonus-hide",true);
-    }
-    /*
-    if(strBonus.length > 0){//显示佣金
-        $("#share-bonus").html("返￥"+strBonus);
-        $("#share-bonus").toggleClass("share-bonus",true);
-        $("#share-bonus").toggleClass("share-bonus-hide",false);  
-    }else{
-       $("#share-bonus").toggleClass("share-bonus",false);
-       $("#share-bonus").toggleClass("share-bonus-hide",true);        
-    }
-    //**/
+//转换base64为png文件
+function dataURLtoFile(dataurl, filename) {
+  // 获取到base64编码
+  const arr = dataurl.split(',')
+  // 将base64编码转为字符串
+  const bstr = window.atob(arr[1])
+  let n = bstr.length
+  const u8arr = new Uint8Array(n) // 创建初始化为0的，包含length个元素的无符号整型数组
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new File([u8arr], filename, {
+    type: 'image/png',//固定为png格式
+  })
 }
 
 //根据openid查询加载broker
 function loadBrokerByOpenid(openid) {
-    //console.log("try to load broker info by openid.[openid]",openid);
+    console.log("try to load broker info by openid.[openid]",openid);
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
-            $("#author").html(broker.name);    //如果当前用户是达人，则转为其个人board           
+            $("#author").html(broker.name);    //如果当前用户是达人，则转为其个人board
+            $("#broker-name").html(broker.name+ " 推荐");    //如果当前用户是达人，则显示当前用户
+            //生成达人推广二维码
+            generateQRcode();
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
@@ -194,13 +160,7 @@ function loadBoard(boardId){
         console.log("Board::loadBoard load board successfully.", res)
         if(res.status){
             console.log("Board::loadBoard now insert board info.", res)
-            board = res.data;
-            showContent(res.data);
-
-            //注册事件：根据关键词搜索更多
-            $("#jumpToSearch").click(function(){
-                window.location.href="index.html?keyword="+board.keywords;
-            });            
+            board = res.data;          
 
             //准备注册分享事件。需要等待内容加载完成后才注册
             //判断是否为已注册用户
@@ -236,10 +196,13 @@ function loadBoardItems(boardId){
     util.AJAX(app.config.sx_api+"/mod/boardItem/rest/board-items/"+boardId, function (res) {
         console.log("Board::loadBoardItems load board items successfully.", res)
         //装载具体条目
-        var hits = res;
-        for(var i = 0 ; i < hits.length ; i++){
+        var hits = res&&res.length>5?res.slice(0,5):res;//如果大于5则仅取5条
+        totalItems = hits.length;
+        console.log("Board::loadBoardItems prepare post items.", hits)
+        for(var i = 0 ; i < hits.length; i++){ //限定最多5条
             loadBoardItem(hits[i]);//查询具体的item条目
         }        
+        //insertBoardItem(); //显示到界面:注意需要将加载过程变为同步，否则会导致数据缺失
     }, "GET",{},header);
 }
 
@@ -248,125 +211,94 @@ function loadBoardItem(item){//获取内容列表
     $.ajax({
         url:"https://data.shouxinjk.net/_db/sea/my/stuff/"+item.item,
         type:"get",
+        //async: false,//通过记录已加载stuff数目进行控制，通过异步调用
         data:{},
         success:function(data){
             item.stuff = data;//装载stuff到boarditem   
             items.push(item); //装载到列表 
-            insertBoardItem(); //显示到界面    
+            totalItems--;//记录已加载的详细条目数量
+            requestPosterScheme();//请求生成海报：会判断是否已经加载完成
         }
     })            
 }
 
-//将item显示到页面。每一个item提供推荐标题、推荐描述编辑。并展示对应的itemlogo、来源、原始标题及tag
-function insertBoardItem(){
-    // 加载内容
-    var item = items[num-1];
-    if(!item)return;
-
-    // 获取佣金：获取范围
-    //console.log("Board::insertBoardItem load share info.", item);
-    if(item.stuff.profit && item.stuff.profit.order && item.stuff.profit.order >0){
-        //console.log("Board::insertBoardItem load share info. step 2...", item);
-        if( bonusMax == 0 & bonusMin ==0 ){//首先将两者均设为第一个值
-            bonusMin = item.stuff.profit.order;
-            bonusMax = item.stuff.profit.order;
-        }
-        if( item.stuff.profit.order > bonusMax){
-            bonusMax = item.stuff.profit.order;
-        }
-        if( item.stuff.profit.order < bonusMin){
-            bonusMin = item.stuff.profit.order;
-        }
-        //showShareContent();//当前无佣金时也显示
-    }   
-    showShareContent();//更新佣金
-
-    var logoImg = "images/tasks/board.png";
-    if(item.stuff && item.stuff.images && item.stuff.images.length>0){
-        logoImg = item.stuff.images[0];//默认用第一张图片做logo
+//生成商品海报：先获得海报列表
+//TODO：当前是从所有列表中过滤，需要调整为根据ID获取海报scheme
+function requestPosterScheme(){
+    if(totalItems>0 || !brokerQrcode){
+        console.log("poster is not ready....wait....");
+        return;
     }
-
-    //计算图片宽度与高度
-    var imgWidth = columnWidth-2*columnMargin;//注意：改尺寸需要根据宽度及留白计算，例如宽度为360，左右留白5，故宽度为350
-    var imgHeight = 50;//随机指定初始值
-    //计算图片高度
-    var img = new Image();
-    img.src = logoImg;
-    var orgWidth = img.width;
-    var orgHeight = img.height;
-    imgHeight = orgHeight/orgWidth*imgWidth;
-
-    //显示所关联stuff内容
-    var image = "<img src='"+logoImg+"' width='"+imgWidth+"' height='"+imgHeight+"'/>";
-    var title = "<div class='board-item-title'>"+item.stuff.title+"</div>";
-
-/////////////
-    var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
-    var highlights = "<div class='itemTags'>";
-    highlights += "<a class='itemTagPrice' href='#'>"+(item.stuff.price.currency?item.stuff.price.currency:"¥")+item.stuff.price.sale+"</a>";
-    if(item.stuff.price.coupon>0){
-        highlights += "<span class='couponTip'>券</span><span class='coupon' href='#'>"+item.stuff.price.coupon+"</span>";
-    }    
-    highlights += tagTmpl.replace("__TAGGING",item.stuff.distributor.name).replace("__TAG",item.stuff.distributor.name).replace("itemTag","itemTagDistributor");
-    highlights += "</div>";
-
-    var tags = "<div class='itemTags'>";
-    var taggingList = item.stuff.tagging?item.stuff.tagging.split(" "):[];
-    for(var t in taggingList){
-        var txt = taggingList[t];
-        if(txt.trim().length>1 && txt.trim().length<6){
-            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
+    console.log("poster ready....try to generate....");
+    $.ajax({
+        url:app.config.sx_api+"/mod/posterTemplate/rest/board-templates",
+        type:"get",
+        data:{},
+        success:function(schemes){
+            console.log("\n===got item poster scheme ===\n",schemes);
+            //遍历海报并生成
+            for(var i=0;i<schemes.length;i++){
+               //遍历模板：找到匹配的模板项
+                for(var i=0;i<schemes.length;i++){
+                    if(posterId == schemes[i].id){
+                        requestPoster(schemes[i]);
+                        break;//找到就结束
+                    }
+                }
+                console.log("cannot find poster scheme by id.[id]"+posterId);
+            }
         }
-    }
-    if(item.categoryId && item.categoryId.trim().length>1){
-        tags += tagTmpl.replace("__TAGGING",item.stuff.category).replace("__TAG",item.stuff.category);
-    }
-    tags += "</div>";
-/////////////
-
-    //显示boarditem推荐标题及推荐描述
-    var boardItemDetail = boardItemTemplate
-            .replace(/__NUMBER/g," "+num)
-            .replace(/__TITLE/g,item.title?" "+item.title:"")
-            .replace(/__DESCRIPTION/g,item.description?item.description:"");
-
-    $("#waterfall").append("<li><div class='board-item' id='board-item-"+item.stuff._key+"'>" + image + title +highlights+ tags +"</div></li>");
-
-    //注册事件：能够跳转到指定item
-    $('#board-item-'+item.stuff._key).click(function(){
-        var targetUrl = "info2.html?id="+item.stuff._key;
-        if(broker&&broker.id){//如果当前用户是达人，则使用当前达人跟踪。
-            targetUrl += "&fromBroker="+broker.id;
-        }else if(board&&board.broker.id){//否则，使用board的创建者进行跟踪
-            targetUrl += "&fromBroker="+board.broker.id;
-        }
-        window.location.href=targetUrl;
-    });
-
-    num++;
-    // 表示加载结束
-    loading = false;
+    });  
 }
 
-function loadCategories(currentCategory){
-    $.ajax({
-        url:"https://data.shouxinjk.net/_db/sea/category/categories",
-        type:"get",
-        success:function(msg){
-            var navObj = $(".navUl");
-            for(var i = 0 ; i < msg.length ; i++){
-                navObj.append("<li data='"+msg[i]._key+"'>"+msg[i].name+"</li>");
-                if(currentCategory == msg[i]._key)//高亮显示当前选中的category
-                    $(navObj.find("li")[i]).addClass("showNav");
-            }
-            //注册点击事件
-            navObj.find("li").click(function(){
-                var key = $(this).attr("data");
-                //跳转到首页
-                window.location.href = "index.html?category="+key;
-            })
+//生成海报，返回海报图片URL
+//注意：海报模板中适用条件及参数仅能引用这三个参数
+function requestPoster(scheme,xBroker,xItem,xUser){
+    //判断海报模板是否匹配当前条目：
+    var isOk = true;
+    if(scheme.condition && scheme.condition.length>0){//如果设置了适用条件则进行判断
+        try{
+            isOk = eval(scheme.condition);
+        }catch(err){
+            console.log("\n=== eval poster condition error===\n",err);
         }
-    })    
+    }
+    if(!isOk){//如果不满足则直接跳过
+        console.log("condition not satisifed. ignore.");
+        return;       
+    }
+
+    //准备海报参数
+    try{
+        eval(scheme.options);//注意：脚本中必须使用 var xParam = {}形式赋值
+    }catch(err){
+        console.log("\n=== eval poster options error===\n",err);
+        return;//这里出错了就别玩了
+    }
+    console.log("\n===eval poster options===\n",xParam);
+    var options = {//merge参数配置
+                  ...app.config.poster_options,//静态参数：accessKey、accessSecret信息
+                  ...xParam //动态参数：配置时定义
+                }
+    console.log("\n===start request poster with options===\n",options);
+    //请求生成海报
+    $.ajax({
+        url:"https://poster.biglistoflittlethings.com/api/link",
+        type:"post",
+        data:JSON.stringify(options),
+        success:function(res){
+            console.log("\n===got item poster info ===\n",res);
+            //将海报信息更新到stuff
+            if(res.code==0 && res.url && res.url.length>0){
+                //显示到界面
+                $("#poster").empty();//清空
+                $("#poster").append("<img style='object-fill:cover;width:100%' src='"+res.url+"'/>");
+                $("#share-img-tips").css("display","block"); 
+                $("#post-mask").css("display","none"); 
+                $("#generate-link").css("display","block"); 
+            }
+        }
+    });     
 }
 
 function registerShareHandler(){
@@ -387,7 +319,7 @@ function registerShareHandler(){
     }
 
     //准备分享url，需要增加分享的 fromUser、fromBroker信息
-    var shareUrl = window.location.href.replace(/board2-waterfall/g,"share");//需要使用中间页进行跳转
+    var shareUrl = window.location.href.replace(/board2/g,"share");//需要使用中间页进行跳转
     if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
         shareUrl += "&fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;
@@ -395,7 +327,7 @@ function registerShareHandler(){
         shareUrl += "?fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;        
     }
-    shareUrl += "&origin=board-waterfall";//添加源，表示是一个列表页分享
+    shareUrl += "&origin=board";//添加源，表示是一个列表页分享
 
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",

@@ -20,6 +20,8 @@ $(document).ready(function ()
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
 
+    posterId = args["posterId"]?args["posterId"]:null;//从连接中获取海报ID，默认为空。如果没有则跳转到默认海报生成
+
 
     //需要判定进入来源：如果是通过分享链接进入则要重新获取openid
 
@@ -125,16 +127,25 @@ var fromUser = "";
 var fromBroker = "";
 var broker = {};//当前达人
 
+var posterId = null;//海报scheme
+
 //支持的类目
 var sxCategories = [];
 var cascader = null;//级联选择器实例
+
+var currentPersonObj = app.globalData.userInfo;
 
 var _sxdebug = true;
 
 //将item显示到页面
 function showContent(item){
     //分享链接
-    $("#share-link").attr("href","info2ext.html?id="+id);    
+    if(posterId){
+        $("#share-link").attr("href","info2-poster.html?id="+id+"&posterId="+posterId);   
+    }else{
+       $("#share-link").attr("href","info2ext.html?id="+id);    
+    }
+     
     //购买按钮
     if(item.distributor && item.distributor.name)
         $("#jumpbtn").text("立即前往 "+item.distributor.name+" >> ");
@@ -912,10 +923,13 @@ function showRadar(){
     //feature = 1；dimensionType：0客观评价，1主观评价
     var itemScore = {};
     $.ajax({
-        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where feature=1 and dimensionType=0 and itemKey='"+stuff._key+"' format JSON",
+        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where feature=1 and dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
         type:"get",
         async:false,//同步调用
         data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },  
         success:function(json){
             console.log("===got item score===\n",json);
             for(var i=0;i<json.rows;i++){
@@ -932,6 +946,9 @@ function showRadar(){
         type:"get",
         async:false,//同步调用
         data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },  
         success:function(json){
             console.log("===got category score===\n",json);
             for(var i=0;i<json.rows;i++){
