@@ -209,7 +209,7 @@ function loadItem(key){//获取内容列表
 //生成商品海报：先获得海报列表
 //TODO：当前是从所有列表中过滤，需要调整为根据ID获取海报scheme
 function requestPosterScheme(){
-    if(!brokerQrcode){
+    if( !brokerQrcode || !stuff ){
         console.log("poster is not ready....wait....");
         return;
     }
@@ -222,12 +222,9 @@ function requestPosterScheme(){
             console.log("\n===got item poster scheme ===\n",schemes);
             //遍历海报并生成
             for(var i=0;i<schemes.length;i++){
-               //遍历模板：找到匹配的模板项
-                for(var i=0;i<schemes.length;i++){
-                    if(posterId == schemes[i].id){
-                        requestPoster(schemes[i]);
-                        break;//找到就结束
-                    }
+                if(posterId == schemes[i].id){
+                    requestPoster(schemes[i]);
+                    break;//找到就结束
                 }
                 console.log("cannot find poster scheme by id.[id]"+posterId);
             }

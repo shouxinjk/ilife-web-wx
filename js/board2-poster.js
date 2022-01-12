@@ -236,17 +236,14 @@ function requestPosterScheme(){
         data:{},
         success:function(schemes){
             console.log("\n===got item poster scheme ===\n",schemes);
-            //遍历海报并生成
+           //遍历模板：找到匹配的模板项
             for(var i=0;i<schemes.length;i++){
-               //遍历模板：找到匹配的模板项
-                for(var i=0;i<schemes.length;i++){
-                    if(posterId == schemes[i].id){
-                        requestPoster(schemes[i]);
-                        break;//找到就结束
-                    }
+                if(posterId == schemes[i].id){
+                    requestPoster(schemes[i]);
+                    break;//找到就结束
                 }
-                console.log("cannot find poster scheme by id.[id]"+posterId);
             }
+            console.log("cannot find poster scheme by id.[id]"+posterId);
         }
     });  
 }
