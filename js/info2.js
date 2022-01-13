@@ -39,6 +39,9 @@ $(document).ready(function ()
     loadCategories(category);  
     //loadHosts(id);//不需要关注列表
 
+    //加载用户行为标签，用户能够主动发起标注
+    loadUserActionTags();
+
     //显示tabs
     $( "#tabs" ).tabs();
     
@@ -850,6 +853,46 @@ function loadItem(key){//获取内容列表
             }            
         }
     })            
+}
+
+//加载预定义用户标签：仅加载用户行为标签，补充用户行为数据
+var userTags = {};
+function loadUserActionTags(){
+   var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+    console.log("try to load user tags.");
+    util.AJAX(app.config.sx_api+"/mod/userTag/rest/tags?types=useraction-setting", function (res) {
+        if(res){
+            showUserActionTags(res);//直接开始显示
+        }
+    }, "GET",{},header);    
+}
+function showUserActionTags(tags){
+    if(!tags || tags.length==0)
+        return;
+    for(var i=0;i<tags.length;i++){
+        //缓存
+        userTags[tags[i].id] = tags[i];
+        //显示到界面
+        $("#useraction-labeling-box").append('<div class="user-tag" id="user-tag-'+tags[i].id+'" data-id="'+tags[i].id+'">'+tags[i].name+'</div>');
+        //注册点击事件
+        var tagName = tags[i].name;
+        var tagExpr = tags[i].expression;
+        $("#user-tag-"+tags[i].id).click(function(evt){
+            var clickedTagId = $(this).data("id");
+            console.log("user action tag clicked.",clickedTagId);
+            try{
+                eval(userTags[clickedTagId].expression);
+                $("#user-tag-"+clickedTagId).removeClass("user-tag");
+                $("#user-tag-"+clickedTagId).addClass("user-tag-selected");
+            }catch(err){
+                console.log("failed eval tag expression",err);
+            }
+        });
+    } 
+    $("#useraction-labeling-box").css("display","block");   
 }
 
 function loadHosts(itemId){//获取推荐者列表，可能有多个

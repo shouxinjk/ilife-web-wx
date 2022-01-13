@@ -519,6 +519,44 @@ a{
   margin:auto 2px;
 }
 
+.user-tag-box{
+  position: fixed;
+  bottom: 0px;
+  left: 10px;
+  width:100%;
+  z-index: 1;
+  font-size:12px;
+  line-height: 30px;
+  color:white;
+  background-color: #fff;
+}
+.user-tag{
+  display: inline;  
+  font-size:12px;
+  color:darkgreen;
+  line-height: 14px;
+  border:1px solid green;
+  border-radius: 10px;
+  padding:2px 5px;
+  margin:2px;
+  font-weight: bold;  
+  text-align: center;
+  min-width: 60px;
+}
+.user-tag-selected{
+  display: inline;  
+  font-size:12px;
+  background-color:darkgreen;
+  color:white;
+  line-height: 14px;
+  border:1px solid green;
+  border-radius: 10px;
+  padding:2px 5px;
+  margin:2px;
+  font-weight: bold; 
+  text-align: center;
+  min-width: 60px;  
+}
 
 .user-actions{
   width:80%;

@@ -261,14 +261,14 @@ function deletePerson(){
     }, "DELETE",{},header); 
 }
 
-//加载预定义用户标签
+//加载预定义用户标签：仅加载用户标注类标签
 function loadTags(){
    var header={
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     }; 
-    console.log("try to load user tags.",app.config.sx_api+"/mod/userTag/rest/tags");
-    util.AJAX(app.config.sx_api+"/mod/userTag/rest/tags", function (res) {
+    console.log("try to load user tags.");
+    util.AJAX(app.config.sx_api+"/mod/userTag/rest/tags?types=user-setting", function (res) {
         console.log("Broker::My Loaded persona tags.", res)
         if(res){
             showTags(res);//直接开始显示
