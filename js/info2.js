@@ -136,7 +136,7 @@ var posterId = null;//海报scheme
 var sxCategories = [];
 var cascader = null;//级联选择器实例
 
-var currentPersonObj = app.globalData.userInfo;
+var currentPerson = app.globalData.userInfo;
 
 var _sxdebug = true;
 
@@ -1723,9 +1723,9 @@ function insertItem(){
     // 加载内容：显示用户及行为列表
       var html = "";
       html += "<div class='action-item'>";
-      html += "<div class='action-person-logo'><img src='"+(actionItem.user&&actionItem.user.avatarUrl?actionItem.user.avatarUrl:currentPersonObj.avatarUrl)+"' width='40px' height='40px'/></div>";//logo
+      html += "<div class='action-person-logo'><img src='"+(actionItem.user&&actionItem.user.avatarUrl?actionItem.user.avatarUrl:currentPerson.avatarUrl)+"' width='40px' height='40px'/></div>";//logo
       html += "<div class='action-info'>";
-      html += "<div class='action-person-name'>"+(actionItem.user&&actionItem.user.nickName?actionItem.user.nickName:currentPersonObj.nickName)+"</div>";//name
+      html += "<div class='action-person-name'>"+(actionItem.user&&actionItem.user.nickName?actionItem.user.nickName:currentPerson.nickName)+"</div>";//name
       html += "<div class='action-person-type'>"+(actionTypes[actionItem.action]?actionTypes[actionItem.action]:actionItem.action)+"</div>";//action
       html += "<div class='action-person-time'>"+getDateDiff(actionItem.timestamp)+"</div>";//time
       html += "</div>";
