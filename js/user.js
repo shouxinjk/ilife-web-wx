@@ -235,6 +235,9 @@ function updatePerson(){
             }
         }, "POST",currentPerson,header);
     }
+
+    //将用户信息推送到kafka
+    util.updatePersonNotify(currentPerson);
 }
 
 //删除关心的人。注意：仅删除关联

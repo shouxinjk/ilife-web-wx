@@ -179,7 +179,6 @@ function showCascader(categoryId){
         loadProps(currentItem.meta.category);
 }
 
-
 //批量修改my_stuff
 //将my_stuff中classify=pending,且source、category与当前stuff相同的同时修改
 //TODO : 太耗时。需要调整为异步处理

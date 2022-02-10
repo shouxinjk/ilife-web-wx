@@ -152,6 +152,7 @@ util.updatePerson=function(id,userInfo,callback) {
     userInfo.nickName = userInfo.nickname;
     userInfo.updateOn = new Date();//记录更新时间
     var url = app.config.data_api +"/user/users/"+id;
+    //提交更新
     if (app.globalData.isDebug) console.log("Util::updatePerson update person.",userInfo);
     util.AJAX(url, function (res) {
       if (app.globalData.isDebug) console.log("Util::updatePerson update person finished.", res);
@@ -164,6 +165,32 @@ util.updatePerson=function(id,userInfo,callback) {
         callback(res);
       }
     }, "PATCH", userInfo, { "Api-Key": "foobar" });
+    //提交更新到kafka
+    util.updatePersonNotify(userInfo);
+}
+
+//发送用户信息到kafka。 topic:user
+util.updatePersonNotify=function(userInfo){
+    if (app.globalData.isDebug) console.log("Util::updatePersonNotify send latest person info to kafka.",userInfo);
+    var data = {
+            records:[{
+                value:userInfo
+            }]
+        };    
+    $.ajax({
+        //url:"http://kafka-rest.shouxinjk.net/topics/log",
+        url:app.config.message_api + "/topics/user",
+        type:"post",
+        data:JSON.stringify(data),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
+        headers:{
+            "Content-Type":"application/vnd.kafka.json.v2+json",
+            "Accept":"application/vnd.kafka.v2+json"
+        },
+        success:function(result){
+            console.log("Util::updatePersonNotify person data notify message sent.",result);
+        }
+    }) 
+
 }
 
 util.checkBroker=function(openid,callback) {
