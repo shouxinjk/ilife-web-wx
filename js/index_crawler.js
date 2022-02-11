@@ -152,6 +152,7 @@ function loadCategories(){
 
 //显示级联选择器
 function showCascader(categoryId){
+    console.log("start show cascader.[categoryId]"+categoryId,categories);
     cascader = new eo_cascader(categories, {
         elementID: 'category-wrap',
         multiple: false, // 是否多选
@@ -209,9 +210,7 @@ function batchUpdateStuffCategory(item){
     });
 }
 
-//批量修改my_stuff及platform_categories
-//更新platform_categories中的设置条目：注意：由于my_stuff内无cid，不能采用insert方式，只用更新方式。另外，如果已经设置，则以此处更新优先
-//TODO：需要修改为更新stuff，当前是更新category mapping
+//修改类目映射：修改platformCategory，添加映射关系。
 function batchUpdatePlatformCategories(item){
     var name = "";
     var names = [];
@@ -1087,7 +1086,6 @@ function showContent(item){
     //注册批量更新stuff类目按钮
     $("#btnBatchUpdateStuff").click(function(){
         batchUpdateStuffCategory(item);//根据当前设置批量修改其他同类目stuff
-        //batchUpdatePlatformCategories(item);//根据当前设置批量修改其他同类目platform_categories
     });    
     //隐藏等待提示
     $("#loadingTipDiv").css("display","none");
