@@ -20,6 +20,11 @@ $(document).ready(function ()
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
 
+    //检查设置首次触达达人
+    if(fromBroker && fromBroker.trim().length>0){
+        util.checkInitBroker(fromBroker);
+    }
+
     posterId = args["posterId"]?args["posterId"]:null;//从连接中获取海报ID，默认为空。如果没有则跳转到默认海报生成
 
 
@@ -657,7 +662,10 @@ function jump(item){//支持点击事件
         benificiaryBrokerId=broker.id;
     }else if(fromBroker && fromBroker.trim().length>0){
         benificiaryBrokerId=fromBroker;
+    }else{//检查首次触达达人
+        benificiaryBrokerId=util.getInitBroker();
     }
+
     logstash(item,from,"buy",fromUser,benificiaryBrokerId,function(){
         var target = item.url;
         if(item.link.qrcode){//如果是二维码
@@ -682,7 +690,8 @@ function jump(item){//支持点击事件
         }else{//否则请求其链接并显示
             getBrokerCpsLink(benificiaryBrokerId,item);
         }
-    });     
+    });    
+
 }
 
  //根据Broker查询得到CPS链接

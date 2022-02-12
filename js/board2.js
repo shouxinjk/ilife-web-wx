@@ -19,6 +19,11 @@ $(document).ready(function ()
     from = args["from"]?args["from"]:"mp";//可能为groupmessage,timeline等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
+    
+    //检查设置首次触达达人
+    if(fromBroker && fromBroker.trim().length>0){
+        util.checkInitBroker(fromBroker);
+    }
 
     $('#waterfall').NewWaterfall({
         width: columnWidth,

@@ -15,6 +15,11 @@ $(document).ready(function ()
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
 
+    //如果未指定fromBroker，则检查首次触达达人
+    if(!fromBroker || fromBroker=="" || fromBroker.trim().length==0){
+        fromBroker = util.getInitBroker();
+    }
+
     jump(id);
 });
 

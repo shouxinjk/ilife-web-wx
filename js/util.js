@@ -210,6 +210,33 @@ util.checkBroker=function(openid,callback) {
     }, "GET", {}, { "Api-Key": "foobar" });
 }
 
+//设置首次触达达人。默认为system
+util.checkInitBroker=function(fromBroker='system'){
+    console.log("try to check init broker.",fromBroker);
+    //检查cookie是否有initBroker标记，没有则生成，否则不作处理。
+    var initBroker = $.cookie('initBroker');
+    if(initBroker && initBroker.trim().length>0){
+        if(app.config.isDebug)console.log("there already has initBroker for this user.", initBroker);
+    }else{
+        if(app.config.isDebug)console.log("there is no initBroker for this user, generate one.", fromBroker);
+        $.cookie('initBroker', fromBroker, { expires: 3650, path: '/' });  
+    }    
+}
+
+//获取首次触达达人。如果没有则返回system
+util.getInitBroker=function(){
+    if(app.config.isDebug)console.log("try to check init broker.");
+    //检查cookie是否有initBroker标记，有则返回，没有则返回system
+    var initBroker = $.cookie('initBroker');
+    if(initBroker && initBroker.trim().length>0){
+        if(app.config.isDebug)console.log("there already has initBroker for this user.", initBroker);
+        return initBroker;
+    }else{
+        if(app.config.isDebug)console.log("there is no initBroker for this user.");
+        return 'system';
+    }    
+}
+
 util.AJAX = function( url = '', success, method = "get",data={}, header = {},fail){
   if(app.config.isDebug)console.log("Util::AJAX",url,method,data,header);
 
@@ -254,6 +281,20 @@ function getQuery() {
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
+}
+
+function checkInitBroker(){
+    console.log("cannot get user info. assume he is a new one.");
+    //TODO:是不是要生成一个特定的编号用于识别当前用户？在注册后可以与openid对应上
+    //检查cookie是否有标记，否则生成标记
+    tmpUser = $.cookie('tmpUserId');
+    if(tmpUser && tmpUser.trim().length>0){
+        console.log("there already has a temp code for this user.", tmpUser);
+    }else{
+        tmpUser = "tmp-"+gethashcode();
+        console.log("there is no temp code for this user, generate one.", tmpUser);
+        $.cookie('tmpUserId', tmpUser, { expires: 3650, path: '/' });  
+    }    
 }
 
 function logstash(item,client,action,fromUser="",fromBroker="",fn){//记录日志

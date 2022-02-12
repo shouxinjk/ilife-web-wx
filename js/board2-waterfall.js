@@ -20,6 +20,11 @@ $(document).ready(function ()
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
 
+    //检查设置首次触达达人
+    if(fromBroker && fromBroker.trim().length>0){
+        util.checkInitBroker(fromBroker);
+    }
+
     posterId = args["posterId"]?args["posterId"]:null;//从连接中获取海报ID，默认为空。如果没有则跳转到默认海报生成
 
     //计算图片流宽度：根据屏幕宽度计算，最小显示2列
