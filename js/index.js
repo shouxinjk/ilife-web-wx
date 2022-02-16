@@ -745,12 +745,26 @@ function loadItems(){//获取内容列表
                 page.current = page.current + 1;
                 //装载具体条目
                 var hits = data.hits.hits;
+                /**
                 for(var i = 0 ; i < hits.length ; i++){
                     if(itemKeys.indexOf(hits[i]._source._key)<0){
                       itemKeys.push(hits[i]._source._key);
                       items.push(hits[i]._source);
                     }                    
                 }
+                //**/
+                //将返回结果打散。按分页采用临时队列
+                var tmpItems = [];
+                hits.forEach(hit =>{
+                  tmpItems.push(hit._source);
+                });
+                //将排序结果加入待显示列表
+                helper.sort(tmpItems).forEach(hit => {
+                  if(itemKeys.indexOf(hit._key)<0){
+                      itemKeys.push(hit._key);
+                      items.push(hit);
+                    }                    
+                });
                 insertItem();
             }
         },
@@ -825,11 +839,35 @@ function insertItem(){
         profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide'></div>";
     }     
     
+    //获取匹配度标签
+    var matchTags = helper.tagging(app.globalData.userInfo,item);
+    var matchTagHtml = "";
+    //装载item.tagging2.satisify
+    if(item.tagging2 && item.tagging2.satisify && item.tagging2.satisify.trim().length>0){
+      item.tagging2.satisify.split(" ").forEach(matchTag => { 
+        console.log("show match tagging.",matchTag);
+        matchTagHtml += "<a class='itemTag tag-gold' href='index.html?keyword="+matchTag.trim()+"'>"+matchTag.trim()+"</a>";
+      });      
+    }
+    //装载vals及cost匹配标签
+    matchTags.forEach(matchTag => { 
+      console.log("show match tag.",matchTag);
+      matchTagHtml += "<a class='itemTag tag-"+matchTag.class+"' href='index.html?keyword="+matchTag.label+"'>"+matchTag.label+"</a>";
+    });
+    /**
+    if(matchTagHtml.length>0){
+      matchTagHtml  = "<div class='itemTags'>"+matchTagHtml;
+      matchTagHtml += "</div>";
+    }
+    //**/
 
     var tags = "<div class='itemTags'>";
+    if(matchTagHtml.length>0){
+      tags += matchTagHtml;
+    }    
     var taggingList = [];
     if(item.tagging&&item.tagging.length>0){
-        item.tagging.split(" ");
+        taggingList = item.tagging.split(" ");
     }
     for(var t in taggingList){
         var txt = taggingList[t];

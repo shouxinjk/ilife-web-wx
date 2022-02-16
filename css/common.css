@@ -296,6 +296,19 @@ input,img{border: none;}
     vertical-align:middle;
 }
 
+.tag-gold{
+  background-color: #b38600;
+  border:1px solid #b38600;
+}
+.tag-red{
+  background-color: #e62c00;
+  border:1px solid #e62c00;
+}
+.tag-green{
+  background-color: #298000;
+  border:1px solid #298000;
+}
+
 .itemTagPrice{
   font-size:12px;
   font-weight: bold;
