@@ -35,6 +35,14 @@ helper.sort = function(items){
     return [];
   }
 
+  //重置计数器
+  /**
+  helper.counter={
+    need:{},//需要计数器
+    category:{},//类目计数器
+    source:{}//平台计数器
+  };
+  //**/
   console.log("try to sort items.",items);
   //逐条计算权重
   var weightedItems = [];//临时存储完成权重计算的item
@@ -45,14 +53,20 @@ helper.sort = function(items){
     if(item.tagging2 && item.tagging2.satisify && helper.counter.need[item.tagging2.satisify]){
       count.need = helper.counter.need[item.tagging2.satisify];
       helper.counter.need[item.tagging2.satisify] = count.need+1;//计数器累加
+    }else if(item.tagging2 && item.tagging2.satisify){
+      helper.counter.need[item.tagging2.satisify] = 1;//计数器初始化
     }
     if(item.meta && item.meta.category && helper.counter.category[item.meta.category]){
       count.category = helper.counter.category[item.meta.category];
       helper.counter.category[item.meta.category] = count.category+1;//计数器累加
+    }else if(item.meta && item.meta.category){
+      helper.counter.category[item.meta.category] = 1;//计数器初始化
     }
     if(item.source && helper.counter.source[item.source]){
       count.source = helper.counter.source[item.source];
       helper.counter.source[item.source] = count.source+1;//计数器累加
+    }else if(item.source){
+      helper.counter.source[item.source] = 1;//计数器初始化
     }
 
     //计算权重
@@ -82,12 +96,15 @@ helper.sort = function(items){
       return 0;
   });
   //搞定了 
+  console.log("items sorted with weight.",helper.weight);
+  console.log("items sorted with counter.",helper.counter);
   console.log("items sorted.",weightedItems);
   return weightedItems;
 }
 
 //计算标签：通过相似度计算得到标签
-//person:{a:xx,b:xx,c:xx,d:xx,e:xx,x:aa,y:aa,z:aa}
+//传递用户模型，而不是明细
+//person:{alpha:xx,beta:xx,gamma:xx,delte:xx,epsilon:xx,eta:aa,theta:aa,zeta:aa}
 //item:{a:xx,b:xx,c:xx,d:xx,e:xx,x:aa,y:aa,z:aa}
 helper.tagging = function(person,item){
   var tags = [];//是一个数组，每一项均包含标签、类别、权重：{label:xxx,class:xx,weight:xxx}，其中class决定显示风格。
@@ -144,6 +161,68 @@ helper.tagging = function(person,item){
 
   console.log("similarity tags.",tags);
   return tags;
+}
+
+/*
+根据用户key获取vals模型。包括所有featured信息
+处理逻辑：
+1，从分析库直接获取所有featured信息
+2，使用persona数据补充缺失数据
+3，返回结果对象
+*/
+helper.getPersonModel = function(userKey,personaId='0'){
+  var userModel = {};
+  //根据userKey获取评价结果
+  //feature = 1；dimensionType：0客观评价，1主观评价；itemKey=userKey
+  //注意：由于clickhouse非严格唯一，需要取最后更新值
+  $.ajax({
+      url:app.config.analyze_api+"?query=select dimensionKey,score from ilife.info where feature=1 and dimensionType=1 and dimensionKey!='' and itemKey='"+userKey+"' order by ts format JSON",
+      type:"get",
+      async:false,//同步调用
+      //data:{},
+      headers:{
+          "Authorization":sxConfig.options.ck_auth
+      },         
+      success:function(json){
+          console.log("===got user score===\n",json);
+          for(var i=0;i<json.rows;i++){
+              if(json.data[i].dimensionKey){
+                userModel[json.data[i].dimensionKey] = json.data[i].score;
+              }
+          }
+          console.log("===assemble user evaluation score===\n",userModel);
+      }
+  });  
+  //检查模型数据完整性
+  var attrs = "alpha,beta,gamma,delte,epsilon,eta,theta,zeta".split(",");
+  if(!userModel.alpha || !userModel.beta || !userModel.gamma || !userModel.delte || !userModel.epsilon ||
+     !userModel.eta || ! userModel.theta || !userModel.zeta ){
+      //根据persona补充数据
+      $.ajax({
+          url:app.config.sx_api+"/mod/persona/rest/persona/"+personaId,
+          type:"get",
+          async:false,//同步调用        
+          success:function(persona){
+              console.log("===got persona info===\n",persona);
+              //补充
+              if(persona && persona.id){
+                //逐个检查补充缺失元素
+                attrs.forEach(attr => {
+                  if(!userModel[attr]){
+                    userModel[attr] = persona[attr]?persona[attr]:0.4;
+                  }
+                });
+              }
+              console.log("=== user evaluation score updated===\n",userModel);
+          }
+      }); 
+  }
+
+  //TODO：获取需要结构
+  //从user_user获取数据，其中包含有需要构成
+  //从persona_persona获取数据，补充需要构成
+  //返回模型
+  return userModel;
 }
 
 /*

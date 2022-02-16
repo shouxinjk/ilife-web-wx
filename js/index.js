@@ -73,6 +73,9 @@ $(document).ready(function ()
     //高亮显示当前选中的filter
     //highlightFilter();
 
+    //加载用户信息及模型
+    loadPersonById(util.getUserInfo()._key);
+
     //显示清单分享浮框
     showShareContent();
 
@@ -80,6 +83,9 @@ $(document).ready(function ()
     //console.log("assemble", assembleEsQuery());     
     //console.log(JSON.stringify(assembleEsQuery()));  
 });
+
+var currentPersonJson = {};//当前用户明细
+var currentPersonModel = {};//当前用户模型
 
 util.getUserInfo();//从本地加载cookie
 
@@ -840,7 +846,7 @@ function insertItem(){
     }     
     
     //获取匹配度标签
-    var matchTags = helper.tagging(app.globalData.userInfo,item);
+    var matchTags = helper.tagging(currentPersonModel,item);
     var matchTagHtml = "";
     //装载item.tagging2.satisify
     if(item.tagging2 && item.tagging2.satisify && item.tagging2.satisify.trim().length>0){
@@ -1401,6 +1407,9 @@ function changePerson (personId,personTagging) {
     $("#waterfall").css("height","20px");//调整瀑布流高度
     //showloading(true);//显示加载状态
 
+    //重新加载用户明细及模型
+    loadPersonById(personId);//注意是同步调用
+
     page.current = -1;//从第一页开始查看
     currentPerson = ids;//修改当前用户
     currentPersonTagging = personTagging;//修改当前用户推荐Tagging
@@ -1408,6 +1417,20 @@ function changePerson (personId,personTagging) {
     num = 1;//从第一条开始加载
     loadData();//重新加载数据
   } 
+
+//从user_user重新加载用户，并构建用户评估明细及模型
+function loadPersonById(personId){
+  $.ajax({
+      url:app.config.data_api+"/user/users/"+personId,
+      type:"get",
+      async:false,//同步调用        
+      success:function(json){
+          console.log("===load latest user===\n",json);
+          currentPersonJson = json;
+          currentPersonModel = helper.getPersonModel(json._key,json.persona&&json.persona._key?json.persona._key:'0');//构建用户模型
+      }
+  });  
+}
 
 //仅高亮person，不重新加载数据
 function highlightPerson (personId,personTagging) {
