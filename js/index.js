@@ -1428,6 +1428,16 @@ function loadPersonById(personId){
           console.log("===load latest user===\n",json);
           currentPersonJson = json;
           currentPersonModel = helper.getPersonModel(json._key,json.persona&&json.persona._key?json.persona._key:'0');//构建用户模型
+          //检查是否已设置persona，如果未设置则提示选择
+          if(json.persona && json.persona._key){
+            //do nothing
+          }else{
+            $("#no-persona-tip").removeClass("no-persona-tip-hide");
+            $("#no-persona-tip").addClass("no-persona-tip-show");
+            $("#no-persona-tip").click(function(){//点击显示persona列表，并提示选择。注意需要带入当前选择的personId
+              window.location.href = "user-choosepersona.html?refer=index&id="+personId;
+            });
+          }
       }
   });  
 }

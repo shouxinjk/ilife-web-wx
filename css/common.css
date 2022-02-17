@@ -521,6 +521,25 @@ input,img{border: none;}
   font-size: 12px;
   font-weight: bold;
 }
+.no-persona-tip-hide{
+  display:none;
+  margin:2px auto;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+  border:1px solid gold;
+  background-color: yellow;
+}
+.no-persona-tip-show{
+  display:block;
+  margin:2px;
+  text-align: center;
+  line-height: 24px;
+  font-size: 12px;
+  font-weight: bold;
+  border:1px solid gold;
+  background-color: yellow;
+}
 .formLabel{
   margin-top:5px;
   padding-left:10px;

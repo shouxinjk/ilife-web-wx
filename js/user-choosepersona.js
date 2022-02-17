@@ -26,6 +26,9 @@ $(document).ready(function ()
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
+    if(args["refer"]){
+        refer = args["refer"];//接收入口来源参数
+    }
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
@@ -52,6 +55,8 @@ var page = {
     total:1,//总页数
     current:-1//当前翻页
 };
+
+var refer = null;//记录前端入口来源，包括index及user等，默认为user
 
 var currentActionType = '';//当前操作类型
 var tagging = '';//操作对应的action 如buy view like 等
@@ -138,8 +143,12 @@ function insertItem(){
 
     //注册事件
     $("div[data='"+item._key+"']").click(function(){
-        //直接跳转到用户设置界面
-        window.location.href = "user.html?from=connection&personaId="+item._key;//跳转到设置页面
+        //根据refer参数跳转：入口来源包括index及user
+        if(refer && refer=="index"){//更新用户的persona，并返回index
+            updatePerson(item._key);//从index来的，继续返回index，需要带入personId
+        }else{//直接跳转到用户设置界面
+            window.location.href = "user.html?from=connection&personaId="+item._key;//跳转到设置页面
+        }
     });
 
     // 表示加载结束
@@ -178,6 +187,35 @@ function loadPerson(personId) {
         //loadData();
         loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
+}
+
+//修改用户信息：获取persona并更新到userinfo
+//从index直接选择persona后需要更新用户信息后返回
+function updatePerson(personaId){
+
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    }; 
+
+    //获取并补充用户画像信息
+    util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+personaId, function (res) {
+        console.log("User::ChoosePersona Loaded persona by id.", res)
+        if(res){
+            userInfo.persona = res;//设置当前用户的persona信息
+            //更新用户
+            console.log("update existing user.",userInfo);
+            util.AJAX(app.config.data_api+"/_api/document/user_users/"+userInfo._key, function (res) {
+                console.log("User::ChoosePersona updated.", res)
+                //跳转
+                if(refer && refer=="index"){
+                    window.location.href = "index.html?id="+currentPerson;//跳转到index
+                }                
+            }, "PATCH",userInfo,header);
+            //将用户信息推送到kafka
+            util.updatePersonNotify(userInfo);
+        }
+    }, "GET",{},header);
 }
 
 //更新Broker
