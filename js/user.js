@@ -434,7 +434,7 @@ function loadPerson(personId) {
         //userInfo = res;
         currentPerson = res;
         //检查是否有persona设置，如果没有则跳转到persona选择界面
-        if(res.persona||res._key){//如果有persona则显示表单。注意：对于已经存在的用户即使没有persona，也直接显示表单
+        if((res.persona && res.persona._key) || !res.openId){//如果有persona则显示表单。注意：对于通过画像生成虚拟用户则直接显示表单，通过有无openId判断
             insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
             showPerson(currentPerson);//显示设置的用户表单
             loadBrokerByOpenid(userInfo._key);//根据当前登录用户openid加载broker信息

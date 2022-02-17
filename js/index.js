@@ -1431,6 +1431,8 @@ function loadPersonById(personId){
           //检查是否已设置persona，如果未设置则提示选择
           if(json.persona && json.persona._key){
             //do nothing
+            $("#no-persona-tip").removeClass("no-persona-tip-show");
+            $("#no-persona-tip").addClass("no-persona-tip-hide");            
           }else{
             $("#no-persona-tip").removeClass("no-persona-tip-hide");
             $("#no-persona-tip").addClass("no-persona-tip-show");
