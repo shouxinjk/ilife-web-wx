@@ -144,7 +144,7 @@ function insertItem(){
     //注册事件
     $("div[data='"+item._key+"']").click(function(){
         //根据refer参数跳转：入口来源包括index及user
-        if(refer && refer=="index"){//更新用户的persona，并返回index
+        if(refer && refer.trim().length>0){//更新用户的persona，并根据来源refer返回
             updatePerson(item._key);//从index来的，继续返回index，需要带入personId
         }else{//直接跳转到用户设置界面
             window.location.href = "user.html?from=connection&personaId="+item._key;//跳转到设置页面
@@ -210,7 +210,9 @@ function updatePerson(personaId){
                 //跳转
                 if(refer && refer=="index"){
                     window.location.href = "index.html?id="+currentPerson;//跳转到index
-                }                
+                }else if(refer && refer=="user"){
+                    window.location.href = "user.html?id="+currentPerson;//跳转到user
+                }              
             }, "PATCH",userInfo,header);
             //将用户信息推送到kafka
             util.updatePersonNotify(userInfo);

@@ -439,7 +439,7 @@ function loadPerson(personId) {
             showPerson(currentPerson);//显示设置的用户表单
             loadBrokerByOpenid(userInfo._key);//根据当前登录用户openid加载broker信息
         }else{//没有persona则提示先选择一个persona
-            window.location.href = "user-choosepersona.html?id="+personId+"&from="+from;
+            window.location.href = "user-choosepersona.html?id="+personId+"&refer=user";//refer=user表示设置后返回到user界面
         }
     });
 }
