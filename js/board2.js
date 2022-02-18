@@ -351,13 +351,13 @@ function insertBoardItem(){
 
 function loadCategories(currentCategory){
     $.ajax({
-        url:"https://data.shouxinjk.net/_db/sea/category/categories",
+        url:app.config.sx_api+"/mod/channel/rest/channels/active",
         type:"get",
         success:function(msg){
             var navObj = $(".navUl");
             for(var i = 0 ; i < msg.length ; i++){
-                navObj.append("<li data='"+msg[i]._key+"'>"+msg[i].name+"</li>");
-                if(currentCategory == msg[i]._key)//高亮显示当前选中的category
+                navObj.append("<li data='"+msg[i].id+"'>"+msg[i].name+"</li>");
+                if(currentCategory == msg[i].id)//高亮显示当前选中的category
                     $(navObj.find("li")[i]).addClass("showNav");
             }
             //注册点击事件

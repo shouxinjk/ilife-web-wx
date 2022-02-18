@@ -219,7 +219,7 @@ helper.getPersonModel = function(userKey,personaId='0'){
   }
 
   //TODO：获取需要结构
-  //从user_user获取数据，其中包含有需要构成
+  //从分析库获取需要构成
   //从persona_persona获取数据，补充需要构成
   //返回模型
   return userModel;
@@ -227,9 +227,9 @@ helper.getPersonModel = function(userKey,personaId='0'){
 
 /*
 算法：布雷柯蒂斯相异度（Bray-Curtis distance）
-        ∑𝑛𝑖=1|𝑥𝑖−𝑦𝑖|
+         ∑𝑛𝑖=1|𝑥𝑖−𝑦𝑖|
 r= 1 - --------------
-        ∑𝑛𝑖=1|𝑥𝑖+𝑦𝑖|
+         ∑𝑛𝑖=1|𝑥𝑖+𝑦𝑖|
 
 能够支持任意等长向量相似度计算，同时考虑数值差异及绝对数值因素，能够体现二值相似度。数值越大表示差异越大。
 */
@@ -263,7 +263,7 @@ helper.braycurtis1 = function(x,y){
 /*
 算法：余弦相似度
             𝑋⋅𝑌
-𝑐𝑜𝑠(𝜃)=--------------
+𝑐𝑜𝑠(𝜃)=---------------
         ||𝑋|| ||𝑌||
 
 余弦相似度距离为1与余弦相似度的差
@@ -291,6 +291,113 @@ helper.cosine = function(vectorA,vectorB){
   return innerProduct / outerProduct;
 }
 
+/**
+跟踪频道变化：根据当前用户行为操作调整其需要构成及属性设置
 
+参数说明：
+channelId：频道ID，
+actionCategory：操作类别：channel/item/tag。traceChannel内固定为channel
+actionType: 操作类型：click/view/buy/label/...
+userInfo：操作影响的用户：指该操作对那些用户产生影响
+subject：发起操作的用户：固定为app.globalData.userInfo._key
+
+算法逻辑：
+0，subject用户及发起用户直接采用app.globalData.userInfo._key
+1，根据动作类型获取对应的行为定义
+2，根据动作主题获取相关的需要列表
+3，根据当前用户需要构成、操作对象需要构成、行为定义完成需要修改
+4，根据行为定义完成用户属性修改
+*/
+helper.traceChannel = function(channelId,actionType,userInfo){
+  //根据channelId获取需要构成
+  var channelNeeds = [];
+  $.ajax({
+      url:app.config.sx_api+"/mod/channel/rest/needs/"+channelId,
+      type:"get",
+      async:false,//同步调用       
+      success:function(json){
+          console.log("===got channnel needs===\n",json);
+          channelNeeds = json;
+      }
+  });  
+  if(channelNeeds.length == 0){
+    console.log("===no needs hooked on channnel===",channelId);
+    return;
+  }   
+  //根据操作类型：category、type获取行为定义
+  var behaviors = [];
+  $.ajax({
+      url:app.config.sx_api+"/ope/behavior/rest/actions/channel/"+actionType,
+      type:"get",
+      async:false,//同步调用       
+      success:function(json){
+          console.log("===got channnel behaviors===\n",json);
+          behaviors = json;
+      }
+  });  
+  if(behaviors.length == 0){
+    console.log("===no behaviors hooked on channel actionType===",actionType);
+    return;
+  }    
+  //获取当前用户的需要构成：通过getPersonModel得到
+  //var userModel = helper.getPersonModel(userInfo._key);//根据传入的用户获取其需要模型
+  //根据channel及当前用户的需要构成循环计算得到需要影响并提交分析库
+  for(var i=0;i<behaviors.length;i++){//不要怕，通常情况下不会有多于1个的行为定义
+    var behavior = behaviors[i];
+    if(behavior.exprUserNeed && behavior.exprUserNeed.indexOf("xWeight")>-1){//仅在定义了expr才进行
+      var weight = 0;
+      try{
+          eval(behavior.exprUserNeed);//评估得到xWeight
+          if(xWeight && xWeight !=0){//ok。继续
+            console.log("===eval behavior.exprUserNeed succeed===",xWeight);
+            weight = xWeight;
+          }else{//变化因子都没得到，别玩了。找运营算账吧
+            console.log("===failed eval behavior.exprUserNeed===");
+            continue;
+          }
+      }catch(err){
+          console.log("\nerror while eval behavior.exprUserNeed\n",err);
+      }       
+      for(var j=0;j<channelNeeds.length;j++){//不要怕，通常不会有超过5个
+        var channelNeed = channelNeeds[j];
+        //当前不考虑与userNeed交互关系，直接增加weight。完成需要修改
+        console.log("try to log need change");
+        helper.logNeedChange(
+          userInfo._key,//target user
+          channelNeed.need.id,channelNeed.need.type,channelNeed.need.name,channelNeed.need.displayName,//need info
+          weight*channelNeed.weight,//weight
+          'channel',actionType,//action info
+          'user',app.globalData.userInfo?app.globalData.userInfo._key:'dummy',//subject info
+          'channel',channelId//object info
+        );
+      }
+    }
+  }
+}
+
+/*
+完成需要变化修改。是增量。
+操作很简单，直接写入即可。麻烦的事情就让分析系统去搞定。
+*/
+helper.logNeedChange = function(userKey,needId,needType,needName,needAlias,weight,actionCategory,actionType,subjectType,subjectKey,objectType,objectKey){
+    var q = "insert into ilife.need values ('"+userKey+"','"+
+            needId+"','"+needType+"','"+needName+"','"+needAlias+"',"+
+            weight+",'"+
+            actionCategory+"','"+actionType+"','"+
+            subjectType+"','"+subjectKey+"','"+
+            objectType+"','"+objectKey+"',now())";
+    console.log("try to log need change with query.",q);
+    $.ajax({
+        url:app.config.analyze_api+"?query="+q,
+        type:"post",
+        //data:{},
+        headers:{
+            "Authorization":sxConfig.options.ck_auth
+        },         
+        success:function(json){
+            console.log("===need changne logged.===\n",json);
+        }
+    }); 
+}
 
 
