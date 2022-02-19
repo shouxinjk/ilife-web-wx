@@ -240,8 +240,36 @@ helper.getPersonModel = function(userKey,personaId='0'){
       }
   });    
 
+  //对userNeed归一化处理
+  var maxWeight = 2.7183;//自然对数底
+  if(needs.length>0){
+      //先排序：权重倒序
+      needs.sort(function (s1, s2) {
+          x1 = s1.weight;
+          x2 = s2.weight;
+          if (x1 < x2) {
+              return 1;
+          }
+          if (x1 > x2) {
+              return -1;
+          }
+          return 0;
+      }); 
+      maxWeight = needs[0].weight>1?needs[0].weight:2.7183 ;
+      //归一化
+      var normNeeds = [];
+      needs.forEach( entry => {
+        //仅处理权重大于1的部分，小于1的直接丢弃
+        if(entry.weight>1){
+          entry.weight = Math.log(entry.weight)/Math.log(maxWeight);
+          normNeeds.push(entry);
+        }
+      });   
+      needs = normNeeds;//使用归一化结果做后续处理
+  }
+
   //从persona获取数据，补充需要构成
-  if(needs.length<5){//如果缺少needs则使用persona补充
+  if(needs.length<15){//如果缺少needs则使用persona补充
       //先记录已经获取的needId
       var needIds = "";
       needs.forEach(need => {
@@ -503,9 +531,10 @@ helper.traceItem = function(item,actionType,userInfo){
         for(var j=0;j<itemNeeds.length;j++){//不要怕，通常不会有超过5个
           var itemNeed = itemNeeds[j];
           var userNeed = userNeeds.find(entry => {
-            return entry.needId == itemNeed.id;
+            //console.log("try to match itemNeed and userNeed.",itemNeed,entry);
+            return entry.needId === itemNeed.need.id;
           });
-          console.log("got user need.",userNeed);
+          console.log("got user need weight.",userNeed?userNeed.weight:'NaN');
           //当前不考虑与userNeed交互关系，直接增加weight。完成需要修改
           console.log("try to log need change");
           helper.logNeedChange(

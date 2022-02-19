@@ -1087,6 +1087,7 @@ function loadCategories(currentCategory){
                 if(currentCategory == msg[i].id){//高亮显示当前选中的category
                     $(navObj.find("li")[i]).addClass("showNav");
                     tagging = msg[i].tagging;
+                    helper.traceChannel(currentCategory,'click',currentPersonJson);//记录频道点击事件：对于通过详情页、board页进入的同时记录
                 }
             }
             //注册点击事件
@@ -1428,6 +1429,7 @@ function loadPersonById(personId){
       success:function(json){
           console.log("===load latest user===\n",json);
           app.globalData.userInfo = json; //更新本地UserInfo
+          $.cookie('sxUserInfo', JSON.stringify(json), { expires: 3650, path: '/' });//更新到cookie
           currentPersonJson = json;
           currentPersonModel = helper.getPersonModel(json._key,json.persona&&json.persona._key?json.persona._key:'0');//构建用户模型
           //检查是否已设置persona，如果未设置则提示选择
