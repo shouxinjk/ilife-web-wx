@@ -218,9 +218,57 @@ helper.getPersonModel = function(userKey,personaId='0'){
       }); 
   }
 
-  //TODO：获取需要结构
-  //从分析库获取需要构成
-  //从persona_persona获取数据，补充需要构成
+  //从分析库获取需要构成:结果包含该用户的所有需要
+  //注意：由于clickhouse非严格唯一，需要取最后更新值
+  var needs = [];
+  $.ajax({
+      url:app.config.analyze_api+"?query=SELECT userKey,needId,needName,sumMerge(weight) as weight FROM ilife.need_agg where userKey='"+userKey+"' GROUP BY userKey,needId,needName format JSON",
+      type:"get",
+      async:false,//同步调用
+      //data:{},
+      headers:{
+          "Authorization":sxConfig.options.ck_auth
+      },         
+      success:function(json){
+          console.log("===parse user needs===\n",json);
+          if(json.rows>0){
+            console.log("===total needs===\n",json.rows);
+            needs = json.data;
+          }else{
+            console.log("===no needs found===\n");
+          }
+      }
+  });    
+
+  //从persona获取数据，补充需要构成
+  if(needs.length<5){//如果缺少needs则使用persona补充
+      //先记录已经获取的needId
+      var needIds = "";
+      needs.forEach(need => {
+        needIds += ","+need.needId;
+      });
+
+      $.ajax({
+          url:app.config.sx_api+"/mod/persona/rest/needs/"+personaId,
+          type:"get",
+          async:false,//同步调用       
+          success:function(personaNeeds){
+              console.log("===got persona needs===\n",'personaId='+personaId,personaNeeds);
+              personaNeeds.forEach( personaNeed => {
+                if(needIds.indexOf(personaNeed.need.id)<0 && personaNeed.weight>1){//如果不存在则加入
+                    needs.push({
+                      userKey:userKey,
+                      needId:personaNeed.need.id,
+                      needName:personaNeed.need.name,
+                      weight:personaNeed.weight
+                    });
+                }
+              });
+          }
+      }); 
+  }
+  userModel.needs = needs;
+ 
   //返回模型
   return userModel;
 }
@@ -305,7 +353,7 @@ subject：发起操作的用户：固定为app.globalData.userInfo._key
 0，subject用户及发起用户直接采用app.globalData.userInfo._key
 1，根据动作类型获取对应的行为定义
 2，根据动作主题获取相关的需要列表
-3，根据当前用户需要构成、操作对象需要构成、行为定义完成需要修改
+3，计算需要权重并提交
 4，根据行为定义完成用户属性修改
 */
 helper.traceChannel = function(channelId,actionType,userInfo){
@@ -373,6 +421,105 @@ helper.traceChannel = function(channelId,actionType,userInfo){
       }
     }
   }
+}
+
+/**
+跟踪内容操作事件：根据当前用户对条目的操作调整其需要构成及属性设置
+
+参数说明：
+item：对应商品条目，
+actionCategory：操作类别：channel/item/tag。traceItem内固定为item
+actionType: 操作类型：view/buy/share/...
+userInfo：操作影响的用户：指该操作对那些用户产生影响
+subject：发起操作的用户：固定为app.globalData.userInfo._key
+
+算法逻辑：
+0，subject用户及发起用户直接采用app.globalData.userInfo._key
+1，根据动作类型获取对应的行为定义
+2，根据动作主题获取相关的需要列表
+3，计算需要权重并提交
+4，根据行为定义完成用户属性修改
+*/
+helper.traceItem = function(item,actionType,userInfo){
+    //根据item.meta.category获取需要构成
+    //检查商品类目
+    if(item&&item.meta&&item.meta.category){
+      //ok 继续吧
+    }else{
+      console.log("item.meta.category is null. skipped.");
+      return;
+    }
+    //根据动作类型获取对应的需要列表
+    var itemNeeds = [];
+    $.ajax({
+        url:app.config.sx_api+"/mod/itemCategory/rest/needs/"+item.meta.category,
+        type:"get",
+        async:false,//同步调用       
+        success:function(json){
+            console.log("===got item category needs===\n",json);
+            itemNeeds = json;
+        }
+    });  
+    if(itemNeeds.length == 0){
+      console.log("===no needs hooked on item category===",item.meta.category);
+      return;
+    }   
+    //根据操作类型：category、type获取行为定义
+    var behaviors = [];
+    $.ajax({
+        url:app.config.sx_api+"/ope/behavior/rest/actions/item/"+actionType,//注意：actionType不能带有空格，否则会报错
+        type:"get",
+        async:false,//同步调用       
+        success:function(json){
+            console.log("===got item behaviors===\n",json);
+            behaviors = json;
+        }
+    });  
+    if(behaviors.length == 0){
+      console.log("===no behaviors hooked on item actionType===",actionType);
+      return;
+    }     
+    //计算权重
+    //获取当前用户的需要构成：通过getPersonModel得到
+    var userModel = helper.getPersonModel(userInfo._key,userInfo.persona?userInfo.persona._key:'0');//根据传入的用户获取其需要模型
+    var userNeeds = userModel.needs;
+    //根据channel及当前用户的需要构成循环计算得到需要影响并提交分析库
+    for(var i=0;i<behaviors.length;i++){//不要怕，通常情况下不会有多于1个的行为定义
+      var behavior = behaviors[i];
+      if(behavior.exprUserNeed && behavior.exprUserNeed.indexOf("xWeight")>-1){//仅在定义了expr才进行
+        var weight = 0;
+        try{
+            eval(behavior.exprUserNeed);//评估得到xWeight
+            if(xWeight && xWeight !=0){//ok。继续
+              console.log("===eval behavior.exprUserNeed succeed===",xWeight);
+              weight = xWeight;
+            }else{//变化因子都没得到，别玩了。找运营算账吧
+              console.log("===failed eval behavior.exprUserNeed===");
+              continue;
+            }
+        }catch(err){
+            console.log("\nerror while eval behavior.exprUserNeed\n",err);
+        }       
+        for(var j=0;j<itemNeeds.length;j++){//不要怕，通常不会有超过5个
+          var itemNeed = itemNeeds[j];
+          var userNeed = userNeeds.find(entry => {
+            return entry.needId == itemNeed.id;
+          });
+          console.log("got user need.",userNeed);
+          //当前不考虑与userNeed交互关系，直接增加weight。完成需要修改
+          console.log("try to log need change");
+          helper.logNeedChange(
+            userInfo._key,//target user
+            itemNeed.need.id,itemNeed.need.type,itemNeed.need.name,itemNeed.need.displayName,//need info
+            weight*itemNeed.weight*(userNeed?userNeed.weight:1),//weight
+            'item',actionType,//action info
+            'user',app.globalData.userInfo?app.globalData.userInfo._key:'dummy',//subject info
+            'item',item._key//object info
+          );
+        }
+      }
+    }  
+    //TODO：完成用户属性及商品属性修改
 }
 
 /*

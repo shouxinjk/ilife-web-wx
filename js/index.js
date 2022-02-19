@@ -1427,6 +1427,7 @@ function loadPersonById(personId){
       async:false,//同步调用        
       success:function(json){
           console.log("===load latest user===\n",json);
+          app.globalData.userInfo = json; //更新本地UserInfo
           currentPersonJson = json;
           currentPersonModel = helper.getPersonModel(json._key,json.persona&&json.persona._key?json.persona._key:'0');//构建用户模型
           //检查是否已设置persona，如果未设置则提示选择

@@ -315,6 +315,7 @@ function logstash(item,client,action,fromUser="",fromBroker="",fn){//记录日�
             }
         }]
     };
+    //提交用户行为日志
     //console.log("$.support.cors",$.support.cors);
     $.ajax({
         //url:"http://kafka-rest.shouxinjk.net/topics/log",
@@ -329,7 +330,9 @@ function logstash(item,client,action,fromUser="",fromBroker="",fn){//记录日�
             console.log("user action comitted.",result);
             fn(result);
         }
-    })            
+    });
+    //提交用户模型变化，包括needs及vals
+    helper.traceItem(item,action,app.globalData.userInfo);//记录商品条目事件            
 }
 
 //产生一个hash值，只有数字，规则和java的hashcode规则相同
