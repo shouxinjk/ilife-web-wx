@@ -1224,15 +1224,17 @@ function random(min, max)
 
 function loadCategories(currentCategory){
     $.ajax({
-        url:"https://data.shouxinjk.net/_db/sea/category/categories",
+        url:app.config.sx_api+"/mod/channel/rest/channels/active",
         type:"get",
         success:function(msg){
             var navObj = $(".navUl");
             for(var i = 0 ; i < msg.length ; i++){
-                navObj.append("<li data='"+msg[i]._key+"' data-tagging='"+(msg[i].tagging?msg[i].tagging:"")+"'>"+msg[i].name+"</li>");
-                if(currentCategory == msg[i]._key){//高亮显示当前选中的category
+                navObj.append("<li data='"+msg[i].id+"' data-tagging='"+(msg[i].tagging?msg[i].tagging:"")+"'>"+msg[i].name+"</li>");
+                if(currentCategory == msg[i].id){//高亮显示当前选中的category
                     $(navObj.find("li")[i]).addClass("showNav");
                     tagging = msg[i].tagging;
+                    //流量主操作：不予记录
+                    //helper.traceChannel(currentCategory,'click',currentPersonJson);//记录频道点击事件：对于通过详情页、board页进入的同时记录
                 }
             }
             //注册点击事件
@@ -1247,6 +1249,8 @@ function loadCategories(currentCategory){
                     $(".navUl>li:contains('全部')").addClass("showNav");
                 }else{
                     changeCategory(key,tagging);//更换后更新内容
+                    //流量主操作：不予记录
+                    //helper.traceChannel(key,'click',currentPersonJson);//记录频道点击事件
                     $(navObj.find("li")).removeClass("showNav");
                     $(this).addClass("showNav");//不好，这个是直接通过“全部”来完成的                    
                 }
