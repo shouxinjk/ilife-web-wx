@@ -1170,6 +1170,8 @@ function submitItemForm(){
                 showHideTransition: 'fade',
                 icon: 'success'
             });
+            //从cookie清空item信息：避免出现交叉显示
+            document.cookie = "sxPendingItem=; SameSite=None; Secure";  
             //切换到来源页面，便于进入其他站点继续采集数据
         }
     });
