@@ -309,7 +309,7 @@ function showContent(item){
     } 
     if(item.tagging && item.tagging.length>0){
         var usertags = "";
-        item.tagging.forEach(function(tagItem){
+        item.tagging.split(" ").forEach(function(tagItem){
             usertags += "<div class='tag'>"+tagItem+"</div>";
         });
         $("#rank").append("<div class='prop-row'><div class='prop-key'>用户标签</div><div class='prop-value tags'>"+usertags+"</div></div>");
