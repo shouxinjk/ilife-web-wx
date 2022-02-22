@@ -47,6 +47,8 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
+var debug = false;
+
 var logo = "https://www.biglistoflittlethings.com/list/images/logo.jpeg";//board logo 默认值
 var boardLogoNames = [];
 var boardLogoUrls = [];
@@ -300,7 +302,31 @@ function insertItem(){
 
     //使用已经有的数值填写表单
     $('#boardItemTitle'+num).val(item.title?item.title:item.stuff.title);
-    $('#boardItemDescription'+num).val(item.description?item.description:item.stuff.tags);
+    //默认推荐语优先次序：手动填写的推荐语>自动生成的推荐语>人工标注的tagging；其中自动生成的推荐语如多于一条则随机选择
+    var advice = "";
+    if(debug)console.log("==got stuff advice==",item.stuff.advice,item.stuff.advice?Object.keys(item.stuff.advice).length>0:false);
+    if(item.description&&item.description.trim().length>0){//优先采用手动填写的推荐语
+        if(debug)console.log("try get advice from item description.");
+        advice = item.description;
+    }else if(item.stuff.advice && Object.keys(item.stuff.advice).length>0 ){//如果有advice，则随机采用
+        if(debug)console.log("try get advice from stuff adivces.");
+        var count = Object.keys(item.stuff.advice).length;
+        var random = 0;//默认采用第一条
+        if(count>1){//如果是多个则随机采用
+            random = new Date().getTime()%count;
+        }
+        advice = item.stuff.advice[Object.keys(item.stuff.advice)[random]];
+    }else if(item.stuff.tagging&&item.stuff.tagging.trim().length>0){//否则采用tagging
+        if(debug)console.log("try get advice from stuff tagging.");
+        advice = item.stuff.tagging;
+    }else if(item.stuff.tags&&item.stuff.tags.trim().length>0){//最后采用tags
+        if(debug)console.log("try get advice from stuff tags.");
+        advice = item.stuff.tags;
+    }else{
+        //留空，等着填写
+    }
+    if(debug)console.log("==got advice==",advice);
+    $('#boardItemDescription'+num).val(advice);
     //注册事件：能够单独修改
     $('#boardItemSubmitBtn'+num).click(function(){
         var eleId=$(this).attr("id");//必须通过源id获取指定下标
