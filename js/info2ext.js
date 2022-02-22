@@ -315,8 +315,22 @@ function showContent(item){
     //图片
     $("#item-logo").append("<img src='" +imgPrefix+ item.images[0] + "' width='80%'/>");//正文图片
 
-    //使用分类信息填写推荐语
-    $("#shop-name").html(item.category&&item.category.length>0?item.category[0]:""); //店铺名称   
+    //使用类目作为推荐语
+    var advice = "用小确幸填满你的大生活";
+    if(item.category&&Array.isArray(item.category)&&item.category.length>0){//如果是列表，取最后一项
+        advice = item.category[item.category.length-1];
+    }else if(item.category&&item.category.length>0){//如果是字符串则直接使用
+        advice = item.category;
+    }else if(item.props&&item.props.brand&&item.props.brand.trim().length>0){//有品牌则直接使用
+        advice = item.props.brand;
+    }else if(item.tagging&&item.tagging.length>0){//如果有tagging，则分割后采用第一条
+        advice = item.tagging.split(" ")[0];
+    }else{
+        //留空，采用默认值
+    } 
+
+    //$("#shop-name").html(item.category&&item.category.length>0?item.category[0]:""); //店铺名称   
+    $("#shop-name").html(advice); //店铺名称   
 
     //logo：注意使用代理避免跨域问题
     preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
