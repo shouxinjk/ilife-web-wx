@@ -1915,16 +1915,16 @@ function registerShareHandler(){
                 //准备分享的描述：优先采用推荐语、其次tagging、再次tags
                 var advice = "Live is all about having a good time.";
                 if(stuff.advice && Object.keys(stuff.advice).length>0 ){//如果有advice，则随机采用
-                    var count = Object.keys(item.stuff.advice).length;
+                    var count = Object.keys(stuff.advice).length;
                     var random = 0;//默认采用第一条
                     if(count>1){//如果是多个则随机采用
                         random = new Date().getTime()%count;
                     }
-                    advice = item.stuff.advice[Object.keys(item.stuff.advice)[random]];
+                    advice = stuff.advice[Object.keys(stuff.advice)[random]];
                 }else if(stuff.tagging&&stuff.tagging.trim().length>0){//否则采用tagging
-                    advice = item.stuff.tagging;
-                }else if(item.stuff.tags&&item.stuff.tags.trim().length>0){//最后采用tags
-                    advice = item.stuff.tags.join(" ");
+                    advice = stuff.tagging;
+                }else if(stuff.tags&&stuff.tags.length>0){//最后采用tags
+                    advice = stuff.tags.join(" ");
                 }else{
                     //采用默认值
                 }                

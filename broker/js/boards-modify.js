@@ -319,7 +319,7 @@ function insertItem(){
     }else if(item.stuff.tagging&&item.stuff.tagging.trim().length>0){//否则采用tagging
         if(debug)console.log("try get advice from stuff tagging.");
         advice = item.stuff.tagging;
-    }else if(item.stuff.tags&&item.stuff.tags.trim().length>0){//最后采用tags
+    }else if(item.stuff.tags&&item.stuff.tags.length>0){//最后采用tags
         if(debug)console.log("try get advice from stuff tags.");
         advice = item.stuff.tags;
     }else{

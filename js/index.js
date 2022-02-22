@@ -929,17 +929,17 @@ function addItemToBoard(item){
     };     
     //准备 条目的默认描述：优先采用推荐语、其次tagging、再次tags
     var advice = "";
-    if(stuff.advice && Object.keys(stuff.advice).length>0 ){//如果有advice，则随机采用
-        var count = Object.keys(item.stuff.advice).length;
+    if(item.advice && Object.keys(item.advice).length>0 ){//如果有advice，则随机采用
+        var count = Object.keys(item.advice).length;
         var random = 0;//默认采用第一条
         if(count>1){//如果是多个则随机采用
             random = new Date().getTime()%count;
         }
-        advice = item.stuff.advice[Object.keys(item.stuff.advice)[random]];
-    }else if(stuff.tagging&&stuff.tagging.trim().length>0){//否则采用tagging
-        advice = item.stuff.tagging;
-    }else if(item.stuff.tags&&item.stuff.tags.trim().length>0){//最后采用tags
-        advice = item.stuff.tags.join(" ");
+        advice = item.advice[Object.keys(item.advice)[random]];
+    }else if(item.tagging&&item.tagging.trim().length>0){//否则采用tagging
+        advice = item.tagging;
+    }else if(item.tags&&item.tags.length>0){//最后采用tags
+        advice = item.tags.join(" ");
     }else{
         //留空，采用默认值
     }     
