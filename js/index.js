@@ -1448,6 +1448,9 @@ function loadPersonById(personId){
           app.globalData.userInfo = json; //更新本地UserInfo
           $.cookie('sxUserInfo', JSON.stringify(json), { expires: 3650, path: '/' });//更新到cookie
           currentPersonJson = json;
+          if(json.tags && json.tags.length>0){
+            currentPersonTagging = json.tags.join(" ");
+          }
           currentPersonModel = helper.getPersonModel(json._key,json.persona&&json.persona._key?json.persona._key:'0');//构建用户模型
           //检查是否已设置persona，如果未设置则提示选择
           if(json.persona && json.persona._key){
