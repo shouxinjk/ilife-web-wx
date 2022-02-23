@@ -337,7 +337,14 @@ function insertItem(item){
     var imgHeight = random(50, 300);//随机指定初始值
     //计算图片高度
     var img = new Image();
-    img.src = item.images?item.images[0]:"https://www.biglistoflittlethings.com/list/images/logo00.jpeg";
+    if(item.logo){
+        img.src = img.logo;
+    }else if(item.images){
+        img.src = item.images[0];
+    }else{
+        img.src = "https://www.biglistoflittlethings.com/list/images/logo00.jpeg";
+    }
+    
     var orgWidth = img.width;
     var orgHeight = img.height;
     imgHeight = orgHeight/orgWidth*imgWidth;
