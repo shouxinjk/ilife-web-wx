@@ -272,6 +272,12 @@ input,img{border: none;}
   align-items: center;  
 }
 
+.itemPrices{
+    display:flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+}
+
 .itemTags{
     line-height: 12px;
     vertical-align: middle;

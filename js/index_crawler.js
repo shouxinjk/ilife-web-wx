@@ -353,11 +353,12 @@ function insertItem(item){
     var image = "<img src='"+imgPrefix+item.images[0]+"' width='"+imgWidth+"' height='"+imgHeight+"' style='margin:0 auto'/>"
     //var tagTmpl = "<strong style='white-space:nowrap;display:inline-block;border:1px solid #8BC34A;background-color: #8BC34A;color:white;font-weight: bold;font-size: 10px;text-align: center;border-radius: 5px;margin-left:2px;margin-right:1px;margin-top:-2px;padding:2px;vertical-align:middle;'>__TAG</strong>";
     var highlights = "<div class='itemTags' style='line-height: 18px;'>";
-    var prices = "";
+    var prices = "<div class='itemPrices' style='line-height: 18px;'>";
     prices += "<strong style='font-size:14px;font-weight: bold;background-color: white;color:darkred;padding:2px;'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</strong>";
     if(item.price.coupon>0&&item.price.coupon<item.price.sale){//有些券金额比售价还高，不显示
         prices += "<strong style='font-size:14px;font-weight: bold;color:#fe4800;margin-left:2px;'>券</strong><strong href='#' style='font-size:14px;font-weight: bold;color:#fe4800;'>"+item.price.coupon+"</strong>";
     }    
+    prices += "</div>";
     //购买按钮
     var buyButton = "<strong style='float:right;margin-right:10px;background-color:darkred;color:white;text-align:right;padding-left:5px;padding-right:5px;font-size:14px;border-radius:3px;' id='view-"+item._key+"' data-item='"+item._key+"'>去看看</strong>";
     highlights += "</div>";
@@ -1178,7 +1179,7 @@ function submitItemForm(){
                 icon: 'success'
             });
             //从cookie清空item信息：避免出现交叉显示
-            document.cookie = "sxPendingItem=; SameSite=None; Secure";  
+            //document.cookie = "sxPendingItem=; SameSite=None; Secure";  
             //切换到来源页面，便于进入其他站点继续采集数据
         }
     });
