@@ -30,7 +30,7 @@ function jump(id){//获取详细内容
             targetUrl += "&fromUsername="+app.globalData.userInfo.nickname.trim();
         }
         if( app.globalData.brokerInfo &&  app.globalData.brokerInfo.id){
-            targetUrl += "?fromBroker="+app.globalData.brokerInfo.id;
+            targetUrl += "&fromBroker="+app.globalData.brokerInfo.id;
         }else{//根据openId查询broker信息
             var broker = {};
             console.log("\n===try to query broker from server. ===\n");
@@ -46,7 +46,7 @@ function jump(id){//获取详细内容
                 }
             }); 
             if(broker.id){
-                targetUrl += "?fromBroker="+app.globalData.brokerInfo.id;
+                targetUrl += "&fromBroker="+app.globalData.brokerInfo.id;
             }
         }        
     }
