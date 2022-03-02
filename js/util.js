@@ -95,8 +95,9 @@ util.login=function(code,callback) {
     console.log("Util::login try to login and get userInfo.", code);
     //发送请求获取openid
     util.AJAX(app.config.auth_api+'/wechat/ilife/login', function (res) {
-        //tricks：微信接口变化，其中字段openId调整为openid，此处增补
+        //tricks：微信接口变化，其中字段openId调整为openid，此处替换为openId
         res["openId"] = res.openid;
+        delete res.openid;
         //run success callback
         if (typeof callback === "function") {
             console.log("Util::login try to login and get userInfo.", res)
