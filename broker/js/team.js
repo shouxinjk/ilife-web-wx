@@ -36,6 +36,9 @@ $(document).ready(function ()
         window.location.href = "team-poster.html";//跳转到海报生成界面
     });     
 
+    //对于关注时未能获取userInfo使用Fake填充
+    faker.locale = "zh_CN";//默认英文
+
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -126,7 +129,7 @@ function insertItem(){
 
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+(brokerUser.avatarUrl?brokerUser.avatarUrl:(brokerUser.headImgUrl?brokerUser.headImgUrl:"../images/avatar/default.jpg"))+"' width='50' height='50'  class='persona-logo'/>";
+    var image = "<img src='"+(brokerUser.avatarUrl?brokerUser.avatarUrl:(brokerUser.headImgUrl?brokerUser.headImgUrl:"../images/avatar/default.jpg"))+"' width='50' height='50'  class='persona-logo' alt=''/>";
         //**
     var tagTmpl = "<a class='persona-tag' href='#'>__TAG</a>";
     var tags = "<div class='persona-tags'>";
@@ -143,7 +146,7 @@ function insertItem(){
     tags += "</div>";
     //**/
     var phone= "<div class='persona-description'>电话："+(item.phone?item.phone:"--")+"</div>";
-    var title = "<div class='persona-title'>"+(item.name?item.name:"")+(brokerUser.nickname?("("+brokerUser.nickname+")"):"")+"</div>"
+    var title = "<div class='persona-title'>"+(item.name?item.name:faker.name.findName())+(brokerUser.nickname?("("+brokerUser.nickname+")"):"")+"</div>"
     //var description = "<div class='description'>"+(brokerUser.province?brokerUser.province:"")+(brokerUser.city?(" "+brokerUser.city):"")+"</div>"
     //var description = "<div class='description'>等级："+item.level+"</div>"
     //$("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo'>" + image +"</div><div class='persona-info'>" +title +phone+description+ "</div></li>");

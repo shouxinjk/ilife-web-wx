@@ -14,6 +14,7 @@ app.config={
     auth_api:"https://data.shouxinjk.net/ilife-wechat",//获取UserInfo后端服务
     res_api:"https://www.biglistoflittlethings.com/static",//静态资源如图片服务
     sx_api:"https://data.shouxinjk.net/ilife/a",//服务端数据服务
+    wechat_cp_api:"https://www.biglistoflittlethings.com/ilife-wework",//wechat cp企业微信服务端
     mp_api:"https://mp.biglistoflittlethings.com",//wordpress媒体平台
     data_api:"https://data.shouxinjk.net/_db/sea",//数据存取服务
     file_api:"https://file.shouxinjk.net",//数据存取服务
