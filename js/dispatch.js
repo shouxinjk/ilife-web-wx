@@ -35,7 +35,7 @@ function flightCheck(code,state){
             //window.location.href=state+".html";
             if(state.indexOf("___")>=0){//如果是跳转到详情页面或列表页面则需要重新组织参数
                 var itemUrlArr = state.split("___");//使用___分解页面地址和具体参数
-                var targetUrl = itemUrlArr[0] +".html?"+ itemUrlArr[1].replace(/__/g,"&");
+                var targetUrl = itemUrlArr[0].replace(/__/g,"/") +".html?"+ itemUrlArr[1].replace(/__/g,"&");//通过state传递参数分为2部分：前部分为页面，后部分为参数。两者通过___分隔。前半部分若有路径/采用__分隔。后半部分有多个参数&采用__分隔
                 console.log("Dispatch::flightCheck try to redirect to landing page after login.",targetUrl);
                 window.location.href=targetUrl;
             }else{
