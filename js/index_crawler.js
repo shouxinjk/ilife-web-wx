@@ -1216,28 +1216,17 @@ function submitItemForm(){
 
 //加载支持的数据源列表，并显示到界面
 function loadPlatformSources(){
-    var query={
-            collection: "platforms", 
-            example: { 
-                status:"ready"//查询状态为ready的链接列表
-            },
-            limit:100
-        };   
-    var header={
-        "Content-Type":"application/json",
-        Authorization:"Basic aWxpZmU6aWxpZmU="
-    }; 
-    util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
+    util.AJAX(app.config.sx_api+"/mod/platformSource/rest/active", function (res) {
         //showloading(false);
         if(_sxdebug)console.log("try to retrive platforms.", res);
-        if(res && res.count==0){//如果没有则表示有问题
+        if(res && res.length==0){//如果没有则表示有问题
             if(_sxdebug)console.log("something wrong. we cannot get platforms");
             insertPlatforms(null);
         }else{//否则更新关系名称
             if(_sxdebug)console.log('display platforms',res);
-            insertPlatforms(res.result);
+            insertPlatforms(res);
         }
-    }, "PUT",query,header);
+    }, "GET");
 }
 
 function insertPlatforms(platforms){
@@ -1247,9 +1236,16 @@ function insertPlatforms(platforms){
     }
     platforms.forEach((item, index) => {//逐个显示
       if(_sxdebug)console.log("insert platform.[index]"+index,item);
-      var html = '<div id="platform-link-'+index+'"" class="findMoreBtn-show" class="findMoreBtn-show" style="min-width:80px;width:110px;padding-left:10px;padding-right:10px;text-align:center;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;border-color:#fd5638;color:#fd5638;">';
+      //根据收益类型区分：佣金或积分
+      var typeFlag = "";
+      if(item.type=="money"){
+        typeFlag = "border-color:#fd5638;color:#fd5638;";
+      }else if(item.type=="credit"){
+        typeFlag = "border-color:#228b22;color:#228b22;";
+      }
+      var html = '<div id="platform-link-'+index+'"" class="findMoreBtn-show" class="findMoreBtn-show" style="min-width:80px;width:110px;padding-left:10px;padding-right:10px;text-align:center;overflow:hidden;white-space: nowrap;text-overflow: ellipsis;'+typeFlag+'">';
       //html += '<a href="'+item.url+'" target="_new" >';
-      html += item.name  +(item.category?" "+item.category:"");
+      html += (item.platformName?item.platformName:item.platform)  +(item.category?" "+item.category:"");
       //html += '</a>';
       html += '</div>';      
       $("#platformList").append(html);
