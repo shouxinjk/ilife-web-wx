@@ -332,7 +332,9 @@ function logstash(item,client,action,fromUser="",fromBroker="",fn){//记录日�
         },
         success:function(result){
             console.log("user action comitted.",result);
-            fn(result);
+            if (typeof fn === "function") {
+                fn(result);
+            }
         }
     });
     //提交用户模型变化，包括needs及vals
