@@ -36,7 +36,6 @@ $(document).ready(function ()
     }
 
     //判定是否有编辑中的board
-    getBoard();//先从cookie内加载
     if(args["boardId"]){//如果参数中有boardId则优先使用
         boardId = args["boardId"];
         var board = {
@@ -44,6 +43,8 @@ $(document).ready(function ()
         };
         $.cookie('board', JSON.stringify(board), { expires: 3650, path: '/' });  //把编辑中的board写入cookie。能够跳转到其他页面继续添加
     }
+    getBoard();//从cookie内加载
+
     category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     tagging = args["keyword"]?args["keyword"]:""; //通过搜索跳转
     filter = args["filter"]?args["filter"]:""; //根据指定类型进行过滤

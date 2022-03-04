@@ -354,7 +354,7 @@ function createBoard(){
             expDate.setTime(expDate.getTime() + (15 * 60 * 1000)); // 15分钟后自动失效：避免用户不主动修改            
             $.cookie('board', JSON.stringify(res.data), { expires: expDate, path: '/' });  //把编辑中的board写入cookie便于添加item
             //跳转到首页添加item
-            window.location.href = "../index.html?id=0&boardId="+data.id;//不带关键字，不指定用户
+            window.location.href = "../index.html?boardId="+res.data.id;//不带关键字，不指定用户
         }
     }, "POST",data,header);
 }
