@@ -50,6 +50,10 @@ $(document).ready(function ()
     $("#deleteBtn").click(function(){
         deletePerson();
     });    
+    //判断用户是否是当前用户，如果是当前用户自己则不显示删除按钮
+    if(!currentPersonId || currentPersonId==app.globalData.userInfo._key){
+        $("#deleteBtn").css("display","none");
+    }
     //查看推荐内容列表，跳转到推荐页，需要带有当前用户ID
     $("#recommendationBtn").click(function(){
         goRecommend();
@@ -299,7 +303,8 @@ function showTags(tags){
     var html = "";
     for(var i=0;i<userTagTypes.length;i++){
         var userTagByCategory = userTagTypes[i];
-        //添加标签分类
+        //添加标签分类及分割线
+        $("#user-tags-div").append("<div class='user-tag-wrapper-separator'></div>");
         $("#user-tags-div").append("<div class='user-tag-wrapper' id='user-tag-wrapper-"+userTagByCategory+"'></div>");
         //添加分类文字
         $("#user-tag-wrapper-"+userTagByCategory).append('<div class="user-tag-category">'+userTagByCategory+'</div>');
