@@ -118,6 +118,17 @@ a{
 	transform: scale(0.5) translate(-382px, -1861px);	
 }
 
+.link-token{
+  color: darkred;
+  background-color:yellow;
+  font-size:13px;
+  font-weight:bold;
+  width:fit-content;
+  width:-webkit-fit-content;
+  width:-moz-fit-content;   
+  margin:5px auto;
+}
+
 #shopping{
 	display:flex;
 	flex-direction:row;

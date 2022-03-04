@@ -227,6 +227,8 @@ function showContent(item){
         }
         $('#jumpbtn').attr('data-clipboard-text',tokenStr);//将口令预先设置好    
         $('#jumpbtn').html("复制口令并前往"+item.distributor.name);
+        //显示淘口令便于直接复制
+        $("#link").append('<div class="link-token">'+tokenStr+'</div>');
     }
 
     //标签
