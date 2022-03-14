@@ -1187,15 +1187,13 @@ function submitItemForm(){
     //同时将当前的类目映射添加到platform_categories
     if(currentItem.meta && currentItem.meta.category){
         var platform_category = {
-            _key:hex_md5(currentItem.source+currentItem.category),
-            source:currentItem.source,
+            platform:currentItem.source,
             name:currentItem.category,
-            mappingId:currentItem.meta.category,
-            mappingName:currentItem.meta.categoryName
+            categoryId:currentItem.meta.category
         };
         console.log("try to commit platform category.",platform_category);
         $.ajax({
-            url:"https://data.shouxinjk.net/_db/sea/category/platform_categories",
+            url:"https://data.shouxinjk.net/ilife/a/mod/platformCategory/rest/mapping",
             type:"post",
             data:JSON.stringify(platform_category),//注意：不能使用JSON对象
             //data:data,
@@ -1209,7 +1207,7 @@ function submitItemForm(){
             error:function(){
                 console.log("upsert failed.",platform_category);
             }
-        }); 
+        });         
     }    
 
 }
