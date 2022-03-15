@@ -53,6 +53,7 @@ $(document).ready(function ()
 });
 
 util.getUserInfo();//从本地加载cookie
+util.getBrokerInfo();//从本地加载bookie
 
 
 var columnWidth = 300;//默认宽度300px
@@ -248,6 +249,7 @@ function showContent(item){
         $("#category-wrapper").css("display","none");
         //加载类目属性定义
         categoryProps = loadCategoryProperties(item.meta.category,false);//注意是同步调用
+        adviceSchemes = requestAdviceScheme(item.meta.category,false);//注意是同步调用。获取推荐语模板列表，用于显示。返回后存储于adviceSchemes
         //加载客观评价
         loadMeasureAndScore();//加载客观评价
     }else if(broker && broker.id){//对于broker开放修改category
@@ -308,13 +310,34 @@ function showContent(item){
     }
 
     //推荐语
+    var myAdvice = "";//我的推荐语
     if(item.advice){
-        var advice = "";
         for(key in item.advice){
-            advice += "<div style='width:100%;margin:5px 0;'>"+item.advice[key]+"</div>";
+            if(key == app.globalData.userInfo._key){//如果该推荐语是当前用户提供的，则显示编辑框，可以修改
+                myAdvice = item.advice[key];
+            }else if(item.advice[key].indexOf(":::")>0){//如果是达人推荐语，其结构为 达人昵称:::推荐语
+                var brokerAdvice = item.advice[key].split(":::");
+                $("#advice").append("<div class='prop-row'><div class='prop-key'>"+brokerAdvice[0]+"</div><div class='prop-value'>"+brokerAdvice[1]+"</div></div>");
+            }else{//否则显示只读
+                $("#advice").append("<div class='prop-row'><div class='prop-key'>"+(adviceSchemes[key]?adviceSchemes[key]:"生活家说")+"</div><div class='prop-value'>"+item.advice[key]+"</div></div>");
+            }
         }
-        $("#advice").append("<div class='prop-row'><div class='prop-key'>推荐者说</div><div class='prop-value'>"+advice+"</div></div>");
-    }    
+    }  
+    //如果是达人，则显示推荐语编辑框，默认为已经有的推荐语
+    console.log("show broker advice ...",broker);
+    if((broker && broker.id)||(app.globalData.brokerInfo && app.globalData.brokerInfo.id)){
+        console.log("show broker advice ...");
+        var brokerAdvice = myAdvice.split(":::");
+        $("#advice").append("<div class='prop-row'><div class='prop-key'>我的推荐</div><div class='prop-value'><textarea id='myAdvice' rows='5' style='width:100%;border:1px solid silver'>"+brokerAdvice[brokerAdvice.length-1]+"</textarea></div></div>");
+        $("#myAdvice").blur(function(){//提交修改
+            var myAdvice = $("#myAdvice").val();
+            if(myAdvice && myAdvice.trim().length>0){
+                if (!item.adivce)item.advice={};
+                item.advice[app.globalData.userInfo._key] = app.globalData.userInfo.nickName + ":::"+myAdvice;
+                submitItemForm();
+            }
+        });
+    }      
 
     //用户行为列表
     for (var actionType in actionTypes){//注意：这里需要发起多次搜索，可能导致性能问题
@@ -391,6 +414,26 @@ function loadCategoryProperties(categoryId, isAnsync=true){
         }
     });
     return categoryProps;
+}
+
+//获取推荐语模板列表，用于展示使用。
+function requestAdviceScheme(categoryId,isAnsync){
+    var adviceSchemes = {};//显示id：name键值对
+    //获取模板列表
+    $.ajax({
+        url:app.config.sx_api+"/mod/template/rest/item-templates",
+        type:"get",
+        async:isAnsync,
+        data:{categoryId:categoryId},
+        success:function(schemes){
+            console.log("\n===got item advice schemes ===\n",schemes);
+            //遍历并生成文案
+            for(var i=0;i<schemes.length;i++){
+                adviceSchemes[schemes[i].id]=schemes[i].name;
+            }
+        }
+    }); 
+    return  adviceSchemes;
 }
 
 //注意：在cascade中引用Array.flat()方法，但微信浏览器未实现，需要补充
