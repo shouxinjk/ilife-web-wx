@@ -252,7 +252,7 @@ function showContent(item){
         adviceSchemes = requestAdviceScheme(item.meta.category,false);//注意是同步调用。获取推荐语模板列表，用于显示。返回后存储于adviceSchemes
         //加载客观评价
         loadMeasureAndScore();//加载客观评价
-    }else if(broker && broker.id){//对于broker开放修改category
+    }else if((broker && broker.id)||(app.globalData.brokerInfo && app.globalData.brokerInfo.id)){//对于broker开放修改category
         //表示没有类目，提示选择类目完成标注
         $("#category-wrapper-tip").css("display","block");
         loadSxCategories();
@@ -1249,39 +1249,43 @@ function showMeasureScores(){
         html += "<div style='width:70%' id='score"+measureScores[i].id+"'></div>";
         html += "</div>";
         $("#measuresList").append(html);//装载到界面
-        $("#score"+measureScores[i].id).starRating({//显示为starRating
-            totalStars: 10,
-            starSize:20,
-            useFullStars:false,//能够显示半星
-            initialRating: measureScores[i].score*10,//注意：评分是0-1,直接转换
-            ratedColors:['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#00ffff','#40e0d0','#9acd32','#32cd32','#228b22'],
-            callback: function(currentRating, el){
-                //获取当前评价指标
-                var measureId = $(el).attr("id").replace(/score/g,'');
-                var old = tmpScores[measureId];
-                console.log("dude, now try update rating.[old]",measureId,old,currentRating);
-                //保存到本地
-                var newScore = currentRating*0.1;//直接转换到0-1区间
-                itemScore[measureId] = newScore;
-                $("#mscore"+measureId).html(newScore.toFixed(2));
-                $("#radarImg").empty();//隐藏原有图片
-                showRadar();//重新生成雷达图
 
-                //提交数据并更新
-                var priority = old.parentIds.length - old.parentIds.replace(/\,/g,"").length;
-                $.ajax({
-                    url:app.config.analyze_api+"?query=insert into ilife.info values ('"+stuff._key+"','"+stuff.meta.category+"','"+old.id+"','"+old.propKey+"',0,"+priority+",1,"+old.weight+",'"+old.script+"',"+newScore+",0,now())",
-                    type:"post",
-                    //data:{},
-                    headers:{
-                        "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
-                    },         
-                    success:function(json){
-                        console.log("===measure score updated===\n",json);
-                    }
-                });  
-            }
-        });     
+        //对达人开放标注能力：
+        if((broker && broker.id)||(app.globalData.brokerInfo && app.globalData.brokerInfo.id)){
+            $("#score"+measureScores[i].id).starRating({//显示为starRating
+                totalStars: 10,
+                starSize:20,
+                useFullStars:false,//能够显示半星
+                initialRating: measureScores[i].score*10,//注意：评分是0-1,直接转换
+                ratedColors:['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#00ffff','#40e0d0','#9acd32','#32cd32','#228b22'],
+                callback: function(currentRating, el){
+                    //获取当前评价指标
+                    var measureId = $(el).attr("id").replace(/score/g,'');
+                    var old = tmpScores[measureId];
+                    console.log("dude, now try update rating.[old]",measureId,old,currentRating);
+                    //保存到本地
+                    var newScore = currentRating*0.1;//直接转换到0-1区间
+                    itemScore[measureId] = newScore;
+                    $("#mscore"+measureId).html(newScore.toFixed(2));
+                    $("#radarImg").empty();//隐藏原有图片
+                    showRadar();//重新生成雷达图
+
+                    //提交数据并更新
+                    var priority = old.parentIds.length - old.parentIds.replace(/\,/g,"").length;
+                    $.ajax({
+                        url:app.config.analyze_api+"?query=insert into ilife.info values ('"+stuff._key+"','"+stuff.meta.category+"','"+old.id+"','"+old.propKey+"',0,"+priority+",1,"+old.weight+",'"+old.script+"',"+newScore+",0,now())",
+                        type:"post",
+                        //data:{},
+                        headers:{
+                            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+                        },         
+                        success:function(json){
+                            console.log("===measure score updated===\n",json);
+                        }
+                    });  
+                }
+            });  
+        }   
     }
     //显示属性列表
     $("#measuresDiv").css("display","block");      
