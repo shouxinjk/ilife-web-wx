@@ -328,8 +328,8 @@ function showContent(item){
     if((broker && broker.id)||(app.globalData.brokerInfo && app.globalData.brokerInfo.id)){
         console.log("show broker advice ...");
         var brokerAdvice = myAdvice.split(":::");
-        $("#advice").append("<div class='prop-row'><div class='prop-key'>我的推荐</div><div class='prop-value'><textarea id='myAdvice' rows='5' style='width:100%;border:1px solid silver'>"+brokerAdvice[brokerAdvice.length-1]+"</textarea></div></div>");
-        $("#myAdvice").blur(function(){//提交修改
+        $("#advice").append("<div class='prop-row'><div class='prop-key'>我的推荐</div><div class='prop-value'><textarea id='myAdvice' rows='5' style='width:100%;border:1px solid silver;padding:2px; line-height:16px;'>"+brokerAdvice[brokerAdvice.length-1]+'</textarea><button type="submit" class="btn btn-default" id="submitBtn">提交我的推荐语</button> </div></div>');
+        $("#submitBtn").click(function(){//提交修改
             var myAdvice = $("#myAdvice").val();
             if(myAdvice && myAdvice.trim().length>0){
                 if (!item.adivce)item.advice={};
