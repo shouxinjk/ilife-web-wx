@@ -59,8 +59,8 @@
           <ul>
             <li><a href="#tabs-images">图说</a></li>
             <li><a href="#tabs-data">数说</a></li>
-            <li><a href="#tabs-seller">卖家说</a></li>
-            <li><a href="#tabs-buyer">买家说</a></li>
+            <!--li><a href="#tabs-seller">卖家说</a></li-->
+            <li><a href="#tabs-buyer">生活家说</a></li>
           </ul>
           <!-- 图片列表 -->
           <div id="tabs-images">
@@ -69,7 +69,13 @@
           <!-- 数据图表 -->
           <div id="tabs-data">
             <!-- 雷达图：包含当前商品及品类平均值 -->
-            <div id="radarTitle" class="prop-key" style="width:90%;display:none;">我们按照以下维度计算得到的结果，供参考。</div>             
+            <div id="radarTitle" class="prop-key" style="width:90%;display:none;">我们按照以下维度计算得到的结果，供参考。</div>   
+            <!--客观评价结果：支持标达人手动录入-->
+            <div id="measuresDiv" style="display:none">
+                <!--label class="formLabel" style="line-height: 30px;margin:5px 0; padding:5px 0;">客观评价结果</label-->
+                <div id="measuresList"></div>
+            </div>    
+            <!--客观评价雷达图-->                   
             <div id="radar">
             </div> 
             <div id="radarImg">
@@ -77,6 +83,8 @@
             </div>         
             <!-- Sunburst：显示当前类目评价规则 -->
             <div id="sunburstTitle" class="prop-key" style="width:90%;display:none;margin-bottom:5px;">以下是评价体系构成，关于商品评价，我们是认真的。</div> 
+            <!-- 商品属性表，可能为空-->
+            <div id="props"></div>             
             <div id="sunburst" style="width:80%;padding-left:10%;">
             </div> 
             <div id="sunburstImg">
@@ -91,10 +99,10 @@
             <div id="category-wrapper" class="cascader-wrap"></div>    
           </div>
           <!-- 参数及标签 -->
-          <div id="tabs-seller">
+          <!--div id="tabs-seller">
             <div id="platform-logo"></div> 
             <div id="props"></div> 
-          </div>
+          </div-->
           <!-- 评分、评论数、评论关键词 -->
           <div id="tabs-buyer">
                 <div id="user-tags"></div> 
@@ -159,5 +167,5 @@
 <script type="text/javascript" src="js/util.js?v=7.53"></script>
 <script type="text/javascript" src="js/options.js?v=1.04"></script>
 <script type="text/javascript" src="js/helper.js?v=1.13"></script>
-<script type="text/javascript" src="js/info2.js?v=8.38"></script>
+<script type="text/javascript" src="js/info2.js?v=8.39"></script>
 </html>

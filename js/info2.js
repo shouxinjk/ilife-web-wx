@@ -242,17 +242,21 @@ function showContent(item){
     }
 
     //数说：显示生成的评价结果图
+    var categoryProps = {};//默认为空，仅在设置了categoryId才调用
     if(item.meta && item.meta.category){
         //会生成评价结果图表，隐藏类目选择器
         $("#category-wrapper").css("display","none");
-    }else{
-        //显示提示信息
-        //$("#tabs-data").html("<div class='prop-value'>尚未生成，请稍等……</div>");
+        //加载类目属性定义
+        categoryProps = loadCategoryProperties(item.meta.category,false);//注意是同步调用
+        //加载客观评价
+        loadMeasureAndScore();//加载客观评价
+    }else if(broker && broker.id){//对于broker开放修改category
         //表示没有类目，提示选择类目完成标注
-        //**
         $("#category-wrapper-tip").css("display","block");
         loadSxCategories();
-        //**/
+    }else{
+        //显示提示信息
+        $("#tabs-data").html("<div class='prop-value'>尚未完成评价，请稍等……</div>");        
     }
     //显示已经生成的海报：仅显示客观评价海报
     var showPoster = false;
@@ -268,14 +272,21 @@ function showContent(item){
     }
 
 
+
+
     //卖家说：平台logo
-    $("#platform-logo").append("<img src='"+app.config.res_api+"/logo/distributor/"+item.source+".png' alt='"+item.distributor.name+"'/>");
-    if(item.props && item.props.length>0){
+    //$("#platform-logo").append("<img src='"+app.config.res_api+"/logo/distributor/"+item.source+".png' alt='"+item.distributor.name+"'/>");
+    if(item.props && Array.isArray(item.props)){//兼容数组结构
         item.props.forEach(function(json){
             for (var key in json){
-                $("#props").append("<div class='prop-row'><div class='prop-key'>"+key+"</div><div class='prop-value'>"+json[key]+"</div></div>");
+                $("#props").append("<div class='prop-row'><div class='prop-key' style='text-align:right'>"+(categoryProps[key]?categoryProps[key]:key)+"</div><div class='prop-value' style='padding-left:5px;'>"+json[key]+"</div></div>");
             }            
         });
+    }else{//键值对则直接遍历
+        for (var key in item.props){
+            if(item.props[key])
+                $("#props").append("<div class='prop-row'><div class='prop-key' style='text-align:right'>"+(categoryProps[key]?categoryProps[key]:key)+"</div><div class='prop-value' style='padding-left:5px;'>"+item.props[key]+"</div></div>");
+        } 
     }
 
     //买家说：评价
@@ -357,6 +368,29 @@ function loadSxCategories(){
             showCascader(null);
         }
     })    
+}
+
+//根据ID获取类目下定义的属性列表
+function loadCategoryProperties(categoryId, isAnsync=true){
+    var categoryProps = {};//存储类目属性id:name键值对
+    //根据categoryId获取所有measure清单，字段包括name、property
+    $.ajax({
+        url:"https://data.shouxinjk.net/ilife/a/mod/measure/measures?category="+categoryId,
+        type:"get",
+        async:isAnsync,
+        data:{},
+        success:function(items){
+            if(_sxdebug)console.log(items);
+            for( k in items ){
+                var item = items[k];
+                if(_sxdebug)console.log("measure:"+JSON.stringify(item));
+                var name=item.name;
+                var property = item.property;
+                categoryProps[property]=name;
+            }
+        }
+    });
+    return categoryProps;
 }
 
 //注意：在cascade中引用Array.flat()方法，但微信浏览器未实现，需要补充
@@ -1067,6 +1101,147 @@ function showRadar(){
         //TODO： 将图片提交到服务器端。保存文件名为：itemKey-d.png
         uploadPngFile(uri, "measure-radra.png", "measure");//文件上传后将在stuff.media下增加{measure:imagepath}键值对
     });        
+}
+
+var featuredDimension = [];//客观评价维度列表
+var itemScore = {};//当前条目评分列表：手动修改后同时缓存
+var categoryScore = {};//当前条目所在类目评分列表
+var measureScores = [];//显示到grid供修改，在measure基础上增加score
+function loadMeasureAndScore(){
+    //根据category获取客观评价数据
+    var data = {
+        categoryId:stuff.meta.category
+    };
+    util.AJAX(app.config.sx_api+"/mod/itemDimension/rest/dim-tree-by-category", function (res) {
+        console.log("======\nload dimension.",data,res);
+        if (res.length>0) {//本地存储评价数据
+            measureScheme = res;
+        }else{//没有则啥也不干
+            //do nothing
+            console.log("failed load dimension tree.",data);
+        }
+    },"GET",data); 
+
+    //获取类目下的特征维度列表
+    $.ajax({
+        url:app.config.sx_api+"/mod/itemDimension/rest/featured-dimension",
+        type:"get",
+        async:false,//同步调用
+        data:{categoryId:stuff.meta.category},
+        success:function(json){
+            console.log("===got featured dimension===\n",json);
+            featuredDimension = json;
+            //准备默认值
+            for(var i=0;i<json.length;i++){
+                var entry = json[i];
+                itemScore[entry.id] = (entry.score&&entry.score>0)?entry.score:0.75;
+                categoryScore[entry.id] = 0.5;
+            }
+        }
+    });  
+
+    //根据itemKey获取评价结果
+    //feature = 1；dimensionType：0客观评价，1主观评价
+    //注意：由于clickhouse非严格唯一，需要取最后更新值
+    $.ajax({
+        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where feature=1 and dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
+        type:"get",
+        async:false,//同步调用
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(json){
+            console.log("===got item score===\n",json);
+            for(var i=0;i<json.rows;i++){
+                itemScore[json.data[i].dimensionId] = json.data[i].score;
+            }
+            console.log("===assemble item score===\n",itemScore);
+        }
+    });  
+
+    //根据categoryId获取评价结果
+    //feature = 1；dimensionType：0客观评价，1主观评价
+    $.ajax({
+        url:app.config.analyze_api+"?query=select dimensionId,avg(score) as score from ilife.info where feature=1 and dimensionType=0 and categoryId='"+stuff.meta.category+"' group by dimensionId format JSON",
+        type:"get",
+        async:false,//同步调用
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(json){
+            console.log("===got category score===\n",json);
+            for(var i=0;i<json.rows;i++){
+                categoryScore[json.data[i].dimensionId] = json.data[i].score;
+            }
+            console.log("===assemble category score===\n",categoryScore);
+        }
+    });     
+
+    //组装measureScore
+    for(var i=0;i<featuredDimension.length;i++){
+        var measureScore = featuredDimension[i];
+        measureScore.score = itemScore[measureScore.id]?itemScore[measureScore.id]:0.75;
+        measureScores.push(measureScore);
+    }
+
+    //显示雷达图
+    if(!stuff.media || !stuff.media["measure"])//仅在第一次进入时才尝试自动生成
+        showRadar();//显示评价图
+
+    //显示measureScore表格提供标注功能
+    showMeasureScores();
+}
+//显示客观评价得分表格，便于手动修改调整
+var tmpScores = {};
+function showMeasureScores(){
+    //准备评分表格：逐行显示
+    for(var i=0;i<measureScores.length;i++){
+        tmpScores[measureScores[i].id] = measureScores[i];
+        var html = "";
+        html += "<div style='display:flex;flex-direction:row;flex-wrap:nowrap;margin:10px 0;width:90%;font-size:12px;'>";
+        html += "<div style='width:20%;line-height:24px;text-align:right;font-weight:bold;'>"+measureScores[i].name+"</div>";
+        html += "<div style='width:10%;text-align:center;line-height:24px;' id='mscore"+measureScores[i].id+"'>"+measureScores[i].score+"</div>";
+        html += "<div style='width:70%' id='score"+measureScores[i].id+"'></div>";
+        html += "</div>";
+        $("#measuresList").append(html);//装载到界面
+        $("#score"+measureScores[i].id).starRating({//显示为starRating
+            totalStars: 10,
+            starSize:20,
+            useFullStars:false,//能够显示半星
+            initialRating: measureScores[i].score*10,//注意：评分是0-1,直接转换
+            ratedColors:['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#00ffff','#40e0d0','#9acd32','#32cd32','#228b22'],
+            callback: function(currentRating, el){
+                //获取当前评价指标
+                var measureId = $(el).attr("id").replace(/score/g,'');
+                var old = tmpScores[measureId];
+                console.log("dude, now try update rating.[old]",measureId,old,currentRating);
+                //保存到本地
+                var newScore = currentRating*0.1;//直接转换到0-1区间
+                itemScore[measureId] = newScore;
+                $("#mscore"+measureId).html(newScore.toFixed(2));
+                $("#radarImg").empty();//隐藏原有图片
+                showRadar();//重新生成雷达图
+
+                //提交数据并更新
+                var priority = old.parentIds.length - old.parentIds.replace(/\,/g,"").length;
+                $.ajax({
+                    url:app.config.analyze_api+"?query=insert into ilife.info values ('"+stuff._key+"','"+stuff.meta.category+"','"+old.id+"','"+old.propKey+"',0,"+priority+",1,"+old.weight+",'"+old.script+"',"+newScore+",0,now())",
+                    type:"post",
+                    //data:{},
+                    headers:{
+                        "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+                    },         
+                    success:function(json){
+                        console.log("===measure score updated===\n",json);
+                    }
+                });  
+            }
+        });     
+    }
+    //显示属性列表
+    $("#measuresDiv").css("display","block");      
 }
 
 //上传图片到fast-poster，便于海报生成
