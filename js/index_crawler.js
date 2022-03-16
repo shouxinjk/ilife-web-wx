@@ -837,35 +837,39 @@ function loadProps(categoryId){
                     if(_sxdebug)console.log("item inserted",row);
                     //更新到当前修改item属性列表内
                     if(!currentItem.props)
-                        currentItem.props = [];
-                    //由于采用的是键值对，需要进行遍历。考虑到浏览器影响，此处未采用ES6 Map对象
-                    var props = [];//新建一个数组
-                    var prop = {};
-                    prop[row.item.name] = row.item.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
-                    props.push(prop);
-                    currentItem.props.forEach((item, index) => {//将其他元素加入
-                      if(_sxdebug)console.log("foreach props.[index]"+index,item);
-                      if(!item[row.item.name])
-                        props.push(item);
-                    });
-                    currentItem.props = props;
+                        currentItem.props = {};                    
+                    //兼容数组及对象两种方式：统一为对象提交
+                    if(Array.isArray(currentItem.props)){
+                        var props = {};//新建一个对象
+                        currentItem.props.forEach((item, index) => {//将已有元素加入
+                          if(_sxdebug)console.log("foreach props.[index]"+index,item);
+                          if(!item[row.item.name])
+                            props[row.item.name] = row.item.value;                      
+                        });                        
+                        props[row.item.name] = row.item.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
+                        currentItem.props = props; 
+                    }else{//直接更新修改的数值
+                        currentItem.props[row.item.name] = row.item.value; 
+                    }
                     if(_sxdebug)console.log("item props updated",currentItem);                 
                 },
                 onItemUpdated:function(row){
                     if(_sxdebug)console.log("item updated",row);
                     if(!currentItem.props)
-                        currentItem.props = [];                    
-                    //由于采用的是键值对，需要进行遍历。考虑到浏览器影响，此处未采用ES6 Map对象
-                    var props = [];//新建一个数组
-                    var prop = {};
-                    prop[row.item.name] = row.item.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
-                    props.push(prop);
-                    currentItem.props.forEach((item, index) => {//将其他元素加入
-                      if(_sxdebug)console.log("foreach props.[index]"+index,item);
-                      if(!item[row.item.name])
-                        props.push(item);                      
-                    });
-                    currentItem.props = props; 
+                        currentItem.props = {};                    
+                    //兼容数组及对象两种方式：统一为对象提交
+                    if(Array.isArray(currentItem.props)){
+                        var props = {};//新建一个对象
+                        currentItem.props.forEach((item, index) => {//将已有元素加入
+                          if(_sxdebug)console.log("foreach props.[index]"+index,item);
+                          if(!item[row.item.name])
+                            props[row.item.name] = row.item.value;                      
+                        });                        
+                        props[row.item.name] = row.item.value;//直接更新对应属性数值：注意，此处采用name更新，与页面采集器保持一致  
+                        currentItem.props = props; 
+                    }else{//直接更新修改的数值
+                        currentItem.props[row.item.name] = row.item.value; 
+                    }
                     if(_sxdebug)console.log("item props updated",currentItem);   
                 },
 
