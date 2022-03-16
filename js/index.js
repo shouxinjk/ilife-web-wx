@@ -1440,6 +1440,8 @@ function changePerson (personId,personTagging) {
 
 //从user_user重新加载用户，并构建用户评估明细及模型
 function loadPersonById(personId){
+  if(!personId || personId.trim().length<6 || personId == "orgnization")
+    return;//these are dummy users. do not change
   $.ajax({
       url:app.config.data_api+"/user/users/"+personId,
       type:"get",
