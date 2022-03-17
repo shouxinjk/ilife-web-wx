@@ -110,14 +110,18 @@ function getBrokerUser(broker) {
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     };     
-    util.AJAX(app.config.data_api+"/user/users/"+broker.openid, function (res) {
-        console.log("load person info by openid.",broker.openid,res);
-        if(res){
-            items.push(broker);//仅在用户存在是显示达人，否则不显示
-            brokerUsers[broker.id]=res;//存储对应的用户详情
-            insertItem();
-        }
-    }, "GET",{},header);
+    if(broker.openid && broker.openid.trim().length>0){//仅拥有openid才获取。对于平台收益等特殊broker，未设置openid
+        util.AJAX(app.config.data_api+"/user/users/"+broker.openid, function (res) {
+            console.log("load person info by openid.",broker.openid,res);
+            if(res){
+                items.push(broker);//仅在用户存在是显示达人，否则不显示
+                brokerUsers[broker.id]=res;//存储对应的用户详情
+                insertItem();
+            }
+        }, "GET",{},header);
+    }else{//否则不加载用户
+        //do nothing
+    }
 }
 
 //将item显示到页面
