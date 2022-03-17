@@ -728,7 +728,13 @@ function showloading(flag){
 function loadProps(categoryId){
     //同步获取propertyMapping：根据source、category（注意是原始类目名称，不是标准类目）、name（name或者props.name）查找
     var propMapping = {};
-    //如果存在类目，则根据类目查找对应的标准目录映射。
+    //如果存在类目，则根据类目查找对应的标准目录映射。取得属性映射map
+    console.log("currentItem.category",currentItem.category);
+    //数据保护：兼容category为array的情况：后端数据同步时存在category为Array的情况
+    if(Array.isArray(currentItem.category)){
+        currentItem.category = currentItem.category.join("-");
+        console.log("currentItem.category string.",currentItem.category);
+    }
     if(currentItem.category && currentItem.category.trim().length>0){//注意：仅对于存在类目的情况有效
         $.ajax({
             url:"https://data.shouxinjk.net/ilife/a/mod/platformProperty/rest/mapping?platform="+currentItem.source+"&category="+currentItem.category,
