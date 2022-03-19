@@ -165,6 +165,8 @@ function showCascader(categoryId){
             if(_sxdebug)console.log("crawler::category item selected.",selectedCategory);
             //更新当前item的category。注意更新到meta.category下
             currentItem.meta = {category:selectedCategory.id[0],categoryName:selectedCategory.label[selectedCategory.label.length-1]};//仅保存叶子节点
+            if(!currentItem.status)currentItem.status={};
+            if(!currentItem.timestamp)currentItem.timestamp={};
             currentItem.status.classify = "ready";
             currentItem.timestamp.classify = new Date();
             //加载属性值列表
@@ -351,7 +353,7 @@ function insertItem(item){
     //计算文字高度：按照1倍行距计算
     //if(_sxdebug)console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
     var image = "<img src='"+imgPrefix+item.images[0]+"' width='"+imgWidth+"' height='"+imgHeight+"' style='margin:0 auto'/>"
-    //var tagTmpl = "<strong style='white-space:nowrap;display:inline-block;border:1px solid #8BC34A;background-color: #8BC34A;color:white;font-weight: bold;font-size: 10px;text-align: center;border-radius: 5px;margin-left:2px;margin-right:1px;margin-top:-2px;padding:2px;vertical-align:middle;'>__TAG</strong>";
+    var tagTmpl = "<strong style='white-space:nowrap;display:inline-block;border:1px solid #8BC34A;background-color: #8BC34A;color:white;font-weight: bold;font-size: 10px;text-align: center;border-radius: 5px;margin-left:2px;margin-right:1px;margin-top:-2px;padding:2px;vertical-align:middle;'>__TAG</strong>";
     var highlights = "<div class='itemTags' style='line-height: 18px;'>";
     var prices = "<div class='itemPrices' style='line-height: 18px;'>";
     prices += "<strong style='font-size:14px;font-weight: bold;background-color: white;color:darkred;padding:2px;'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</strong>";
