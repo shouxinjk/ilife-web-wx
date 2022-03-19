@@ -930,15 +930,20 @@ function addItemToBoard(item){
     };     
     //准备 条目的默认描述：优先采用推荐语、其次tagging、再次tags
     var advice = "";
-    if(item.advice && Object.keys(item.advice).length>0 ){//如果有advice，则随机采用
+    if(item.tagging&&item.tagging.trim().length>0){//否则采用tagging
+        advice = item.tagging;
+    }else if(item.advice && Object.keys(item.advice).length>0 ){//如果有advice，则随机采用
         var count = Object.keys(item.advice).length;
         var random = 0;//默认采用第一条
         if(count>1){//如果是多个则随机采用
             random = new Date().getTime()%count;
         }
         advice = item.advice[Object.keys(item.advice)[random]];
-    }else if(item.tagging&&item.tagging.trim().length>0){//否则采用tagging
-        advice = item.tagging;
+        //对于达人推荐语，需要去掉头部标记
+        var brokerAdvice = advice.split(":::");
+        advice = brokerAdvice[brokerAdvice.length-1];//仅获取最后一段
+    }else if(item.summary&&item.summary.trim().length>0){//优先采用入库时的标注
+        advice = item.summary;
     }else if(item.tags&&item.tags.length>0){//最后采用tags
         advice = item.tags.join(" ");
     }else{
