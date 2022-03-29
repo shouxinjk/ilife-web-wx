@@ -483,7 +483,7 @@ function insertPerson(person){
 }
 
 function insertBroker(broker){
-    $("#brokerLink").html('<a href="broker/task.html">进入达人后台</a>');
+    $("#brokerLink").html('<a href="broker/task.html">进入达人后台</a> &nbsp;&nbsp; <a href="publisher/articles.html">进入流量主后台</a>');
     $("#brokerHint").html("达人级别："+broker.level);
 }
 
