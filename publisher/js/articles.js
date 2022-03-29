@@ -162,8 +162,12 @@ function insertItem(){
 
     //文章无logo，随机指定一个。设置为发布者LOGO，或者直接忽略
     logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
-    if(item.logo)
-        logo = item.logo;
+    //由于微信禁止，无法直接使用封面图，需要使用达人图片
+    //使用代理避免跨域问题。后端将代理到指定的URL地址。注意：使用https
+    var imgPrefix = "https://www.biglistoflittlethings.com/3rdparty?url=";
+    if(item.coverImg){
+        logo = imgPrefix+item.coverImg;
+    }
     //判断有无置顶广告位
     var tags = "";
     if(item.advertise){//如果有广告位则显示置顶
