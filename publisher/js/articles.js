@@ -95,10 +95,10 @@ function registerTimer(brokerId){
     currentBroker = brokerId;
     sxTimer = setInterval(function ()
     {
-        console.log("Timer Boards::registerTimer start load boards Timer.");
+        console.log("Articles::registerTimer.");
         if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
         {
-            console.log("Boards::registerTimer start load boards.");
+            console.log("Articles::registerTimer start load boards.");
             // 表示开始加载
             loading = true;
             showloading(true);
@@ -116,10 +116,12 @@ function registerTimer(brokerId){
         }
 
         //计数器自减，到时即停止
+        /**
         if(--sxLoopCount<0){
             unregisterTimer();
         }
-    }, 300);
+        //**/
+    }, 1200);
 }
 
 function unregisterTimer(){
