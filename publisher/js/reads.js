@@ -27,11 +27,8 @@ $(document).ready(function ()
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
     if(args["filter"]){
-        filter = args["filter"]; //如果传入参数则使用传入值：all、byBroker
+        filter = args["filter"]; //如果传入参数则使用传入值：byReadme, byReadta
     }
-    if(args["byOpenid"]){
-        byOpenid = args["byOpenid"]; //支持传入publisherOpenid
-    }    
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
@@ -45,19 +42,39 @@ $(document).ready(function ()
         changeActionType(e);
     });
 
-    //注册点击创建按钮事件 ：显示表单
-    $("#createArticleBtn").click(function(e){
-        showArticleForm();
+    //注册切换到 阅TA 
+    $("#readta").click(function(e){
+        window.location.href = "reads.html?filter=byReadta";
     });
+    $("#readme").click(function(e){
+        window.location.href = "reads.html?filter=byReadme";
+    });    
+
+    //根据filter切换界面高亮显示
+    if(filter=="byReadta"){
+        $("#readta").removeClass("filter");
+        $("#readta").addClass("filter-selected");
+        $("#readme").removeClass("filter-selected");
+        $("#readme").addClass("filter");     
+    }else{
+        $("#readme").removeClass("filter");
+        $("#readme").addClass("filter-selected");
+        $("#readta").removeClass("filter-selected");
+        $("#readta").addClass("filter"); 
+    }
     
     //检查是否有缓存事件
     resultCheck();
+
+    //检查汇总数据
+    countReadmeTotal();
+    countReadtaTotal();
 
 });
 
 util.getUserInfo();//从本地加载cookie
 
-var byOpenid = null;
+var filter="byReadme";// byReadme, byReadta 默认为 阅我
 
 //设置默认logo
 var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
@@ -68,9 +85,7 @@ var loading = false;
 var dist = 500;
 var num = 1;//需要加载的内容下标
 
-var filter = "all";//my、all。数据查询规则：默认为查询全部
-
-var items = [];//所有画像列表
+var items = [];//所有记录列表
 var page = {
     size:10,//每页条数
     total:1,//总页数
@@ -86,6 +101,9 @@ var userInfo=app.globalData.userInfo;//默认为当前用户
 var currentBroker = null;
 var broker = {};//当前达人
 
+var readmeMap = {};//以openid为键值，记录阅读过我的文章的用户及阅读数
+var readtaMap = {};//以openid为键值，记录我阅读过该用户文章的阅读数
+
 var sxTimer = null;
 var sxStartTimestamp=new Date().getTime();//定时器如果超过2分
 var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
@@ -96,6 +114,14 @@ function loadBrokerInfo(){
   currentBroker = broker.id;
 }
 
+function getItemsQuery(){
+    if(filter == "byReadta"){//指定为 阅TA：查询得到 reader的信息
+        return "select DISTINCT ON (publisherOpenid,readerOpenid) eventId,publisherOpenid as openid,publisherNickname as nickname,publisherAvatarUrl as avatarUrl,articleTitle,readCount,ts from ilife.reads where publisherOpenid!='"+userInfo._key+"' and readerOpenid='"+userInfo._key+"' order by ts desc limit "+page.size+" offset "+ ((page.current+1)*page.size) +" format JSON";
+    }else{//默认为 阅我：查询得到publisher的信息
+        return "select DISTINCT ON (publisherOpenid,readerOpenid) eventId,readerOpenid as openid,readerNickname as nickname,readerAvatarUrl as avatarUrl,articleTitle,readCount,ts from ilife.reads where publisherOpenid='"+userInfo._key+"' and readerOpenid!='"+userInfo._key+"' order by ts desc limit "+page.size+" offset "+ ((page.current+1)*page.size) +" format JSON";
+    }
+}
+
 function registerTimer(brokerId){
     currentBroker = brokerId;
     sxTimer = setInterval(function ()
@@ -103,21 +129,19 @@ function registerTimer(brokerId){
         //console.log("Articles::registerTimer.");
         if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
         {
-            console.log("Articles::registerTimer start load article.");
+            console.log("Articles::registerTimer start load boards.");
             // 表示开始加载
             loading = true;
             showloading(true);
 
             // 加载内容
             if(items.length < num){//如果内容未获取到本地则继续获取
-                console.log("request articles from server side.");
                 //读取待阅读列表
                 loadItems();
                 //有用户操作则恢复计数器
                 console.log("reset loop count.");
                 sxLoopCount = 100;                
             }else{//否则使用本地内容填充
-                console.log("insert article item from locale.");
                 insertItem();
             }
         }
@@ -142,29 +166,152 @@ function unregisterTimer(){
 按照阅豆高低倒序排列得到最新文章列表
 */
 function loadItems(){
-    util.AJAX(app.config.sx_api+"/wx/wxArticle/rest/pending-articles", function (res) {
-        showloading(false);
-        console.log("Publisher::Articles::loadItems try to retrive pending articles.", res)
-        if(res && res.length==0){//如果没有画像则提示，
-            shownomore();
-        }else{//否则显示到页面
-            //更新当前翻页
-            page.current = page.current + 1;
-            //装载具体条目
-            var hits = res;
-            for(var i = 0 ; i < hits.length ; i++){
-                items.push(hits[i]);
+    //查询阅读当前用户文章的事件列表
+    $.ajax({
+        url:app.config.analyze_api+"?query="+getItemsQuery(),
+        type:"get",
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(res){
+            showloading(false);
+            console.log("Publisher::Reads::loadItems try to retrive read record items.", res)
+
+            if(res && res.rows==0){//如果没有画像则提示，
+                shownomore();
+            }else{//否则显示到页面
+                //更新当前翻页
+                page.current = page.current + 1;
+                //装载具体条目
+                var hits = res.data;
+                for(var i = 0 ; i < hits.length ; i++){
+                    items.push(hits[i]);
+                }
+                insertItem();
             }
-            insertItem();
         }
-    }, 
-    "GET",
-    {
-        from:(page.current+1)*page.size,
-        to:(page.current+1)*page.size+page.size,
-        openid:byOpenid?byOpenid:""
-    },
-    {});
+    }); 
+}
+
+//查询阅我总数：排除自己的阅读
+function countReadmeTotal(){
+    $.ajax({
+        url:app.config.analyze_api+"?query=select count(eventId) as totalCount from ilife.reads where publisherOpenid='"+userInfo._key+"' and readerOpenid!='"+userInfo._key+"' format JSON",
+        type:"get",
+        //async:false,
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(res){
+            console.log("Publisher::Reads::countReadmeTotal try to retrive readme count.", res)
+            if(res && res.rows==0){//无法回直接忽略
+                //do nothing
+            }else{//如果大于0则更新到页面
+                if(res.data[0].totalCount>0){
+                    var oldTxt = $("#readme").text();
+                    $("#readme").text(oldTxt+"("+res.data[0].totalCount+")")
+                }
+            }
+        }
+    }); 
+}
+
+//查询阅TA总数：排除自己的文章
+function countReadtaTotal(){
+    $.ajax({
+        url:app.config.analyze_api+"?query=select count(eventId) as totalCount from ilife.reads where readerOpenid='"+userInfo._key+"' and publisherOpenid!='"+userInfo._key+"' format JSON",
+        type:"get",
+        //async:false,
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(res){
+            console.log("Publisher::Reads::countReadmeTotal try to retrive readta count.", res)
+            if(res && res.rows==0){//无法回直接忽略
+                //do nothing
+            }else{//如果大于0则更新到页面
+                if(res.data[0].totalCount>0){
+                    var oldTxt = $("#readta").text();
+                    $("#readta").text(oldTxt+"("+res.data[0].totalCount+")")
+                }
+            }
+        }
+    }); 
+}
+
+//根据openid查询阅读我的文章总数
+function countReadmeByOpenid(openid){
+    $.ajax({
+        url:app.config.analyze_api+"?query=select count(eventId) as totalCount from ilife.reads where publisherOpenid='"+userInfo._key+"' and readerOpenid='"+openid+"' format JSON",
+        type:"get",
+        //async:false,
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(res){
+            console.log("Publisher::Reads::countReadmeByOpenid try to retrive readme count by openid.", res)
+            if(res && res.rows==0){//无法回直接忽略
+                //do nothing
+            }else{//否则更新readmeMap
+                readmeMap[openid] = res.data[0].totalCount;
+                checkReadsDiff(openid);//检查更新差异
+            }
+        }
+    }); 
+}
+
+//根据openid查询我阅读的文章总数
+function countReadtaByOpenid(openid){
+    $.ajax({
+        url:app.config.analyze_api+"?query=select count(eventId) as totalCount from ilife.reads where publisherOpenid='"+openid+"' and readerOpenid='"+userInfo._key+"' format JSON",
+        type:"get",
+        //async:false,
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(res){
+            console.log("Publisher::Reads::countReadtaByOpenid try to retrive readta count by openid.", res)
+            if(res && res.rows==0){//无法回直接忽略
+                //do nothing
+            }else{//否则更新readmeMap
+                readtaMap[openid] = res.data[0].totalCount;
+                checkReadsDiff(openid);//检查更新差异
+            }
+        }
+    }); 
+}
+
+//检查阅我及阅TA差异，显示标签及按钮
+function checkReadsDiff(openid){
+    var diff = 0;
+    if(readtaMap[openid] && readmeMap[openid]){
+        diff = readtaMap[openid] - readmeMap[openid];
+    }
+    console.log("got read diffs.",diff)
+    if(readmeMap[openid]&&readmeMap[openid]>0){
+        $("#reader-readme-"+openid).text("阅我 "+readmeMap[openid]);
+    }else{
+        $("#reader-readme-"+openid).text("阅我 0");
+    }
+    if(readtaMap[openid]&&readtaMap[openid]>0){
+        $("#reader-readta-"+openid).text("阅TA "+readtaMap[openid]);
+    }else{
+        $("#reader-readta-"+openid).text("阅TA 0");
+    } 
+    if(diff<0){
+        $("#reader-btn-"+openid).text("去看TA");
+        $("#reader-btn-"+openid).removeClass("action-tag-grey");
+        $("#reader-btn-"+openid).addClass("action-tag");        
+    }else{
+        $("#reader-btn-"+openid).text("去看TA");
+        $("#reader-btn-"+openid).removeClass("action-tag");
+        $("#reader-btn-"+openid).addClass("action-tag-grey");
+    }
 }
 
 //将item显示到页面
@@ -174,55 +321,55 @@ function insertItem(){
     if(!item){
         shownomore(true);
         return;
+    }  
+
+    //默认随机指定logo
+    //logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
+    logo = "https://www.biglistoflittlethings.com/list/images/avatar/default.jpg";
+    if(item.avatarUrl && item.avatarUrl!="undefined"){
+        logo = item.avatarUrl;
     }
 
-    //文章无logo，随机指定一个。设置为发布者LOGO，或者直接忽略
-    logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
-    //由于微信禁止，无法直接使用封面图，需要使用达人图片
-    /**
-    if(item.coverImg){
-        logo = item.coverImg;
-    }
-    //**/
-    //判断有无置顶广告位
-    var tags = "";
-    if(item.advertise){//如果有广告位则显示置顶
-        tags += "<span style='margin:2px auto;padding:2px;border:1px solid red;color:red;border-radius:16px;font-size:12px;line-height:20px;'>置顶</span>";
-    }
-    tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>置顶</span>";
-    var advertise = "<img src='https://www.biglistoflittlethings.com/ilife-web-wx/images/rocket.png' width='16' height='16'/>&nbsp;";
+    var tagReadme = "<span id='reader-readme-"+item.openid+"' class='highlight-tag'></span>";
+    var tagReadta = "<span id='reader-readta-"+item.openid+"' class='highlight-tag'></span>";
+    var tagReadBtn = "<span id='reader-btn-"+item.openid+"' class='action-tag'></span>";
 
-    var title = "<div class='title'>"+tags+item.title+advertise+"</div>";
-    var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
-    var description = "<div class='description'>"+item.updateDate+"</div>";
+    var reader = "<div class='title readerDiv'><div class='readerName'>"+item.nickname+"</div><div class='readtaBtn'>"+ tagReadBtn+"</div></div>";
+    var title = "<div class='description'>"+item.articleTitle+"</div>";
+    var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;border-radius:50%;'/>";
+    var description = "<div class='description readerCountDiv'><div class='readTimestamp'>"+item.ts+"</div><div class='readCount'>"+tagReadme+tagReadta+"</div></div>";
 
-    var btns = "<div class='btns'><div id='article-"+item.id+"' data-id='"+item.id+"'>前往批阅</div></div>";
-
-    $("#waterfall").append("<li><div class='task' data='"+item.id+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+"</div></li>");
+    var seperator = "";
+    if(num>1)
+        seperator = "<div class='item-separator' style='border-radius:0'></div>";
+    $("#waterfall").append("<li>"+seperator+"<div class='task' data='"+item.eventId+"' data-reader='"+item.openid+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +reader +description + title+"</div></li>");
     num++;
 
-    //注册事件
-    $("div[data='"+item.id+"']").click(function(){
-        //cookie缓存记录当前浏览文章，返回时检查
-        console.log("Publisher::Articles now jump to article.");
-        var expDate = new Date();
-        expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
-        var readingArticle = {
-            id:$(this).attr("data"),//文章id
-            title:$(this).attr("data-title"),//文章标题
-            url:$(this).attr("data-url"),//文章URL
-            startTime: new Date().getTime()//开始时间戳：需要超过10秒
-        };
-               
-        console.log("Publisher::Articles save article to cookie.",readingArticle);
-        $.cookie('sxArticle', JSON.stringify(readingArticle), { expires: expDate, path: '/' });  //把浏览中的文章id写入cookie便于记录阅读数       
+    //查询当前用户对我的阅读数，检查完成后更新到对应条目
+    if(!readmeMap[item.openid]){
+        countReadmeByOpenid(item.openid);
+    }
 
-        //跳转到原始页面完成阅读
-        console.log("Publisher::Articles now jump to article.");
-        //window.location.href = "../index.html";   
-        window.location.href = $(this).attr("data-url");          
+    //查询我对当前用户的阅读数，检查完成后更新到对应条目
+    if(!readtaMap[item.openid]){
+        countReadtaByOpenid(item.openid);
+    }   
+
+    //注册事件:点击整个条目跳转
+    $("div[data='"+item.eventId+"']").click(function(){
+        //跳转到reader的文章列表，根据readerOpenid过滤
+        console.log("Publisher::Reads now jump to reader's article list.");  
+        window.location.href = "articles.html?byOpenid="+$(this).attr("data-reader");          
 
     });
+
+    //注册事件:点击 去看TA 按钮跳转
+    $("#reader-btn-"+item.openid).click(function(){
+        //跳转到reader的文章列表，根据readerOpenid过滤
+        console.log("Publisher::Reads now jump to reader's article list.");  
+        window.location.href = "articles.html?byOpenid="+$(this).attr("id").replace(/reader-btn-/,"");          
+    });
+
 
     // 表示加载结束
     loading = false;

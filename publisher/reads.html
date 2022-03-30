@@ -8,8 +8,8 @@
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
-    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=0.3">
-    <link rel="stylesheet" type="text/css" href="css/articles.css?v=1.4">
+    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=0.4">
+    <link rel="stylesheet" type="text/css" href="css/articles.css?v=1.5">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -35,16 +35,16 @@
     <!-- 按钮 --> 
     <view class="order" id="buttons">      
         <div class="order-cell" id="articles" data-tagging="like view">
-            <img class="order-cell-icon-small" src="images/articles-selected.png"/>
-            <div class="actiontype-selected">文章</div>
+            <img class="order-cell-icon-small" src="images/articles.png"/>
+            <div class="actiontype">文章</div>
         </div>           
         <div class="order-cell" id="accounts" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/accounts.png"/>
             <div class="actiontype">公众号</div>
         </div>   
         <div class="order-cell" id="reads" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/reads.png"/>
-            <div class="actiontype">阅读</div>
+            <img class="order-cell-icon-small" src="images/reads-selected.png"/>
+            <div class="actiontype-selected">阅读</div>
         </div>  
         <div class="order-cell" id="subscribes" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/subscribes.png"/>
@@ -57,14 +57,14 @@
     </view>
 
     <div class="tips" style="line-height: 16px;">
-        阅读10秒后点击底部返回，报数奖励阅豆哦~~ <br/>阅豆越多排名越靠前，还可以<a id="advertiseArticle" href="#" style="font-size: 12px;">置顶</a>
+        阅豆越多排名越靠前，还可以<a id="advertiseArticle" href="#" style="font-size: 12px;">置顶</a>
     </div> 
 
     <div id="Center">
         <ul id="waterfall">
-            <li id="createArtileEntry"><div class='add-new-wrapper' id='createArticleBtn'>
-                    <div class='add-new-logo-wrapper'>+</div>
-                    <div class='add-new-title'>发布文章</div>
+            <li><div style="width:90%;text-align: center;margin:5px auto;display: flex;flex-direction: row;flex-wrap: nowrap;">
+                    <div class='filter-selected' style="width:50%" id="readme">阅我</div>
+                    <div class='filter' style="width:50%" id="readta">阅TA</div>
                 </div>
             </li>            
         </ul>
@@ -94,24 +94,6 @@
     </a>        
   </div>
 
-	<div id="checkform" style="display:none; cursor: default;"> 
-	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">阅读报数</div> 
-	        <input type="number" id="viewNumbers" placeholder="请输入阅读数" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required/> 
-	        <div>
-		        <button type="submit" class="btnNo" id="btnNo">取消</button>	
-				<button type="submit" class="btnYes" id="btnYes">确定</button> 
-	        </div>
-	</div> 
-
-	<div id="articleform" style="display:none; cursor: default;"> 
-	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">粘贴微信文章链接</div> 
-	        <textarea type="url" id="articleUrl" rows="3" placeholder="请输入微信文章URL" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required></textarea> 
-	        <div>
-		        <button type="submit" class="btnNo" id="btnCancel">取消</button>	
-				<button type="submit" class="btnYes" id="btnPublish">确定</button> 
-	        </div>
-	</div> 
-
 </body>
 
 <script type="text/javascript" src="../ext/jquery-1.12.4.min.js"></script>
@@ -125,5 +107,5 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/md5.js?v=1.0"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
-<script type="text/javascript" src="js/articles.js?v=0.7"></script> 
+<script type="text/javascript" src="js/reads.js?v=0.2"></script> 
 </html>
