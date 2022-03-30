@@ -1,22 +1,32 @@
-#btnYes{
+.btnYes{
   border:1px solid green;
   color: green;
-  border-radius: 10px;
+  background-color: #fff;
+  border-radius: 6px;
   min-width: 60px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;  
-  line-height: 1;
+  line-height: 20px;
 }
 
-#btnNo{
+.btnNo{
   border:1px solid red;
   color: red;
-  border-radius: 10px;
+  background-color: #fff;
+  border-radius: 6px;
   min-width: 60px;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;  
-  line-height: 1;
+  line-height: 20px;
 }
+
+input::-webkit-input-placeholder {
+    font-size: 12px;
+}
+textarea::-webkit-input-placeholder {
+    font-size: 12px;
+}
+
 
 
 #qrcode img{

@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
-    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=0.1">
+    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=0.3">
     <link rel="stylesheet" type="text/css" href="css/articles.css?v=1.4">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
@@ -54,7 +54,7 @@
 
     <div id="Center">
         <ul id="waterfall">
-            <li><div class='add-new-wrapper' id='createArticleBtn'>
+            <li id="createArtileEntry"><div class='add-new-wrapper' id='createArticleBtn'>
                     <div class='add-new-logo-wrapper'>+</div>
                     <div class='add-new-title'>发布文章</div>
                 </div>
@@ -88,10 +88,19 @@
 
 	<div id="checkform" style="display:none; cursor: default;"> 
 	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">阅读报数</div> 
-	        <input type="number" id="viewNumbers" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required/> 
+	        <input type="number" id="viewNumbers" placeholder="请输入阅读数" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required/> 
 	        <div>
-		        <button type="submit" class="btn btn-default" id="btnNo">取消</button>	
-				<button type="submit" class="btn btn-default" id="btnYes">确定</button> 
+		        <button type="submit" class="btnNo" id="btnNo">取消</button>	
+				<button type="submit" class="btnYes" id="btnYes">确定</button> 
+	        </div>
+	</div> 
+
+	<div id="articleform" style="display:none; cursor: default;"> 
+	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">粘贴微信文章链接</div> 
+	        <textarea type="url" id="articleUrl" rows="3" placeholder="请输入微信文章URL" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required></textarea> 
+	        <div>
+		        <button type="submit" class="btnNo" id="btnCancel">取消</button>	
+				<button type="submit" class="btnYes" id="btnPublish">确定</button> 
 	        </div>
 	</div> 
 
@@ -108,5 +117,5 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/md5.js?v=1.0"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
-<script type="text/javascript" src="js/articles.js?v=0.3"></script> 
+<script type="text/javascript" src="js/articles.js?v=0.6"></script> 
 </html>

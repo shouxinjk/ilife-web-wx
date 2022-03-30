@@ -42,9 +42,9 @@ $(document).ready(function ()
         changeActionType(e);
     });
 
-    //注册点击创建按钮事件 ：显示新建页面，然后跳转到index.html
+    //注册点击创建按钮事件 ：显示表单
     $("#createArticleBtn").click(function(e){
-        window.location.href="articles-add.html"
+        showArticleForm();
     });
     
     //检查是否有缓存事件
@@ -418,4 +418,149 @@ function logPointCostEvent(article,publisher){
 }
 
 
+//显示发布文章表单
+function showArticleForm(){
+    console.log("show article form.");
+    //显示数据填报表单
+    $.blockUI({ message: $('#articleform'),
+        css:{ 
+            padding:        10, 
+            margin:         0, 
+            width:          '60%', 
+            top:            '40%', 
+            left:           '20%', 
+            textAlign:      'center', 
+            color:          '#000', 
+            border:         '1px solid silver', 
+            backgroundColor:'#fff', 
+            cursor:         'normal' 
+        },
+        overlayCSS:  { 
+            backgroundColor: '#000', 
+            opacity:         0.7, 
+            cursor:          'normal' 
+        }
+    }); 
+    $("#btnCancel").click(function(){
+        $("#articleUrl").css("border","1px solid silver");//恢复标准风格
+        $("#articleUrl").val("");//清空原有数值，避免交叉        
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnPublish").click(function(){//完成阅读后的奖励操作
+        //检查数字url，胡乱填写不可以
+        if( !isUrlValid($("#articleUrl").val()) ){
+            $("#articleUrl").css("border","1px solid red");
+            $("#articleUrl").val("");//清空原有数值，避免交叉
+        }else{
+            console.log("try to submit read event.");
+            submitArticle();
+        }
+    });
+}
+
+//检查url是否符合要求：仅支持微信公众号文章
+//https://mp\.weixin\.qq\.com/s/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]
+/**
+function isUrlValid(url) {
+    return /^(https?|s?ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(url);
+}
+//**/
+function isUrlValid(url) {
+    return /^https:\/\/mp\.weixin\.qq\.com\/s\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$/i.test(url);
+}
+
+//添加文章：获取文章url并提交
+function submitArticle(){
+    var url = $("#articleUrl").val();
+    $("#articleUrl").css("border","1px solid silver");//恢复标准风格
+    $("#articleUrl").val("");//清空原有数值，避免交叉
+    if(!broker){//如果broker不存在，则传递openid，后台会默认创建
+        broker = {
+            openid:userInfo._key,
+            nickname:userInfo.nickName?userInfo.nickName:""
+        };
+    }else if(!broker.id){//如果没有id，也设置openid
+        broker.openid = userInfo._key;
+        broker.nickname = userInfo.nickName?userInfo.nickName:"";
+    }
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxArticle/rest/article",
+        type:"post",
+        data:JSON.stringify({
+            url:url,
+            broker:broker,
+        }),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },        
+        success:function(res){
+            console.log("article submit succeed.",res);
+            $.unblockUI(); //屏幕解锁
+            //将文章显示在自己列表顶部
+            if(res.status){//提示文章已发布
+                if(res.code&&res.code=="duplicate"){
+                    siiimpleToast.message('文章已存在，不需要重复发布哦~~',{
+                          position: 'bottom|center'
+                        });  
+                }else{
+                    toppingItem(res.data);//将文章显示到界面
+                    siiimpleToast.message('发布成功，阅豆越多排名越靠前哦~~',{
+                          position: 'bottom|center'
+                        });  
+                }   
+            }      
+        }
+    })     
+}
+
+//手动置顶指定文章
+function toppingItem(item){
+    if(!item || !item.id){
+        console.log("wrong article");
+        return;
+    }
+    //文章无logo，随机指定一个。设置为发布者LOGO，或者直接忽略
+    logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
+    //由于微信禁止，无法直接使用封面图，需要使用达人图片
+    /**
+    if(item.coverImg){
+        logo = item.coverImg;
+    }
+    //**/
+    //新文章默认显示到顶部：仅在发布者界面
+    var tags = "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>新文首发</span>";
+    var advertise = "";
+
+    var title = "<div class='title'>"+tags+item.title+advertise+"</div>";
+    var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
+    var description = "<div class='description'>"+item.updateDate+"</div>";
+
+    var btns = "<div class='btns'><div id='article-"+item.id+"' data-id='"+item.id+"'>前往批阅</div></div>";
+
+    $("#createArtileEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+"</div></li>");
+
+    //注册事件
+    $("div[data='"+item.id+"']").click(function(){
+        //cookie缓存记录当前浏览文章，返回时检查
+        console.log("Publisher::Articles now jump to article.");
+        var expDate = new Date();
+        expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
+        var readingArticle = {
+            id:$(this).attr("data"),//文章id
+            title:$(this).attr("data-title"),//文章标题
+            url:$(this).attr("data-url"),//文章URL
+            startTime: new Date().getTime()//开始时间戳：需要超过10秒
+        };
+               
+        console.log("Publisher::Articles save article to cookie.",readingArticle);
+        $.cookie('sxArticle', JSON.stringify(readingArticle), { expires: expDate, path: '/' });  //把浏览中的文章id写入cookie便于记录阅读数       
+
+        //跳转到原始页面完成阅读
+        console.log("Publisher::Articles now jump to article.");
+        //window.location.href = "../index.html";   
+        window.location.href = $(this).attr("data-url");          
+
+    });
+}
 
