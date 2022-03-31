@@ -26,8 +26,17 @@ $(document).ready(function ()
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
+    if(args["filter"]){
+        filter = args["filter"]; //如果传入参数则使用传入值：all、byBroker
+    }
+    if(args["byOpenid"]){
+        byOpenid = args["byOpenid"]; //支持传入publisherOpenid
+    }    
 
     $("body").css("background-color","#fff");//更改body背景为白色
+
+    //加载达人信息
+    loadBrokerInfo();
 
     loadPerson(currentPerson);//加载用户
 
@@ -36,15 +45,26 @@ $(document).ready(function ()
         changeActionType(e);
     });
 
-    //注册添加关心的人事件
-    $("#add-persona-type").click(function(){
-        //点击后跳转到对应用户设置界面
-        window.location.href = "my-addpersona.html";//跳转到海报生成界面
-    });     
+    //注册点击创建按钮事件 ：显示表单
+    $("#createArticleBtn").click(function(e){
+        showArticleForm();
+    });
+    
+    //检查是否有缓存事件
+    resultCheck();
+
+    //查询文章总数及阅读总数
+    countReadmeTotal();//查询阅读总数
+    countArticleTotal();//查询文章总数
 
 });
 
 util.getUserInfo();//从本地加载cookie
+
+var byOpenid = null;
+
+//设置默认logo
+var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
 
 var columnWidth = 800;//默认宽度600px
 var columnMargin = 5;//默认留白5px
@@ -52,9 +72,11 @@ var loading = false;
 var dist = 500;
 var num = 1;//需要加载的内容下标
 
+var filter = "all";//my、all。数据查询规则：默认为查询全部
+
 var items = [];//所有画像列表
 var page = {
-    size:20,//每页条数
+    size:10,//每页条数
     total:1,//总页数
     current:-1//当前翻页
 };
@@ -65,93 +87,176 @@ var tagging = '';//操作对应的action 如buy view like 等
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;
 var userInfo=app.globalData.userInfo;//默认为当前用户
 
-setInterval(function ()
-{
-    console.log("Timer Broker::MySettings start load personas.");
-    if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+var currentBroker = null;
+var broker = {};//当前达人
+
+var sxTimer = null;
+var sxStartTimestamp=new Date().getTime();//定时器如果超过2分
+var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
+
+//优先从cookie加载达人信息
+function loadBrokerInfo(){
+  broker = util.getBrokerInfo();
+  currentBroker = broker.id;
+}
+
+function registerTimer(brokerId){
+    currentBroker = brokerId;
+    sxTimer = setInterval(function ()
     {
-        console.log("Broker::MySettings start load personas.");
-        // 表示开始加载
-        loading = true;
-        showloading(true);
+        //console.log("Articles::registerTimer.");
+        if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+        {
+            console.log("Articles::registerTimer start load article.");
+            // 表示开始加载
+            loading = true;
+            showloading(true);
 
-        // 加载内容
-        if(items.length < num){//如果内容未获取到本地则继续获取
-            loadItems();
-        }else{//否则使用本地内容填充
-            insertItem();
+            // 加载内容
+            if(items.length < num){//如果内容未获取到本地则继续获取
+                console.log("request articles from server side.");
+                //读取待阅读列表
+                loadItems();
+                //有用户操作则恢复计数器
+                console.log("reset loop count.");
+                sxLoopCount = 100;                
+            }else{//否则使用本地内容填充
+                console.log("insert article item from locale.");
+                insertItem();
+            }
         }
-    }
-}, 60);
 
-//加载特定于达人的画像列表
+        //计数器自减，到时即停止
+        /**
+        if(--sxLoopCount<0){
+            unregisterTimer();
+        }
+        //**/
+    }, 100);
+}
+
+function unregisterTimer(){
+    console.log("clear timer.");
+    clearInterval(sxTimer);
+}
+
+
+/*
+根据当前用户openid加载已发布文章列表：按照最后修改时间倒序排列
+*/
 function loadItems(){
-    var query={
-            collection: "persona_personas", 
-            example: { 
-                broker:userInfo.openId
-            },
-            skip:(page.current+1)*page.size,
-            limit:page.size
-        };   
-    var header={
-        "Content-Type":"application/json",
-        Authorization:"Basic aWxpZmU6aWxpZmU="
-    }; 
-    util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
+    util.AJAX(app.config.sx_api+"/wx/wxArticle/rest/my-articles/"+userInfo._key, function (res) {
         showloading(false);
-        console.log("Broker::My::loadItems try to retrive personas by broker id.", res)
-        if(res && res.count==0){//如果没有画像则提示，
+        console.log("Publisher::Articles::loadItems try to retrive my articles.", res)
+        if(res && res.length==0){//如果没有画像则提示，
             shownomore();
         }else{//否则显示到页面
             //更新当前翻页
             page.current = page.current + 1;
             //装载具体条目
-            var hits = res.result;
+            var hits = res;
             for(var i = 0 ; i < hits.length ; i++){
                 items.push(hits[i]);
             }
             insertItem();
         }
-    }, "PUT",query,header);
+    }, 
+    "GET",
+    {
+        from:(page.current+1)*page.size,
+        to:(page.current+1)*page.size+page.size
+    },
+    {});
 }
 
 //将item显示到页面
 function insertItem(){
     // 加载内容
     var item = items[num-1];
-
-    //计算文字高度：按照1倍行距计算
-    //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.image+"' width='50' height='50' class='persona-logo'/>"
-    var tagTmpl = "<div class='persona-tag'>__TAG</div>";
-    var tags = "<div class='persona-tags'>";
-    var taggingList = item.tags;
-    for(var t in taggingList){
-        var txt = taggingList[t];
-        if(txt.trim().length>1 && txt.trim().length<6){
-            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
-        }
+    if(!item){
+        shownomore(true);
+        return;
     }
-    if(item.categoryId && item.categoryId.trim().length>1){
-        tags += tagTmpl.replace("__TAGGING",item.category).replace("__TAG",item.category);
-    }
-    tags += "</div>";
-    //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
-    var title = "<div class='persona-title'>"+item.name+"</div>"
-    var description = "<div class='persona-description'>"+item.description+"</div>"    
-    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +description+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
 
+    //文章无logo，随机指定一个。设置为发布者LOGO，或者直接忽略
+    logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
+    //由于微信禁止，无法直接使用封面图，需要使用达人图片
+    /**
+    if(item.coverImg){
+        logo = item.coverImg;
+    }
+    //**/
+    //判断有无置顶广告位
+    var tags = "";
+    if(item.advertise){//如果有广告位则显示置顶
+        tags += "<span style='margin:2px auto;padding:2px;border:1px solid red;color:red;border-radius:16px;font-size:12px;line-height:20px;'>置顶</span>";
+    }
+    tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>置顶</span>";
+    var advertise = "<img src='https://www.biglistoflittlethings.com/ilife-web-wx/images/rocket.png' width='16' height='16'/>&nbsp;";
+
+    var title = "<div class='title'>"+item.title+"</div>";
+    var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
+    var description = "<div class='description'>"+item.updateDate+"</div>";
+
+    var btns = "";
+    //置顶：购买广告位
+    btns += '<button type="submit" class="action-tag-orange" id="btnTopping'+item.id+'">置顶</button> ';   
+    //顶一下：用阅豆临时置顶，时间10分钟
+    btns += '<button type="submit" class="action-tag-orange" id="btnCall'+item.id+'">顶一下</button> ';      
+    //上架、下架
+    if(item.status=="active"){
+        btns += '<button type="submit" class="action-tag-black" id="btnDeactive'+item.id+'">下架</button> ';
+        btns += '<button type="submit" class="action-tag-orange" style="display:none" id="btnActive'+item.id+'">上架</button> ';
+    }else{
+        btns += '<button type="submit" class="action-tag-black" style="display:none" id="btnDeactive'+item.id+'">下架</button> ';
+        btns += '<button type="submit" class="action-tag-orange" id="btnActive'+item.id+'">上架</button> ';
+    }
+    //置顶明细：弹出显示置顶明细列表，包括置顶及顶一下
+    btns += '<button type="submit" class="action-tag-black" id="btnToppingHistory'+item.id+'">置顶明细</button> ';   
+    //开白明细：弹出显示开白明细列表
+    btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';           
+    //报数明细：能够查看报数历史
+    btns += '<button type="submit" class="action-tag-black" id="btnReadHistory'+item.id+'">报数明细</button> ';     
+    var btnsDiv = "<div class='btns' style='display:flex;flex-direction:row;flex-wrap:nowrap;margin-top:5px;'>"+btns+"</div>";    
+
+    var seperator = "";
+    if(num>1)
+        seperator = "<div class='item-separator' style='border-radius:0'></div>";
+
+    $("#waterfall").append("<li>"+seperator+"<div class='task' data='"+item.id+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+btnsDiv+"</div></li>");
     num++;
 
     //注册事件
-    $("div[data='"+item._key+"']").click(function(){
-        //跳转到详情页
-        window.location.href = "my-updatepersona.html?personaId="+item._key;
+    $("#btnDeactive"+item.id).click(function(){ //下架      
+        changeArticleStatus($(this).attr("id").replace(/btnDeactive/,""),"inactive");
     });
+    $("#btnActive"+item.id).click(function(){ //上架   
+        changeArticleStatus($(this).attr("id").replace(/btnActive/,""),"active");
+    });        
 
     // 表示加载结束
     loading = false;
+}
+
+//修改文章状态
+function changeArticleStatus(articleId,status){
+    console.log("try to change article status.",userInfo._key);
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxArticle/rest/article/"+articleId+"/"+status,
+        type:"post",
+        success:function(res){
+            console.log("status changed.",res);
+            if(res.status){//修改按钮状态
+                if(status=="active"){
+                    $("#btnDeactive"+articleId).css("display","block");
+                    $("#btnActive"+articleId).css("display","none");
+                }else{
+                    $("#btnDeactive"+articleId).css("display","none");
+                    $("#btnActive"+articleId).css("display","block");
+                }
+            }
+        }
+    })   
 }
 
 //load person
@@ -181,34 +286,12 @@ function loadBrokerByOpenid(openid) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
         if (res.status) {
+            $.cookie('sxBroker', JSON.stringify(res.data), {  path: '/' });     
+            broker = res.data; 
             insertBroker(res.data);//显示达人信息
-            //loadData();//加载下级达人列表
-            if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示
-                showQRcode(res.data.qrcodeUrl);
-            }else{//否则请求生成后显示
-                requestQRcode(res.data);
-            }
+            registerTimer(res.data.id);//加载该达人的board列表
         }
     });
-}
-
-//请求生成二维码
-function requestQRcode(broker) {
-    console.log("try to request QRCode.[broker]",broker);
-    util.AJAX(app.config.auth_api+"/wechat/ilife/qrcode?brokerId="+broker.id, function (res) {
-        console.log("Generate QRCode successfully.",res);
-        if (res.status) {
-            showQRcode(res.data.url);//显示二维码
-            //将二维码URL更新到borker
-            broker.qrcodeUrl = res.data.url;
-            updateBroker(broker);
-        }
-    });
-}
-
-//显示二维码
-function showQRcode(url) {
-    $("#qrcode").html('<img src="'+url+'" width="200px" alt="分享二维码邀请达人加入"/>');
 }
 
 function insertPerson(person){
@@ -226,12 +309,13 @@ function insertPerson(person){
 }
 
 function insertBroker(broker){
-    $("#brokerHint").html("达人级别："+broker.level);
+    $("#brokerHint").html("流量主");
 }
 
 //显示没有更多内容
 function shownomore(flag){
   if(flag){
+    unregisterTimer();
     $("#footer").toggleClass("footer-hide",false);
     $("#footer").toggleClass("footer-show",true);
   }else{
@@ -272,4 +356,327 @@ function changeActionType (e) {
     //跳转到相应页面
     window.location.href = currentActionType+".html";
 }
+
+//检查阅读效果：如果检查到有cookie，则显示阅读数确认框
+function resultCheck(){
+    var articleInfo = $.cookie('sxArticle');
+    console.log("load articleInfo from cookie.",articleInfo);
+    if(articleInfo && articleInfo.trim().length>0){
+        console.log("get articleInfo info from cookie.",articleInfo);
+        var article = JSON.parse(articleInfo);
+        //检查时间是否已达到10秒
+        var duration = new Date().getTime() - Number(article.startTime);
+        if( duration > 10000){
+            //显示数据填报表单
+            $.blockUI({ message: $('#checkform'),
+                css:{ 
+                    padding:        10, 
+                    margin:         0, 
+                    width:          '60%', 
+                    top:            '40%', 
+                    left:           '20%', 
+                    textAlign:      'center', 
+                    color:          '#000', 
+                    border:         '1px solid silver', 
+                    backgroundColor:'#fff', 
+                    cursor:         'normal' 
+                },
+                overlayCSS:  { 
+                    backgroundColor: '#000', 
+                    opacity:         0.7, 
+                    cursor:          'normal' 
+                }
+            }); 
+            $("#btnNo").click(function(){
+                $.cookie('sxArticle', "", { path: '/' }); //清除cookie重新来过
+                $.unblockUI(); 
+            });
+            $("#btnYes").click(function(){//完成阅读后的奖励操作
+                //检查数字：必填。TODO：此处需要判断是否胡乱填报
+                var readCount = Number($("#viewNumbers").val());
+                if(readCount <=0 ){
+                    $("#viewNumbers").css("border","1px solid red");
+                }else{
+                    console.log("try to submit read event.");
+                    $.cookie('sxArticle', "", { path: '/' }); //清除cookie重新来过
+                    costPoints(article);
+                }
+            });
+        }else{//提示超过10秒才可以
+            console.log("不到10秒，不能奖励",duration/1000);
+            siiimpleToast.message('亲，要超过10秒才能奖励阅豆哦~~',{
+                  position: 'bottom|center'
+                });
+            //清除cookie重新来过
+            $.cookie('sxArticle', "", { path: '/' });  
+        }
+    }else{
+      console.log("no article from cookie.",articleInfo);
+    }
+}
+
+//完成阅读扣除及奖励
+function costPoints(article){
+    //先扣除阅豆
+    console.log("try to commit read event.",userInfo._key);
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxArticle/rest/exposure/"+article.id+"/"+userInfo._key,
+        type:"post",
+        success:function(res){
+            console.log("cost point succeed.",res);
+            logPointCostEvent(article,res);//记录本次阅读历史
+            //解除屏幕锁屏
+            $.unblockUI(); 
+        }
+    })      
+}
+
+//记录文章阅读历史：publisher内包含有文章发布者信息：openid,brokerId,nickname,avatarUrl 消耗的点数points
+//需要补全：阅读者openid，nickname，avatarUrl，阅读时间，阅读报数，文章ID
+//记录ID为：文章ID+阅读者openid md5
+function logPointCostEvent(article,publisher){
+    var readCount = Number($("#viewNumbers").val());
+    $("#viewNumbers").css("border","1px solid silver");//恢复标准风格
+    $("#viewNumbers").val("");//清空原有数值，避免交叉
+    $.ajax({
+        url:app.config.analyze_api+"?query=insert into ilife.reads values ('"+hex_md5(article.id+userInfo._key)+"','"+
+            publisher.openid+"','"+
+            publisher.brokerId+"','"+
+            publisher.nickname+"','"+
+            publisher.avatarUrl+"','"+
+            userInfo._key+"','"+
+            userInfo.nickname+"','"+
+            userInfo.avatarUrl+"','"+
+            article.id+"','"+
+            article.title+"','"+
+            article.url+"',"+
+            publisher.points+","+readCount+",now())",
+        type:"post",
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(json){
+            console.log("===reads inserted===\n",json);
+            //从当前列表中删除该文章
+            $("div[data='"+article.id+"']").remove();
+        }
+    });     
+}
+
+
+//显示发布文章表单
+function showArticleForm(){
+    console.log("show article form.");
+    //显示数据填报表单
+    $.blockUI({ message: $('#articleform'),
+        css:{ 
+            padding:        10, 
+            margin:         0, 
+            width:          '60%', 
+            top:            '40%', 
+            left:           '20%', 
+            textAlign:      'center', 
+            color:          '#000', 
+            border:         '1px solid silver', 
+            backgroundColor:'#fff', 
+            cursor:         'normal' 
+        },
+        overlayCSS:  { 
+            backgroundColor: '#000', 
+            opacity:         0.7, 
+            cursor:          'normal' 
+        }
+    }); 
+    $("#btnCancel").click(function(){
+        $("#articleUrl").css("border","1px solid silver");//恢复标准风格
+        $("#articleUrl").val("");//清空原有数值，避免交叉        
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnPublish").click(function(){//完成阅读后的奖励操作
+        //检查数字url，胡乱填写不可以
+        if( !isUrlValid($("#articleUrl").val()) ){
+            $("#articleUrl").css("border","1px solid red");
+            $("#articleUrl").val("");//清空原有数值，避免交叉
+        }else{
+            console.log("try to submit read event.");
+            submitArticle();
+        }
+    });
+}
+
+//检查url是否符合要求：仅支持微信公众号文章
+//https://mp\.weixin\.qq\.com/s/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]
+/**
+function isUrlValid(url) {
+    return /^(https?|s?ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(url);
+}
+//**/
+function isUrlValid(url) {
+    return /^https:\/\/mp\.weixin\.qq\.com\/s\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$/i.test(url);
+}
+
+//添加文章：获取文章url并提交
+function submitArticle(){
+    var url = $("#articleUrl").val();
+    $("#articleUrl").css("border","1px solid silver");//恢复标准风格
+    $("#articleUrl").val("");//清空原有数值，避免交叉
+    if(!broker){//如果broker不存在，则传递openid，后台会默认创建
+        broker = {
+            openid:userInfo._key,
+            nickname:userInfo.nickName?userInfo.nickName:""
+        };
+    }else if(!broker.id){//如果没有id，也设置openid
+        broker.openid = userInfo._key;
+        broker.nickname = userInfo.nickName?userInfo.nickName:"";
+    }
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxArticle/rest/article",
+        type:"post",
+        data:JSON.stringify({
+            url:url,
+            broker:broker,
+        }),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },        
+        success:function(res){
+            console.log("article submit succeed.",res);
+            $.unblockUI(); //屏幕解锁
+            //将文章显示在自己列表顶部
+            if(res.status){//提示文章已发布
+                if(res.code&&res.code=="duplicate"){
+                    siiimpleToast.message('文章已存在，不需要重复发布哦~~',{
+                          position: 'bottom|center'
+                        });  
+                }else{
+                    toppingItem(res.data);//将文章显示到界面
+                    siiimpleToast.message('发布成功，阅豆越多排名越靠前哦~~',{
+                          position: 'bottom|center'
+                        });  
+                }   
+            }      
+        }
+    })     
+}
+
+//手动置顶指定文章
+function toppingItem(item){
+    if(!item || !item.id){
+        console.log("wrong article");
+        return;
+    }
+    //文章无logo，随机指定一个。设置为发布者LOGO，或者直接忽略
+    logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
+    //由于微信禁止，无法直接使用封面图，需要使用达人图片
+    /**
+    if(item.coverImg){
+        logo = item.coverImg;
+    }
+    //**/
+    //新文章默认显示到顶部：仅在发布者界面
+    var tags = "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>新文首发</span>";
+    var advertise = "";
+
+    var title = "<div class='title'>"+tags+item.title+advertise+"</div>";
+    var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
+    var description = "<div class='description'>"+item.updateDate+"</div>";
+
+    var btns = "";
+    //置顶：购买广告位
+    btns += '<button type="submit" class="action-tag-orange" id="btnTopping'+item.id+'">置顶</button> ';   
+    //顶一下：用阅豆临时置顶，时间10分钟
+    btns += '<button type="submit" class="action-tag-orange" id="btnCall'+item.id+'">顶一下</button> ';       
+    //上架、下架
+    if(item.status=="active"){
+        btns += '<button type="submit" class="action-tag-black" id="btnDeactive'+item.id+'">下架</button> ';
+        btns += '<button type="submit" class="action-tag-orange" style="display:none" id="btnActive'+item.id+'">上架</button> ';
+    }else{
+        btns += '<button type="submit" class="action-tag-black" style="display:none" id="btnDeactive'+item.id+'">下架</button> ';
+        btns += '<button type="submit" class="action-tag-orange" id="btnActive'+item.id+'">上架</button> ';
+    }
+    //置顶明细：弹出显示置顶明细列表，包括置顶及顶一下
+    btns += '<button type="submit" class="action-tag-black" id="btnToppingHistory'+item.id+'">置顶明细</button> ';   
+    //开白明细：弹出显示开白明细列表
+    btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';      
+    //报数明细：能够查看报数历史
+    btns += '<button type="submit" class="action-tag-black" id="btnReadHistory'+item.id+'">报数明细</button> ';     
+    var btnsDiv = "<div class='btns' style='display:flex;flex-direction:row;flex-wrap:nowrap;margin-top:5px;'>"+btns+"</div>";    
+
+    var seperator = "<div class='item-separator' style='border-radius:0'></div>";
+
+    $("#createArtileEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+btnsDiv+"</div>"+seperator+"</li>");
+
+    //注册事件
+    $("div[data='"+item.id+"']").click(function(){
+        //cookie缓存记录当前浏览文章，返回时检查
+        console.log("Publisher::Articles now jump to article.");
+        var expDate = new Date();
+        expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
+        var readingArticle = {
+            id:$(this).attr("data"),//文章id
+            title:$(this).attr("data-title"),//文章标题
+            url:$(this).attr("data-url"),//文章URL
+            startTime: new Date().getTime()//开始时间戳：需要超过10秒
+        };
+               
+        console.log("Publisher::Articles save article to cookie.",readingArticle);
+        $.cookie('sxArticle', JSON.stringify(readingArticle), { expires: expDate, path: '/' });  //把浏览中的文章id写入cookie便于记录阅读数       
+
+        //跳转到原始页面完成阅读
+        console.log("Publisher::Articles now jump to article.");
+        //window.location.href = "../index.html";   
+        window.location.href = $(this).attr("data-url");          
+
+    });
+}
+
+//查询阅我总数：排除自己的阅读
+var totalReadme = 0;
+function countReadmeTotal(){
+    $.ajax({
+        url:app.config.analyze_api+"?query=select count(eventId) as totalCount from ilife.reads where publisherOpenid='"+userInfo._key+"' and readerOpenid!='"+userInfo._key+"' format JSON",
+        type:"get",
+        //async:false,
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(res){
+            console.log("Publisher::My::countReadmeTotal try to retrive readme count.", res)
+            if(res && res.rows==0){//无法回直接忽略
+                //do nothing
+            }else{//如果大于0则更新到页面
+                //if(res.data[0].totalCount>0){
+                    var oldTxt = $("#myArticleFilter").text();
+                    totalReadme = res.data[0].totalCount;
+                    $("#myArticleFilter").text("文章(总"+totalArticles+"阅"+totalReadme+")");
+                //}
+            }
+        }
+    }); 
+}
+
+//查询文章总数
+var totalArticles = 0;
+function countArticleTotal(){
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxArticle/rest/total-articles/"+userInfo._key,
+        type:"get",        
+        success:function(res){
+            console.log("got article count.",res);
+            if(res.status && res.count){//显示到界面
+                var oldTxt = $("#myArticleFilter").text(); 
+                totalArticles = res.count;
+                $("#myArticleFilter").text("文章(总"+totalArticles+"阅"+totalReadme+")");             
+            }      
+        }
+    }) 
+}
+
+
+
+
+
 
