@@ -49,6 +49,15 @@ $(document).ready(function ()
     $("#createArticleBtn").click(function(e){
         showArticleForm();
     });
+    //点击购买按钮：创建支付信息并发起微信支付
+    $("#btnPurchase").click(function(e){
+        createPayInfo();
+    });
+    //点击取消按钮：清空已选广告列表、清空已售列表、解除锁屏
+    $("#btnQuitPurchase").click(function(e){
+        clearAds();
+        $.unblockUI(); 
+    });    
     
     //检查是否有缓存事件
     resultCheck();
@@ -56,6 +65,9 @@ $(document).ready(function ()
     //查询文章总数及阅读总数
     countReadmeTotal();//查询阅读总数
     countArticleTotal();//查询文章总数
+
+    //加载广告位：仅加载可用广告位
+    loadAds();
 
 });
 
@@ -232,8 +244,10 @@ function insertItem(){
     });
     $("#btnActive"+item.id).click(function(){ //上架   
         changeArticleStatus($(this).attr("id").replace(/btnActive/,""),"active");
-    });        
-
+    });       
+    $("#btnTopping"+item.id).click(function(){ //无敌置顶：要花钱的那种 
+        loadSoldAds($(this).attr("id").replace(/btnTopping/,""));//需要传递当前文章ID
+    }); 
     // 表示加载结束
     loading = false;
 }
@@ -673,6 +687,250 @@ function countArticleTotal(){
             }      
         }
     }) 
+}
+
+//加载显示广告位：查询可用广告位后按照日期、时间段展示
+var selectedAds = {};//记录选中的广告价格明细：key为广告位分组，组织形式：日期__广告位ID；价格为单一数值
+//var selectedAdNames = {};//记录选中的广告位明细：key为广告位分组，组织形式：日期__广告位ID；名称为：日期-时间-广告位
+var allAds = [];//所有可用广告位列表。提前加载后缓存，显示时需要根据购买情况过滤。是json对象数组
+var soldAds = [];//已售卖广告位列表。在显示前直接查询得到。是单值组织的广告位，组织形式：日期__广告位ID
+function loadAds(){
+    //查询得到文章置顶广告位
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxAdvertise/rest/ads/article",
+        type:"get",        
+        success:function(res){
+            console.log("got available article ads.",res);
+            allAds = res;
+            //注意：此处仅提前加载所有广告位清单。用户点击后才查询已售广告位，并显示到界面
+            //showAds(res); //根据返回的广告位列表展示：包括3个连续日期。TODO：由于需要检查购买情况，在触发置顶操作后再显示
+        }
+    }) 
+}
+
+//加载已购买广告位：需要一次性查询连续3天的已购买情况
+//直接返回所有已购买列表：需要组装为可检索模式
+var tmpAdQuantity = {};//记录可重复售卖广告的quantity，key为 展示日期+广告位ID，形式为2022-04-01xxxxxx，value为 quantity
+var tmpAdSoldCount = {};//记录可重复售卖广告的实际售卖数量，key为 展示日期+广告位ID，形式为2022-04-01xxxxxx，，value为 sold。该值需要统计得到
+var toppingArticleId = null;//记录当前待置顶文章ID
+function loadSoldAds(articleId){
+    console.log("try to check ads for article.",articleId);
+    toppingArticleId = articleId;
+    //查询得到临近3天的已售卖广告位
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxPaymentAd/rest/sold-in-advance/3",//需要取几天可直接传递
+        //async:false,//注意是同步调用
+        type:"get",        
+        success:function(res){
+            console.log("got sold ads.",res);
+            //需要过滤。根据quantity进行。对于quantity为1的，直接组装广告位加入soldAds列表，对于quantity>1的情况，需要通过缓存计算后判定
+            res.forEach(function(json){
+                var adId = json.advertiseDate+json.advertise.id; //将展示日期及广告位ID组合作为唯一识别码，形式：2020-04-01xxxxxx
+                if(json.advertise.quantity==1){//仅有一个广告位的情况，直接加入已售完列表
+                    soldAds.push(adId);
+                }else if(json.advertise.quantity>1){//加入临时存储，需要进行统计计算
+                    tmpAdQuantity[adId]=json.advertise.quantity;//记录广告位可卖数量
+                    //累计该广告位的实际售卖数量
+                    if(!tmpAdSoldCount[adId]){
+                        tmpAdSoldCount[adId] = 1;
+                    }
+                    tmpAdSoldCount[adId] = tmpAdSoldCount[adId] + 1;
+                    console.log("tmpAdSoldCount",tmpAdSoldCount);
+                    //判断是否已经达到可售数量
+                    if(tmpAdSoldCount[adId]>=json.advertise.quantity){//加入已售完列表
+                        soldAds.push(adId);
+                    }
+                }else{//其他直接忽略
+                    //数量小于1？
+                }
+            });
+            //显示广告到界面
+            showAds(articleId);
+        }
+    }) 
+}
+
+//将广告显示到界面，供选择
+//遍历availableAds，逐条显示：先根据时间段判断对应时段div是否已存在，否的话直接添加，然后在时间段下添加广告位
+//对于当前日期：当前时间以前的均不显示，仅显示当前时间以后的。区分可买与已售
+//对于其他日期：显示所有条目，区分可买与已售
+//点选事件：点选后需要更新广告位记录，包括日期、广告位ID、价格；及名称。点选后需要汇总所有已选中广告价格
+function showAds(){
+    //得到连续3天的时间
+    var preSaleDates = [];
+    var currentTimestamp = new Date().getTime();//获取毫秒时间
+    preSaleDates.push(new Date(currentTimestamp));//今天
+    preSaleDates.push(new Date(currentTimestamp+24*60*60*1000));//明天
+    preSaleDates.push(new Date(currentTimestamp+2*24*60*60*1000));//后天
+
+    //将日期映射到：今天、明天、后天，与展示元素标签对应
+    var dateMapping = {};
+    dateMapping[DateFormatter.format('%m-%d', new Date(currentTimestamp))] = "today";
+    dateMapping[DateFormatter.format('%m-%d', new Date(currentTimestamp+24*60*60*1000))] = "tomorrow";
+    dateMapping[DateFormatter.format('%m-%d', new Date(currentTimestamp+2*24*60*60*1000))] = "aftertomorror";
+
+    //根据广告位逐条、逐天显示
+    allAds.forEach(function(item){
+        //console.log("try show ad.",item);
+        //逐天显示
+        preSaleDates.forEach(function(dateEntry){
+            //根据指定日期，以及广告时间段组装开始时间
+            //开始时间
+            var advertiseDate = dateEntry;
+            var advertiseTime = item.timeSlotFrom.split(":");//显示形式为00:00:00，取前两段即可
+            advertiseDate.setHours(Number(advertiseTime[0]));
+            advertiseDate.setMinutes(Number(advertiseTime[1]));
+            advertiseDate.setSeconds(Number(advertiseTime[2]));
+            //结束时间
+            //var advertiseDate2 = dateEntry;//如果多个对象引用dateEntry，数据会被覆盖，需要重新构建对象
+            var advertiseDate2 = new Date();
+            advertiseDate2.setFullYear(dateEntry.getFullYear());
+            advertiseDate2.setMonth(dateEntry.getMonth());
+            advertiseDate2.setDate(dateEntry.getDate());
+            var advertiseTime2 = item.timeSlotTo.split(":");//显示形式为00:00:00，取前两段即可
+            advertiseDate2.setHours(Number(advertiseTime2[0]));
+            advertiseDate2.setMinutes(Number(advertiseTime2[1]));
+            advertiseDate2.setSeconds(Number(advertiseTime2[2]));        
+            //判断是否是未来时间    
+            if(advertiseDate.getTime()>new Date().getTime()){//仅对未来时间展示
+                //检查所在分组的时间段是否已显示
+                var advertiseTimeSlotKey = DateFormatter.format('%m-%d-%H-%i-%s', advertiseDate);
+                //console.log("advertiseDate",advertiseDate,item.timeSlotFrom);
+                //console.log("advertiseDate2",advertiseDate2,item.timeSlotTo);
+                var advertiseTimeSlotName = DateFormatter.format('%m-%d %H:%i', advertiseDate)+"至"+DateFormatter.format('%H:%i', advertiseDate2);//显示为：02-03 07:00至08:00
+                if ($('#slotWrapper'+advertiseTimeSlotKey).length <= 0) { //如果不存在则创建
+                    var advertiseTimeSlotHtml = "<div id='slotWrapper"+advertiseTimeSlotKey+"'><div class='adslot-name' id='slotName"+advertiseTimeSlotKey+"'>"+advertiseTimeSlotName+"</div><div class='adslot-grid' id='slot"+advertiseTimeSlotKey+"'></div></div>";
+                    $("#tabs-"+dateMapping[DateFormatter.format('%m-%d', advertiseDate)]).append(advertiseTimeSlotHtml);
+                }
+                //显示可用广告位：显示为radio，id为slotkey+广告位id，group为slotkey
+                var advertiseSpotKey = advertiseTimeSlotKey+item.id;
+                var spotTips = "￥"+item.price;
+                var disabled = "";
+                //判断是否已售
+                if(soldAds.indexOf(DateFormatter.format('%Y-%m-%d', advertiseDate)+item.id)>=0){//形式为 2020-04-01xxxxx
+                    spotTips = "已抢";
+                    if(item.quantity>1){//如果是多坑位
+                        spotTips = "满坑";
+                    }
+                    disabled = "disabled";
+                }
+                var advertiseSpotHtml = "";
+                advertiseSpotHtml += '<div class="adspot-block">';
+                advertiseSpotHtml += '<input type="radio" class="adspot-input" id="'+advertiseSpotKey+'" data-adid="'+item.id+'" data-addate="'+DateFormatter.format('%Y-%m-%d', advertiseDate)+'" name="'+advertiseTimeSlotKey+'" value="'+item.price+'" '+disabled+'>';
+                advertiseSpotHtml += '<label  class="adspot-label" for="'+advertiseSpotKey+'">'+item.name+" "+spotTips+'</label>';
+                advertiseSpotHtml += '</div>';
+                $("#slot"+advertiseTimeSlotKey).append(advertiseSpotHtml);
+                
+                //注册点击事件
+                $("#"+advertiseSpotKey).click(function(){
+                    console.log("choose advertise spot",$(this).attr("id"),$(this).val());
+                    //更新到已选广告列表内
+                    selectedAds[$(this).attr("id")]={
+                        date:$(this).attr("data-addate"),//展示日期：2022-04-01
+                        id:$(this).attr("data-adid"),//广告位ID
+                        price:Number($(this).val())
+                    };
+                    //计算广告金额汇总
+                    var totalAmount = 0;
+                    for (var key in selectedAds){
+                        totalAmount += selectedAds[key].price;
+                        //处理四舍五入
+                        totalAmount = Math.floor(totalAmount * 100) / 100;
+                    }   
+                    //更新到底部汇总区域
+                    console.log("total amount calculated.",totalAmount);
+                    $("#totalAmountTips").text("总计："+totalAmount);
+                    $("#totalAmount").val(totalAmount);
+                });
+            }else{//直接忽略
+                console.log("passed time. ignore.",advertiseDate);
+            }
+        });
+    });
+
+    //显示tabs
+    $( "#adTabs" ).tabs();
+
+    //显示广告购买表单
+    $.blockUI({ message: $('#adPurchaseForm'),
+        css:{ 
+            padding:        10, 
+            margin:         0, 
+            width:          '80%', 
+            top:            '10%', 
+            left:           '10%', 
+            textAlign:      'center', 
+            color:          '#000', 
+            border:         '1px solid silver', 
+            backgroundColor:'#fff', 
+            cursor:         'normal' 
+        },
+        overlayCSS:  { 
+            backgroundColor: '#000', 
+            opacity:         0.7, 
+            cursor:          'normal' 
+        }
+    });    
+}
+
+//清空广告及显示：在点击取消或购买完成后均需清空
+function clearAds(){
+    selectedAds = {};//清空已选广告列表
+    soldAds = [];//清空已售广告列表     
+    tmpAdQuantity = {};//清空一位多卖记录
+    tmpAdSoldCount = {};//清空一位多卖实际出售记录
+    toppingArticleId = null;//清空当前文章ID
+    $("#tabs-today").empty();
+    $("#tabs-tomorrow").empty();
+    $("#tabs-aftertomorror").empty();    
+}
+
+//下单：通过后台生成支付预订单，在获取prepay_id后调用js支付
+function createPayInfo(){
+    $.ajax({
+        url:app.config.sx_api+"/wxPay/rest/payinfo",
+        type:"post", 
+        data:JSON.stringify({
+            openid:userInfo._key,
+            out_trade_no:hex_md5(userInfo._key+"article"+toppingArticleId+(new Date().getTime())),
+            total_fee:Number($("#totalAmount").val())*100,//单位为分
+            body:"内容展示及排序服务",
+            trade_type:"JSAPI",
+            spbill_create_ip:""//returnCitySN.cip//查询得到本机ip地址
+
+        }),    
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },             
+        success:function(res){
+            console.log("got wechat payinfo.",res);
+            if(res.success){
+                console.log("try to start wechat pay.",res);
+                //payOrder(res.data);
+            }
+        }
+    }) 
+}
+
+//支付：发起微信支付提交购买。支付成功后创建购买记录
+function payOrder(payInfo){
+    wx.chooseWXPay({
+      timestamp: 0, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+      nonceStr: '', // 支付签名随机串，不长于 32 位
+      package: '', // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
+      signType: '', // 微信支付V3的传入RSA,微信支付V2的传入格式与V2统一下单的签名格式保持一致
+      paySign: '', // 支付签名
+      success: function (res) {
+        // 支付成功后的回调函数
+      }
+    });
+}
+
+//创建已购买的广告位
+//提交数据包括：达人ID或达人openid，文章ID，已选广告列表。支付结果数据
+function submitPurchasedAds(){
+
 }
 
 

@@ -117,6 +117,52 @@
   line-height: 12px;
 }
 
+.adslot-tips{
+  font-size:10px;
+  text-align: left;
+  line-height: 14px;
+}
+.adslot-date{
+  font-size: 10px;
+  height: 400px;
+  overflow: auto;
+}
+.adslot-name{
+  font-size: 12px;
+  font-weight:bold;
+  text-align: left;
+  width:100%;
+  border-bottom: 1px solid silver;
+  margin:2px auto;
+  margin-top:5px;
+}
+.adslot-grid{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  text-align: left;
+  justify-content: flex-start;
+}
+.adspot-block{
+    width: calc((100% - 10px) / 3);  
+    min-width: calc((100% - 10px) / 3);
+    max-width: calc((100% - 10px) / 3); 
+    &:nth-child(3n) { 
+      margin-right: 0;
+    }
+}
+.adspot-label{
+  height:12px;
+  line-height:14px;
+  text-align:center;
+  vertical-align:middle;
+}
+.adspot-input{
+  vertical-align:middle;
+  background-color: #ff0000;
+  display: inline-block;  
+}
+
 .item-separator{
   /*position: relative;*/
 }

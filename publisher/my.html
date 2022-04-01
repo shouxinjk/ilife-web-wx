@@ -6,14 +6,16 @@
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="../ext/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
-    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=0.5">
+    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=0.8">
     <link rel="stylesheet" type="text/css" href="css/articles.css?v=1.5">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
+    <script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
 </head>
 
 <body>
@@ -99,7 +101,7 @@
         <div class="menu-btn-txt-selected">&nbsp;流量主</div>
     </a>        
   </div>
-
+    <!--阅读报数表单-->
 	<div id="checkform" style="display:none; cursor: default;"> 
 	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">阅读报数</div> 
 	        <input type="number" id="viewNumbers" placeholder="请输入阅读数" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required/> 
@@ -108,7 +110,7 @@
 				<button type="submit" class="btnYes" id="btnYes">确定</button> 
 	        </div>
 	</div> 
-
+    <!--新增文章表单-->
 	<div id="articleform" style="display:none; cursor: default;"> 
 	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">粘贴微信文章链接</div> 
 	        <textarea type="url" id="articleUrl" rows="3" placeholder="仅支持手机微信文章URL" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required></textarea> 
@@ -118,18 +120,42 @@
 	        </div>
 	</div> 
 
+    <!--广告购买-->
+    <div id="adPurchaseForm" style="display:none; cursor: default;">
+        <div id="adTabs" style="margin-top:5px">
+            <ul>
+                <li><a href="#tabs-today">今天</a></li>
+                <li><a href="#tabs-tomorrow">明天</a></li>
+                <li><a href="#tabs-aftertomorror">后天</a></li>
+            </ul>  
+            <div id="tabs-today" class="adslot-date"></div>  
+            <div id="tabs-tomorrow" class="adslot-date"></div>   
+            <div id="tabs-aftertomorror" class="adslot-date"></div>    
+        </div>
+        <div>
+            <div class="adslot-tips">可同时选择多个时间段哦</div> 
+            <div class="adslot-tips" id="totalAmountTips">总计：0</div> 
+        </div>        
+        <div>
+            <input id="totalAmount" type="hidden" value="0"/>
+            <button type="submit" class="btnNo" id="btnQuitPurchase">取消</button>  
+            <button type="submit" class="btnYes" id="btnPurchase">提交</button> 
+        </div>
+    </div>
 </body>
 
 <script type="text/javascript" src="../ext/jquery-1.12.4.min.js"></script>
 <script type="text/javascript" src="../ext/jquery.validate.min.js"></script>
+<script type="text/javascript" src="../ext/date-formatter.js"></script>
 <script type="text/javascript" src="../ext/siiimple-toast-master/main.js"></script>
 <script type="text/javascript" src="../ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="../ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="../ext/jquery-ui.min.js"></script>
 <script type="text/javascript" src="../js/newWaterfall.js"></script>
 <script type="text/javascript" src="../js/swiper.min.js"></script>
 <script type="text/javascript" src="../js/jquery.cookie.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/md5.js?v=1.0"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
-<script type="text/javascript" src="js/my.js?v=0.5"></script> 
+<script type="text/javascript" src="js/my.js?v=1.1"></script> 
 </html>
