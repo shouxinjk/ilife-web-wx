@@ -151,6 +151,9 @@
       margin-right: 0;
     }
 }
+.adspot-disabled{
+  color:silver;
+}
 .adspot-label{
   height:12px;
   line-height:14px;
@@ -180,6 +183,75 @@
     -webkit-transform: scaleY(0.5);
     transform: scaleY(0.5);
     /*z-index: 2;*/
+}
+.poor-topping-div{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  text-align: left;
+  justify-content: flex-start;
+}
+.poor-topping-block{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    text-align: center;
+    margin:5px 2px;
+    line-height: 60px;
+    padding:auto 0;
+    width: calc((100% - 10px) / 2);  
+    min-width: calc((100% - 10px) / 2);
+    max-width: calc((100% - 10px) / 2); 
+    &:nth-child(2n) { 
+      margin-right: 0;
+    }
+}
+.poor-topping-enabled{
+  font-size: 16px;
+  font-weight: bold;
+  border: 1px solid #e16531;
+  border-radius: 5px;
+  color:#e16531;
+}
+.poor-topping-disabled{
+  font-size: 16px;
+  font-weight: bold;
+  border: 1px solid silver;
+  border-radius: 5px;
+  color:silver;
+}
+.poor-topping-name{
+  margin-top:10px;
+}
+.poor-topping-price{
+  margin-bottom:10px;
+  font-size:10px;
+  line-height: 20px;
+}
+
+.upcoming-item{
+  font-size: 11px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+.upcoming-date{
+  line-height: 16px;
+  width:24%;
+}
+.upcoming-time{
+  line-height: 16px;
+  width:40%;
+}
+.upcoming-advertise{
+  line-height: 16px;
+  width:18%;
+}
+.upcoming-type{
+  line-height: 16px;
+  width:18%;
 }
 
 .btnYes{

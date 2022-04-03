@@ -51,14 +51,48 @@ $(document).ready(function ()
     });
     //点击购买按钮：创建支付信息并发起微信支付
     $("#btnPurchase").click(function(e){
-        createPayInfo();
+        //createPayInfo();
+        //以下仅用于测试后端API
+        var wxPayResultMock = {
+            out_trade_no:"test"+new Date().getTime(),
+            result_code:"SUCCESS"           
+        };
+        purchaseAd(wxPayResultMock);
+        //测试代码结束
     });
     //点击取消按钮：清空已选广告列表、清空已售列表、解除锁屏
     $("#btnQuitPurchase").click(function(e){
         clearAds();
         $.unblockUI(); 
-    });    
-    
+    });   
+
+    //取消临时置顶表单 
+    $("#btnCancelPoorTopping").click(function(e){
+        //清空html内容：每次需要动态生成
+        $("#poorToppingDiv").empty();
+        $.unblockUI(); 
+    });
+    //从临时置顶表单直接进入无敌置顶
+    $("#btnOkUpcomingTopping1").click(function(e){
+       $("#poorToppingDiv").empty();
+        $.unblockUI(); 
+        //显示购买表单：需要有时间间隔，否则会导致原有html元素被一并隐藏删除
+        setTimeout(function(){loadSoldAds(toppingArticleId);},500);//继续沿用当前文章ID
+    });      
+
+    //取消查看置顶明细
+    $("#btnCancelUpcomingTopping").click(function(e){
+        $("#upcomingToppingDiv").html('<div style="line-height: 30px;font-size: 12px;">没有待置顶记录哦，赶紧设置吧~~</div>');
+        $.unblockUI(); 
+    }); 
+    //从置顶明细表单直接进入无敌置顶
+    $("#btnOkUpcomingTopping2").click(function(e){
+        $("#upcomingToppingDiv").html('<div style="line-height: 30px;font-size: 12px;">没有待置顶记录哦，赶紧设置吧~~</div>');
+        $.unblockUI(); 
+        //显示购买表单：需要有时间间隔，否则会导致原有html元素被一并隐藏删除
+        setTimeout(function(){loadSoldAds(toppingArticleId);},500);//继续沿用当前文章ID
+    });           
+
     //检查是否有缓存事件
     resultCheck();
 
@@ -214,7 +248,7 @@ function insertItem(){
     //置顶：购买广告位
     btns += '<button type="submit" class="action-tag-orange" id="btnTopping'+item.id+'">置顶</button> ';   
     //顶一下：用阅豆临时置顶，时间10分钟
-    btns += '<button type="submit" class="action-tag-orange" id="btnCall'+item.id+'">顶一下</button> ';      
+    btns += '<button type="submit" class="action-tag-orange" id="btnPoorTopping'+item.id+'">顶一下</button> ';      
     //上架、下架
     if(item.status=="active"){
         btns += '<button type="submit" class="action-tag-black" id="btnDeactive'+item.id+'">下架</button> ';
@@ -248,6 +282,12 @@ function insertItem(){
     $("#btnTopping"+item.id).click(function(){ //无敌置顶：要花钱的那种 
         loadSoldAds($(this).attr("id").replace(/btnTopping/,""));//需要传递当前文章ID
     }); 
+    $("#btnPoorTopping"+item.id).click(function(){ //临时置顶：不花钱的那种 
+        showPoorToppingForm($(this).attr("id").replace(/btnPoorTopping/,""));//需要传递当前文章ID
+    }); 
+    $("#btnToppingHistory"+item.id).click(function(){ //显示当前文章的置顶明细
+        showUpcomingToppings($(this).attr("id").replace(/btnToppingHistory/,""));//需要传递当前文章ID
+    });          
     // 表示加载结束
     loading = false;
 }
@@ -733,8 +773,9 @@ function loadSoldAds(articleId){
                     //累计该广告位的实际售卖数量
                     if(!tmpAdSoldCount[adId]){
                         tmpAdSoldCount[adId] = 1;
+                    }else{
+                        tmpAdSoldCount[adId] = tmpAdSoldCount[adId] + 1;
                     }
-                    tmpAdSoldCount[adId] = tmpAdSoldCount[adId] + 1;
                     console.log("tmpAdSoldCount",tmpAdSoldCount);
                     //判断是否已经达到可售数量
                     if(tmpAdSoldCount[adId]>=json.advertise.quantity){//加入已售完列表
@@ -791,7 +832,7 @@ function showAds(){
             advertiseDate2.setHours(Number(advertiseTime2[0]));
             advertiseDate2.setMinutes(Number(advertiseTime2[1]));
             advertiseDate2.setSeconds(Number(advertiseTime2[2]));        
-            //判断是否是未来时间    
+            //判断是否是未来时间：另一种方案:根据advertiseDate2进行判断，能够支持立即购买    
             if(advertiseDate.getTime()>new Date().getTime()){//仅对未来时间展示
                 //检查所在分组的时间段是否已显示
                 var advertiseTimeSlotKey = DateFormatter.format('%m-%d-%H-%i-%s', advertiseDate);
@@ -804,8 +845,9 @@ function showAds(){
                 }
                 //显示可用广告位：显示为radio，id为slotkey+广告位id，group为slotkey
                 var advertiseSpotKey = advertiseTimeSlotKey+item.id;
-                var spotTips = "￥"+item.price;
+                var spotTips = "￥"+item.price/100;
                 var disabled = "";
+                var spotStyle = "";
                 //判断是否已售
                 if(soldAds.indexOf(DateFormatter.format('%Y-%m-%d', advertiseDate)+item.id)>=0){//形式为 2020-04-01xxxxx
                     spotTips = "已抢";
@@ -813,9 +855,10 @@ function showAds(){
                         spotTips = "满坑";
                     }
                     disabled = "disabled";
+                    spotStyle="adspot-disabled"
                 }
                 var advertiseSpotHtml = "";
-                advertiseSpotHtml += '<div class="adspot-block">';
+                advertiseSpotHtml += '<div class="adspot-block '+spotStyle+'">';
                 advertiseSpotHtml += '<input type="radio" class="adspot-input" id="'+advertiseSpotKey+'" data-adid="'+item.id+'" data-addate="'+DateFormatter.format('%Y-%m-%d', advertiseDate)+'" name="'+advertiseTimeSlotKey+'" value="'+item.price+'" '+disabled+'>';
                 advertiseSpotHtml += '<label  class="adspot-label" for="'+advertiseSpotKey+'">'+item.name+" "+spotTips+'</label>';
                 advertiseSpotHtml += '</div>';
@@ -824,8 +867,8 @@ function showAds(){
                 //注册点击事件
                 $("#"+advertiseSpotKey).click(function(){
                     console.log("choose advertise spot",$(this).attr("id"),$(this).val());
-                    //更新到已选广告列表内
-                    selectedAds[$(this).attr("id")]={
+                    //更新到已选广告列表内：注意要根据广告时段存储，一个时段只能有一个
+                    selectedAds[$(this).attr("name")]={
                         date:$(this).attr("data-addate"),//展示日期：2022-04-01
                         id:$(this).attr("data-adid"),//广告位ID
                         price:Number($(this).val())
@@ -833,13 +876,13 @@ function showAds(){
                     //计算广告金额汇总
                     var totalAmount = 0;
                     for (var key in selectedAds){
-                        totalAmount += selectedAds[key].price;
+                        totalAmount += selectedAds[key].price;//单位为分，是整数，直接相加
                         //处理四舍五入
-                        totalAmount = Math.floor(totalAmount * 100) / 100;
+                        //totalAmount = Math.floor(totalAmount * 100) / 100;
                     }   
                     //更新到底部汇总区域
                     console.log("total amount calculated.",totalAmount);
-                    $("#totalAmountTips").text("总计："+totalAmount);
+                    $("#totalAmountTips").text("总计："+totalAmount/100);
                     $("#totalAmount").val(totalAmount);
                 });
             }else{//直接忽略
@@ -927,10 +970,184 @@ function payOrder(payInfo){
     });
 }
 
-//创建已购买的广告位
+//创建已购买的广告位：仅在支付成功后提交。其他不做考虑：如果支付取消，或中途退出？？
 //提交数据包括：达人ID或达人openid，文章ID，已选广告列表。支付结果数据
-function submitPurchasedAds(){
+function purchaseAd(wxPayResult){
+    //将selectedAds转化为数组
+    var purchasedAds = [];
+    for (var key in selectedAds){
+        purchasedAds.push(selectedAds[key]);
+    }
+    //提交购买记录
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxPaymentAd/rest/purchase",
+        type:"post", 
+        data:JSON.stringify({
+            brokerId:(broker&&broker.id)?broker.id:"",
+            brokerOpenid:userInfo._key,
+            subjectType:"article",
+            subjectId:toppingArticleId,
+            ads:purchasedAds,
+            out_trade_no:wxPayResult.out_trade_no,
+            result_code:wxPayResult.result_code
+        }),    
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },             
+        success:function(res){
+            console.log("ad purchased.",res);
+            clearAds();
+            $.unblockUI(); 
+            if(res.success){//不处理重复购买的情况
+                siiimpleToast.message('恭喜，购买成功，置顶已安排~~',{
+                      position: 'bottom|center'
+                    });                
+            }
+        }
+    });
+}
 
+//显示临时置顶表单。能够选择置顶方案：根据阅豆消耗
+function showPoorToppingForm(articleId){
+    toppingArticleId = articleId;
+    //根据阅读显示方案。阅豆不足的显示灰色：10阅豆、20阅豆
+    var products={//key值为指定阅豆数，同时也是置顶分钟数
+        "10":"置顶10分钟",
+        "20":"置顶20分钟",
+        "30":"置顶30分钟",
+        "60":"置顶1小时"
+    };
+    //显示置顶选项
+    for (var key in products){
+        var enabled = "poor-topping-enabled";
+        var priceTip = "";
+        if(broker&&broker.points<Number(key)){
+            enabled = "poor-topping-disabled";
+            priceTip = "(阅豆不足)";
+        }
+        var html = "<div class='poor-topping-block "+enabled+"' id='poorTopping"+key+"' data-duration='"+key+"' data-points='"+key+"'>"
+        +"<div class='poor-topping-name'>"+products[key]+"</div>"
+        +"<div class='poor-topping-price'>消耗 "+key+" 阅豆"+priceTip+"</div>"
+        +"</div>";
+        $("#poorToppingDiv").append(html);
+        //注册点击事件：仅在点数支持时才能点击
+        if(broker&&broker.points>=Number(key)){
+            $("#poorTopping"+key).click(function(){
+                insertPoorTopping(articleId,Number($(this).attr("data-points")),Number($(this).attr("data-duration")));
+            });
+        }
+    }    
+
+    //显示临时置顶表单
+    $.blockUI({ message: $('#poorToppingForm'),
+        css:{ 
+            padding:        10, 
+            margin:         0, 
+            width:          '80%', 
+            top:            '10%', 
+            left:           '10%', 
+            textAlign:      'center', 
+            color:          '#000', 
+            border:         '1px solid silver', 
+            backgroundColor:'#fff', 
+            cursor:         'normal' 
+        },
+        overlayCSS:  { 
+            backgroundColor: '#000', 
+            opacity:         0.7, 
+            cursor:          'normal' 
+        }
+    });     
+}
+
+//新增临时置顶。需要选择置顶方案，提供10豆、20豆、30豆、60豆等
+function insertPoorTopping(articleId,points,duration){
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxTopping/rest/poor-topping/article",
+        type:"post", 
+        data:JSON.stringify({
+            brokerId:(broker&&broker.id)?broker.id:"",
+            brokerOpenid:userInfo._key,
+            points:points,//阅豆数
+            advertiseDate:new Date(),//即时生效
+            advertiseDuration:duration*60*1000,//毫秒数
+            subjectType:"article",
+            subjectId:articleId
+        }),    
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },             
+        success:function(res){
+            console.log("poor topping inserted.",res);
+            $.unblockUI(); //解除锁屏
+            $("#poorToppingDiv").empty();//清空原有内容
+            //提示信息
+            siiimpleToast.message('恭喜，置顶已安排~~',{
+                  position: 'bottom|center'
+                });             
+        }
+    });    
+}
+
+//显示尚未开始的置顶明细，包括当前正在置顶的条目
+function showUpcomingToppings(articleId){
+    toppingArticleId = articleId;
+    //查询并显示即将到来的置顶
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxTopping/rest/upcoming",
+        type:"get", 
+        data:{//以下均为必须参数，可以置空
+            brokerId:(broker&&broker.id)?broker.id:"",
+            brokerOpenid:userInfo._key,
+            advertiseType:"",//不限制广告类型
+            subjectType:"article",
+            subjectId:articleId
+        },    
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },             
+        success:function(list){
+            console.log("got upcoming topping records.",list);
+            if(list.length>0){
+                $("#upcomingToppingDiv").empty();
+            }
+            //逐条显示
+            list.forEach(function(item){
+                //日期、开始时间、截止时间、置顶类型 DateFormatter.format('%m-%d-%H-%i-%s', advertiseDate)
+                var html = "";
+                html += "<div class='upcoming-item'>";
+                html += "<div class='upcoming-date'>"+item.advertiseDate.split(" ")[0]+"</div>";
+                html += "<div class='upcoming-time'>"+item.advertiseTimeFrom.split(" ")[1].substr(0,5)+" 至 "+item.advertiseTimeTo.split(" ")[1].substr(0,5)+"</div>";
+                html += "<div class='upcoming-advertise'>"+(item.advertise?item.advertise.name:"排队坑位")+"</div>";
+                html += "<div class='upcoming-type'>"+(item.advertiseType=="money"?"无敌置顶":"顶一下")+"</div>";
+                html += "</div>";
+                $("#upcomingToppingDiv").append(html);
+            });
+            //显示置顶明细表单
+            $.blockUI({ message: $('#upcomingToppingForm'),
+                css:{ 
+                    padding:        10, 
+                    margin:         0, 
+                    width:          '80%', 
+                    top:            '10%', 
+                    left:           '10%', 
+                    textAlign:      'center', 
+                    color:          '#000', 
+                    border:         '1px solid silver', 
+                    backgroundColor:'#fff', 
+                    cursor:         'normal' 
+                },
+                overlayCSS:  { 
+                    backgroundColor: '#000', 
+                    opacity:         0.7, 
+                    cursor:          'normal' 
+                }
+            }); 
+        }
+    });
 }
 
 
