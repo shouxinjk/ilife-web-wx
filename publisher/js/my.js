@@ -258,7 +258,7 @@ function insertItem(){
     tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>置顶</span>";
     var advertise = "<img src='https://www.biglistoflittlethings.com/ilife-web-wx/images/rocket.png' width='16' height='16'/>&nbsp;";
 
-    var title = "<div class='title'>"+item.title+"</div>";
+    var title = "<div class='title' id='title"+item.id+"'>"+item.title+"</div>";
     var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
     var description = "<div class='description'>"+item.updateDate+"</div>";
 
@@ -291,7 +291,7 @@ function insertItem(){
     num++;
 
     //注册事件
-    $("div[data='"+item.id+"']").click(function(){
+    $("#title"+item.id).click(function(){
         //cookie缓存记录当前浏览文章，返回时检查：自己发布的文章不做记录
         /**
         console.log("Publisher::Articles now jump to article.");
@@ -707,7 +707,7 @@ function toppingItem(item){
     $("#createArtileEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+btnsDiv+"</div>"+seperator+"</li>");
 
     //注册事件
-    $("div[data='"+item.id+"']").click(function(){
+    $("#title"+item.id).click(function(){
         //cookie缓存记录当前浏览文章，返回时检查：自己发布的文章不做记录
         /**
         console.log("Publisher::Articles now jump to article.");

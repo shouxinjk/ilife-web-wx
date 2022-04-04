@@ -403,6 +403,10 @@ function costPoints(article){
             logPointCostEvent(article,res);//记录本次阅读历史
             //解除屏幕锁屏
             $.unblockUI(); 
+            //提示阅读已完成
+            siiimpleToast.message('已奖励阅豆，读过的文章将不再显示哦~~',{
+                  position: 'bottom|center'
+                });            
         }
     })      
 }
