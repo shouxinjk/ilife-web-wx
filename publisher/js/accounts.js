@@ -507,15 +507,12 @@ function isOriginalIdValid(originalId) {
 
 //添加公众号：获取名称、描述、原始ID
 function submitAccount(){
-    var originalId = $("#accountOriginalId").val();
+    var originalId = $("#accountOriginalId").val().trim();
     $("#accountOriginalId").css("border","1px solid silver");//恢复标准风格
-    $("#accountOriginalId").val("");//清空原有数值，避免交叉
-    var name = $("#accountName").val();
+    var name = $("#accountName").val().trim();
     $("#accountName").css("border","1px solid silver");//恢复标准风格
-    $("#accountName").val("");//清空原有数值，避免交叉
-    var desc = $("#accountDesc").val()+"";
-    $("#accountDesc").css("border","1px solid silver");//恢复标准风格
-    $("#accountDesc").val("");//清空原有数值，避免交叉        
+    var desc = $("#accountDesc").val().trim()+"";
+    $("#accountDesc").css("border","1px solid silver");//恢复标准风格       
     if(!broker){//如果broker不存在，则传递openid，后台会默认创建
         broker = {
             openid:userInfo._key,
@@ -542,6 +539,10 @@ function submitAccount(){
         success:function(res){
             console.log("account submit succeed.",res);
             $.unblockUI(); //屏幕解锁
+            //清空数据
+            $("#accountOriginalId").val("");//清空原有数值，避免交叉
+            $("#accountName").val("");//清空原有数值，避免交叉   
+            $("#accountDesc").val("");//清空原有数值，避免交叉          
             //将公众号显示在自己列表顶部
             if(res.status){//提示文章已发布
                 if(res.code&&res.code=="duplicate"){
@@ -583,11 +584,12 @@ function toppingItem(item){
 
     var title = "<div class='title'>"+tags+item.name+advertise+"</div>";
     var imageBg = "<div id='qrcodeimg"+item.id+"' class='qrcodeimg'></div>";
-    var description = "<div class='description'>"+item.updateDate+"</div>";
+    var description = "<div class='description'>"+item.description+"</div>";
+    var pubishDate = "<div class='description'>"+item.updateDate+"</div>";
 
     var btns = "<div class='btns'><div id='article-"+item.id+"' data-id='"+item.id+"'>前往关注</div></div>";
 
-    $("#createArtileEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.name+"' data-url='"+logo+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+"</div></li>");
+    $("#createAccountEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.name+"' data-url='"+logo+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+pubishDate+"</div></li>");
 
     //设置背景图片
     $("#qrcodeimg"+item.id).css("background-image","url("+logo+")");

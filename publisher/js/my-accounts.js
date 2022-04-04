@@ -273,7 +273,8 @@ function insertItem(){
     var title = "<div class='title' id='title"+item.id+"'>"+item.name+"</div>";
     //var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
     var imageBg = "<div id='qrcodeimg"+item.id+"' class='qrcodeimg'></div>";
-    var description = "<div class='description'>"+item.updateDate+"</div>";
+    var description = item.description&&item.description.trim().length>0?"<div class='description'>"+item.description+"</div>":"";
+    var publishDate = "<div class='description'>"+item.updateDate+"</div>";
 
     var btns = "";
     //置顶：购买广告位
@@ -300,7 +301,7 @@ function insertItem(){
     if(num>1)
         seperator = "<div class='item-separator' style='border-radius:0'></div>";
 
-    $("#waterfall").append("<li>"+seperator+"<div class='task' data='"+item.id+"' data-title='"+item.name+"' data-url='"+item.url+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+btnsDiv+"</div></li>");
+    $("#waterfall").append("<li>"+seperator+"<div class='task' data='"+item.id+"' data-title='"+item.name+"' data-url='"+item.url+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+publishDate+btnsDiv+"</div></li>");
     num++;
 
     //设置背景图片
@@ -587,16 +588,25 @@ function showAccountForm(){
         $.unblockUI(); //直接取消即可
     });
     $("#btnPublish").click(function(){//发布公众号
+        var valid = true;
         if(!$("#accountName").val() || $("#accountName").val().trim().length==0){
             $("#accountName").css("border","1px solid red");
             $("#accountName").val("");//清空原有数值，避免交叉
-        }else if(!isOriginalIdValid($("#accountOriginalId").val())){
+            valid = false;
+        }
+        if(!isOriginalIdValid($("#accountOriginalId").val())){
             $("#accountOriginalId").css("border","1px solid red");
             $("#accountOriginalId").val("");//清空原有数值，避免交叉
-        }else if(!$("#accountDesc").val() || $("#accountDesc").val().trim().length==0){
+            valid = false;
+        }
+        /**
+        if(!$("#accountDesc").val() || $("#accountDesc").val().trim().length==0){
             $("#accountDesc").css("border","1px solid red");
             $("#accountDesc").val("");//清空原有数值，避免交叉
-        }else{
+            valid = false;
+        }
+        //**/
+        if(valid){
             console.log("try to submit subscribe event.");
             submitAccount();
         }
@@ -612,15 +622,12 @@ function isOriginalIdValid(originalId) {
 
 //添加公众号：获取名称、描述、原始ID
 function submitAccount(){
-    var originalId = $("#accountOriginalId").val();
+    var originalId = $("#accountOriginalId").val().trim();
     $("#accountOriginalId").css("border","1px solid silver");//恢复标准风格
-    $("#accountOriginalId").val("");//清空原有数值，避免交叉
-    var name = $("#accountName").val();
+    var name = $("#accountName").val().trim();
     $("#accountName").css("border","1px solid silver");//恢复标准风格
-    $("#accountName").val("");//清空原有数值，避免交叉
-    var desc = $("#accountDesc").val();
-    $("#accountDesc").css("border","1px solid silver");//恢复标准风格
-    $("#accountDesc").val("");//清空原有数值，避免交叉        
+    var desc = $("#accountDesc").val().trim();
+    $("#accountDesc").css("border","1px solid silver");//恢复标准风格      
     if(!broker){//如果broker不存在，则传递openid，后台会默认创建
         broker = {
             openid:userInfo._key,
@@ -635,7 +642,8 @@ function submitAccount(){
         type:"post",
         data:JSON.stringify({
             name:name,
-            desc:desc,
+            description:desc,
+            qrcodeImg:"https://open.weixin.qq.com/qr/code?username="+originalId,
             originalId:originalId,
             broker:broker,
         }),//注意：不能使用JSON对象
@@ -644,8 +652,12 @@ function submitAccount(){
             "Accept": "application/json"
         },        
         success:function(res){
-            console.log("account submit succeed.",res);
+            console.log("account submit succeed.",res);                 
             $.unblockUI(); //屏幕解锁
+            //清空数据
+            $("#accountOriginalId").val("");//清空原有数值，避免交叉
+            $("#accountName").val("");//清空原有数值，避免交叉   
+            $("#accountDesc").val("");//清空原有数值，避免交叉              
             //将公众号显示在自己列表顶部
             if(res.status){//提示文章已发布
                 if(res.code&&res.code=="duplicate"){
@@ -685,9 +697,10 @@ function toppingItem(item){
     var tags = "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>新公众号首发</span>";
     var advertise = "";
 
-    var title = "<div class='title'>"+tags+item.title+advertise+"</div>";
+    var title = "<div class='title'>"+tags+item.name+advertise+"</div>";
     var imageBg = "<div id='qrcodeimg"+item.id+"' class='qrcodeimg'></div>";
-    var description = "<div class='description'>"+item.updateDate+"</div>";
+    var description = item.description&&item.description.trim().length>0?"<div class='description'>"+item.description+"</div>":"";
+    var publishDate = "<div class='description'>"+item.updateDate+"</div>";
 
     var btns = "";
     //置顶：购买广告位
@@ -712,7 +725,7 @@ function toppingItem(item){
 
     var seperator = "<div class='item-separator' style='border-radius:0'></div>";
 
-    $("#createArtileEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+btnsDiv+"</div>"+seperator+"</li>");
+    $("#createAccountEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.name+"' data-url='"+item.url+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+publishDate+btnsDiv+"</div>"+seperator+"</li>");
 
     //设置背景图片
     $("#qrcodeimg"+item.id).css("background-image","url("+logo+")");
