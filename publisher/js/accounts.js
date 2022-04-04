@@ -55,9 +55,12 @@ $(document).ready(function ()
     	$("#pendingAccountQrcode").empty();
 		$.unblockUI(); 
     });
+    $("#btnYesSubscribe").click(function(){//完成关注确认
+        resultCheck();       	
+    });    
     
     //检查是否有缓存事件
-    resultCheck();
+    //resultCheck();
 
 });
 
@@ -385,6 +388,20 @@ function resultCheck(){
     if(accountInfo && accountInfo.trim().length>0){
         console.log("get accountInfo info from cookie.",accountInfo);
         var account = JSON.parse(accountInfo);
+        console.log("try to submit subscribe event.");
+        $.cookie('sxAccount', "", { path: '/' }); //清除cookie重新来过
+        costPoints(account);        	
+    }else{
+      console.log("no accountInfo from cookie.",accountInfo);
+    }
+}
+/**
+function resultCheck(){
+    var accountInfo = $.cookie('sxAccount');
+    console.log("load accountInfo from cookie.",accountInfo);
+    if(accountInfo && accountInfo.trim().length>0){
+        console.log("get accountInfo info from cookie.",accountInfo);
+        var account = JSON.parse(accountInfo);
         //显示二维码到界面：如果未关注，再给一次机会
         $("#pendingAccountQrcode").append("<img src='"+$(this).attr("data-url")+"' width='200' height='200'/>"); 
         $("#btnNoSubscribe").click(function(){
@@ -400,6 +417,7 @@ function resultCheck(){
       console.log("no accountInfo from cookie.",accountInfo);
     }
 }
+//**/
 
 //完成订阅扣除及奖励
 function costPoints(account){
@@ -451,6 +469,7 @@ function logPointCostEvent(account,subscriber){
         success:function(json){
             console.log("===subscribes inserted===\n",json);
             //从当前列表中删除该文章
+            $("#pendingAccountQrcode").empty();//清除二维码图片
             $("div[data='"+account.id+"']").remove();
         }
     });     
