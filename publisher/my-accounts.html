@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>流量主-小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="../ext/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
+    <link rel="stylesheet" type="text/css" href="../css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=0.88">
+    <link rel="stylesheet" type="text/css" href="css/articles.css?v=1.5">
+    <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
+    <script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+</head>
+
+<body>
+    <!--div class="header">
+        <div class="search">
+            <span>MAN生活</span>
+            <input placeholder=" 小确幸,大生活">
+        </div>
+    </div-->
+
+    <!-- 导航菜单 -->
+    <!--div class="nav">
+        <ul class="navUl">
+        </ul>
+    </div-->   
+
+    <!-- 用户信息 --> 
+    <view class="info" id="user"></view>
+    <!-- 按钮 --> 
+    <view class="order" id="buttons">      
+        <div class="order-cell" id="articles" data-tagging="like view">
+            <img class="order-cell-icon-small" src="images/articles.png"/>
+            <div class="actiontype">文章</div>
+        </div>           
+        <div class="order-cell" id="accounts" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/accounts.png"/>
+            <div class="actiontype">公众号</div>
+        </div>   
+        <div class="order-cell" id="reads" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/reads.png"/>
+            <div class="actiontype">阅读</div>
+        </div>  
+        <div class="order-cell" id="subscribes" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/subscribes.png"/>
+            <div class="actiontype">关注</div>
+        </div>                  
+        <div class="order-cell" id="my" data-tagging="share">
+            <img class="order-cell-icon-small" src="images/my-selected.png"/>
+            <div class="actiontype-selected">我的</div>
+        </div>                                    
+    </view>
+
+    <div class="tips" style="line-height: 16px;">
+        阅豆越多排名越靠前，可以置顶。还可以<a href="../broker/team.html">邀请助力</a>
+    </div> 
+
+    <div style="width:90%;text-align: center;margin:5px auto;display: flex;flex-direction: row;flex-wrap: nowrap;">
+        <div class='filter' style="width:50%" id="myArticleFilter">文章</div>
+        <div class='filter-selected' style="width:50%" id="myAccountFilter">公众号</div>
+    </div>
+
+    <!--文章列表。提供上架、下架、顶一下、置顶功能-->
+    <div id="Center">
+        <ul id="waterfall">    
+            <li id="createAccountEntry"><div class='add-new-wrapper' id='createAccountBtn'>
+                    <div class='add-new-logo-wrapper'>+</div>
+                    <div class='add-new-title'>发布公众号</div>
+                </div>
+            </li>                
+        </ul>
+    </div>
+
+    <!-- 加载进度与提示 -->
+    <div class="loading-hide" id="loading">
+        <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
+    </div>
+
+    <div id="footer" class="footer-hide">
+        我是有底线的
+    </div>  
+
+    <div style="height:60px;">
+        &nbsp;&nbsp;
+    </div> 
+
+  <div id="sx-menu">
+    <a href="../index.html" class="menu-btn">
+        <img src="../images/smile-happy.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;推荐</div>
+    </a>
+    <a href="../feeds.html" class="menu-btn">
+        <img src="../images/biglist.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;发现</div>
+    </a>
+    <a href="broker.html" class="menu-btn">
+        <img src="../images/my-selected.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt-selected">&nbsp;流量主</div>
+    </a>        
+  </div>
+
+    <!--新增文章表单-->
+    <div id="accountform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">发布微信公众号</div> 
+            <input type="text" id="accountName"  placeholder="请输入公众号名称。必填。" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required/>
+            <input type="text" id="accountOriginalId"  placeholder="公众号ID：gh_xxxxxxx。必填。" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required/>
+            <textarea type="text" id="accountDesc" rows="3" placeholder="简要描述。可选。" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;"></textarea> 
+            <div>
+                <button type="submit" class="btnNo" id="btnCancel">取消</button>  
+                <button type="submit" class="btnYes" id="btnPublish">确定</button> 
+            </div>
+    </div> 
+
+    <!--广告购买-->
+    <div id="adPurchaseForm" style="display:none; cursor: default;">
+        <div style="font-size: 12px;font-weight: bold;">无敌置顶卡</div>
+        <div id="adTabs" style="margin-top:5px">
+            <ul>
+                <li><a href="#tabs-today">今天</a></li>
+                <li><a href="#tabs-tomorrow">明天</a></li>
+                <li><a href="#tabs-aftertomorror">后天</a></li>
+            </ul>  
+            <div id="tabs-today" class="adslot-date"></div>  
+            <div id="tabs-tomorrow" class="adslot-date"></div>   
+            <div id="tabs-aftertomorror" class="adslot-date"></div>    
+        </div>
+        <div>
+            <div class="adslot-tips">可同时选择多个时间段哦</div> 
+            <div class="adslot-tips" id="totalAmountTips">总计：0</div> 
+        </div>        
+        <div>
+            <input id="totalAmount" type="hidden" value="0"/>
+            <button type="submit" class="btnNo" id="btnQuitPurchase">取消</button>  
+            <button type="submit" class="btnYes" id="btnPurchase">提交</button> 
+        </div>
+    </div>
+
+    <!--临时置顶-->
+    <div id="poorToppingForm" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">顶一下让更多人看到</div> 
+            <div id="poorToppingDiv" class="poor-topping-div">
+                
+            </div>
+            <div>
+                <button type="submit" class="btnNo" id="btnCancelPoorTopping">取消</button> 
+                <button type="submit" class="btnYes" id="btnOkUpcomingTopping1">无敌置顶</button>  
+            </div>
+    </div> 
+
+    <!--置顶明细列表-->
+    <div id="upcomingToppingForm" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">即将置顶列表</div> 
+            <div id="upcomingToppingDiv"><div style="line-height: 30px;font-size: 12px;">没有待置顶记录哦，赶紧设置吧~~</div></div>  
+            <div>
+                <button type="submit" class="btnNo" id="btnCancelUpcomingTopping">取消</button>  
+                <button type="submit" class="btnYes" id="btnOkUpcomingTopping2">无敌置顶</button> 
+            </div>
+    </div> 
+
+    <!--关注明细列表-->
+    <div id="subscribesForm" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">关注明细列表</div> 
+            <div id="subscribesDiv"><div style="line-height: 30px;font-size: 12px;">还没有关注记录哦，尝试获得更多阅豆或置顶吧~~</div></div>  
+            <div>
+                <button type="submit" class="btnNo" id="btnCancelSubscribes">取消</button>  
+                <button type="submit" class="btnYes" id="btnOkSubscribes">无敌置顶</button> 
+            </div>
+    </div> 
+
+    <!--充值-->
+    <div id="chargeForm" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">充值阅豆</div> 
+            <div id="chargeDiv" class="poor-topping-div">
+                
+            </div>
+            <div>
+                <button type="submit" class="btnNo" style="color:silver;border-color:silver;" id="btnCancelCharge">取消</button> 
+            </div>
+    </div> 
+
+</body>
+
+<script type="text/javascript" src="../ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../ext/jquery.validate.min.js"></script>
+<script type="text/javascript" src="../ext/date-formatter.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/siiimple-toast.min.js"></script>
+<script type="text/javascript" src="../ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="../ext/jquery-ui.min.js"></script>
+<script type="text/javascript" src="../js/newWaterfall.js"></script>
+<script type="text/javascript" src="../js/swiper.min.js"></script>
+<script type="text/javascript" src="../js/jquery.cookie.js"></script>
+<script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+<script type="text/javascript" src="../js/md5.js?v=1.0"></script>
+<script type="text/javascript" src="../js/util.js?v=3.0"></script>
+<script type="text/javascript" src="js/common.js?v=1.0"></script> 
+<script type="text/javascript" src="js/my-accounts.js?v=0.13"></script> 
+</html>

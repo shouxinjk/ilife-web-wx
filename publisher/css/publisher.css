@@ -32,6 +32,18 @@
   font-size: 12px;
 }
 
+.qrcodeimg{
+    margin-left:10px;
+    width: 60px;
+    height: 60px;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    float: left;
+    /*background-image: url(1.jpg); */
+    background-position:center center;
+    background-size: 290px;  
+}
+
 .highlight-tag{
   border: 1px solid #514c49;
   border-radius: 5px;

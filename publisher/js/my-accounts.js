@@ -46,7 +46,7 @@ $(document).ready(function ()
     });
     $("#myAccountFilter").click(function(e){
         window.location.href = "my-accounts.html";
-    });
+    });      
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
@@ -54,8 +54,8 @@ $(document).ready(function ()
     });
 
     //注册点击创建按钮事件 ：显示表单
-    $("#createArticleBtn").click(function(e){
-        showArticleForm();
+    $("#createAccountBtn").click(function(e){
+        showAccountForm();
     });
     //点击购买按钮：创建支付信息并发起微信支付
     $("#btnPurchase").click(function(e){
@@ -85,7 +85,7 @@ $(document).ready(function ()
        $("#poorToppingDiv").empty();
         $.unblockUI(); 
         //显示购买表单：需要有时间间隔，否则会导致原有html元素被一并隐藏删除
-        setTimeout(function(){loadSoldAds(toppingArticleId);},500);//继续沿用当前文章ID
+        setTimeout(function(){loadSoldAds(toppingAccountId);},500);//继续沿用当前公众号ID
     });      
 
     //取消查看置顶明细
@@ -98,18 +98,18 @@ $(document).ready(function ()
         $("#upcomingToppingDiv").html('<div style="line-height: 30px;font-size: 12px;">没有待置顶记录哦，赶紧设置吧~~</div>');
         $.unblockUI(); 
         //显示购买表单：需要有时间间隔，否则会导致原有html元素被一并隐藏删除
-        setTimeout(function(){loadSoldAds(toppingArticleId);},500);//继续沿用当前文章ID
+        setTimeout(function(){loadSoldAds(toppingAccountId);},500);//继续沿用当前公众号ID
     });    
 
     //取消查看报数明细
-    $("#btnCancelReads").click(function(e){
+    $("#btnCancelSubscribes").click(function(e){
         $.unblockUI(); 
     }); 
     //从报数明细表单直接进入无敌置顶
-    $("#btnOkReads").click(function(e){
+    $("#btnOkSubscribes").click(function(e){
         $.unblockUI(); 
         //显示报数明细表单：需要有时间间隔，否则会导致原有html元素被一并隐藏删除
-        setTimeout(function(){loadSoldAds(toppingArticleId);},500);//继续沿用当前文章ID
+        setTimeout(function(){loadSoldAds(toppingAccountId);},500);//继续沿用当前公众号ID
     });   
 
     //取消充值
@@ -120,9 +120,9 @@ $(document).ready(function ()
     //检查是否有缓存事件
     resultCheck();
 
-    //查询文章总数及阅读总数
-    countReadmeTotal();//查询阅读总数
-    countArticleTotal();//查询文章总数
+    //查询公众号总数及阅读总数
+    countSubscribemeTotal();//查询关注总数
+    countAccountTotal();//查询公众号总数
 
     //加载广告位：仅加载可用广告位
     loadAds();   
@@ -181,24 +181,24 @@ function registerTimer(brokerId){
     currentBroker = brokerId;
     sxTimer = setInterval(function ()
     {
-        //console.log("Articles::registerTimer.");
+        //console.log("Accounts::registerTimer.");
         if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
         {
-            console.log("Articles::registerTimer start load article.");
+            console.log("Accounts::registerTimer start load account.");
             // 表示开始加载
             loading = true;
             showloading(true);
 
             // 加载内容
             if(items.length < num){//如果内容未获取到本地则继续获取
-                console.log("request articles from server side.");
+                console.log("request accounts from server side.");
                 //读取待阅读列表
                 loadItems();
                 //有用户操作则恢复计数器
                 console.log("reset loop count.");
                 sxLoopCount = 100;                
             }else{//否则使用本地内容填充
-                console.log("insert article item from locale.");
+                console.log("insert account item from locale.");
                 insertItem();
             }
         }
@@ -219,12 +219,12 @@ function unregisterTimer(){
 
 
 /*
-根据当前用户openid加载已发布文章列表：按照最后修改时间倒序排列
+根据当前用户openid加载已发布公众号列表：按照最后修改时间倒序排列
 */
 function loadItems(){
-    util.AJAX(app.config.sx_api+"/wx/wxArticle/rest/my-articles/"+userInfo._key, function (res) {
+    util.AJAX(app.config.sx_api+"/wx/wxAccount/rest/my-accounts/"+userInfo._key, function (res) {
         showloading(false);
-        console.log("Publisher::Articles::loadItems try to retrive my articles.", res)
+        console.log("Publisher::Accounts::loadItems try to retrive my accounts.", res)
         if(res && res.length==0){//如果没有画像则提示，
             shownomore();
         }else{//否则显示到页面
@@ -255,14 +255,13 @@ function insertItem(){
         return;
     }
 
-    //文章无logo，随机指定一个。设置为发布者LOGO，或者直接忽略
+    //公众号无logo，随机指定一个。设置为发布者LOGO，或者直接忽略
     logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
-    //由于微信禁止，无法直接使用封面图，需要使用达人图片
-    /**
-    if(item.coverImg){
-        logo = item.coverImg;
+    //直接根据originalId显示缩略图
+    if(item.originalId){
+        logo = "https://open.weixin.qq.com/qr/code?username="+item.originalId.trim();
     }
-    //**/
+
     //判断有无置顶广告位
     var tags = "";
     if(item.advertise){//如果有广告位则显示置顶
@@ -271,8 +270,9 @@ function insertItem(){
     tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>置顶</span>";
     var advertise = "<img src='https://www.biglistoflittlethings.com/ilife-web-wx/images/rocket.png' width='16' height='16'/>&nbsp;";
 
-    var title = "<div class='title' id='title"+item.id+"'>"+item.title+"</div>";
-    var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
+    var title = "<div class='title' id='title"+item.id+"'>"+item.name+"</div>";
+    //var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
+    var imageBg = "<div id='qrcodeimg"+item.id+"' class='qrcodeimg'></div>";
     var description = "<div class='description'>"+item.updateDate+"</div>";
 
     var btns = "";
@@ -292,82 +292,84 @@ function insertItem(){
     btns += '<button type="submit" class="action-tag-black" id="btnToppingHistory'+item.id+'">置顶明细</button> ';   
     //开白明细：弹出显示开白明细列表
     //btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';           
-    //报数明细：能够查看报数历史
-    btns += '<button type="submit" class="action-tag-black" id="btnReadHistory'+item.id+'">报数明细</button> ';     
+    //关注明细：能够查看关注历史
+    btns += '<button type="submit" class="action-tag-black" id="btnSubscribeHistory'+item.id+'">关注明细</button> ';     
     var btnsDiv = "<div class='btns' style='display:flex;flex-direction:row;flex-wrap:nowrap;margin-top:5px;'>"+btns+"</div>";    
 
     var seperator = "";
     if(num>1)
         seperator = "<div class='item-separator' style='border-radius:0'></div>";
 
-    $("#waterfall").append("<li>"+seperator+"<div class='task' data='"+item.id+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+btnsDiv+"</div></li>");
+    $("#waterfall").append("<li>"+seperator+"<div class='task' data='"+item.id+"' data-title='"+item.name+"' data-url='"+item.url+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+btnsDiv+"</div></li>");
     num++;
 
+    //设置背景图片
+    $("#qrcodeimg"+item.id).css("background-image","url("+logo+")");
+
     //注册事件
-    $("#title"+item.id).click(function(){
-        //cookie缓存记录当前浏览文章，返回时检查：自己发布的文章不做记录
-        /**
-        console.log("Publisher::Articles now jump to article.");
+    $("div[data='"+item.id+"']").click(function(){
+        //cookie缓存记录当前浏览文章，返回时检查
+        console.log("Publisher::Accounts now jump to account.");
         var expDate = new Date();
         expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
-        var readingArticle = {
-            id:$(this).attr("data"),//文章id
-            title:$(this).attr("data-title"),//文章标题
+        var pendingAccount = {
+            id:$(this).attr("data"),//id
+            title:$(this).attr("data-title"),//标题
             url:$(this).attr("data-url"),//文章URL
             startTime: new Date().getTime()//开始时间戳：需要超过10秒
         };
                
-        console.log("Publisher::Articles save article to cookie.",readingArticle);
-        $.cookie('sxArticle', JSON.stringify(readingArticle), { expires: expDate, path: '/' });  //把浏览中的文章id写入cookie便于记录阅读数       
-        //**/
-        //跳转到原始页面完成阅读
-        console.log("Publisher::Articles now jump to article.");
-        //window.location.href = "../index.html";   
-        window.location.href = $(this).attr("data-url");          
+        console.log("Publisher::Accounts save account to cookie.",pendingAccount);
+        $.cookie('sxAccount', JSON.stringify(pendingAccount), { expires: expDate, path: '/' });  //把浏览中的id写入cookie便于记录阅读数       
+
+        //显示二维码供扫描关注
+        console.log("Publisher::Accounts now show QRcode.");
+        $("#pendingAccountQrcode").append("<img src='"+$(this).attr("data-url")+"' width='200' height='200'/>");        
+
     });
 
     //注册事件
     $("#btnDeactive"+item.id).click(function(){ //下架      
-        changeArticleStatus($(this).attr("id").replace(/btnDeactive/,""),"inactive");
+        changeAccountStatus($(this).attr("id").replace(/btnDeactive/,""),"inactive");
     });
     $("#btnActive"+item.id).click(function(){ //上架   
-        changeArticleStatus($(this).attr("id").replace(/btnActive/,""),"active");
+        changeAccountStatus($(this).attr("id").replace(/btnActive/,""),"active");
     });       
     $("#btnTopping"+item.id).click(function(){ //无敌置顶：要花钱的那种 
-        loadSoldAds($(this).attr("id").replace(/btnTopping/,""));//需要传递当前文章ID
+        loadSoldAds($(this).attr("id").replace(/btnTopping/,""));//需要传递当前公众号ID
     }); 
     $("#btnPoorTopping"+item.id).click(function(){ //临时置顶：不花钱的那种 
-        showPoorToppingForm($(this).attr("id").replace(/btnPoorTopping/,""));//需要传递当前文章ID
+        showPoorToppingForm($(this).attr("id").replace(/btnPoorTopping/,""));//需要传递当前公众号ID
     }); 
-    $("#btnToppingHistory"+item.id).click(function(){ //显示当前文章的置顶明细
-        showUpcomingToppings($(this).attr("id").replace(/btnToppingHistory/,""));//需要传递当前文章ID
+    $("#btnToppingHistory"+item.id).click(function(){ //显示当前公众号的置顶明细
+        showUpcomingToppings($(this).attr("id").replace(/btnToppingHistory/,""));//需要传递当前公众号ID
     });     
-    $("#btnReadHistory"+item.id).click(function(){ //显示当前文章的报数明细
-        loadReads($(this).attr("id").replace(/btnReadHistory/,""));//需要传递当前文章ID
+    $("#btnSubscribeHistory"+item.id).click(function(){ //显示当前公众号的报数明细
+        loadSubscribes($(this).attr("id").replace(/btnSubscribeHistory/,""));//需要传递当前公众号ID
     });          
     // 表示加载结束
     loading = false;
 }
 
-//修改文章状态
-function changeArticleStatus(articleId,status){
-    console.log("try to change article status.",userInfo._key);
+//修改公众号状态
+function changeAccountStatus(accountId,status){
+    console.log("try to change account status.",userInfo._key);
     $.ajax({
-        url:app.config.sx_api+"/wx/wxArticle/rest/article/"+articleId+"/"+status,
+        url:app.config.sx_api+"/wx/wxAccount/rest/account/"+accountId+"/"+status,
         type:"post",
         success:function(res){
             console.log("status changed.",res);
             if(res.status){//修改按钮状态
                 if(status=="active"){
-                    $("#btnDeactive"+articleId).css("display","block");
-                    $("#btnActive"+articleId).css("display","none");
+                    $("#btnDeactive"+accountId).css("display","block");
+                    $("#btnActive"+accountId).css("display","none");
                     siiimpleToast.message('已上架，阅豆越多排名越靠前哦~~',{
                           position: 'bottom|center'
                         });                    
                 }else{
-                    $("#btnDeactive"+articleId).css("display","none");
-                    $("#btnActive"+articleId).css("display","block");
-                    siiimpleToast.message('已下架，文章将不再显示~~',{
+                    $("#btnDeactive"+accountId).css("display","none");
+                    $("#btnActive"+accountId).css("display","block");
+                    siiimpleToast.message('已下架，公众号将不再显示~~',{
                           position: 'bottom|center'
                         });                     
                 }
@@ -480,124 +482,94 @@ function changeActionType (e) {
     window.location.href = currentActionType+".html";
 }
 
-//检查阅读效果：如果检查到有cookie，则显示阅读数确认框
+
+//检查关注效果：如果检查到有cookie，则弹出确认对话框，供确认
 function resultCheck(){
-    var articleInfo = $.cookie('sxArticle');
-    console.log("load articleInfo from cookie.",articleInfo);
-    if(articleInfo && articleInfo.trim().length>0){
-        console.log("get articleInfo info from cookie.",articleInfo);
-        var article = JSON.parse(articleInfo);
-        //检查时间是否已达到10秒
-        var duration = new Date().getTime() - Number(article.startTime);
-        if( duration > 10000){
-            //显示数据填报表单
-            $.blockUI({ message: $('#checkform'),
-                css:{ 
-                    padding:        10, 
-                    margin:         0, 
-                    width:          '60%', 
-                    top:            '40%', 
-                    left:           '20%', 
-                    textAlign:      'center', 
-                    color:          '#000', 
-                    border:         '1px solid silver', 
-                    backgroundColor:'#fff', 
-                    cursor:         'normal' 
-                },
-                overlayCSS:  { 
-                    backgroundColor: '#000', 
-                    opacity:         0.7, 
-                    cursor:          'normal' 
-                }
-            }); 
-            $("#btnNo").click(function(){
-                $.cookie('sxArticle', "", { path: '/' }); //清除cookie重新来过
-                $.unblockUI(); 
-            });
-            $("#btnYes").click(function(){//完成阅读后的奖励操作
-                //检查数字：必填。TODO：此处需要判断是否胡乱填报
-                var readCount = Number($("#viewNumbers").val());
-                if(readCount <=0 ){
-                    $("#viewNumbers").css("border","1px solid red");
-                }else{
-                    console.log("try to submit read event.");
-                    $.cookie('sxArticle', "", { path: '/' }); //清除cookie重新来过
-                    costPoints(article);
-                }
-            });
-        }else{//提示超过10秒才可以
-            console.log("不到10秒，不能奖励",duration/1000);
-            siiimpleToast.message('亲，要超过10秒才能奖励阅豆哦~~',{
-                  position: 'bottom|center'
-                });
-            //清除cookie重新来过
-            $.cookie('sxArticle', "", { path: '/' });  
-        }
+    var accountInfo = $.cookie('sxAccount');
+    console.log("load accountInfo from cookie.",accountInfo);
+    if(accountInfo && accountInfo.trim().length>0){
+        console.log("get accountInfo info from cookie.",accountInfo);
+        var account = JSON.parse(accountInfo);
+        $("#btnNo").click(function(){
+            $.cookie('sxAccount', "", { path: '/' }); //清除cookie重新来过
+            $.unblockUI(); 
+        });
+        $("#btnYes").click(function(){//完成关注确认
+            console.log("try to submit subscribe event.");
+            $.cookie('sxAccount', "", { path: '/' }); //清除cookie重新来过
+            costPoints(account);            
+        });
     }else{
-      console.log("no article from cookie.",articleInfo);
+      console.log("no accountInfo from cookie.",accountInfo);
     }
 }
 
-//完成阅读扣除及奖励
-function costPoints(article){
+//完成订阅扣除及奖励
+function costPoints(account){
     //先扣除阅豆
-    console.log("try to commit read event.",userInfo._key);
+    console.log("try to commit subscribe event.",userInfo._key);
     $.ajax({
-        url:app.config.sx_api+"/wx/wxArticle/rest/exposure/"+article.id+"/"+userInfo._key,
+        url:app.config.sx_api+"/wx/wxAccount/rest/subscribe/"+account.id+"/"+userInfo._key,
         type:"post",
         success:function(res){
             console.log("cost point succeed.",res);
-            logPointCostEvent(article,res);//记录本次阅读历史
+            logPointCostEvent(account,res);//记录本次关注历史
             //解除屏幕锁屏
             $.unblockUI(); 
+            //扣除阅豆，并更新当前阅豆数
+            if(broker&&broker.points&&res.points){
+                broker.points = broker.points+res.points;
+                insertBroker(broker);
+            }             
+            //提示阅读已完成
+            siiimpleToast.message('已奖励'+res.points+'阅豆，关注过的公众号将不再显示哦~~',{
+                  position: 'bottom|center'
+                });            
         }
     })      
 }
 
-//记录文章阅读历史：publisher内包含有文章发布者信息：openid,brokerId,nickname,avatarUrl 消耗的点数points
-//需要补全：阅读者openid，nickname，avatarUrl，阅读时间，阅读报数，文章ID
-//记录ID为：文章ID+阅读者openid md5
-function logPointCostEvent(article,publisher){
-    var readCount = Number($("#viewNumbers").val());
-    $("#viewNumbers").css("border","1px solid silver");//恢复标准风格
-    $("#viewNumbers").val("");//清空原有数值，避免交叉
+//记录关注历史：subscriber内包含有文章发布者信息：openid,brokerId,nickname,avatarUrl 消耗的点数points
+//需要补全：关注者openid，nickname，avatarUrl，关注时间，公众号ID
+//记录ID为：公众号ID+关注者openid md5
+function logPointCostEvent(account,subscriber){
     $.ajax({
-        url:app.config.analyze_api+"?query=insert into ilife.reads values ('"+hex_md5(article.id+userInfo._key)+"','"+
-            publisher.openid+"','"+
-            publisher.brokerId+"','"+
-            publisher.nickname+"','"+
-            publisher.avatarUrl+"','"+
+        url:app.config.analyze_api+"?query=insert into ilife.subscribes values ('"+hex_md5(account.id+userInfo._key)+"','"+
+            subscriber.openid+"','"+
+            subscriber.brokerId+"','"+
+            subscriber.nickname+"','"+
+            subscriber.avatarUrl+"','"+
             userInfo._key+"','"+
             userInfo.nickname+"','"+
             userInfo.avatarUrl+"','"+
-            article.id+"','"+
-            article.title+"','"+
-            article.url+"',"+
-            publisher.points+","+readCount+",now())",
+            account.id+"','"+
+            account.name+"','"+
+            account.originalId+"',"+
+            subscriber.points+",now())",
         type:"post",
         //data:{},
         headers:{
             "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
         },         
         success:function(json){
-            console.log("===reads inserted===\n",json);
+            console.log("===subscribes inserted===\n",json);
             //从当前列表中删除该文章
-            $("div[data='"+article.id+"']").remove();
+            $("div[data='"+account.id+"']").remove();
         }
     });     
 }
 
 
-//显示发布文章表单
-function showArticleForm(){
-    console.log("show article form.");
+//显示发布公众号表单
+function showAccountForm(){
+    console.log("show account form.");
     //显示数据填报表单
-    $.blockUI({ message: $('#articleform'),
+    $.blockUI({ message: $('#accountform'),
         css:{ 
             padding:        10, 
             margin:         0, 
             width:          '60%', 
-            top:            '40%', 
+            top:            '20%', 
             left:           '20%', 
             textAlign:      'center', 
             color:          '#000', 
@@ -611,39 +583,44 @@ function showArticleForm(){
             cursor:          'normal' 
         }
     }); 
-    $("#btnCancel").click(function(){
-        $("#articleUrl").css("border","1px solid silver");//恢复标准风格
-        $("#articleUrl").val("");//清空原有数值，避免交叉        
+    $("#btnCancel").click(function(){       
         $.unblockUI(); //直接取消即可
     });
-    $("#btnPublish").click(function(){//完成阅读后的奖励操作
-        //检查数字url，胡乱填写不可以
-        if( !isUrlValid($("#articleUrl").val()) ){
-            $("#articleUrl").css("border","1px solid red");
-            $("#articleUrl").val("");//清空原有数值，避免交叉
+    $("#btnPublish").click(function(){//发布公众号
+        if(!$("#accountName").val() || $("#accountName").val().trim().length==0){
+            $("#accountName").css("border","1px solid red");
+            $("#accountName").val("");//清空原有数值，避免交叉
+        }else if(!isOriginalIdValid($("#accountOriginalId").val())){
+            $("#accountOriginalId").css("border","1px solid red");
+            $("#accountOriginalId").val("");//清空原有数值，避免交叉
+        }else if(!$("#accountDesc").val() || $("#accountDesc").val().trim().length==0){
+            $("#accountDesc").css("border","1px solid red");
+            $("#accountDesc").val("");//清空原有数值，避免交叉
         }else{
-            console.log("try to submit read event.");
-            submitArticle();
+            console.log("try to submit subscribe event.");
+            submitAccount();
         }
     });
 }
 
-//检查url是否符合要求：仅支持微信公众号文章
-//https://mp\.weixin\.qq\.com/s/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]
-/**
-function isUrlValid(url) {
-    return /^(https?|s?ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(url);
-}
-//**/
-function isUrlValid(url) {
-    return /^https:\/\/mp\.weixin\.qq\.com\/s\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$/i.test(url);
+//判定公众号原始ID是否正确
+function isOriginalIdValid(originalId) {
+    return true;
+    //对于更改微信号的，不符合gh_xxxx格式
+    //return /^gh_[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$/i.test(originalId);
 }
 
-//添加文章：获取文章url并提交
-function submitArticle(){
-    var url = $("#articleUrl").val();
-    $("#articleUrl").css("border","1px solid silver");//恢复标准风格
-    $("#articleUrl").val("");//清空原有数值，避免交叉
+//添加公众号：获取名称、描述、原始ID
+function submitAccount(){
+    var originalId = $("#accountOriginalId").val();
+    $("#accountOriginalId").css("border","1px solid silver");//恢复标准风格
+    $("#accountOriginalId").val("");//清空原有数值，避免交叉
+    var name = $("#accountName").val();
+    $("#accountName").css("border","1px solid silver");//恢复标准风格
+    $("#accountName").val("");//清空原有数值，避免交叉
+    var desc = $("#accountDesc").val();
+    $("#accountDesc").css("border","1px solid silver");//恢复标准风格
+    $("#accountDesc").val("");//清空原有数值，避免交叉        
     if(!broker){//如果broker不存在，则传递openid，后台会默认创建
         broker = {
             openid:userInfo._key,
@@ -654,10 +631,12 @@ function submitArticle(){
         broker.nickname = userInfo.nickName?userInfo.nickName:"";
     }
     $.ajax({
-        url:app.config.sx_api+"/wx/wxArticle/rest/article",
+        url:app.config.sx_api+"/wx/wxAccount/rest/account",
         type:"post",
         data:JSON.stringify({
-            url:url,
+            name:name,
+            desc:desc,
+            originalId:originalId,
             broker:broker,
         }),//注意：不能使用JSON对象
         headers:{
@@ -665,12 +644,12 @@ function submitArticle(){
             "Accept": "application/json"
         },        
         success:function(res){
-            console.log("article submit succeed.",res);
+            console.log("account submit succeed.",res);
             $.unblockUI(); //屏幕解锁
-            //将文章显示在自己列表顶部
+            //将公众号显示在自己列表顶部
             if(res.status){//提示文章已发布
                 if(res.code&&res.code=="duplicate"){
-                    siiimpleToast.message('文章已存在，不需要重复发布哦~~',{
+                    siiimpleToast.message('公众号已存在，不需要重复发布哦~~',{
                           position: 'bottom|center'
                         });  
                 }else{
@@ -679,7 +658,7 @@ function submitArticle(){
                     if(broker&&broker.points&&res.points){
                         broker.points = broker.points-res.points;
                         insertBroker(broker);
-                    }                    
+                    }                     
                     siiimpleToast.message('发布成功，消耗'+res.points+'阅豆。阅豆越多排名越靠前哦~~',{
                           position: 'bottom|center'
                         });  
@@ -689,26 +668,25 @@ function submitArticle(){
     })     
 }
 
-//手动置顶指定文章：仅用于发布新文章时
+//手动置顶指定公众号：仅用于发布新公众号时
 function toppingItem(item){
     if(!item || !item.id){
-        console.log("wrong article");
+        console.log("wrong account");
         return;
     }
-    //文章无logo，随机指定一个。设置为发布者LOGO，或者直接忽略
+    //公众号logo
     logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
-    //由于微信禁止，无法直接使用封面图，需要使用达人图片
-    /**
-    if(item.coverImg){
-        logo = item.coverImg;
+    //直接根据originalId显示缩略图
+    if(item.originalId){
+        logo = "https://open.weixin.qq.com/qr/code?username="+item.originalId;
     }
-    //**/
-    //新文章默认显示到顶部：仅在发布者界面
-    var tags = "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>新文首发</span>";
+
+    //新公众号默认显示到顶部：仅在发布者界面
+    var tags = "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>新公众号首发</span>";
     var advertise = "";
 
     var title = "<div class='title'>"+tags+item.title+advertise+"</div>";
-    var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
+    var imageBg = "<div id='qrcodeimg"+item.id+"' class='qrcodeimg'></div>";
     var description = "<div class='description'>"+item.updateDate+"</div>";
 
     var btns = "";
@@ -728,64 +706,66 @@ function toppingItem(item){
     btns += '<button type="submit" class="action-tag-black" id="btnToppingHistory'+item.id+'">置顶明细</button> ';   
     //开白明细：弹出显示开白明细列表
     //btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';      
-    //报数明细：能够查看报数历史
-    btns += '<button type="submit" class="action-tag-black" id="btnReadHistory'+item.id+'">报数明细</button> ';     
+    //关注明细：能够查看报数历史
+    btns += '<button type="submit" class="action-tag-black" id="btnSubscribeHistory'+item.id+'">关注明细</button> ';     
     var btnsDiv = "<div class='btns' style='display:flex;flex-direction:row;flex-wrap:nowrap;margin-top:5px;'>"+btns+"</div>";    
 
     var seperator = "<div class='item-separator' style='border-radius:0'></div>";
 
-    $("#createArtileEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+btnsDiv+"</div>"+seperator+"</li>");
+    $("#createArtileEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+btnsDiv+"</div>"+seperator+"</li>");
+
+    //设置背景图片
+    $("#qrcodeimg"+item.id).css("background-image","url("+logo+")");
 
     //注册事件
-    $("#title"+item.id).click(function(){
-        //cookie缓存记录当前浏览文章，返回时检查：自己发布的文章不做记录
-        /**
-        console.log("Publisher::Articles now jump to article.");
+    $("div[data='"+item.id+"']").click(function(){
+        //cookie缓存记录当前浏览文章，返回时检查
+        console.log("Publisher::Accounts now jump to account.");
         var expDate = new Date();
         expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
-        var readingArticle = {
-            id:$(this).attr("data"),//文章id
-            title:$(this).attr("data-title"),//文章标题
+        var pendingAccount = {
+            id:$(this).attr("data"),//id
+            title:$(this).attr("data-title"),//标题
             url:$(this).attr("data-url"),//文章URL
             startTime: new Date().getTime()//开始时间戳：需要超过10秒
         };
                
-        console.log("Publisher::Articles save article to cookie.",readingArticle);
-        $.cookie('sxArticle', JSON.stringify(readingArticle), { expires: expDate, path: '/' });  //把浏览中的文章id写入cookie便于记录阅读数       
-        //**/
-        //跳转到原始页面完成阅读
-        console.log("Publisher::Articles now jump to article.");
-        //window.location.href = "../index.html";   
-        window.location.href = $(this).attr("data-url");          
+        console.log("Publisher::Accounts save account to cookie.",pendingAccount);
+        $.cookie('sxAccount', JSON.stringify(pendingAccount), { expires: expDate, path: '/' });  //把浏览中的id写入cookie便于记录阅读数       
+
+        //显示二维码供扫描关注
+        console.log("Publisher::Accounts now show QRcode.");
+        $("#pendingAccountQrcode").append("<img src='"+$(this).attr("data-url")+"' width='200' height='200'/>");        
+
     });
 
 
     //注册事件
     $("#btnDeactive"+item.id).click(function(){ //下架      
-        changeArticleStatus($(this).attr("id").replace(/btnDeactive/,""),"inactive");
+        changeAccountStatus($(this).attr("id").replace(/btnDeactive/,""),"inactive");
     });
     $("#btnActive"+item.id).click(function(){ //上架   
-        changeArticleStatus($(this).attr("id").replace(/btnActive/,""),"active");
+        changeAccountStatus($(this).attr("id").replace(/btnActive/,""),"active");
     });       
     $("#btnTopping"+item.id).click(function(){ //无敌置顶：要花钱的那种 
-        loadSoldAds($(this).attr("id").replace(/btnTopping/,""));//需要传递当前文章ID
+        loadSoldAds($(this).attr("id").replace(/btnTopping/,""));//需要传递当前公众号ID
     }); 
     $("#btnPoorTopping"+item.id).click(function(){ //临时置顶：不花钱的那种 
-        showPoorToppingForm($(this).attr("id").replace(/btnPoorTopping/,""));//需要传递当前文章ID
+        showPoorToppingForm($(this).attr("id").replace(/btnPoorTopping/,""));//需要传递当前公众号ID
     }); 
-    $("#btnToppingHistory"+item.id).click(function(){ //显示当前文章的置顶明细
-        showUpcomingToppings($(this).attr("id").replace(/btnToppingHistory/,""));//需要传递当前文章ID
+    $("#btnToppingHistory"+item.id).click(function(){ //显示当前公众号的置顶明细
+        showUpcomingToppings($(this).attr("id").replace(/btnToppingHistory/,""));//需要传递当前公众号ID
     });     
-    $("#btnReadHistory"+item.id).click(function(){ //显示当前文章的报数明细
-        loadReads($(this).attr("id").replace(/btnReadHistory/,""));//需要传递当前文章ID
+    $("#btnSubscribeHistory"+item.id).click(function(){ //显示当前公众号的报数明细
+        loadSubscribes($(this).attr("id").replace(/btnSubscribeHistory/,""));//需要传递当前公众号ID
     });     
 }
 
 //查询阅我总数：排除自己的阅读
-var totalReadme = 0;
-function countReadmeTotal(){
+var totalSubscribeme = 0;
+function countSubscribemeTotal(){
     $.ajax({
-        url:app.config.analyze_api+"?query=select count(eventId) as totalCount from ilife.reads where publisherOpenid='"+userInfo._key+"' and readerOpenid!='"+userInfo._key+"' format JSON",
+        url:app.config.analyze_api+"?query=select count(eventId) as totalCount from ilife.subscribes where publisherOpenid='"+userInfo._key+"' and subscriberOpenid!='"+userInfo._key+"' format JSON",
         type:"get",
         //async:false,
         //data:{},
@@ -793,32 +773,32 @@ function countReadmeTotal(){
             "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
         },         
         success:function(res){
-            console.log("Publisher::My::countReadmeTotal try to retrive readme count.", res)
+            console.log("Publisher::My::countSubscribemeTotal try to retrive subscribeme count.", res)
             if(res && res.rows==0){//无法回直接忽略
                 //do nothing
             }else{//如果大于0则更新到页面
                 //if(res.data[0].totalCount>0){
-                    var oldTxt = $("#myArticleFilter").text();
-                    totalReadme = res.data[0].totalCount;
-                    $("#myArticleFilter").text("文章(总"+totalArticles+"阅"+totalReadme+")");
+                    var oldTxt = $("#myAccountFilter").text();
+                    totalSubscribeme = res.data[0].totalCount;
+                    $("#myAccountFilter").text("公众号(总"+totalAccounts+"粉"+totalSubscribeme+")");
                 //}
             }
         }
     }); 
 }
 
-//查询文章总数
-var totalArticles = 0;
-function countArticleTotal(){
+//查询公众号总数
+var totalAccounts = 0;
+function countAccountTotal(){
     $.ajax({
-        url:app.config.sx_api+"/wx/wxArticle/rest/total-articles/"+userInfo._key,
+        url:app.config.sx_api+"/wx/wxAccount/rest/total-accounts/"+userInfo._key,
         type:"get",        
         success:function(res){
-            console.log("got article count.",res);
+            console.log("got account count.",res);
             if(res.status && res.count){//显示到界面
-                var oldTxt = $("#myArticleFilter").text(); 
-                totalArticles = res.count;
-                $("#myArticleFilter").text("文章(总"+totalArticles+"阅"+totalReadme+")");             
+                var oldTxt = $("#myAccountFilter").text(); 
+                totalAccounts = res.count;
+                $("#myAccountFilter").text("公众号(总"+totalAccounts+"粉"+totalSubscribeme+")");             
             }      
         }
     }) 
@@ -830,12 +810,12 @@ var selectedAds = {};//记录选中的广告价格明细：key为广告位分组
 var allAds = [];//所有可用广告位列表。提前加载后缓存，显示时需要根据购买情况过滤。是json对象数组
 var soldAds = [];//已售卖广告位列表。在显示前直接查询得到。是单值组织的广告位，组织形式：日期__广告位ID
 function loadAds(){
-    //查询得到文章置顶广告位
+    //查询得到公众号置顶广告位
     $.ajax({
-        url:app.config.sx_api+"/wx/wxAdvertise/rest/ads/article",
+        url:app.config.sx_api+"/wx/wxAdvertise/rest/ads/article",//与article共用相同的广告位
         type:"get",        
         success:function(res){
-            console.log("got available article ads.",res);
+            console.log("got available account ads.",res);
             allAds = res;
             //注意：此处仅提前加载所有广告位清单。用户点击后才查询已售广告位，并显示到界面
             //showAds(res); //根据返回的广告位列表展示：包括3个连续日期。TODO：由于需要检查购买情况，在触发置顶操作后再显示
@@ -847,10 +827,10 @@ function loadAds(){
 //直接返回所有已购买列表：需要组装为可检索模式
 var tmpAdQuantity = {};//记录可重复售卖广告的quantity，key为 展示日期+广告位ID，形式为2022-04-01xxxxxx，value为 quantity
 var tmpAdSoldCount = {};//记录可重复售卖广告的实际售卖数量，key为 展示日期+广告位ID，形式为2022-04-01xxxxxx，，value为 sold。该值需要统计得到
-var toppingArticleId = null;//记录当前待置顶文章ID
-function loadSoldAds(articleId){
-    console.log("try to check ads for article.",articleId);
-    toppingArticleId = articleId;
+var toppingAccountId = null;//记录当前待置顶公众号ID
+function loadSoldAds(accountId){
+    console.log("try to check ads for account.",accountId);
+    toppingAccountId = accountId;
     //查询得到临近3天的已售卖广告位
     $.ajax({
         url:app.config.sx_api+"/wx/wxPaymentAd/rest/sold-in-advance/3",//需要取几天可直接传递
@@ -881,7 +861,7 @@ function loadSoldAds(articleId){
                 }
             });
             //显示广告到界面
-            showAds(articleId);
+            showAds(accountId);
         }
     }) 
 }
@@ -1017,7 +997,7 @@ function clearAds(){
     soldAds = [];//清空已售广告列表     
     tmpAdQuantity = {};//清空一位多卖记录
     tmpAdSoldCount = {};//清空一位多卖实际出售记录
-    toppingArticleId = null;//清空当前文章ID
+    toppingAccountId = null;//清空当前公众号ID
     $("#tabs-today").empty();
     $("#tabs-tomorrow").empty();
     $("#tabs-aftertomorror").empty();    
@@ -1030,7 +1010,7 @@ function createPayInfo(){
         type:"post", 
         data:JSON.stringify({
             openid:userInfo._key,
-            out_trade_no:hex_md5(userInfo._key+"article"+toppingArticleId+(new Date().getTime())),
+            out_trade_no:hex_md5(userInfo._key+"account"+toppingAccountId+(new Date().getTime())),
             total_fee:Number($("#totalAmount").val())*100,//单位为分
             body:"内容展示及排序服务",
             trade_type:"JSAPI",
@@ -1066,7 +1046,7 @@ function payOrder(payInfo){
 }
 
 //创建已购买的广告位：仅在支付成功后提交。其他不做考虑：如果支付取消，或中途退出？？
-//提交数据包括：达人ID或达人openid，文章ID，已选广告列表。支付结果数据
+//提交数据包括：达人ID或达人openid，公众号ID，已选广告列表。支付结果数据
 function purchaseAd(wxPayResult){
     //将selectedAds转化为数组
     var purchasedAds = [];
@@ -1080,8 +1060,8 @@ function purchaseAd(wxPayResult){
         data:JSON.stringify({
             brokerId:(broker&&broker.id)?broker.id:"",
             brokerOpenid:userInfo._key,
-            subjectType:"article",
-            subjectId:toppingArticleId,
+            subjectType:"account",
+            subjectId:toppingAccountId,
             ads:purchasedAds,
             out_trade_no:wxPayResult.out_trade_no,
             result_code:wxPayResult.result_code
@@ -1104,8 +1084,8 @@ function purchaseAd(wxPayResult){
 }
 
 //显示临时置顶表单。能够选择置顶方案：根据阅豆消耗
-function showPoorToppingForm(articleId){
-    toppingArticleId = articleId;
+function showPoorToppingForm(accountId){
+    toppingAccountId = accountId;
     //根据阅读显示方案。阅豆不足的显示灰色：10阅豆、20阅豆
     var products={//key值为指定阅豆数，同时也是置顶分钟数
         "10":"置顶10分钟",
@@ -1129,7 +1109,7 @@ function showPoorToppingForm(articleId){
         //注册点击事件：仅在点数支持时才能点击
         if(broker&&broker.points>=Number(key)){
             $("#poorTopping"+key).click(function(){
-                insertPoorTopping(articleId,Number($(this).attr("data-points")),Number($(this).attr("data-duration")));
+                insertPoorTopping(accountId,Number($(this).attr("data-points")),Number($(this).attr("data-duration")));
             });
         }
     }    
@@ -1157,9 +1137,9 @@ function showPoorToppingForm(articleId){
 }
 
 //新增临时置顶。需要选择置顶方案，提供10豆、20豆、30豆、60豆等
-function insertPoorTopping(articleId,points,duration){
+function insertPoorTopping(accountId,points,duration){
     $.ajax({
-        url:app.config.sx_api+"/wx/wxTopping/rest/poor-topping/article",
+        url:app.config.sx_api+"/wx/wxTopping/rest/poor-topping/account",
         type:"post", 
         data:JSON.stringify({
             brokerId:(broker&&broker.id)?broker.id:"",
@@ -1167,8 +1147,8 @@ function insertPoorTopping(articleId,points,duration){
             points:points,//阅豆数
             advertiseDate:new Date(),//即时生效
             advertiseDuration:duration*60*1000,//毫秒数
-            subjectType:"article",
-            subjectId:articleId
+            subjectType:"account",
+            subjectId:accountId
         }),    
         headers:{
             "Content-Type":"application/json",
@@ -1192,8 +1172,8 @@ function insertPoorTopping(articleId,points,duration){
 }
 
 //显示尚未开始的置顶明细，包括当前正在置顶的条目
-function showUpcomingToppings(articleId){
-    toppingArticleId = articleId;
+function showUpcomingToppings(accountId){
+    toppingAccountId = accountId;
     //查询并显示即将到来的置顶
     $.ajax({
         url:app.config.sx_api+"/wx/wxTopping/rest/upcoming",
@@ -1202,8 +1182,8 @@ function showUpcomingToppings(articleId){
             brokerId:(broker&&broker.id)?broker.id:"",
             brokerOpenid:userInfo._key,
             advertiseType:"",//不限制广告类型
-            subjectType:"article",
-            subjectId:articleId
+            subjectType:"account",
+            subjectId:accountId
         },    
         headers:{
             "Content-Type":"application/json",
@@ -1251,11 +1231,11 @@ function showUpcomingToppings(articleId){
 }
 
 
-//加载阅读该文章的日志记录：限制1000条
-function loadReads(articleId){
-    toppingArticleId = articleId;
-    //查询阅读当前用户文章的事件列表
-    var q = "select eventId,readerOpenid as openid,readerNickname as nickname,readerAvatarUrl as avatarUrl,articleTitle,readCount,ts from ilife.reads where articleId='"+articleId+"' and readerOpenid!='"+userInfo._key+"' order by ts desc limit 1000 format JSON";
+//加载阅读该公众号的日志记录：限制1000条
+function loadSubscribes(accountId){
+    toppingAccountId = accountId;
+    //查询阅读当前用户公众号的事件列表
+    var q = "select eventId,subscriberOpenid as openid,subscriberNickname as nickname,subscriberAvatarUrl as avatarUrl,accountName,ts from ilife.subscribes where accountId='"+accountId+"' and subscriberOpenid!='"+userInfo._key+"' order by ts desc limit 1000 format JSON";
     $.ajax({
         url:app.config.analyze_api+"?query="+q,
         type:"get",
@@ -1266,21 +1246,21 @@ function loadReads(articleId){
         success:function(res){
             console.log("got read events.", res)
             if(res && res.rows==0){//如果没有则提示还没有阅读
-                $("#readsDiv").html('<div style="line-height: 30px;font-size: 12px;">没有阅读记录哦，尝试获得更多阅豆或置顶吧~~</div>');
+                $("#readsDiv").html('<div style="line-height: 30px;font-size: 12px;">没有关注记录哦，尝试获得更多阅豆或置顶吧~~</div>');
             }else{//否则显示到页面：简单列表展示
                 $("#readsDiv").empty();
                 res.data.forEach(function(item){
                     var html = "";
                     html += "<div class='reads-item'>";
                     html += "<div class='reads-date'>"+item.ts+"</div>";
-                    html += "<div class='reads-readername'>"+item.nickname+"</div>";
-                    html += "<div class='reads-count'>"+item.readCount+"</div>";
+                    html += "<div class='reads-subscribername' style='width:60%'>"+item.nickname+"</div>";
+                    //html += "<div class='reads-count'>"+item.readCount+"</div>";
                     html += "</div>";
                     $("#readsDiv").append(html);
                 });
             }
             //显示置顶明细表单
-            $.blockUI({ message: $('#readsForm'),
+            $.blockUI({ message: $('#subscribesForm'),
                 css:{ 
                     padding:        10, 
                     margin:         0, 
