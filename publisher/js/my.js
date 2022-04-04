@@ -102,7 +102,12 @@ $(document).ready(function ()
         $.unblockUI(); 
         //显示报数明细表单：需要有时间间隔，否则会导致原有html元素被一并隐藏删除
         setTimeout(function(){loadSoldAds(toppingArticleId);},500);//继续沿用当前文章ID
-    });              
+    });   
+
+    //取消充值
+    $("#btnCancelCharge").click(function(e){
+        $.unblockUI(); 
+    });                
 
     //检查是否有缓存事件
     resultCheck();
@@ -406,9 +411,15 @@ function insertPerson(person){
     $("#user").append(html);
 }
 
+/**
 function insertBroker(broker){
-    $("#brokerHint").html("流量主");
+    $("#brokerHint").empty();
+    $("#brokerHint").append("阅豆: "+broker.points?broker.points:0+'&nbsp;<button type="submit" class="btnYes" id="btnCharge">购买阅豆</button> ');
+    $("#btnCharge").click(function(){
+
+    });
 }
+//**/
 
 //显示没有更多内容
 function shownomore(flag){
@@ -650,6 +661,11 @@ function submitArticle(){
                         });  
                 }else{
                     toppingItem(res.data);//将文章显示到界面
+                    //扣除阅豆，并更新当前阅豆数
+                    if(broker&&broker.points&&res.points){
+                        broker.points = broker.points-res.points;
+                        insertBroker(broker);
+                    }                    
                     siiimpleToast.message('发布成功，阅豆越多排名越靠前哦~~',{
                           position: 'bottom|center'
                         });  
@@ -659,7 +675,7 @@ function submitArticle(){
     })     
 }
 
-//手动置顶指定文章
+//手动置顶指定文章：仅用于发布新文章时
 function toppingItem(item){
     if(!item || !item.id){
         console.log("wrong article");
@@ -1148,6 +1164,11 @@ function insertPoorTopping(articleId,points,duration){
             console.log("poor topping inserted.",res);
             $.unblockUI(); //解除锁屏
             $("#poorToppingDiv").empty();//清空原有内容
+            //扣除阅豆，并更新当前阅豆数
+            if(broker&&broker.points&&res.points){
+                broker.points = broker.points-res.points;
+                insertBroker(broker);
+            }
             //提示信息
             siiimpleToast.message('恭喜，置顶已安排~~',{
                   position: 'bottom|center'

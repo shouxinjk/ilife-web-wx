@@ -276,6 +276,16 @@
   width:10%;
 }
 
+.btn-charge{
+  border:1px solid #e16531;
+  color: #e16531;
+  border-radius: 16px;
+  min-width: 60px;
+  font-size: 12px;
+  font-weight: bold;  
+  line-height: 16px;
+  margin-left: 10px;
+}
 
 .btnYes{
   border:1px solid green;

@@ -284,9 +284,11 @@ function insertPerson(person){
     $("#user").append(html);
 }
 
+/**
 function insertBroker(broker){
     $("#brokerHint").html("流量主");
 }
+//**/
 
 //显示没有更多内容
 function shownomore(flag){
@@ -403,6 +405,11 @@ function costPoints(article){
             logPointCostEvent(article,res);//记录本次阅读历史
             //解除屏幕锁屏
             $.unblockUI(); 
+            //扣除阅豆，并更新当前阅豆数
+            if(broker&&broker.points&&res.points){
+                broker.points = broker.points+res.points;
+                insertBroker(broker);
+            }             
             //提示阅读已完成
             siiimpleToast.message('已奖励阅豆，读过的文章将不再显示哦~~',{
                   position: 'bottom|center'
@@ -532,6 +539,11 @@ function submitArticle(){
                         });  
                 }else{
                     toppingItem(res.data);//将文章显示到界面
+                    //扣除阅豆，并更新当前阅豆数
+                    if(broker&&broker.points&&res.points){
+                        broker.points = broker.points-res.points;
+                        insertBroker(broker);
+                    }                     
                     siiimpleToast.message('发布成功，阅豆越多排名越靠前哦~~',{
                           position: 'bottom|center'
                         });  

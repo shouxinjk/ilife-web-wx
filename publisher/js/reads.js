@@ -424,9 +424,11 @@ function insertPerson(person){
     $("#user").append(html);
 }
 
+/**
 function insertBroker(broker){
     $("#brokerHint").html("流量主");
 }
+//**/
 
 //显示没有更多内容
 function shownomore(flag){
