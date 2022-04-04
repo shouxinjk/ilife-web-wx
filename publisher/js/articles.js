@@ -148,6 +148,7 @@ function unregisterTimer(){
 加载待阅读文章列表：
 按照阅豆高低倒序排列得到最新文章列表
 */
+var tmpArticleIds = [];//缓存已加载的文章ID，避免置顶文章与普通文章重复显示
 function loadItems(){
     util.AJAX(app.config.sx_api+"/wx/wxArticle/rest/pending-articles", function (res) {
         showloading(false);
@@ -160,7 +161,13 @@ function loadItems(){
             //装载具体条目
             var hits = res;
             for(var i = 0 ; i < hits.length ; i++){
-                items.push(hits[i]);
+                //items.push(hits[i]);
+                if(tmpArticleIds.indexOf(hits[i].id)<0){
+                    items.push(hits[i]);
+                    tmpArticleIds.push(hits[i].id);
+                }else{
+                    //ignore
+                }
             }
             insertItem();
         }
@@ -193,12 +200,14 @@ function insertItem(){
     //**/
     //判断有无置顶广告位
     var tags = "";
-    if(item.advertise){//如果有广告位则显示置顶
-        tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>置顶</span>";
+    var advertise = "";
+    if(item.status&&item.status>1){//如果有广告位则显示置顶
+        tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>无敌置顶</span>";
+        advertise = "<img src='https://www.biglistoflittlethings.com/ilife-web-wx/images/rocket.png' width='16' height='16'/>&nbsp;";
+    }else if(item.status&&item.status>0){//临时置顶
+        tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>顶一下</span>";
     }
     
-    var advertise = "<img src='https://www.biglistoflittlethings.com/ilife-web-wx/images/rocket.png' width='16' height='16'/>&nbsp;";
-
     var title = "<div class='title'>"+tags+item.title+advertise+"</div>";
     var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
     var description = "<div class='description'>"+item.updateDate+"</div>";
@@ -411,7 +420,7 @@ function costPoints(article){
                 insertBroker(broker);
             }             
             //提示阅读已完成
-            siiimpleToast.message('已奖励阅豆，读过的文章将不再显示哦~~',{
+            siiimpleToast.message('已奖励'+res.points+'阅豆，读过的文章将不再显示哦~~',{
                   position: 'bottom|center'
                 });            
         }
@@ -544,7 +553,7 @@ function submitArticle(){
                         broker.points = broker.points-res.points;
                         insertBroker(broker);
                     }                     
-                    siiimpleToast.message('发布成功，阅豆越多排名越靠前哦~~',{
+                    siiimpleToast.message('发布成功，消耗'+res.points+'阅豆。阅豆越多排名越靠前哦~~',{
                           position: 'bottom|center'
                         });  
                 }   

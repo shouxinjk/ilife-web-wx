@@ -353,9 +353,15 @@ function changeArticleStatus(articleId,status){
                 if(status=="active"){
                     $("#btnDeactive"+articleId).css("display","block");
                     $("#btnActive"+articleId).css("display","none");
+                    siiimpleToast.message('已上架，阅豆越多排名越靠前哦~~',{
+                          position: 'bottom|center'
+                        });                    
                 }else{
                     $("#btnDeactive"+articleId).css("display","none");
                     $("#btnActive"+articleId).css("display","block");
+                    siiimpleToast.message('已下架，文章将不再显示~~',{
+                          position: 'bottom|center'
+                        });                     
                 }
             }
         }
@@ -666,7 +672,7 @@ function submitArticle(){
                         broker.points = broker.points-res.points;
                         insertBroker(broker);
                     }                    
-                    siiimpleToast.message('发布成功，阅豆越多排名越靠前哦~~',{
+                    siiimpleToast.message('发布成功，消耗'+res.points+'阅豆。阅豆越多排名越靠前哦~~',{
                           position: 'bottom|center'
                         });  
                 }   
