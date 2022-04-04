@@ -812,7 +812,7 @@ var soldAds = [];//已售卖广告位列表。在显示前直接查询得到。�
 function loadAds(){
     //查询得到公众号置顶广告位
     $.ajax({
-        url:app.config.sx_api+"/wx/wxAdvertise/rest/ads/article",//与article共用相同的广告位
+        url:app.config.sx_api+"/wx/wxAdvertise/rest/ads/account",
         type:"get",        
         success:function(res){
             console.log("got available account ads.",res);
