@@ -176,7 +176,7 @@ function loadItems(){
     {
         from:(page.current+1)*page.size,
         to:(page.current+1)*page.size+page.size,
-        openid:byOpenid?byOpenid:""
+        openid:byOpenid?byOpenid:userInfo._key
     },
     {});
 }

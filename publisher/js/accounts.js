@@ -190,7 +190,7 @@ function loadItems(){
     {
         from:(page.current+1)*page.size,
         to:(page.current+1)*page.size+page.size,
-        openid:byOpenid?byOpenid:""
+        openid:byOpenid?byOpenid:userInfo._key
     },
     {});
 }
@@ -229,7 +229,7 @@ function insertItem(){
     var btns = "<div class='btns'><div id='article-"+item.id+"' data-id='"+item.id+"'>前往关注</div></div>";
 
     //显示logo二维码供扫描关注
-    $("#waterfall").append("<li><div class='task' data='"+item.id+"' data-title='"+item.name+"' data-url='"+logo+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+pubishDate+"</div></li>");
+    $("#waterfall").append("<li><div class='task' data='"+item.id+"' data-title='"+item.name+"' data-originid='"+item.originalId+"' data-url='"+logo+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+pubishDate+"</div></li>");
     num++;
 
     //设置背景图片
@@ -243,8 +243,8 @@ function insertItem(){
         expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
         var pendingAccount = {
             id:$(this).attr("data"),//id
-            title:$(this).attr("data-title"),//标题
-            url:$(this).attr("data-url"),//文章URL
+            name:$(this).attr("data-title"),//标题
+            originalId:$(this).attr("data-originid"),//公众号ID
             startTime: new Date().getTime()//开始时间戳：需要超过10秒
         };
                
@@ -608,7 +608,7 @@ function toppingItem(item){
 
     var btns = "<div class='btns'><div id='article-"+item.id+"' data-id='"+item.id+"'>前往关注</div></div>";
 
-    $("#createAccountEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.name+"' data-url='"+logo+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+pubishDate+"</div></li>");
+    $("#createAccountEntry").after("<li><div class='task' data='"+item.id+"' data-title='"+item.name+"' data-originid='"+item.originalId+"' data-url='"+logo+"'><div class='task-logo'>" + imageBg +"</div><div class='task-tags'>" +title +description+pubishDate+"</div></li>");
 
     //设置背景图片
     $("#qrcodeimg"+item.id).css("background-image","url("+logo+")");
@@ -621,8 +621,8 @@ function toppingItem(item){
         expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
         var pendingAccount = {
             id:$(this).attr("data"),//id
-            title:$(this).attr("data-title"),//标题
-            url:$(this).attr("data-url"),//文章URL
+            name:$(this).attr("data-title"),//标题
+            originalId:$(this).attr("data-originid"),//公众号ID
             startTime: new Date().getTime()//开始时间戳：需要超过10秒
         };
                
