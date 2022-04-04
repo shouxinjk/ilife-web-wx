@@ -55,6 +55,13 @@ $(document).ready(function ()
 
 });
 
+//解决返回时不重新加载问题
+window.onpageshow = function (event) {
+    if (event.persisted) {
+        window.location.reload()
+    }
+} 
+
 util.getUserInfo();//从本地加载cookie
 
 var byOpenid = null;

@@ -254,6 +254,29 @@
   width:18%;
 }
 
+.reads-item{
+  font-size: 11px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+.reads-date{
+  line-height: 16px;
+  width:40%;
+}
+.reads-readername{
+  line-height: 16px;
+  width:50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.reads-count{
+  line-height: 16px;
+  width:10%;
+}
+
+
 .btnYes{
   border:1px solid green;
   color: green;

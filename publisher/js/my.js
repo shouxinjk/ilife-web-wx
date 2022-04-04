@@ -91,7 +91,18 @@ $(document).ready(function ()
         $.unblockUI(); 
         //显示购买表单：需要有时间间隔，否则会导致原有html元素被一并隐藏删除
         setTimeout(function(){loadSoldAds(toppingArticleId);},500);//继续沿用当前文章ID
-    });           
+    });    
+
+    //取消查看报数明细
+    $("#btnCancelReads").click(function(e){
+        $.unblockUI(); 
+    }); 
+    //从报数明细表单直接进入无敌置顶
+    $("#btnOkReads").click(function(e){
+        $.unblockUI(); 
+        //显示报数明细表单：需要有时间间隔，否则会导致原有html元素被一并隐藏删除
+        setTimeout(function(){loadSoldAds(toppingArticleId);},500);//继续沿用当前文章ID
+    });              
 
     //检查是否有缓存事件
     resultCheck();
@@ -101,9 +112,16 @@ $(document).ready(function ()
     countArticleTotal();//查询文章总数
 
     //加载广告位：仅加载可用广告位
-    loadAds();
+    loadAds();   
 
 });
+
+//解决返回时不重新加载问题
+window.onpageshow = function (event) {
+    if (event.persisted) {
+        window.location.reload()
+    }
+} 
 
 util.getUserInfo();//从本地加载cookie
 
@@ -260,7 +278,7 @@ function insertItem(){
     //置顶明细：弹出显示置顶明细列表，包括置顶及顶一下
     btns += '<button type="submit" class="action-tag-black" id="btnToppingHistory'+item.id+'">置顶明细</button> ';   
     //开白明细：弹出显示开白明细列表
-    btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';           
+    //btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';           
     //报数明细：能够查看报数历史
     btns += '<button type="submit" class="action-tag-black" id="btnReadHistory'+item.id+'">报数明细</button> ';     
     var btnsDiv = "<div class='btns' style='display:flex;flex-direction:row;flex-wrap:nowrap;margin-top:5px;'>"+btns+"</div>";    
@@ -271,6 +289,29 @@ function insertItem(){
 
     $("#waterfall").append("<li>"+seperator+"<div class='task' data='"+item.id+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+btnsDiv+"</div></li>");
     num++;
+
+    //注册事件
+    $("div[data='"+item.id+"']").click(function(){
+        //cookie缓存记录当前浏览文章，返回时检查：自己发布的文章不做记录
+        /**
+        console.log("Publisher::Articles now jump to article.");
+        var expDate = new Date();
+        expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
+        var readingArticle = {
+            id:$(this).attr("data"),//文章id
+            title:$(this).attr("data-title"),//文章标题
+            url:$(this).attr("data-url"),//文章URL
+            startTime: new Date().getTime()//开始时间戳：需要超过10秒
+        };
+               
+        console.log("Publisher::Articles save article to cookie.",readingArticle);
+        $.cookie('sxArticle', JSON.stringify(readingArticle), { expires: expDate, path: '/' });  //把浏览中的文章id写入cookie便于记录阅读数       
+        //**/
+        //跳转到原始页面完成阅读
+        console.log("Publisher::Articles now jump to article.");
+        //window.location.href = "../index.html";   
+        window.location.href = $(this).attr("data-url");          
+    });
 
     //注册事件
     $("#btnDeactive"+item.id).click(function(){ //下架      
@@ -287,6 +328,9 @@ function insertItem(){
     }); 
     $("#btnToppingHistory"+item.id).click(function(){ //显示当前文章的置顶明细
         showUpcomingToppings($(this).attr("id").replace(/btnToppingHistory/,""));//需要传递当前文章ID
+    });     
+    $("#btnReadHistory"+item.id).click(function(){ //显示当前文章的报数明细
+        loadReads($(this).attr("id").replace(/btnReadHistory/,""));//需要传递当前文章ID
     });          
     // 表示加载结束
     loading = false;
@@ -653,7 +697,7 @@ function toppingItem(item){
     //置顶明细：弹出显示置顶明细列表，包括置顶及顶一下
     btns += '<button type="submit" class="action-tag-black" id="btnToppingHistory'+item.id+'">置顶明细</button> ';   
     //开白明细：弹出显示开白明细列表
-    btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';      
+    //btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';      
     //报数明细：能够查看报数历史
     btns += '<button type="submit" class="action-tag-black" id="btnReadHistory'+item.id+'">报数明细</button> ';     
     var btnsDiv = "<div class='btns' style='display:flex;flex-direction:row;flex-wrap:nowrap;margin-top:5px;'>"+btns+"</div>";    
@@ -664,7 +708,8 @@ function toppingItem(item){
 
     //注册事件
     $("div[data='"+item.id+"']").click(function(){
-        //cookie缓存记录当前浏览文章，返回时检查
+        //cookie缓存记录当前浏览文章，返回时检查：自己发布的文章不做记录
+        /**
         console.log("Publisher::Articles now jump to article.");
         var expDate = new Date();
         expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
@@ -677,13 +722,33 @@ function toppingItem(item){
                
         console.log("Publisher::Articles save article to cookie.",readingArticle);
         $.cookie('sxArticle', JSON.stringify(readingArticle), { expires: expDate, path: '/' });  //把浏览中的文章id写入cookie便于记录阅读数       
-
+        //**/
         //跳转到原始页面完成阅读
         console.log("Publisher::Articles now jump to article.");
         //window.location.href = "../index.html";   
         window.location.href = $(this).attr("data-url");          
-
     });
+
+
+    //注册事件
+    $("#btnDeactive"+item.id).click(function(){ //下架      
+        changeArticleStatus($(this).attr("id").replace(/btnDeactive/,""),"inactive");
+    });
+    $("#btnActive"+item.id).click(function(){ //上架   
+        changeArticleStatus($(this).attr("id").replace(/btnActive/,""),"active");
+    });       
+    $("#btnTopping"+item.id).click(function(){ //无敌置顶：要花钱的那种 
+        loadSoldAds($(this).attr("id").replace(/btnTopping/,""));//需要传递当前文章ID
+    }); 
+    $("#btnPoorTopping"+item.id).click(function(){ //临时置顶：不花钱的那种 
+        showPoorToppingForm($(this).attr("id").replace(/btnPoorTopping/,""));//需要传递当前文章ID
+    }); 
+    $("#btnToppingHistory"+item.id).click(function(){ //显示当前文章的置顶明细
+        showUpcomingToppings($(this).attr("id").replace(/btnToppingHistory/,""));//需要传递当前文章ID
+    });     
+    $("#btnReadHistory"+item.id).click(function(){ //显示当前文章的报数明细
+        loadReads($(this).attr("id").replace(/btnReadHistory/,""));//需要传递当前文章ID
+    });     
 }
 
 //查询阅我总数：排除自己的阅读
@@ -1150,6 +1215,58 @@ function showUpcomingToppings(articleId){
     });
 }
 
+
+//加载阅读该文章的日志记录：限制1000条
+function loadReads(articleId){
+    toppingArticleId = articleId;
+    //查询阅读当前用户文章的事件列表
+    var q = "select eventId,readerOpenid as openid,readerNickname as nickname,readerAvatarUrl as avatarUrl,articleTitle,readCount,ts from ilife.reads where articleId='"+articleId+"' and readerOpenid!='"+userInfo._key+"' order by ts desc limit 1000 format JSON";
+    $.ajax({
+        url:app.config.analyze_api+"?query="+q,
+        type:"get",
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(res){
+            console.log("got read events.", res)
+            if(res && res.rows==0){//如果没有则提示还没有阅读
+                $("#readsDiv").html('<div style="line-height: 30px;font-size: 12px;">没有阅读记录哦，尝试获得更多阅豆或置顶吧~~</div>');
+            }else{//否则显示到页面：简单列表展示
+                $("#readsDiv").empty();
+                res.data.forEach(function(item){
+                    var html = "";
+                    html += "<div class='reads-item'>";
+                    html += "<div class='reads-date'>"+item.ts+"</div>";
+                    html += "<div class='reads-readername'>"+item.nickname+"</div>";
+                    html += "<div class='reads-count'>"+item.readCount+"</div>";
+                    html += "</div>";
+                    $("#readsDiv").append(html);
+                });
+            }
+            //显示置顶明细表单
+            $.blockUI({ message: $('#readsForm'),
+                css:{ 
+                    padding:        10, 
+                    margin:         0, 
+                    width:          '80%', 
+                    top:            '10%', 
+                    left:           '10%', 
+                    textAlign:      'center', 
+                    color:          '#000', 
+                    border:         '1px solid silver', 
+                    backgroundColor:'#fff', 
+                    cursor:         'normal' 
+                },
+                overlayCSS:  { 
+                    backgroundColor: '#000', 
+                    opacity:         0.7, 
+                    cursor:          'normal' 
+                }
+            });             
+        }
+    }); 
+}
 
 
 
