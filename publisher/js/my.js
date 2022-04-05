@@ -928,7 +928,7 @@ function showAds(){
             advertiseDate2.setMinutes(Number(advertiseTime2[1]));
             advertiseDate2.setSeconds(Number(advertiseTime2[2]));        
             //判断是否是未来时间：另一种方案:根据advertiseDate2进行判断，能够支持立即购买    
-            if(advertiseDate.getTime()>new Date().getTime()){//仅对未来时间展示
+            if(advertiseDate2.getTime()>new Date().getTime()){//仅对未来时间展示
                 //检查所在分组的时间段是否已显示
                 var advertiseTimeSlotKey = DateFormatter.format('%m-%d-%H-%i-%s', advertiseDate);
                 //console.log("advertiseDate",advertiseDate,item.timeSlotFrom);
