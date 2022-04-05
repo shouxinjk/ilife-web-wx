@@ -591,41 +591,48 @@ function logPointCostEvent(article,publisher){
 //显示发布文章表单
 function showArticleForm(){
     console.log("show article form.");
-    //显示数据填报表单
-    $.blockUI({ message: $('#articleform'),
-        css:{ 
-            padding:        10, 
-            margin:         0, 
-            width:          '60%', 
-            top:            '40%', 
-            left:           '20%', 
-            textAlign:      'center', 
-            color:          '#000', 
-            border:         '1px solid silver', 
-            backgroundColor:'#fff', 
-            cursor:         'normal' 
-        },
-        overlayCSS:  { 
-            backgroundColor: '#000', 
-            opacity:         0.7, 
-            cursor:          'normal' 
-        }
-    }); 
-    $("#btnCancel").click(function(){
-        $("#articleUrl").css("border","1px solid silver");//恢复标准风格
-        $("#articleUrl").val("");//清空原有数值，避免交叉        
-        $.unblockUI(); //直接取消即可
-    });
-    $("#btnPublish").click(function(){//完成阅读后的奖励操作
-        //检查数字url，胡乱填写不可以
-        if( !isUrlValid($("#articleUrl").val()) ){
-            $("#articleUrl").css("border","1px solid red");
-            $("#articleUrl").val("");//清空原有数值，避免交叉
-        }else{
-            console.log("try to submit read event.");
-            submitArticle();
-        }
-    });
+    //判断阅豆是否足够：
+    if(broker&&broker.points<5){
+        siiimpleToast.message('阅豆不足，发布文章需要5阅豆，去阅读或关注获取吧~~',{
+              position: 'bottom|center'
+            });
+    }else{
+        //显示数据填报表单
+        $.blockUI({ message: $('#articleform'),
+            css:{ 
+                padding:        10, 
+                margin:         0, 
+                width:          '60%', 
+                top:            '40%', 
+                left:           '20%', 
+                textAlign:      'center', 
+                color:          '#000', 
+                border:         '1px solid silver', 
+                backgroundColor:'#fff', 
+                cursor:         'normal' 
+            },
+            overlayCSS:  { 
+                backgroundColor: '#000', 
+                opacity:         0.7, 
+                cursor:          'normal' 
+            }
+        }); 
+        $("#btnCancel").click(function(){
+            $("#articleUrl").css("border","1px solid silver");//恢复标准风格
+            $("#articleUrl").val("");//清空原有数值，避免交叉        
+            $.unblockUI(); //直接取消即可
+        });
+        $("#btnPublish").click(function(){//完成阅读后的奖励操作
+            //检查数字url，胡乱填写不可以
+            if( !isUrlValid($("#articleUrl").val()) ){
+                $("#articleUrl").css("border","1px solid red");
+                $("#articleUrl").val("");//清空原有数值，避免交叉
+            }else{
+                console.log("try to submit read event.");
+                submitArticle();
+            }
+        });
+    }    
 }
 
 //检查url是否符合要求：仅支持微信公众号文章

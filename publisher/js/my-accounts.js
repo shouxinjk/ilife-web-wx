@@ -564,53 +564,60 @@ function logPointCostEvent(account,subscriber){
 //显示发布公众号表单
 function showAccountForm(){
     console.log("show account form.");
-    //显示数据填报表单
-    $.blockUI({ message: $('#accountform'),
-        css:{ 
-            padding:        10, 
-            margin:         0, 
-            width:          '60%', 
-            top:            '20%', 
-            left:           '20%', 
-            textAlign:      'center', 
-            color:          '#000', 
-            border:         '1px solid silver', 
-            backgroundColor:'#fff', 
-            cursor:         'normal' 
-        },
-        overlayCSS:  { 
-            backgroundColor: '#000', 
-            opacity:         0.7, 
-            cursor:          'normal' 
-        }
-    }); 
-    $("#btnCancel").click(function(){       
-        $.unblockUI(); //直接取消即可
-    });
-    $("#btnPublish").click(function(){//发布公众号
-        var valid = true;
-        if(!$("#accountName").val() || $("#accountName").val().trim().length==0){
-            $("#accountName").css("border","1px solid red");
-            $("#accountName").val("");//清空原有数值，避免交叉
-            valid = false;
-        }
-        if(!isOriginalIdValid($("#accountOriginalId").val())){
-            $("#accountOriginalId").css("border","1px solid red");
-            $("#accountOriginalId").val("");//清空原有数值，避免交叉
-            valid = false;
-        }
-        /**
-        if(!$("#accountDesc").val() || $("#accountDesc").val().trim().length==0){
-            $("#accountDesc").css("border","1px solid red");
-            $("#accountDesc").val("");//清空原有数值，避免交叉
-            valid = false;
-        }
-        //**/
-        if(valid){
-            console.log("try to submit subscribe event.");
-            submitAccount();
-        }
-    });
+    //判断阅豆是否足够：
+    if(broker&&broker.points<10){
+        siiimpleToast.message('阅豆不足，发布需要10阅豆，去阅读或关注获取吧~~',{
+              position: 'bottom|center'
+            });
+    }else{  
+        //显示数据填报表单  
+        $.blockUI({ message: $('#accountform'),
+            css:{ 
+                padding:        10, 
+                margin:         0, 
+                width:          '60%', 
+                top:            '20%', 
+                left:           '20%', 
+                textAlign:      'center', 
+                color:          '#000', 
+                border:         '1px solid silver', 
+                backgroundColor:'#fff', 
+                cursor:         'normal' 
+            },
+            overlayCSS:  { 
+                backgroundColor: '#000', 
+                opacity:         0.7, 
+                cursor:          'normal' 
+            }
+        }); 
+        $("#btnCancel").click(function(){       
+            $.unblockUI(); //直接取消即可
+        });
+        $("#btnPublish").click(function(){//发布公众号
+            var valid = true;
+            if(!$("#accountName").val() || $("#accountName").val().trim().length==0){
+                $("#accountName").css("border","1px solid red");
+                $("#accountName").val("");//清空原有数值，避免交叉
+                valid = false;
+            }
+            if(!isOriginalIdValid($("#accountOriginalId").val())){
+                $("#accountOriginalId").css("border","1px solid red");
+                $("#accountOriginalId").val("");//清空原有数值，避免交叉
+                valid = false;
+            }
+            /**
+            if(!$("#accountDesc").val() || $("#accountDesc").val().trim().length==0){
+                $("#accountDesc").css("border","1px solid red");
+                $("#accountDesc").val("");//清空原有数值，避免交叉
+                valid = false;
+            }
+            //**/
+            if(valid){
+                console.log("try to submit subscribe event.");
+                submitAccount();
+            }
+        });
+    }
 }
 
 //判定公众号原始ID是否正确
