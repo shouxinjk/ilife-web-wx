@@ -30,8 +30,11 @@ $(document).ready(function ()
         filter = args["filter"]; //如果传入参数则使用传入值：all、byBroker
     }
     if(args["byOpenid"]){
-        byOpenid = args["byOpenid"]; //支持传入publisherOpenid
-    }    
+        byOpenid = args["byOpenid"]; //预留。能够指定当前用户openid
+    }  
+    if(args["byPublisherOpenid"]){
+        byPublisherOpenid = args["byPublisherOpenid"]; //支持传入publisherOpenid
+    }      
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
@@ -65,6 +68,7 @@ window.onpageshow = function (event) {
 util.getUserInfo();//从本地加载cookie
 
 var byOpenid = null;
+var byPublisherOpenid = null;
 
 //设置默认logo
 var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
@@ -155,6 +159,9 @@ function loadItems(){
         console.log("Publisher::Articles::loadItems try to retrive pending articles.", res)
         if(res && res.length==0){//如果没有画像则提示，
             shownomore();
+            if(!items || items.length==0){
+                $("#Center").append("<div style='font-size:12px;line-height:24px;width:100%;text-align:center;'>没有待阅读记录哦~~</div>");
+            }            
         }else{//否则显示到页面
             //更新当前翻页
             page.current = page.current + 1;
@@ -176,7 +183,8 @@ function loadItems(){
     {
         from:(page.current+1)*page.size,
         to:(page.current+1)*page.size+page.size,
-        openid:byOpenid?byOpenid:userInfo._key
+        openid:byOpenid?byOpenid:userInfo._key,//当前订阅者的openid：用于排除已经关注的内容
+        publisherOpenid:byPublisherOpenid?byPublisherOpenid:""//发布者 openid：只显示指定发布者的内容
     },
     {});
 }

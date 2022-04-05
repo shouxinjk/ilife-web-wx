@@ -1187,17 +1187,19 @@ function insertPoorTopping(accountId,points,duration){
 //显示尚未开始的置顶明细，包括当前正在置顶的条目
 function showUpcomingToppings(accountId){
     toppingAccountId = accountId;
-    //查询并显示即将到来的置顶
-    $.ajax({
-        url:app.config.sx_api+"/wx/wxTopping/rest/upcoming",
-        type:"get", 
-        data:{//以下均为必须参数，可以置空
+    var data = {//以下均为必须参数，可以置空
             brokerId:(broker&&broker.id)?broker.id:"",
             brokerOpenid:userInfo._key,
             advertiseType:"",//不限制广告类型
             subjectType:"account",
             subjectId:accountId
-        },    
+        };
+    console.log("try query upcoming list.",data);
+    //查询并显示即将到来的置顶
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxTopping/rest/upcoming",
+        type:"get", 
+        data:data,    
         headers:{
             "Content-Type":"application/json",
             "Accept": "application/json"
@@ -1259,9 +1261,9 @@ function loadSubscribes(accountId){
         success:function(res){
             console.log("got read events.", res)
             if(res && res.rows==0){//如果没有则提示还没有阅读
-                $("#readsDiv").html('<div style="line-height: 30px;font-size: 12px;">没有关注记录哦，尝试获得更多阅豆或置顶吧~~</div>');
+                $("#subscribesDiv").html('<div style="line-height: 30px;font-size: 12px;">没有关注记录哦，尝试获得更多阅豆或置顶吧~~</div>');
             }else{//否则显示到页面：简单列表展示
-                $("#readsDiv").empty();
+                $("#subscribesDiv").empty();
                 res.data.forEach(function(item){
                     var html = "";
                     html += "<div class='reads-item'>";
@@ -1269,7 +1271,7 @@ function loadSubscribes(accountId){
                     html += "<div class='reads-subscribername' style='width:60%'>"+item.nickname+"</div>";
                     //html += "<div class='reads-count'>"+item.readCount+"</div>";
                     html += "</div>";
-                    $("#readsDiv").append(html);
+                    $("#subscribesDiv").append(html);
                 });
             }
             //显示置顶明细表单

@@ -180,6 +180,9 @@ function loadItems(){
 
             if(res && res.rows==0){//如果没有画像则提示，
                 shownomore();
+                if(!items || items.length==0){
+                    $("#Center").append("<div style='font-size:12px;line-height:24px;width:100%;text-align:center;'>还没有记录哦~~</div>");
+                }                
             }else{//否则显示到页面
                 //更新当前翻页
                 page.current = page.current + 1;
@@ -359,15 +362,16 @@ function insertItem(){
     $("div[data='"+item.eventId+"']").click(function(){
         //跳转到reader的文章列表，根据readerOpenid过滤
         console.log("Publisher::Reads now jump to reader's article list.");  
-        window.location.href = "articles.html?byOpenid="+$(this).attr("data-reader");          
-
+        //window.location.href = "articles.html?byOpenid="+$(this).attr("data-reader");          
+        window.location.href = "articles.html?byPublisherOpenid="+$(this).attr("data-reader");  
     });
 
     //注册事件:点击 去看TA 按钮跳转
     $("#reader-btn-"+item.openid).click(function(){
         //跳转到reader的文章列表，根据readerOpenid过滤
         console.log("Publisher::Reads now jump to reader's article list.");  
-        window.location.href = "articles.html?byOpenid="+$(this).attr("id").replace(/reader-btn-/,"");          
+        //window.location.href = "articles.html?byOpenid="+$(this).attr("id").replace(/reader-btn-/,"");     
+        window.location.href = "articles.html?byPublisherOpenid="+$(this).attr("id").replace(/reader-btn-/,"");        
     });
 
 

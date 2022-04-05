@@ -245,7 +245,7 @@ function countSubscribetaTotal(){
     }); 
 }
 
-//根据openid查询阅读我的文章总数
+//根据openid查询关注我的总数
 function countSubscribemeByOpenid(openid){
     $.ajax({
         url:app.config.analyze_api+"?query=select count(eventId) as totalCount from ilife.subscribes where publisherOpenid='"+userInfo._key+"' and subscriberOpenid='"+openid+"' format JSON",
@@ -267,7 +267,7 @@ function countSubscribemeByOpenid(openid){
     }); 
 }
 
-//根据openid查询我阅读的文章总数
+//根据openid查询我关注的总数
 function countSubscribetaByOpenid(openid){
     $.ajax({
         url:app.config.analyze_api+"?query=select count(eventId) as totalCount from ilife.subscribes where publisherOpenid='"+openid+"' and subscriberOpenid='"+userInfo._key+"' format JSON",
@@ -283,7 +283,7 @@ function countSubscribetaByOpenid(openid){
                 //do nothing
             }else{//否则更新subscribemeMap
                 subscribetaMap[openid] = res.data[0].totalCount;
-                checkReadsDiff(openid);//检查更新差异
+                checkSubscribesDiff(openid);//检查更新差异
             }
         }
     }); 
@@ -297,21 +297,21 @@ function checkSubscribesDiff(openid){
     }
     console.log("got read diffs.",diff)
     if(subscribemeMap[openid]&&subscribemeMap[openid]>0){
-        $("#subscriber-subscribeme-"+openid).text("阅我 "+subscribemeMap[openid]);
+        $("#subscriber-subscribeme-"+openid).text("粉我 "+subscribemeMap[openid]);
     }else{
-        $("#subscriber-subscribeme-"+openid).text("阅我 0");
+        $("#subscriber-subscribeme-"+openid).text("粉我 0");
     }
     if(subscribetaMap[openid]&&subscribetaMap[openid]>0){
-        $("#subscriber-subscribeta-"+openid).text("阅TA "+subscribetaMap[openid]);
+        $("#subscriber-subscribeta-"+openid).text("粉TA "+subscribetaMap[openid]);
     }else{
-        $("#subscriber-subscribeta-"+openid).text("阅TA 0");
+        $("#subscriber-subscribeta-"+openid).text("粉TA 0");
     } 
     if(diff<0){
-        $("#subscriber-btn-"+openid).text("去看TA");
+        $("#subscriber-btn-"+openid).text("回粉TA");
         $("#subscriber-btn-"+openid).removeClass("action-tag-grey");
         $("#subscriber-btn-"+openid).addClass("action-tag");        
     }else{
-        $("#subscriber-btn-"+openid).text("去看TA");
+        $("#subscriber-btn-"+openid).text("去粉TA");
         $("#subscriber-btn-"+openid).removeClass("action-tag");
         $("#subscriber-btn-"+openid).addClass("action-tag-grey");
     }
@@ -337,10 +337,10 @@ function insertItem(){
     var tagSubscribeta = "<span id='subscriber-subscribeta-"+item.openid+"' class='highlight-tag'></span>";
     var tagReadBtn = "<span id='subscriber-btn-"+item.openid+"' class='action-tag'></span>";
 
-    var subscriber = "<div class='title subscriberDiv'><div class='subscriberName'>"+item.nickname+"</div><div class='subscribetaBtn'>"+ tagReadBtn+"</div></div>";
-    var title = "<div class='description'>"+item.accountTitle+"</div>";
+    var subscriber = "<div class='title readerDiv'><div class='readerName'>"+item.nickname+"</div><div class='readtaBtn'>"+ tagReadBtn+"</div></div>";
+    var title = "<div class='description'>"+item.accountName+"</div>";
     var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;border-radius:50%;'/>";
-    var description = "<div class='description subscriberCountDiv'><div class='readTimestamp'>"+item.ts+"</div><div class='readCount'>"+tagSubscribeme+tagSubscribeta+"</div></div>";
+    var description = "<div class='description readerCountDiv'><div class='readTimestamp'>"+item.ts+"</div><div class='readCount'>"+tagSubscribeme+tagSubscribeta+"</div></div>";
 
     var seperator = "";
     if(num>1)
@@ -362,7 +362,8 @@ function insertItem(){
     $("div[data='"+item.eventId+"']").click(function(){
         //跳转到subscriber的文章列表，根据subscriberOpenid过滤
         console.log("Publisher::Reads now jump to subscriber's account list.");  
-        window.location.href = "accounts.html?byOpenid="+$(this).attr("data-subscriber");          
+        //window.location.href = "accounts.html?byOpenid="+$(this).attr("data-subscriber");    
+        window.location.href = "accounts.html?byPublisherOpenid="+$(this).attr("data-subscriber");        
 
     });
 
@@ -370,7 +371,8 @@ function insertItem(){
     $("#subscriber-btn-"+item.openid).click(function(){
         //跳转到subscriber的文章列表，根据subscriberOpenid过滤
         console.log("Publisher::Reads now jump to subscriber's account list.");  
-        window.location.href = "accounts.html?byOpenid="+$(this).attr("id").replace(/subscriber-btn-/,"");          
+        //window.location.href = "accounts.html?byOpenid="+$(this).attr("id").replace(/subscriber-btn-/,"");     
+        window.location.href = "accounts.html?byPublisherOpenid="+$(this).attr("id").replace(/subscriber-btn-/,"");        
     });
 
 
