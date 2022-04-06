@@ -401,8 +401,17 @@ function costPoints(article){
     //先扣除阅豆
     console.log("try to commit read event.",userInfo._key);
     $.ajax({
-        url:app.config.sx_api+"/wx/wxArticle/rest/exposure/"+article.id+"/"+userInfo._key,
+        url:app.config.sx_api+"/wx/wxArticle/rest/exposure",
         type:"post",
+        data:JSON.stringify({
+            articleId:article.id,
+            readerOpenid:userInfo._key,
+            readCount:$("#viewNumbers").val().trim()
+        }),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },         
         success:function(res){
             console.log("cost point succeed.",res);
             logPointCostEvent(article,res);//记录本次阅读历史
