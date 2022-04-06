@@ -64,7 +64,6 @@ var tagging = '';//操作对应的action 如buy view like 等
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;
 var userInfo=app.globalData.userInfo;//默认为当前用户
 
-/**
 setInterval(function ()
 {
     if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
@@ -81,7 +80,6 @@ setInterval(function ()
         }
     }
 }, 300);
-//**/
 
 //加载下级达人
 function loadItems(){
@@ -100,7 +98,10 @@ function loadItems(){
             }
             //insertItem();
         }
-    }, "GET",{},{});
+    }, "GET",{
+        from:(page.current+1)*page.size,
+        to:(page.current+1)*page.size+page.size
+    },{});
 }
 
 //根据openId加载指定的关联用户Item

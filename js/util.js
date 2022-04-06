@@ -221,6 +221,10 @@ util.checkInitBroker=function(fromBroker='system'){
     var initBroker = $.cookie('initBroker');
     if(initBroker && initBroker.trim().length>0){
         if(app.config.isDebug)console.log("there already has initBroker for this user.", initBroker);
+        //存入当前用户：
+        if(app.globalData.userInfo){
+            app.globalData.userInfo.initBroker = fromBroker;
+        }
     }else{
         if(app.config.isDebug)console.log("there is no initBroker for this user, generate one.", fromBroker);
         $.cookie('initBroker', fromBroker, { expires: 3650, path: '/' });  

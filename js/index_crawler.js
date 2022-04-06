@@ -1085,6 +1085,8 @@ function loadItem(key){//获取内容列表
         success:function(data){
             //存入cookie，在切换界面时直接读取
             document.cookie = "sxPendingItem="+JSON.stringify(data)+"; SameSite=None; Secure"; 
+            //重要：对于从已有数据中加载的条目，需要手动设置重建评价指标状态为false
+            data.remeasure = false;
             showContent(data);
         },
         error: function(xhr){
@@ -1126,6 +1128,14 @@ function submitItemForm(){
     currentItem.title = $("#title").val();
     currentItem.summary = $("#summary").val();
     currentItem.title = $("#title").val();
+
+    //判断是否需要建立评价指标：仅对于缺失remeasure字段的才需要补充，否则沿用原有设置
+    if(!( "remeasure" in currentItem )){
+        console.log("add remeasure flag to item.",currentItem);
+        currentItem.remeasure = true;
+    }else{
+        console.log("it is an measure-ed item. ignore remeasure flag.",currentItem);
+    }
 
     //添加当前采集达人数据，包括openid及orgnnzation信息
     if($.cookie("sxAuth") && $.cookie("sxAuth").trim().length>0){
