@@ -214,6 +214,29 @@ util.checkBroker=function(openid,callback) {
     }, "GET", {}, { "Api-Key": "foobar" });
 }
 
+//静默注册：如果达人不存在则直接注册
+util.checkBrokerSilent=function(broker,callback) {
+    var url = app.config.sx_api+"/mod/broker/rest/silent-broker-check";
+    if (app.globalData.isDebug) console.log("Util::checkBrokerSlient start check if current user is a broker.",broker);
+    util.AJAX(url, function (res) {
+      if (app.globalData.isDebug) console.log("Util::checkBroker check broker finished.", res);
+      if(res && res.id){
+          //更新本地Broker
+          app.globalData.brokerInfo = res;      
+          app.globalData.hasBrokerInfo = true;//是否是达人
+          //写入cookie
+            $.cookie('sxBrokerInfo', JSON.stringify(res), { expires: 3650, path: '/' });
+            $.cookie('hasBrokerInfo', true, { expires: 3650, path: '/' });      
+            if (typeof callback === "function") {
+                callback(res);
+            }
+      }else{//do nothing
+        console.log("failed check broker silent.",res);
+      }
+
+    }, "POST", broker, {});
+}
+
 //设置首次触达达人。默认为system
 util.checkInitBroker=function(fromBroker='system'){
     console.log("try to check init broker.",fromBroker);
