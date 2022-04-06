@@ -220,36 +220,6 @@ function showQRcode(url) {
     $("#qrcode").html('<img src="'+url+'" width="200px" alt="分享二维码邀请关心的人"/>');
 }
 
-//将person显示到页面
-/*
-        <view class="info-general">
-          <image class="general-icon" src="{{userInfo.avatarUrl}}" catchtap="navigateTo" data-url="{{userInfo._key}}"></image>
-        </view>
-        <view class="info-detail">
-          <progress percent="80" stroke-width="12" active/>
-          <view class="info-text info-blank">{{userInfo.nickName}}</view>
-          <view class="info-text info-blank">{{userInfo.city?userInfo.city:""}}</view>
-        </view>
-*/
-function insertPerson(person){
-    // 显示HTML
-    var html = '';
-    html += '<div class="info-general">';
-    html += '<img class="general-icon" src="'+(person.avatarUrl?person.avatarUrl:(person.headImgUrl?person.headImgUrl:"/images/avatar/default.png"))+'" height="60px"/>';
-    html += '</div>';
-    html += '<div class="info-detail">';
-    html += '<div class="info-text info-blank">'+(person.nickName?person.nickName:(person.nickname?person.nickname:"没写名字的神秘人"))+'</div>';
-    html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    html += '<div class="info-text info-blank" id="brokerLink"></div>';
-    html += '</div>';
-    $("#user").append(html);
-}
-
-function insertBroker(broker){
-    $("#brokerLink").html('<a href="broker/task.html">进入达人后台</a>');
-    $("#brokerHint").html("达人级别："+broker.level);
-}
-
 //显示没有更多内容
 function shownomore(flag){
   if(flag){

@@ -211,24 +211,6 @@ function showQRcode(url) {
     $("#qrcode").html('<img src="'+url+'" width="200px" alt="分享二维码邀请达人加入"/>');
 }
 
-function insertPerson(person){
-    // 显示HTML
-    var html = '';
-    html += '<div class="info-general">';
-    html += '<img class="general-icon" src="'+person.avatarUrl+'" height="60px"/>';
-    html += '</div>';
-    html += '<div class="info-detail">';
-    html += '<div class="info-text info-blank">'+person.nickName+'</div>';
-    html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    html += '<div class="info-text info-blank" id="brokerLink"><a href="../user.html">返回用户后台</a></div>';
-    html += '</div>';
-    $("#user").append(html);
-}
-
-function insertBroker(broker){
-    $("#brokerHint").html("达人级别："+broker.level);
-}
-
 //显示没有更多内容
 function shownomore(flag){
   if(flag){
