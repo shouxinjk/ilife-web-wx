@@ -216,7 +216,7 @@ function insertItem(){
         tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>顶一下</span>";
     }
     
-    var title = "<div class='title'>"+tags+item.title+advertise+"</div>";
+    var title = "<div class='title'>"+tags+item.title/*+(item.counts?"("+item.counts+"阅)":"")*/+advertise+"</div>";
     var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
     var description = "<div class='description'>"+item.updateDate+"</div>";
 

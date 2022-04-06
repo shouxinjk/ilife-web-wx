@@ -224,7 +224,7 @@ function insertItem(){
         tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>顶一下</span>";
     }
     
-    var title = "<div class='title'>"+tags+item.name+advertise+"</div>";
+    var title = "<div class='title'>"+tags+item.name/*+(item.counts?"("+item.counts+"粉)":"")*/+advertise+"</div>";
     var imageBg = "<div id='qrcodeimg"+item.id+"' class='qrcodeimg'></div>";
     var description = "<div class='description'>"+item.description+"</div>";
     var pubishDate = "<div class='description'>"+item.updateDate+"</div>";

@@ -270,7 +270,7 @@ function insertItem(){
     tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>置顶</span>";
     var advertise = "<img src='https://www.biglistoflittlethings.com/ilife-web-wx/images/rocket.png' width='16' height='16'/>&nbsp;";
 
-    var title = "<div class='title' id='title"+item.id+"'>"+item.name+"</div>";
+    var title = "<div class='title' id='title"+item.id+"'>"+item.name+(item.counts?"("+item.counts+"粉)":"")+"</div>";
     //var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
     var imageBg = "<div id='qrcodeimg"+item.id+"' class='qrcodeimg'></div>";
     var description = item.description&&item.description.trim().length>0?"<div class='description'>"+item.description+"</div>":"";
