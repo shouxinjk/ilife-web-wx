@@ -91,32 +91,32 @@ function showPostMask(){
 }
 
 //生成短连接及二维码
-function generateQRcode(){
+function generateQrcode(){
     console.log("start generate qrcode......");
     var longUrl = window.location.href.replace(/info2ext/g,"info").replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
     longUrl += "&fromBroker="+broker.id;
-    longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:"");
-    var header={
-        "Content-Type":"application/json"
-    };
-    util.AJAX(app.config.auth_api+"/wechat/ilife/short-url", function (res) {
-        console.log("generate short url.",longUrl,res);
-        var shortUrl = longUrl;
-        if (res.status) {//获取短连接
-            shortUrl = res.data.url;
-        }
-        //bug修复：qrcode在生成二维码时，如果链接长度是192-217之间会导致无法生成，需要手动补齐
-        if(shortUrl.length>=192 && shortUrl.length <=217){
-            shortUrl += "&placehold=fix-qrcode-bug-url-between-192-217";
-        }
-        console.log("generate qrcode by short url.[length]"+shortUrl.length,shortUrl);
-        var qrcode = new QRCode("app-qrcode-box");
-        qrcode.makeCode(shortUrl);
-        //开始生成海报图片
-        //注意：由于二维码生成需要时间，这里需要等待一小段时间完成
-        window.setTimeout(generateImage,1200);
-        //generateImage(); 
-    }, "POST", { "longUrl": longUrl },header);    
+    longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:"");   
+    
+    //生成短码并保存
+    var shortCode = generateShortCode(longUrl);
+    console.log("got short code",shortCode);
+    saveShortCode(hex_md5(longUrl),id,fromBroker,fromUser,"mp",encodeURIComponent(longUrl),shortCode);    
+    var shortUrl = "https://www.biglistoflittlethings.com/ilife-web-wx/s.html?s="+shortCode;//必须是全路径
+    var logoUrl = imgPrefix+app.globalData.userInfo.avatarUrl;//需要中转，否则会有跨域问题
+
+    //生成二维码
+    var qrcode = new QRCode(document.getElementById("app-qrcode-box"), {
+        text: shortUrl,
+        width: 96,
+        height: 96,    
+        drawer: 'png',
+        logo: logoUrl,
+        logoWidth: 24,
+        logoHeight: 24,
+        logoBackgroundColor: '#ffffff',
+        logoBackgroundTransparent: false
+    });  
+    setTimeout(generateImage,1200);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -391,7 +391,7 @@ function loadBrokerByOpenid(openid) {
             if(stuff&&stuff.link&&stuff.link.qrcode){//直接用原始二维码图片
                 show3rdPartyPost();
             }else{//生成达人专属二维码，并在二维创建后生成海报
-                generateQRcode();   
+                generateQrcode();   
             }  
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。

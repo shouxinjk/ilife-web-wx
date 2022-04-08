@@ -18,3 +18,41 @@ function insertBroker(broker){
     $("#brokerLink").html('<a href="broker/task.html">进入生活家后台</a>&nbsp;&nbsp;<a href="publisher/articles.html">进入流量主后台</a>');
     $("#brokerHint").html("达人级别："+broker.level);
 }
+
+//生成短码
+function generateShortCode(url){
+    var chars = "0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ".split("");
+    var hashCode = hex_md5(url);//根据原始URL等到hash
+    var codeArray = [];
+    for(var i=0;i<4;i++){//将hash值分解为4段，分别处理
+        var subStr = hashCode.substr(i*8,8);
+        //console.log("try generate hash code.",hashCode,subStr);
+        var subHexNumber = 0x3FFFFFFF & parseInt(subStr,16);//得到前30位
+        var outChars = "";
+        for(var j=0;j<6;j++){//循环获得每组6位的字符串
+            var index = 0x0000003D & subHexNumber;
+            outChars += chars[index];
+            subHexNumber = subHexNumber>>5;//每次移动5位
+        }
+        codeArray.push(outChars);
+    }
+    console.log("got short codes.",codeArray);
+    return codeArray[new Date().getTime()%4];//随机返回一个
+}
+
+//存储短码到数据库
+function saveShortCode(eventId, itemKey, fromBroker, fromUser, channel, longUrl, shortCode){
+  var q = "insert into ilife.urls values ('"+eventId+"','"+itemKey+"','"+fromBroker+"','"+fromUser+"','"+channel+"','"+longUrl+"','"+shortCode+"',now())";
+  console.log("try to save short code.",q);
+  jQuery.ajax({
+    url:app.config.analyze_api+"?query="+q,
+    type:"post",
+    //data:{},
+    headers:{
+      "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+    },         
+    success:function(json){
+      console.log("===short code saved.===\n",json);
+    }
+  });    
+}
