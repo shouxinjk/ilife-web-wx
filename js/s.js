@@ -20,7 +20,7 @@ var fromUser = "";
 var fromBroker = "";
 
 //根据短码查询URL地址信息，包括itemKey、fromBroker、fromUser
-function checkShortCode(code){//获取详细内容
+function checkShortCode(shortCode){//获取详细内容
     $.ajax({
         url:app.config.analyze_api+"?query=select itemKey,channel,fromBroker,fromUser,longUrl,shortCode from ilife.urls where shortCode='"+shortCode+"' limit 1 format JSON",
         type:"get",
@@ -29,8 +29,13 @@ function checkShortCode(code){//获取详细内容
         headers:{
             "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
         },  
-        success:function(json){
-            console.log("===got long url info===\n",json);
+        success:function(res){
+            console.log("===got long url info===\n",res);
+            var json = {};
+            if(res.rows>0){
+                json = res.data[0];
+            }
+
             from = json&&json.channel?json.channel:"mp";//可能为groupmessage,timeline等
             fromUser = json&&json.fromUser?json.fromUser:"";//从连接中获取分享用户ID
             fromBroker = json&&json.fromBroker?json.fromBroker:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
@@ -43,6 +48,7 @@ function checkShortCode(code){//获取详细内容
             if(json&&json.itemKey){
                 jump(json.itemKey);  
             }else{//跳转到首页
+                console.log("target item cannot find. jump to index.",json);
                 window.location.href = "index.html";
             }
         }
