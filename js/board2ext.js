@@ -14,7 +14,7 @@ $(document).ready(function ()
     //处理参数
     var args = getQuery();
     var category = args["category"]; //当前目录
-    var id = args["id"];//当前board id
+    id = args["id"];//当前board id
 
     from = args["from"]?args["from"]:"mp";//可能为groupmessage,timeline等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
@@ -37,6 +37,8 @@ $(document).ready(function ()
     loadBoardItems(id);
     
 });
+
+var id=null;
 
 util.getUserInfo();//从本地加载cookie
 
@@ -84,29 +86,33 @@ function showPostMask(){
 }
 
 //生成短连接及二维码
-function generateQRcode(){
+function generateQrcode(){
+    console.log("start generate qrcode......");
     var longUrl = window.location.href.replace(/board2ext/g,boardType).replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
     //添加分享达人及分享用户
     if(broker && broker.id)    
         longUrl += "&fromBroker="+broker.id;
-    longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:"");
-    var header={
-        "Content-Type":"application/json"
-    };
-    util.AJAX(app.config.auth_api+"/wechat/ilife/short-url", function (res) {
-        console.log("generate short url.",res);
-        var shortUrl = longUrl;
-        if (res.status) {//获取短连接
-            shortUrl = res.data.url;
-        }
-        //bug修复：qrcode在生成二维码时，如果链接长度是192-217之间会导致无法生成，需要手动补齐
-        if(shortUrl.length>=192 && shortUrl.length <=217){
-            shortUrl += "&placehold=fix-qrcode-bug-url-between-192-217";
-        }
-        console.log("generate qrcode by short url.[length]"+shortUrl.length,shortUrl);
-        var qrcode = new QRCode("app-qrcode-box");
-        qrcode.makeCode(shortUrl);
-    }, "POST", { "longUrl": longUrl },header);    
+    longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:"");  
+    
+    //生成短码并保存
+    var shortCode = generateShortCode(longUrl);
+    console.log("got short code",shortCode);
+    saveShortCode(hex_md5(longUrl),"board_"+id,fromBroker,fromUser,"mp",encodeURIComponent(longUrl),shortCode);    
+    var shortUrl = "https://www.biglistoflittlethings.com/ilife-web-wx/s.html?s="+shortCode;//必须是全路径
+    var logoUrl = imgPrefix+app.globalData.userInfo.avatarUrl;//需要中转，否则会有跨域问题
+
+    //生成二维码
+    var qrcode = new QRCode(document.getElementById("app-qrcode-box"), {
+        text: shortUrl,
+        width: 96,
+        height: 96,    
+        drawer: 'png',
+        logo: logoUrl,
+        logoWidth: 24,
+        logoHeight: 24,
+        logoBackgroundColor: '#ffffff',
+        logoBackgroundTransparent: false
+    });  
 }
 
 //将board内容显示到页面
@@ -337,7 +343,7 @@ function loadBrokerByOpenid(openid) {
             $("#author").html(broker.name);    //如果当前用户是达人，则转为其个人board
             $("#broker-name").html(broker.name+ " 推荐");    //如果当前用户是达人，则显示当前用户
             //生成达人推广二维码
-            generateQRcode();
+            generateQrcode();
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();

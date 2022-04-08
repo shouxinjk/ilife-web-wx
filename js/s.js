@@ -45,7 +45,9 @@ function checkShortCode(shortCode){//获取详细内容
                 fromBroker = util.getInitBroker();
             }
 
-            if(json&&json.itemKey){
+            if(json&&json.itemKey&&json.itemKey.indexOf("board_")>-1){//如果是board地址，其itemKey构造为：board_xxxxxxxxxx，其中xxxxxxx为boardId
+                window.location.href = json.longUrl;//直接跳转展示  
+            }else if(json&&json.itemKey){
                 jump(json.itemKey);  
             }else{//跳转到首页
                 console.log("target item cannot find. jump to index.",json);
