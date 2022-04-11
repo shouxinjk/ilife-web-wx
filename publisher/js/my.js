@@ -59,13 +59,15 @@ $(document).ready(function ()
     });
     //点击购买按钮：创建支付信息并发起微信支付
     $("#btnPurchase").click(function(e){
-        //createPayInfo();
+        createPayInfo();
         //以下仅用于测试后端API
+        /**
         var wxPayResultMock = {
             out_trade_no:"test"+new Date().getTime(),
             result_code:"SUCCESS"           
         };
         purchaseAd(wxPayResultMock);
+        //**/
         //测试代码结束
     });
     //点击取消按钮：清空已选广告列表、清空已售列表、解除锁屏
@@ -1025,7 +1027,7 @@ function createPayInfo(){
         data:JSON.stringify({
             openid:userInfo._key,
             out_trade_no:hex_md5(userInfo._key+"article"+toppingArticleId+(new Date().getTime())),
-            total_fee:Number($("#totalAmount").val())*100,//单位为分
+            total_fee:Number($("#totalAmount").val()),//*100,//单位为分
             body:"内容展示及排序服务",
             trade_type:"JSAPI",
             spbill_create_ip:""//returnCitySN.cip//查询得到本机ip地址
