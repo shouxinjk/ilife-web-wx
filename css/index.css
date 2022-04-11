@@ -188,3 +188,15 @@ div.title{
   color:white;
   background-color: #fff;
 }
+
+.jumpbtn{
+  background-color: #f04848;
+    border: none;
+    border-radius: 5rem;
+    color: white;
+    margin-left: 2px;
+    vertical-align: middle;
+    font-size:12px;
+    font-weight:bold;
+    z-index: 999;
+}

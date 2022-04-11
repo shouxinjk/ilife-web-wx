@@ -820,6 +820,7 @@ function insertItem(){
         highlights += "<span class='couponTip'>券</span><span class='coupon' href='#'>"+item.price.coupon+"</span>";
     }    
     highlights += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name).replace("itemTag","itemTagDistributor");
+    highlights += '<span id="jumpbtn'+item._key+'" class="jumpbtn">&nbsp;&nbsp;立即前往&nbsp;&nbsp;</span>';
     highlights += "</div>";
 
     var profitTags = "";
@@ -910,6 +911,14 @@ function insertItem(){
         //跳转到详情页
         window.location.href = "info2.html?category="+category+"&id="+item._key;
     });
+    $("#jumpbtn"+item._key).click(function(e){
+        //需要禁止外部事件
+        var e = window.event || e;
+        if (e.stopPropagation) e.stopPropagation();
+        else e.cancelBubble = true;      
+        //直接跳转到第三方页面
+        window.location.href = "go.html?id="+item._key+"&fromBroker="+broker.id+"&fromUser="+app.globalData.userInfo._key+"&from=index";
+    });    
 
     //如果有board则注册增加商品事件
     $("#btn-add-"+item._key+"-to-board").click(function(event){
