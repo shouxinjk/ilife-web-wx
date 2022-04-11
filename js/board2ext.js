@@ -89,6 +89,7 @@ function showPostMask(){
 function generateQrcode(){
     console.log("start generate qrcode......");
     var longUrl = window.location.href.replace(/board2ext/g,boardType).replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
+    longUrl = longUrl +"&jumpType=3rdparty";//添加跳转到第三方URL标志
     //添加分享达人及分享用户
     if(broker && broker.id)    
         longUrl += "&fromBroker="+broker.id;
