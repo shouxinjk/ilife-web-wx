@@ -20,7 +20,14 @@ $(document).ready(function ()
         fromBroker = util.getInitBroker();
     }
 
-    jump(id);
+    //检查cookie中是否有临时跳转信息，如果是从index直接跳转将存储该标志，返回时直接跳到index
+    if($.cookie('sxJump') && $.cookie('sxJump').trim()=="true"){//表示是从首页跳转，直接返回首页
+        $.cookie('sxJump', '', { expires: 1, path: '/' });//清除临时跳转记录
+        window.location.href="index.html";
+    }else{
+        $.cookie('sxJump', 'true', { expires: 1, path: '/' });//记录临时跳转
+        jump(id);
+    }
 });
 
 //记录分享用户、分享达人
