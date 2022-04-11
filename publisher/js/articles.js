@@ -160,7 +160,7 @@ function loadItems(){
         if(res && res.length==0){//如果没有画像则提示，
             shownomore();
             if(!items || items.length==0){
-                $("#Center").append("<div style='font-size:12px;line-height:24px;width:100%;text-align:center;'>没有待阅读记录哦~~</div>");
+                $("#Center").append("<div style='font-size:12px;line-height:24px;width:100%;text-align:center;'>没有待阅文章哦~~</div>");
             }            
         }else{//否则显示到页面
             //更新当前翻页
