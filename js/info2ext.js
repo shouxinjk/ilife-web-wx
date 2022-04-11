@@ -102,7 +102,8 @@ function generateQrcode(){
     console.log("got short code",shortCode);
     saveShortCode(hex_md5(longUrl),id,fromBroker,fromUser,"mp",encodeURIComponent(longUrl),shortCode);    
     var shortUrl = "https://www.biglistoflittlethings.com/ilife-web-wx/s.html?s="+shortCode;//必须是全路径
-    var logoUrl = imgPrefix+app.globalData.userInfo.avatarUrl;//需要中转，否则会有跨域问题
+    //var logoUrl = imgPrefix+app.globalData.userInfo.avatarUrl;//需要中转，否则会有跨域问题
+    var logoUrl = "https://www.biglistoflittlethings.com/static/logo/distributor-square/"+stuff.source+".png";//采用平台logo
 
     //生成二维码
     var qrcode = new QRCode(document.getElementById("app-qrcode-box"), {
