@@ -897,7 +897,10 @@ function insertItem(){
         boartBtns += "</div>";
     }
 
-    $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights+ tags +title+boartBtns+ "</div></li>");
+    //添加评价指标
+    var measures = "<div id='measure-"+item._key+"' style='display:none'></>";
+
+    $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights +title+ tags+measures+boartBtns+ "</div></li>");
     num++;
 
     //如果是达人，则加载显示佣金信息
@@ -917,6 +920,11 @@ function insertItem(){
         event.stopPropagation(); //禁止冒泡
     });
 
+    //装载评价数据：查询后动态添加
+    if(item.meta&&item.meta.category){
+      loadMeasureSchemes(item);
+    }
+    
     // 表示加载结束
     loading = false;
 }
@@ -1634,3 +1642,63 @@ function showloading(flag){
     $("#loading").toggleClass("loading-show",false);    
   }
 }
+
+//加载客观评价指标
+function loadMeasureSchemes(stuff){
+    //获取类目下的特征维度列表
+    $.ajax({
+        url:app.config.sx_api+"/mod/itemDimension/rest/featured-dimension",
+        type:"get",
+        //async:false,//同步调用
+        data:{categoryId:stuff.meta.category},
+        success:function(featuredDimension){
+            console.log("===got featured dimension===\n",featuredDimension);
+            loadMeasureScores(stuff,featuredDimension);
+        }
+    });  
+}
+//加载指定item的评分
+function loadMeasureScores(stuff,featuredDimension){
+    var itemScore = {};
+    //根据itemKey获取评价结果
+    //feature = 1；dimensionType：0客观评价，1主观评价
+    //注意：由于clickhouse非严格唯一，需要取最后更新值
+    $.ajax({
+        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where feature=1 and dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
+        type:"get",
+        //async:false,//同步调用
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(json){
+            console.log("===got item score===\n",json);
+            for(var i=0;i<json.rows;i++){
+                itemScore[json.data[i].dimensionId] = json.data[i].score;
+            }
+            console.log("===assemble item score===\n",itemScore);
+            showMeasureScores(stuff,featuredDimension,itemScore);
+        }
+    });   
+}
+//显示客观评价得分
+function showMeasureScores(stuff,featuredDimension,itemScore){
+    var colors = ['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#00ffff','#40e0d0','#9acd32','#32cd32','#228b22'];
+    //准备评分表格：根据评价维度逐行显示
+    featuredDimension.forEach(function(dimension){
+      var html  = '<div id="mscore-'+stuff._key+dimension.id+'" data-init="true"></div>';//以itemKey+dimensionId为唯一识别
+      var score = itemScore[dimension.id]?itemScore[dimension.id]*10:7.5;
+      var colorIndex = Math.round(score);//四舍五入取整
+      if(colorIndex>9)colorIndex=9;
+      $("#measure-"+stuff._key).append(html);
+      $('#mscore-'+stuff._key+dimension.id).LineProgressbar({
+                percentage: score,
+                title:dimension.name,
+                unit:'/10',
+                fillBackgroundColor:colors[colorIndex],
+                //animation:false
+            });    
+    });   
+    $("#measure-"+stuff._key).css("display","block");
+}
+
