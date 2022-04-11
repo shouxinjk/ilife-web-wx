@@ -25,10 +25,19 @@ $(document).ready(function ()
         $.cookie('sxJump', '', { expires: 1, path: '/' });//清除临时跳转记录
         window.location.href="index.html";
     }else{
-        $.cookie('sxJump', 'true', { expires: 1, path: '/' });//记录临时跳转
+        var expDate = new Date();
+        expDate.setTime(expDate.getTime()+10*60*1000);//设置10分钟失效，避免错误
+        $.cookie('sxJump', 'true', { expires: expDate, path: '/' });//记录临时跳转
         jump(id);
     }
 });
+
+//解决返回时不重新加载问题
+window.onpageshow = function (event) {
+    if (event.persisted) {
+        window.location.reload()
+    }
+} 
 
 //记录分享用户、分享达人
 var from = "mp";//链接来源，默认为公众号进入
