@@ -1096,7 +1096,7 @@ function payOrder(payInfo){
                   fail: function (res) {
                     // 支付失败
                     console.log("pay fail.",res);
-                    siiimpleToast.message('支付失败，请重新尝试。'{
+                    siiimpleToast.message('支付失败，请重新尝试。',{
                       position: 'bottom|center',
                       delay: 1000
                     });            
