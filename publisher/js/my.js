@@ -1066,7 +1066,6 @@ function payOrder(payInfo){
         // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
         console.log("before wx.chooseWXPay. payInfo.",payInfo);
         wx.chooseWXPay({
-            appId: payInfo.appId,
           timestamp: payInfo.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
           nonceStr: payInfo.nonceStr, // 支付签名随机串，不长于 32 位
           package: payInfo.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
