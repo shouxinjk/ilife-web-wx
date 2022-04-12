@@ -70,7 +70,7 @@ function showPointProducts(products){
 
         $("#product"+item.id).click(function(){
             selectedPointProduct = $(this).attr("id").replace(/product/,"");
-            createPayInfo({
+            createPayInfo2({
                 name:$(this).attr("data-name"),
                 price:$(this).attr("data-price"),
                 points:$(this).attr("data-points"),
@@ -104,7 +104,7 @@ function showPointProducts(products){
 
 //下单：通过后台生成支付预订单，在获取prepay_id后调用js支付
 var out_trade_no = null;
-function createPayInfo(pointProduct){
+function createPayInfo2(pointProduct){
     out_trade_no = "ppt"+hex_md5(userInfo._key+"points"+pointProduct.id+(new Date().getTime())).substr(3);//表示购买广告: 总长度32位，前三位pad为购买广告，前三位ppt为购买阅豆
     $.ajax({
         url:app.config.sx_api+"/wxPay/rest/payinfo",
@@ -126,14 +126,14 @@ function createPayInfo(pointProduct){
             console.log("got wechat payinfo.",res);
             if(res.success){
                 console.log("try to start wechat pay.",res);
-                payOrder(res.data);
+                payOrder2(res.data);
             }
         }
     }) 
 }
 
 //支付：发起微信支付提交购买。支付成功后创建购买记录
-function payOrder(payInfo){
+function payOrder2(payInfo){
     console.log("start wx pay",payInfo);
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
