@@ -1020,13 +1020,15 @@ function clearAds(){
 }
 
 //下单：通过后台生成支付预订单，在获取prepay_id后调用js支付
+var out_trade_no = null;
 function createPayInfo(){
+    out_trade_no = "payAd"+hex_md5(userInfo._key+"article"+toppingArticleId+(new Date().getTime()));//表示购买广告
     $.ajax({
         url:app.config.sx_api+"/wxPay/rest/payinfo",
         type:"post", 
         data:JSON.stringify({
             openid:userInfo._key,
-            out_trade_no:hex_md5(userInfo._key+"article"+toppingArticleId+(new Date().getTime())),
+            out_trade_no:out_trade_no,
             total_fee:Number($("#totalAmount").val()),//*100,//单位为分
             body:"内容展示及排序服务",
             trade_type:"JSAPI",
@@ -1078,13 +1080,20 @@ function payOrder(payInfo){
                   paySign: payInfo.paySign, // 支付签名
                   success: function (res) {
                     // 支付成功后的回调函数
-                    console.log("wechat pay finished.",res);              
-                    purchaseAd(res);
+                    console.log("wechat pay finished.",res);    
+                    if(res.errMsg == "chooseWXPay:ok"){//注意：支付完成后仅返回状态，无transaction_id、out_trade_no等。需要手动补全，并由后台更新订单状态
+                        purchaseAd(res);
+                    }else{
+                        siiimpleToast.message('未能成功支付，请重新尝试。',{
+                          position: 'bottom|center',
+                          delay: 1000
+                        });
+                    }          
                   },
                   cancel: function (err) {
                     // 用户取消支付
                     console.log("cancel pay",err);
-                    siiimpleToast.message('支付已取消，请重新尝试。'+JSON.stringify(err),{
+                    siiimpleToast.message('支付已取消，请重新尝试。',{
                       position: 'bottom|center',
                       delay: 1000
                     });
@@ -1112,7 +1121,6 @@ function payOrder(payInfo){
 //提交数据包括：达人ID或达人openid，文章ID，已选广告列表。支付结果数据
 function purchaseAd(wxPayResult){
     console.log("got wx pay result.",wxPayResult);
-    $("#wxPayResult").text(JSON.stringify(wxPayResult));
     //将selectedAds转化为数组
     var purchasedAds = [];
     for (var key in selectedAds){
@@ -1128,8 +1136,8 @@ function purchaseAd(wxPayResult){
             subjectType:"article",
             subjectId:toppingArticleId,
             ads:purchasedAds,
-            out_trade_no:wxPayResult.out_trade_no,
-            result_code:wxPayResult.result_code
+            out_trade_no:out_trade_no,//直接用前台组织的out_trade_no
+            result_code:wxPayResult.errMsg //errMsg即为状态码
         }),    
         headers:{
             "Content-Type":"application/json",
