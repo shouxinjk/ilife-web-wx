@@ -1107,6 +1107,7 @@ function payOrder(payInfo){
 //支付：发起微信支付提交购买。支付成功后创建购买记录
 function payOrder(payInfo){
     console.log("start wx pay",payInfo);
+    /**
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
         type:"get",
@@ -1120,25 +1121,14 @@ function payOrder(payInfo){
                 nonceStr: json.nonceStr, // 必填，生成签名的随机串
                 signature: json.signature,// 必填，签名
                 jsApiList: [
-                   // 'onMenuShareTimeline', 'onMenuShareAppMessage','onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone',
-                  'updateAppMessageShareData',
-                  'updateTimelineShareData',
-                  'onMenuShareAppMessage',
-                  'onMenuShareTimeline',
-                  'chooseWXPay',
-                  'showOptionMenu',
-                  "hideMenuItems",
-                  "showMenuItems",
-                  "onMenuShareTimeline",
-                  'onMenuShareAppMessage'                   
+                  'chooseWXPay',                
                 ] // 必填，需要使用的JS接口列表
-            });
+            });//**/
             wx.ready(function() {
                 // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 console.log("before wx.chooseWXPay. payInfo.",payInfo);
                 wx.chooseWXPay({
-                    appId: payInfo.appId,
                   timestamp: payInfo.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
                   nonceStr: payInfo.nonceStr, // 支付签名随机串，不长于 32 位
                   package: payInfo.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
@@ -1153,11 +1143,15 @@ function payOrder(payInfo){
                     }); 
                     purchaseAd(res);
                   }
-                });
-                           
+                });          
+            });
+            /**
+            wx.error(function(res){
+              // config信息验证失败会执行error函数，如签名过期导致验证失败，具体错误信息可以打开config的debug模式查看，也可以在返回的res参数中查看，对于SPA可以在这里更新签名。
+              console.log("wx.error ",res);
             });
         }
-    })    
+    })//**/    
 }
 //**/
 
