@@ -1022,7 +1022,7 @@ function clearAds(){
 //下单：通过后台生成支付预订单，在获取prepay_id后调用js支付
 var out_trade_no = null;
 function createPayInfo(){
-    out_trade_no = "payAd"+hex_md5(userInfo._key+"article"+toppingArticleId+(new Date().getTime()));//表示购买广告
+    out_trade_no = "payAd"+hex_md5(userInfo._key+"article"+toppingArticleId+(new Date().getTime())).substr(5);//表示购买广告
     $.ajax({
         url:app.config.sx_api+"/wxPay/rest/payinfo",
         type:"post", 
