@@ -1047,7 +1047,7 @@ function createPayInfo(){
     }) 
 }
 
-
+/**
 //支付：发起微信支付提交购买。支付成功后创建购买记录
 function payOrder(payInfo){
     console.log("start wx pay",payInfo);
@@ -1067,7 +1067,7 @@ function payOrder(payInfo){
         console.log("before wx.chooseWXPay. payInfo.",payInfo);
         wx.chooseWXPay({
           appId: payInfo.appId, // 必填，公众号的唯一标识
-          timeStamp: payInfo.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+          timestamp: payInfo.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
           nonceStr: payInfo.nonceStr, // 支付签名随机串，不长于 32 位
           package: payInfo.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
           signType: 'MD5', // 微信支付V3的传入RSA,微信支付V2的传入格式与V2统一下单的签名格式保持一致
@@ -1101,10 +1101,9 @@ function payOrder(payInfo){
                    
     });
 }
+//**/
 
 
-
-/**
 //支付：发起微信支付提交购买。支付成功后创建购买记录
 function payOrder(payInfo){
     console.log("start wx pay",payInfo);
@@ -1142,7 +1141,7 @@ function payOrder(payInfo){
                     appId: payInfo.appId,
                   timestamp: payInfo.timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
                   nonceStr: payInfo.nonceStr, // 支付签名随机串，不长于 32 位
-                  package: 'prepay_id='+payInfo.prepay_id, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
+                  package: payInfo.package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
                   signType: 'MD5', // 微信支付V3的传入RSA,微信支付V2的传入格式与V2统一下单的签名格式保持一致
                   paySign: payInfo.paySign, // 支付签名
                   success: function (res) {
