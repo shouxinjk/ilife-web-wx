@@ -1081,8 +1081,9 @@ function payOrder(payInfo){
                     console.log("wechat pay finished.",res);
                     siiimpleToast.message('支付成功。'+JSON.stringify(res),{
                       position: 'bottom|center',
-                      delay: 100000
-                    });                    
+                      delay: 10000
+                    });   
+                    alert(JSON.stringify(res));                 
                     purchaseAd(res);
                   },
                   cancel: function (err) {
