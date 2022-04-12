@@ -19,9 +19,6 @@ $(document).ready(function ()
         delay: 100,
     });
 
-    //准备微信支付
-    configWxPay();
-
     //显示加载状态
     showloading(true);
     //处理参数
