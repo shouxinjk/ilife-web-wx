@@ -60,15 +60,6 @@ $(document).ready(function ()
     //点击购买按钮：创建支付信息并发起微信支付
     $("#btnPurchase").click(function(e){
         createPayInfo();
-        //以下仅用于测试后端API
-        /**
-        var wxPayResultMock = {
-            out_trade_no:"test"+new Date().getTime(),
-            result_code:"SUCCESS"           
-        };
-        purchaseAd(wxPayResultMock);
-        //**/
-        //测试代码结束
     });
     //点击取消按钮：清空已选广告列表、清空已售列表、解除锁屏
     $("#btnQuitPurchase").click(function(e){
@@ -1022,7 +1013,7 @@ function clearAds(){
 //下单：通过后台生成支付预订单，在获取prepay_id后调用js支付
 var out_trade_no = null;
 function createPayInfo(){
-    out_trade_no = "payAd"+hex_md5(userInfo._key+"article"+toppingArticleId+(new Date().getTime())).substr(5);//表示购买广告
+    out_trade_no = "pad"+hex_md5(userInfo._key+"article"+toppingArticleId+(new Date().getTime())).substr(3);//表示购买广告: 总长度32位，前三位pad为购买广告，前三位ppt为购买阅豆
     $.ajax({
         url:app.config.sx_api+"/wxPay/rest/payinfo",
         type:"post", 
@@ -1115,7 +1106,6 @@ function payOrder(payInfo){
         }
     })  
 }
-//**/
 
 //创建已购买的广告位：仅在支付成功后提交。其他不做考虑：如果支付取消，或中途退出？？
 //提交数据包括：达人ID或达人openid，文章ID，已选广告列表。支付结果数据
