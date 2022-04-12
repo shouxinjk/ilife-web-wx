@@ -129,7 +129,7 @@ function createPayInfo2(pointProduct){
                 payOrder2(res.data);
             }
         }
-    }) 
+    });
 }
 
 //支付：发起微信支付提交购买。支付成功后创建购买记录
