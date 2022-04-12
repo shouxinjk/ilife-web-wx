@@ -105,7 +105,7 @@ function showPointProducts(products){
 //下单：通过后台生成支付预订单，在获取prepay_id后调用js支付
 var out_trade_no = null;
 function createPayInfo2(pointProduct){
-    out_trade_no = "ppt"+hex_md5(userInfo._key+"points"+pointProduct.id+(new Date().getTime())).substr(3);//表示购买广告: 总长度32位，前三位pad为购买广告，前三位ppt为购买阅豆
+    out_trade_no = "ppt"+hex_md5(userInfo._key+"points"+pointProduct.id+(new Date().getTime())).substr(3);//表示购买广告: 总长度32位， 前三位pad为购买广告，前三位ppt为购买阅豆
     $.ajax({
         url:app.config.sx_api+"/wxPay/rest/payinfo",
         type:"post", 

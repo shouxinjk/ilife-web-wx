@@ -1005,7 +1005,7 @@ function clearAds(){
 //下单：通过后台生成支付预订单，在获取prepay_id后调用js支付
 var out_trade_no = null;
 function createPayInfo(){
-    out_trade_no = "pac"+hex_md5(userInfo._key+"account"+toppingAccountId+(new Date().getTime())).substr(3);//表示购买阅豆: 总长度32位，前三位pac为公众号置顶，par为文章置顶，ppt为购买阅豆
+    out_trade_no = "pac"+hex_md5(userInfo._key+"account"+toppingAccountId+(new Date().getTime())).substr(3);//表示购买阅豆: 总长度32位， 前三位pac为公众号置顶，par为文章置顶，ppt为购买阅豆
     $.ajax({
         url:app.config.sx_api+"/wxPay/rest/payinfo",
         type:"post", 
