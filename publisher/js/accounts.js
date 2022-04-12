@@ -62,6 +62,12 @@ $(document).ready(function ()
         resultCheck();       	
     });    
     
+
+    //取消充值
+    $("#btnCancelCharge").click(function(e){
+        $.unblockUI(); 
+    });  
+
     //检查是否有缓存事件
     //resultCheck();
 

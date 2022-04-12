@@ -66,6 +66,11 @@ $(document).ready(function ()
     //检查是否有缓存事件
     resultCheck();
 
+    //取消充值
+    $("#btnCancelCharge").click(function(e){
+        $.unblockUI(); 
+    });  
+
     //检查汇总数据
     countSubscribemeTotal();
     countSubscribetaTotal();
