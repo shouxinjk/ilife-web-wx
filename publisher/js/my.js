@@ -1078,12 +1078,7 @@ function payOrder(payInfo){
                   paySign: payInfo.paySign, // 支付签名
                   success: function (res) {
                     // 支付成功后的回调函数
-                    console.log("wechat pay finished.",res);
-                    siiimpleToast.message('支付成功。'+JSON.stringify(res),{
-                      position: 'bottom|center',
-                      delay: 10000
-                    });   
-                    alert(JSON.stringify(res));                 
+                    console.log("wechat pay finished.",res);              
                     purchaseAd(res);
                   },
                   cancel: function (err) {
@@ -1116,6 +1111,8 @@ function payOrder(payInfo){
 //创建已购买的广告位：仅在支付成功后提交。其他不做考虑：如果支付取消，或中途退出？？
 //提交数据包括：达人ID或达人openid，文章ID，已选广告列表。支付结果数据
 function purchaseAd(wxPayResult){
+    console.log("got wx pay result.",wxPayResult);
+    $("#wxPayResult").text(JSON.stringify(wxPayResult));
     //将selectedAds转化为数组
     var purchasedAds = [];
     for (var key in selectedAds){
