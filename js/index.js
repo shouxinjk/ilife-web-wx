@@ -901,7 +901,7 @@ function insertItem(){
     //添加评价指标
     var measures = "<div id='measure-"+item._key+"' style='display:none'></>";
 
-    $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights +title+ tags+measures+boartBtns+ "</div></li>");
+    $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights +title+ tags+boartBtns+measures+ "</div></li>");
     num++;
 
     //如果是达人，则加载显示佣金信息
