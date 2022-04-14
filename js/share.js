@@ -25,7 +25,8 @@ $(document).ready(function ()
     var response_type="code";
     var scope="snsapi_base";//静默授权，只需要获取openid
 
-    var state="info2"+args;//默认是单个商品详情页分享
+    //var state="info2"+args;//默认是单个商品详情页分享
+    var state="go"+args;//默认单品直接跳转到第三方详情页
     //如果origin为board，则跳转到board
     var origin = getQuery()["origin"];//获取origin参数，如果为空则不作处理
     if(origin && origin =="board"){//如果是board则调整跳转页面：列表风格
