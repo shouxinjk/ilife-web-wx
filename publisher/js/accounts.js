@@ -395,6 +395,9 @@ function submitResult(){
 function resultCheck(){
     var accountInfo = $.cookie('sxAccount');
     console.log("load accountInfo from cookie.",accountInfo);
+    siiimpleToast.message('检查关注结果：'+accountInfo,{
+          position: 'bottom|center'
+        });      
     if(accountInfo && accountInfo.trim().length>0){
         console.log("get accountInfo info from cookie.",accountInfo);
         var account = JSON.parse(accountInfo);
