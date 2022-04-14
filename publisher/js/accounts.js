@@ -69,15 +69,12 @@ $(document).ready(function ()
     });  
 
     //检查是否有缓存事件
-    resultCheck();
+    //resultCheck();
 
 });
 
 //解决返回时不重新加载问题
-window.onpageshow = function (event) {
-    siiimpleToast.message('关注后返回：'+event.persisted,{
-          position: 'bottom|center'
-        });      
+window.onpageshow = function (event) {     
     if (event.persisted) {
         window.location.reload()
     }
@@ -266,6 +263,11 @@ function insertItem(){
         //显示二维码供扫描关注
         console.log("Publisher::Accounts now show QRcode.");
         $("#pendingAccountQrcode").append("<img src='"+$(this).attr("data-url")+"' width='200' height='200'/>");    
+        //二维码长按事件：模拟关注，在等待1.5秒后显示确认按钮
+        setTimeout(function(){
+            $("#btnYesSubscribe").css("display","block");
+        },3200);
+        
 	    //显示二维码
 	    $.blockUI({ message: $('#qrcodeform'),
 	        css:{ 
@@ -388,6 +390,7 @@ function submitResult(){
         var account = JSON.parse(accountInfo);
         console.log("try to submit subscribe event.");
         $.cookie('sxAccount', "", { path: '/' }); //清除cookie重新来过
+        $("#btnNoSubscribe").css("display","none");//再次隐藏已关注按钮
         costPoints(account);        	
     }else{
       console.log("no accountInfo from cookie.",accountInfo);
@@ -404,7 +407,7 @@ function resultCheck(){
     if(accountInfo && accountInfo.trim().length>0){
         console.log("get accountInfo info from cookie.",accountInfo);
         var account = JSON.parse(accountInfo);
-        $("#btnNoSubscribe").css("display","block");
+        $("#btnYesSubscribe").css("display","block");
         /**
         //显示二维码到界面：如果未关注，再给一次机会
         $("#pendingAccountQrcode").append("<img src='"+$(this).attr("data-url")+"' width='200' height='200'/>"); 
