@@ -2086,7 +2086,8 @@ function registerShareHandler(){
     }
 
     //准备分享url，需要增加分享的 fromUser、fromBroker信息
-    var shareUrl = window.location.href.replace(/info2/g,"share");//需要使用中间页进行跳转
+    //var shareUrl = window.location.href.replace(/info2/g,"share");//需要使用中间页进行跳转
+    var shareUrl = window.location.href.replace(/info2/g,"go");//通过中间页直接跳转到第三方电商详情页面
     if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
         shareUrl += "&fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;
