@@ -26,7 +26,7 @@ $(document).ready(function ()
         window.location.href="index.html";
     }else{
         var expDate = new Date();
-        expDate.setTime(expDate.getTime()+10*60*1000);//设置10分钟失效，避免错误
+        expDate.setTime(expDate.getTime()+60*1000);//设置1分钟失效，避免错误
         $.cookie('sxJump', 'true', { expires: expDate, path: '/' });//记录临时跳转
         jump(id);
     }
