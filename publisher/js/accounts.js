@@ -59,7 +59,7 @@ $(document).ready(function ()
 		$.unblockUI(); 
     });
     $("#btnYesSubscribe").click(function(){//完成关注确认
-        resultCheck();       	
+        submitResult();       	
     });    
     
 
@@ -69,7 +69,7 @@ $(document).ready(function ()
     });  
 
     //检查是否有缓存事件
-    //resultCheck();
+    resultCheck();
 
 });
 
@@ -376,8 +376,8 @@ function changeActionType (e) {
     window.location.href = currentActionType+".html";
 }
 
-//检查关注效果：如果检查到有cookie，则弹出确认对话框，供确认
-function resultCheck(){
+//关注完成后提交并扣除阅豆
+function submitResult(){
     var accountInfo = $.cookie('sxAccount');
     console.log("load accountInfo from cookie.",accountInfo);
     if(accountInfo && accountInfo.trim().length>0){
@@ -390,13 +390,16 @@ function resultCheck(){
       console.log("no accountInfo from cookie.",accountInfo);
     }
 }
-/**
+
+//检查关注效果：如果检查到有cookie，则显示已关注按钮
 function resultCheck(){
     var accountInfo = $.cookie('sxAccount');
     console.log("load accountInfo from cookie.",accountInfo);
     if(accountInfo && accountInfo.trim().length>0){
         console.log("get accountInfo info from cookie.",accountInfo);
         var account = JSON.parse(accountInfo);
+        $("#btnNoSubscribe").css("display","block");
+        /**
         //显示二维码到界面：如果未关注，再给一次机会
         $("#pendingAccountQrcode").append("<img src='"+$(this).attr("data-url")+"' width='200' height='200'/>"); 
         $("#btnNoSubscribe").click(function(){
@@ -408,11 +411,11 @@ function resultCheck(){
             $.cookie('sxAccount', "", { path: '/' }); //清除cookie重新来过
             costPoints(account);        	
         });
+        //**/
     }else{
       console.log("no accountInfo from cookie.",accountInfo);
     }
 }
-//**/
 
 //完成订阅扣除及奖励
 function costPoints(account){
@@ -485,9 +488,9 @@ function showAccountForm(){
             css:{ 
                 padding:        10, 
                 margin:         0, 
-                width:          '60%', 
+                width:          '80%', 
                 top:            '20%', 
-                left:           '20%', 
+                left:           '10%', 
                 textAlign:      'center', 
                 color:          '#000', 
                 border:         '1px solid silver', 

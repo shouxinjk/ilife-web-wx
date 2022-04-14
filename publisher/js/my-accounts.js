@@ -554,9 +554,9 @@ function showAccountForm(){
             css:{ 
                 padding:        10, 
                 margin:         0, 
-                width:          '60%', 
+                width:          '80%', 
                 top:            '20%', 
-                left:           '20%', 
+                left:           '10%', 
                 textAlign:      'center', 
                 color:          '#000', 
                 border:         '1px solid silver', 
