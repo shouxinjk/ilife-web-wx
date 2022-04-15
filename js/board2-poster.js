@@ -25,6 +25,9 @@ $(document).ready(function ()
 
     //生成二维码：需要提前生成，避免时延导致显示不完整
     //generateQRcode();//在加载达人信息后显示，需要将达人ID写入URL
+    $("#generate-link").click(function(){
+        window.location.href = window.location.href;//重新生成
+    });    
 
     //加载内容
     loadBoard(id); 

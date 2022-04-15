@@ -22,6 +22,10 @@ $(document).ready(function ()
 
     posterId = args["posterId"]?args["posterId"]:null;//从连接中获取海报ID，默认为空。如果没有则跳转到默认海报生成
 
+    $("#generate-link").click(function(){
+        window.location.href = window.location.href;//重新生成
+    });
+
     //加载内容
     loadItem(id); 
     
