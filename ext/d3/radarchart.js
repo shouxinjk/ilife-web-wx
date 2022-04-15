@@ -18,7 +18,7 @@ function RadarChart(id, data, options) {
      dotRadius: 4,          //The size of the colored circles of each blog
      opacityCircles: 0.1,   //The opacity of the circles of each blob
      strokeWidth: 2,        //The width of the stroke around each blob
-     roundStrokes: false,   //If true the area and stroke will follow a round path (cardinal-closed)
+     roundStrokes: true,   //If true the area and stroke will follow a round path (cardinal-closed)
      color: d3.schemeCategory10   //Color function
     };
     
@@ -97,7 +97,8 @@ function RadarChart(id, data, options) {
        .attr("x", 4)
        .attr("y", function(d){return -d*radius/cfg.levels;})
        .attr("dy", "0.4em")
-       .style("font-size", "10px")
+       .style("font-size", "11px")
+       .style("font-family", "Microsoft Yahei")
        .attr("fill", "#737373")
        .text(function(d,i) { return Format(maxValue * d/cfg.levels); });
 
@@ -124,7 +125,7 @@ function RadarChart(id, data, options) {
     //Append the labels at each axis
     axis.append("text")
         .attr("class", "legend")
-        .style("font-size", "11px")
+        .style("font-size", "12px")
         .attr("text-anchor", "middle")
         .attr("dy", "0.35em")
         .attr("x", function(d, i){ return rScale(maxValue * cfg.labelFactor) * Math.cos(angleSlice*i - Math.PI/2); })
