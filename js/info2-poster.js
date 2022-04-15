@@ -55,6 +55,7 @@ var posterId = null;//海报scheme
 var brokerQrcode = null;//存放达人二维码url
 
 //生成短连接及二维码
+/**
 function generateQRcode(){
     console.log("start generate qrcode......");
     var longUrl = window.location.href.replace(/info2ext/g,"info").replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
@@ -79,12 +80,56 @@ function generateQRcode(){
         setTimeout(uploadPngFile,300);//需要图片装载完成后才能获取 
     }, "POST", { "longUrl": longUrl },header);    
 }
+//**/
 
+//生成短连接及二维码
+function generateQrcode(){
+    console.log("start generate qrcode......");
+    var longUrl = window.location.href.replace(/info2ext/g,"info").replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
+    longUrl += "&fromBroker="+broker.id;
+    longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:""); 
+    
+    //生成短码并保存
+    var shortCode = generateShortCode(longUrl);
+    console.log("got short code",shortCode);
+    saveShortCode(hex_md5(longUrl),id,fromBroker,fromUser,"mp",encodeURIComponent(longUrl),shortCode);    
+    var shortUrl = "https://www.biglistoflittlethings.com/ilife-web-wx/s.html?s="+shortCode;//必须是全路径
+    //var logoUrl = imgPrefix+app.globalData.userInfo.avatarUrl;//需要中转，否则会有跨域问题
+    var logoUrl = "https://www.biglistoflittlethings.com/static/logo/distributor-square/"+stuff.source+".png";//采用平台logo
+
+    //生成二维码
+    var qrcode = new QRCode(document.getElementById("app-qrcode-box"), {
+        text: shortUrl,
+        width: 96,
+        height: 96,    
+        drawer: 'png',
+        logo: logoUrl,
+        logoWidth: 24,
+        logoHeight: 24,
+        logoBackgroundColor: '#ffffff',
+        logoBackgroundTransparent: false
+    });  
+    setTimeout(generateImage,1200);//需要等待二维码绘制完成
+}
+
+//转换二维码svg为图片
+function generateImage() {
+    console.log("try generate image.");
+    var canvas = $('#app-qrcode-box canvas');
+    console.log(canvas);
+    var img = canvas.get(0).toDataURL("image/png");
+
+    //将二维码图片上传到fastdfs
+    uploadPngFile(img, "qrcode"+stuff._key+posterId+".png");//文件名称以itemKey+posterId唯一识别
+
+    //隐藏canvas
+    jQuery("#app-qrcode-box canvas").css("display","none");
+}
 
 //上传二维码到poster服务器，便于生成使用
 function uploadPngFile(dataurl, filename){
-    dataurl = $("#app-qrcode-box img").attr("src");
-    filename = "broker-qrcode-"+broker.id+".png";
+    //dataurl = $("#app-qrcode-box img").attr("src");
+    //filename = "broker-qrcode-"+broker.id+posterId+".png";
     console.log("try to upload qrcode.",dataurl,filename);
     var formData = new FormData();
     formData.append("file", dataURLtoFile(dataurl, filename));//注意，使用files作为字段名
@@ -160,7 +205,7 @@ function loadBrokerByOpenid(openid) {
             if(stuff&&stuff.link&&stuff.link.qrcode){//直接用原始二维码图片
                 show3rdPartyPost();
             }else{//生成达人专属二维码，并在二维创建后生成海报
-                generateQRcode();   
+                generateQrcode();   
             }  
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
