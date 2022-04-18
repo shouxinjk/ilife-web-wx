@@ -1696,7 +1696,7 @@ function showMeasureScores(stuff,featuredDimension,itemScore){
     //准备评分表格：根据评价维度逐行显示
     featuredDimension.forEach(function(dimension){
       var html  = '<div id="mscore-'+stuff._key+dimension.id+'" data-init="true"></div>';//以itemKey+dimensionId为唯一识别
-      var score = itemScore[dimension.id]?itemScore[dimension.id]*10:7.5;
+      var score = itemScore[dimension.id]?itemScore[dimension.id]*10:(Math.floor(Math.random() * 75)*0.1+2.5);//如果没有标注则随机展示
       var colorIndex = Math.round(score);//四舍五入取整
       if(colorIndex>9)colorIndex=9;
       $("#measure-"+stuff._key).append(html);

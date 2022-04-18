@@ -110,6 +110,7 @@ var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
 function loadBrokerInfo(){
   broker = util.getBrokerInfo();
   currentBroker = broker.id;
+  console.log("loadBrokerInfo got result.",broker,currentBroker);
 }
 
 function registerTimer(brokerId){
