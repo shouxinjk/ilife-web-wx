@@ -400,8 +400,9 @@ function loadSxCategories(){
 }
 
 //根据ID获取类目下定义的属性列表
+var categoryProps = {};//存储类目属性id:name键值对
 function loadCategoryProperties(categoryId/*, isAnsync=true*/){
-    var categoryProps = {};//存储类目属性id:name键值对
+    //var categoryProps = {};//存储类目属性id:name键值对
     //根据categoryId获取所有measure清单，字段包括name、property
     $.ajax({
         url:"https://data.shouxinjk.net/ilife/a/mod/measure/measures?category="+categoryId,
@@ -426,8 +427,9 @@ function loadCategoryProperties(categoryId/*, isAnsync=true*/){
 }
 
 //获取推荐语模板列表，用于展示使用。
+var adviceSchemes = {};//显示id：name键值对
 function requestAdviceScheme(categoryId/*,isAnsync*/){
-    var adviceSchemes = {};//显示id：name键值对
+    //var adviceSchemes = {};//显示id：name键值对
     //获取模板列表
     $.ajax({
         url:app.config.sx_api+"/mod/template/rest/item-templates",
