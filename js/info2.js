@@ -239,7 +239,8 @@ function showContent(item){
     }   
     //**/ 
     for(var i=0;item.tags&&i<item.tags.length;i++){//标签云
-        $("#tags").append("<div class='tag'>" + item.tags[i] + "</div>");//加载图片幻灯
+        if(item.tags[i].trim().length>0)
+            $("#tags").append("<div class='tag'>" + item.tags[i] + "</div>");//加载图片幻灯
     }
 
     //数说：显示生成的评价结果图
@@ -247,11 +248,16 @@ function showContent(item){
     if(item.meta && item.meta.category){
         //会生成评价结果图表，隐藏类目选择器
         $("#category-wrapper").css("display","none");
+        /**
+        //抛弃：改同步调用为异步调用
         //加载类目属性定义
         categoryProps = loadCategoryProperties(item.meta.category,false);//注意是同步调用
         adviceSchemes = requestAdviceScheme(item.meta.category,false);//注意是同步调用。获取推荐语模板列表，用于显示。返回后存储于adviceSchemes
         //加载客观评价
         loadMeasureAndScore();//加载客观评价
+        //**/        
+        loadCategoryProperties(item.meta.category);//异步调用
+        requestAdviceScheme(item.meta.category);//异步调用
     }else if((broker && broker.id)||(app.globalData.brokerInfo && app.globalData.brokerInfo.id)){//对于broker开放修改category
         //表示没有类目，提示选择类目完成标注
         $("#category-wrapper-tip").css("display","block");
@@ -345,7 +351,7 @@ function showContent(item){
     } 
     if(item.tagging && item.tagging.length>0){
         var usertags = "";
-        item.tagging.split(" ").forEach(function(tagItem){
+        item.tagging.trim().split(" ").forEach(function(tagItem){
             usertags += "<div class='tag'>"+tagItem+"</div>";
         });
         $("#rank").append("<div class='prop-row'><div class='prop-key'>用户标签</div><div class='prop-value tags'>"+usertags+"</div></div>");
@@ -394,13 +400,13 @@ function loadSxCategories(){
 }
 
 //根据ID获取类目下定义的属性列表
-function loadCategoryProperties(categoryId, isAnsync=true){
+function loadCategoryProperties(categoryId/*, isAnsync=true*/){
     var categoryProps = {};//存储类目属性id:name键值对
     //根据categoryId获取所有measure清单，字段包括name、property
     $.ajax({
         url:"https://data.shouxinjk.net/ilife/a/mod/measure/measures?category="+categoryId,
         type:"get",
-        async:isAnsync,
+        //async:isAnsync,
         data:{},
         success:function(items){
             if(_sxdebug)console.log(items);
@@ -411,19 +417,22 @@ function loadCategoryProperties(categoryId, isAnsync=true){
                 var property = item.property;
                 categoryProps[property]=name;
             }
+            hasCategoryProps = true;//更新数据获取状态
+            loadMeasureAndScore();//加载并显示
+
         }
     });
-    return categoryProps;
+    //return categoryProps;
 }
 
 //获取推荐语模板列表，用于展示使用。
-function requestAdviceScheme(categoryId,isAnsync){
+function requestAdviceScheme(categoryId/*,isAnsync*/){
     var adviceSchemes = {};//显示id：name键值对
     //获取模板列表
     $.ajax({
         url:app.config.sx_api+"/mod/template/rest/item-templates",
         type:"get",
-        async:isAnsync,
+        //async:isAnsync,
         data:{categoryId:categoryId},
         success:function(schemes){
             console.log("\n===got item advice schemes ===\n",schemes);
@@ -431,9 +440,11 @@ function requestAdviceScheme(categoryId,isAnsync){
             for(var i=0;i<schemes.length;i++){
                 adviceSchemes[schemes[i].id]=schemes[i].name;
             }
+            hasAdviceSchemes = true;//记录数据获取状态
+            loadMeasureAndScore();//加载并显示
         }
     }); 
-    return  adviceSchemes;
+    //return  adviceSchemes;
 }
 
 //注意：在cascade中引用Array.flat()方法，但微信浏览器未实现，需要补充
@@ -1150,7 +1161,14 @@ var featuredDimension = [];//客观评价维度列表
 var itemScore = {};//当前条目评分列表：手动修改后同时缓存
 var categoryScore = {};//当前条目所在类目评分列表
 var measureScores = [];//显示到grid供修改，在measure基础上增加score
+var hasCategoryProps = false; //记录是否已经加载类目属性
+var hasAdviceSchemes = false; //记录是否已加载推荐语模板
 function loadMeasureAndScore(){
+    if(!hasCategoryProps || !hasAdviceSchemes){
+        console.log("measure and score are not ready. ignore.");
+        return;
+    }
+    console.log("start show measure and score.");
     //根据category获取客观评价数据
     var data = {
         categoryId:stuff.meta.category
