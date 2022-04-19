@@ -340,6 +340,10 @@ function insertBoardItem(){
     //注册事件：能够跳转到指定item
     $('#board-item-'+item.stuff._key).click(function(){
         var targetUrl = "info2.html?id="+item.stuff._key;
+        //根据是否是海报进入区分跳转：如果是海报进入则直接跳转到第三方页面
+        if(posterId){
+            targetUrl = "go.html?id="+item.stuff._key;
+        }
         if(broker&&broker.id){//如果当前用户是达人，则使用当前达人跟踪。
             targetUrl += "&fromBroker="+broker.id;
         }else if(board&&board.broker.id){//否则，使用board的创建者进行跟踪

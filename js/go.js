@@ -20,7 +20,27 @@ $(document).ready(function ()
         fromBroker = util.getInitBroker();
     }
 
+    //由于本页是中间页，将直接跳转到第三方商品详情页面，在返回时，需要能够退回到上一个页面。
+    //通过document.referrer处理
+    if($.cookie('sxJumpUrl') && $.cookie('sxJumpUrl').trim().length>0){//如果是从第三方页面返回，则会记录有cookie，根据cookie记录返回
+        var toUrl = $.cookie('sxJumpUrl');
+        $.cookie('sxJumpUrl', '', { expires: 1, path: '/' });//清除原记录
+        window.location.href=toUrl;
+    }else{//否则认为是通过扫码或链接点击进入当前页面，记录前序页面url到cookie
+        //获取前一页URL
+        var fromUrl = "index.html";//默认为首页
+        if(document.referrer && document.referrer!=''){
+            fromUrl = document.referrer;
+        }        
+        //写入cookie
+        var expDate = new Date();
+        expDate.setTime(expDate.getTime()+60*1000);//设置1分钟失效，假设用户最多在1分钟内会返回。否则将直接返回到首页
+        $.cookie('sxJumpUrl', fromUrl, { expires: expDate, path: '/' });//记录返回时要跳转的链接 
+        jump(id);
+    }
+
     //检查cookie中是否有临时跳转信息，如果是从index直接跳转将存储该标志，返回时直接跳到index
+    /**
     if($.cookie('sxJump') && $.cookie('sxJump').trim().length>0 && $.cookie('sxJump').trim()=="true"){//表示是从首页跳转，直接返回首页
         $.cookie('sxJump', '', { expires: 1, path: '/' });//清除临时跳转记录
         window.location.href="index.html";
@@ -30,6 +50,7 @@ $(document).ready(function ()
         $.cookie('sxJump', 'true', { expires: expDate, path: '/' });//记录临时跳转
         jump(id);
     }
+    //**/
 });
 
 //解决返回时不重新加载问题
