@@ -341,7 +341,7 @@ function insertBoardItem(){
     $('#board-item-'+item.stuff._key).click(function(){
         var targetUrl = "info2.html?id="+item.stuff._key;
         //根据是否是海报进入区分跳转：如果是海报进入则直接跳转到第三方页面
-        if(posterId){
+        if(posterId&&!item.stuff.link.token){//对于淘宝等还是要进入详情页面，可以直接复制淘口令
             targetUrl = "go.html?id="+item.stuff._key;
         }
         if(broker&&broker.id){//如果当前用户是达人，则使用当前达人跟踪。
