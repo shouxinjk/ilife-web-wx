@@ -398,7 +398,7 @@ function loadBrokerByOpenid(openid) {
             broker = res.data; 
             insertBroker(res.data);//显示达人信息
             //仅对于在时间有效期内的才加载数据，否则直接提示已结束
-            if(timeTo && new Date().getTime()>timeTo ){//如果传递了截止时间，则判断是否超时
+            if(timeTo && new Date().getTime()>parseFloat(timeTo) ){//如果传递了截止时间，则判断是否超时
                 $("#Center").append("<div style='width:100%;text-align:center;font-size:12px;margin:20px;'>哎呀，已经结束了，下次请赶早哦~~~</div>");
                 $("#loading").css("display","none");
             }else{
@@ -702,6 +702,8 @@ function groupingItem(item){
         type:"post",
         data:JSON.stringify({
             code:groupingCode,
+            timeFrom:timeFrom,
+            timeTo:timeTo,
             subjectType:'article',
             subjectId: item.id
         }),//注意：不能使用JSON对象
