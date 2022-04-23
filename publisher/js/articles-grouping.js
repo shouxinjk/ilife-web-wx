@@ -38,6 +38,12 @@ $(document).ready(function ()
     if(args["code"]){
         groupingCode = args["code"]; //支持传入班车code
     }          
+    if(args["timeFrom"]){
+        timeFrom = args["timeFrom"]; //班车开始时间
+    } 
+    if(args["timeTo"]){
+        timeTo = args["timeTo"]; //班车结束时间
+    } 
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
@@ -79,6 +85,8 @@ var byOpenid = null;
 var byPublisherOpenid = null;
 
 var groupingCode = "";//班车code：默认为空
+var timeFrom = null;//班车开始时间:long
+var timeTo = null;//班车结束时间:long
 
 //设置默认logo
 var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
@@ -238,11 +246,13 @@ function checkArticleGrouping(){
             if(myArticles && myArticles.length==0){//如果当前列表中没有当前达人的文章，则显示添加按钮
                 $("#createArtileEntry").css("display","block");
                 $("#createArticleBtn").css("display","flex");
-                $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布文章加入~~</div>");
+                if($("#Center").length<=0)
+                    $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布文章加入~~</div>");
             }else{//否则隐藏添加按钮
                 $("#createArtileEntry").css("display","none");
                 $("#createArticleBtn").css("display","none");
-                $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>已发布文章，请完成阅读~~</div>");
+                if($("#Center").length<=0)
+                    $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>已发布文章，请完成阅读~~</div>");
             }
         }
     });
@@ -387,8 +397,14 @@ function loadBrokerByOpenid(openid) {
             $.cookie('sxBroker', JSON.stringify(res.data), {  path: '/' });     
             broker = res.data; 
             insertBroker(res.data);//显示达人信息
-            registerTimer(res.data.id);//加载该达人的board列表
-            checkArticleGrouping();//检查加载达人的文章列表
+            //仅对于在时间有效期内的才加载数据，否则直接提示已结束
+            if(timeTo && new Date().getTime()>timeTo ){//如果传递了截止时间，则判断是否超时
+                $("#Center").append("<div style='width:100%;text-align:center;font-size:12px;margin:20px;'>哎呀，已经结束了，下次请赶早哦~~~</div>");
+                $("#loading").css("display","none");
+            }else{
+                registerTimer(res.data.id);//加载该达人的board列表
+                checkArticleGrouping();//检查加载达人的文章列表
+            }
         }
     });
 }
