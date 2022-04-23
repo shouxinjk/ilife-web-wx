@@ -172,7 +172,10 @@ function loadItems(){
         console.log("Publisher::Articles::loadItems try to retrive pending articles.", res)
         if(res && res.length==0){//如果没有画像则提示，
             if(!items || items.length==0){
-                $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布文章加入~~</div>");
+                //do nothing
+                //$("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布文章加入~~</div>");
+                $("#blankGroupingTips").text("厉害厉害，已经全部读完了，请查看报告~~~");
+                $("#Center").append('<div style="font-size:12px;line-height:24px;width:100%;text-align:center;"><a href="report-grouping.html?code='+groupingCode+'" style="font-size:12px;padding:2px 5px;">查看报告</a></div>');
             }else{
                 shownomore(true);
             }         
@@ -215,13 +218,36 @@ function loadItems(){
 var articlesLoaded = false;//文章是否已加载标志，便于多个源头触发
 function checkArticleGrouping(){
     console.log("check article grouping. publiserIds",publiserIds, broker.id);
-    if(broker&&broker.id&&publiserIds.indexOf(broker.id)<0){//如果列表中没有当前达人的文章，则显示添加按钮
-        $("#createArtileEntry").css("display","block");
-        $("#createArticleBtn").css("display","flex");
-    }else{//否则隐藏添加按钮
-        $("#createArtileEntry").css("display","none");
-        $("#createArticleBtn").css("display","none");
-    }
+
+    //检查当前达人是否有文章加入开车，以判断是否显示添加文章按钮
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxArticle/rest/grouping-articles",
+        type:"get",
+        data:{
+            from:0,
+            to:1,//仅用于判断，1条即可
+            openid:"",//忽略是否已经阅读
+            code:groupingCode,//微信群编号
+            publisherOpenid:userInfo._key//发布者 openid：只显示指定发布者的内容
+        },
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },        
+        success:function(myArticles){
+            if(myArticles && myArticles.length==0){//如果当前列表中没有当前达人的文章，则显示添加按钮
+                $("#createArtileEntry").css("display","block");
+                $("#createArticleBtn").css("display","flex");
+                $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布文章加入~~</div>");
+            }else{//否则隐藏添加按钮
+                $("#createArtileEntry").css("display","none");
+                $("#createArticleBtn").css("display","none");
+                $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>已发布文章，请完成阅读~~</div>");
+            }
+        }
+    });
+
+    //加载当前达人已发布的文章，便于选择
     if(!articlesLoaded&&broker&&broker.id&&publiserIds.indexOf(broker.id)<0){//加载当前达人已发表的文章，便于选择
         articlesLoaded = true;
         //加载当前达人发布的文章列表，仅显示最近发布的10篇文章
@@ -486,6 +512,7 @@ function costPoints(article){
         data:JSON.stringify({
             articleId:article.id,
             readerOpenid:userInfo._key,
+            groupingCode:groupingCode,//微信班车编号
             readCount:$("#viewNumbers").val().trim()
         }),//注意：不能使用JSON对象
         headers:{

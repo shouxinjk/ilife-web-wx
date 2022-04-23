@@ -6,14 +6,16 @@
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="../ext/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
-    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=0.5">
-    <link rel="stylesheet" type="text/css" href="css/articles.css?v=1.4">
+    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=0.9">
+    <link rel="stylesheet" type="text/css" href="css/articles.css?v=1.5">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
+    <script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
 </head>
 
 <body>
@@ -35,8 +37,8 @@
     <!-- 按钮 --> 
     <view class="order" id="buttons">      
         <div class="order-cell" id="articles" data-tagging="like view">
-            <img class="order-cell-icon-small" src="images/articles-selected.png"/>
-            <div class="actiontype-selected">文章</div>
+            <img class="order-cell-icon-small" src="images/articles.png"/>
+            <div class="actiontype">文章</div>
         </div>           
         <div class="order-cell" id="accounts" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/accounts.png"/>
@@ -51,24 +53,19 @@
             <div class="actiontype">关注</div>
         </div>                  
         <div class="order-cell" id="my" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/my.png"/>
-            <div class="actiontype">我的</div>
+            <img class="order-cell-icon-small" src="images/my-selected.png"/>
+            <div class="actiontype-selected">我的</div>
         </div>                                    
     </view>
 
-    <div class="tips" style="line-height: 16px;">
-        请阅读10秒后点击底部返回，报数奖励阅豆~~
+    <div class="tips" id="tipDiv" style="line-height: 16px;">
+        请查收本时段阅读列表&nbsp;&nbsp;<a href="../articles.html">查看更多文章</a>
     </div> 
 
-    <div id="Center">
-        <ul id="waterfall">
-            <li id="createArtileEntry" style="display:none"><div class='add-new-wrapper' id='createArticleBtn' style="display:none">
-                    <div class='add-new-logo-wrapper'>+</div>
-                    <div class='add-new-title'>发布或选择文章加入</div>
-                </div>
-            </li>            
-        </ul>
-    </div>
+    <!--文章及报数列表-->
+    <div id="reportDiv">
+
+    </div>     
 
     <!-- 加载进度与提示 -->
     <div class="loading-hide" id="loading">
@@ -76,7 +73,7 @@
     </div>
 
     <div id="footer" class="footer-hide" style="border:0;">
-        <div style="color:silver;font-size:12px;">~~~~~列表结束分割线~~~~~</div>
+        <div style="color:silver;font-size:12px;">~~~~~~我是有底线的~~~~~~</div>
         <div>&nbsp;&nbsp;</div>
         <div><a href="articles.html" style="font-size:12px;padding:2px 5px;">继续查看更多文章</a></div>
     </div>  
@@ -100,29 +97,6 @@
     </a>        
   </div>
 
-	<div id="checkform" style="display:none; cursor: default;"> 
-	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">阅读报数</div> 
-	        <input type="number" id="viewNumbers" placeholder="请输入文章右下角阅读数" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;" required/> 
-	        <div>
-		        <button type="submit" class="btnNo" id="btnNo">取消</button>	
-				<button type="submit" class="btnYes" id="btnYes">确定</button> 
-	        </div>
-	</div> 
-
-	<div id="articleform" style="display:none; cursor: default;"> 
-	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">新增：粘贴微信文章链接加入</div> 
-            <div style="display:flex;flex-direction: row">
-                <div style="width:80%">
-        	        <textarea type="url" id="articleUrl" rows="2" placeholder="请复制并粘贴微信文章URL" style="width:90%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required></textarea> 
-                </div>
-    	        <div style="width:20%">
-    		        <button type="submit" class="btnNo" id="btnCancel" style="margin-top: 2px">取消</button>	
-    				<button type="submit" class="btnYes" id="btnPublish" style="margin-top: 2px">加入</button> 
-    	        </div>
-            </div>
-            <div style="font-size:16px;font-weight:bold;line-height: 20px;">选择最近发布文章加入</div> 
-	</div> 
-
     <!--充值-->
     <div id="chargeForm" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;">充值阅豆</div> 
@@ -138,9 +112,11 @@
 
 <script type="text/javascript" src="../ext/jquery-1.12.4.min.js"></script>
 <script type="text/javascript" src="../ext/jquery.validate.min.js"></script>
+<script type="text/javascript" src="../ext/date-formatter.js"></script>
 <script type="text/javascript" src="../ext/siiimple-toast-master/main.js"></script>
 <script type="text/javascript" src="../ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="../ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="../ext/jquery-ui.min.js"></script>
 <script type="text/javascript" src="../js/newWaterfall.js"></script>
 <script type="text/javascript" src="../js/swiper.min.js"></script>
 <script type="text/javascript" src="../js/jquery.cookie.js"></script>
@@ -148,6 +124,6 @@
 <script type="text/javascript" src="../js/md5.js?v=1.0"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
-<script type="text/javascript" src="js/common.js?v=1.6"></script> 
-<script type="text/javascript" src="js/articles-grouping.js?v=1.63"></script> 
+<script type="text/javascript" src="js/common.js?v=1.8"></script> 
+<script type="text/javascript" src="js/report-grouping.js?v=0.2"></script> 
 </html>
