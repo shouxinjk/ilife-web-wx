@@ -34,7 +34,10 @@ $(document).ready(function ()
     }  
     if(args["byPublisherOpenid"]){
         byPublisherOpenid = args["byPublisherOpenid"]; //支持传入publisherOpenid
-    }           
+    }  
+    if(args["code"]){
+        groupingCode = args["code"]; //支持传入班车code
+    }          
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
@@ -75,6 +78,8 @@ util.getUserInfo();//从本地加载cookie
 var byOpenid = null;
 var byPublisherOpenid = null;
 
+var groupingCode = "";//班车code：默认为空
+
 //设置默认logo
 var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
 
@@ -88,10 +93,12 @@ var filter = "all";//my、all。数据查询规则：默认为查询全部
 
 var items = [];//所有画像列表
 var page = {
-    size:10,//每页条数
+    size:100,//每页条数:此处假设一次性加载完成，便于检查是否有当前用户的文章
     total:1,//总页数
     current:-1//当前翻页
 };
+
+var publiserIds = [];//记录已加载文章的发布者ID
 
 var currentActionType = '';//当前操作类型
 var tagging = '';//操作对应的action 如buy view like 等
@@ -160,14 +167,15 @@ function unregisterTimer(){
 */
 var tmpArticleIds = [];//缓存已加载的文章ID，避免置顶文章与普通文章重复显示
 function loadItems(){
-    util.AJAX(app.config.sx_api+"/wx/wxArticle/rest/pending-articles", function (res) {
+    util.AJAX(app.config.sx_api+"/wx/wxArticle/rest/grouping-articles", function (res) {
         showloading(false);
         console.log("Publisher::Articles::loadItems try to retrive pending articles.", res)
         if(res && res.length==0){//如果没有画像则提示，
-            shownomore();
             if(!items || items.length==0){
-                $("#Center").append("<div style='font-size:12px;line-height:24px;width:100%;text-align:center;'>没有待阅文章哦~~</div>");
-            }            
+                $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布文章加入~~</div>");
+            }else{
+                shownomore(true);
+            }         
         }else{//否则显示到页面
             //更新当前翻页
             page.current = page.current + 1;
@@ -181,7 +189,14 @@ function loadItems(){
                 }else{
                     //ignore
                 }
+                //将文章发布者ID缓存，便于检查是否需要提示发布文章
+                if(publiserIds.indexOf(hits[i].broker.id)<0){
+                    publiserIds.push(hits[i].broker.id);
+                }                
             }
+            //检查用户是否已发布文章
+            checkArticleGrouping();
+            //开始显示到界面            
             insertItem();
         }
     }, 
@@ -190,9 +205,67 @@ function loadItems(){
         from:(page.current+1)*page.size,
         to:(page.current+1)*page.size+page.size,
         openid:byOpenid?byOpenid:userInfo._key,//当前订阅者的openid：用于排除已经关注的内容
+        code:groupingCode,//微信开车群编号
         publisherOpenid:byPublisherOpenid?byPublisherOpenid:""//发布者 openid：只显示指定发布者的内容
     },
     {});
+}
+
+//检查当前文章列表中是否已经有当前用户的文章，如果没有则显示添加文章表单
+var articlesLoaded = false;//文章是否已加载标志，便于多个源头触发
+function checkArticleGrouping(){
+    console.log("check article grouping. publiserIds",publiserIds, broker.id);
+    if(broker&&broker.id&&publiserIds.indexOf(broker.id)<0){//如果列表中没有当前达人的文章，则显示添加按钮
+        $("#createArtileEntry").css("display","block");
+        $("#createArticleBtn").css("display","flex");
+    }else{//否则隐藏添加按钮
+        $("#createArtileEntry").css("display","none");
+        $("#createArticleBtn").css("display","none");
+    }
+    if(!articlesLoaded&&broker&&broker.id&&publiserIds.indexOf(broker.id)<0){//加载当前达人已发表的文章，便于选择
+        articlesLoaded = true;
+        //加载当前达人发布的文章列表，仅显示最近发布的10篇文章
+        $.ajax({
+            url:app.config.sx_api+"/wx/wxArticle/rest/my-articles/"+userInfo._key,
+            type:"get",
+            data:{
+                from:0,
+                to: 10 //仅显示最近10条
+            },
+            headers:{
+                "Content-Type":"application/json",
+                "Accept": "application/json"
+            },        
+            success:function(myArticles){
+                console.log("got my articles.",myArticles);
+                myArticles.forEach(function(myArticle){
+                    //显示到界面
+                    var html = '<div style="display:flex;flex-direction: row"><div style="width:80%;line-height:30px;font-size:12px;">';
+                    html+= myArticle.title;
+                    html+='</div><div style="width:20%">';
+                    html+='<button type="submit" class="btnYes" id="btnPublish'+myArticle.id+'"  data-title="'+myArticle.title+'" data-url="'+myArticle.url+'" data-updateDate="'+myArticle.updateDate+'">加入</button>';
+                    html+='</div></div>';
+                    $("#articleform").append(html);
+                    //注册事件：选择后加入grouping，并显示到界面，然后隐藏当前表单
+                    //需要有id、title、url、updatedate
+                    $("#btnPublish"+myArticle.id).click(function(e){
+                        console.log("add exists article to grouping.");
+                        var selectedItem = {
+                            id:$(this).attr("id").replace(/btnPublish/g,""),
+                            title:$(this).attr("data-title"),
+                            url:$(this).attr("data-url"),
+                            updateDate:$(this).attr("data-updateDate")
+                        }
+                        $.unblockUI(); //屏幕解锁
+                        //加入grouping
+                        groupingItem(selectedItem);
+                        //显示到待阅文章列表内
+                        toppingItem(selectedItem);
+                    });
+                });
+            }
+        });       
+    }
 }
 
 //将item显示到页面
@@ -289,6 +362,7 @@ function loadBrokerByOpenid(openid) {
             broker = res.data; 
             insertBroker(res.data);//显示达人信息
             registerTimer(res.data.id);//加载该达人的board列表
+            checkArticleGrouping();//检查加载达人的文章列表
         }
     });
 }
@@ -485,7 +559,7 @@ function showArticleForm(){
                 padding:        10, 
                 margin:         0, 
                 width:          '80%', 
-                top:            '30%', 
+                top:            '10%', 
                 left:           '10%', 
                 textAlign:      'center', 
                 color:          '#000', 
@@ -558,10 +632,11 @@ function submitArticle(){
             $.unblockUI(); //屏幕解锁
             //将文章显示在自己列表顶部
             if(res.status){//提示文章已发布
-                if(res.code&&res.code=="duplicate"){
-                    siiimpleToast.message('文章已存在，不需要重复发布哦~~',{
-                          position: 'bottom|center'
-                        });  
+                if(res.code&&res.code=="duplicate"&&res.data){
+                    console.log("article exists. now adding to grouping list.",res.data);
+                    toppingItem(res.data);//将文章显示到界面
+                    //添加到班车列表 
+                    groupingItem(res.data);
                 }else{
                     toppingItem(res.data);//将文章显示到界面
                     //扣除阅豆，并更新当前阅豆数
@@ -569,13 +644,39 @@ function submitArticle(){
                         broker.points = broker.points-res.points;
                         insertBroker(broker);
                     }                     
-                    siiimpleToast.message('发布成功，消耗'+res.points+'阅豆。阅豆越多排名越靠前哦~~',{
-                          position: 'bottom|center'
-                        });  
+                    //添加到班车列表 
+                    groupingItem(res.data);
                 }   
             }      
         }
     })     
+}
+
+//将文章加入班车列表
+function groupingItem(item){
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxGrouping/rest/grouping",
+        type:"post",
+        data:JSON.stringify({
+            code:groupingCode,
+            subjectType:'article',
+            subjectId: item.id
+        }),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },        
+        success:function(res){
+            console.log("submit article to wxgroup succeed.",res);
+            //隐藏添加文章按钮：一个班车只允许一个人添加一篇文章
+            $("#createArtileEntry").css("display","none");
+            $("#createArticleBtn").css("display","none");
+            $("#blankGroupingTips").css("display","none");//隐藏提示
+            siiimpleToast.message('亲，文章已加入，开始阅读吧~~',{
+                  position: 'bottom|center'
+                });     
+        }
+    }) 
 }
 
 //手动置顶指定文章
@@ -593,7 +694,7 @@ function toppingItem(item){
     }
     //**/
     //新文章默认显示到顶部：仅在发布者界面
-    var tags = "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>新文首发</span>";
+    var tags = "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>新文加入</span>";
     var advertise = "";
 
     var title = "<div class='title'>"+tags+item.title+advertise+"</div>";
