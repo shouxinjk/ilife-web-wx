@@ -190,12 +190,36 @@ var page = {
 };
 
 //查询模板
+var mustExistMeta = {
+  exists:{
+    field:"meta"
+  }
+};
 var esQueryTemplate = JSON.stringify({
   "from": 0,
   "size": page.size,    
   "query":{
     "bool":{
-      "must": [],       
+      "must": [
+        //默认：必须显示带有meta的条目
+        {
+          "nested": {
+              "path": "meta",
+              "query": {
+                  "bool": {
+                      "must": [
+                          {
+                            "exists": {
+                                "field": "meta"
+                            }
+                        }
+                    ]
+                }
+              }
+          }
+        }
+        //end of meta in must
+      ],       
       "must_not": [],                
       "filter": [],      
       "should":[]
