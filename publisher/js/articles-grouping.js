@@ -188,6 +188,7 @@ function loadItems(){
                 //do nothing
                 //$("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布文章加入~~</div>");
                 $("#blankGroupingTips").text("厉害厉害，已经全部读完了，请查看报告~~~");
+                $("#blankGroupingTips").css("display","block");
                 $("#Center").append('<div style="font-size:12px;line-height:24px;width:100%;text-align:center;"><a href="#" id="refreshGrouping" style="font-size:12px;padding:2px 5px;">刷新列表</a>&nbsp;&nbsp;<a href="report-grouping.html?code='+groupingCode+'" style="font-size:12px;padding:2px 5px;">查看报告</a></div>');
                 $("#refreshGrouping").click(function(){
                     window.location.href = window.location.href;
@@ -574,7 +575,7 @@ function logPointCostEvent(article,publisher){
     $("#viewNumbers").css("border","1px solid silver");//恢复标准风格
     $("#viewNumbers").val("");//清空原有数值，避免交叉
     $.ajax({
-        url:app.config.analyze_api+"?query=insert into ilife.reads values ('"+hex_md5(article.id+userInfo._key)+"','"+
+        url:app.config.analyze_api+"?query=insert into ilife.reads values ('"+hex_md5(article.id+userInfo._key+groupingCode)+"','"+
             publisher.openid+"','"+
             publisher.brokerId+"','"+
             publisher.nickname+"','"+

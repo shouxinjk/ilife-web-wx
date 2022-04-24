@@ -228,7 +228,7 @@ function showGroupingReads(){
 //加载阅读该文章的日志记录：限制10000条
 function loadGroupingResult(){
     //查询阅读当前用户文章的事件列表
-    var q = "select eventId,readerOpenid as openid,readerNickname as nickname,readerAvatarUrl as avatarUrl,articleId,articleTitle,readCount,ts from ilife.reads where grouping='"+groupingCode+"' order by ts desc limit 10000 format JSON";
+    var q = "select eventId,readerOpenid as openid,readerNickname as nickname,readerAvatarUrl as avatarUrl,articleId,articleTitle,readCount,ts from ilife.reads where grouping='"+groupingCode+"' order by ts limit 10000 format JSON";
     $.ajax({
         url:app.config.analyze_api+"?query="+q,
         type:"get",
