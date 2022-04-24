@@ -201,6 +201,11 @@ var esQueryTemplate = JSON.stringify({
   "query":{
     "bool":{
       "must": [
+
+      ],       
+      "must_not": [],                
+      "filter": [],      
+      "should":[
         //默认：必须显示带有meta的条目
         {
           "nested": {
@@ -219,10 +224,7 @@ var esQueryTemplate = JSON.stringify({
           }
         }
         //end of meta in must
-      ],       
-      "must_not": [],                
-      "filter": [],      
-      "should":[]
+      ]
     }
   },
   "sort": [
