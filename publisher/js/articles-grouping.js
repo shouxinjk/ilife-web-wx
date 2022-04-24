@@ -66,7 +66,12 @@ $(document).ready(function ()
     $("#btnCancelCharge").click(function(e){
         $.unblockUI(); 
     });  
-    
+
+    //注册事件：跳转到报告查看页面
+    $("#checkReport").click(function(){
+        window.location.href = "report-grouping.html?code="+groupingCode;
+    });
+
     //检查是否有缓存事件
     resultCheck();
 
@@ -183,7 +188,10 @@ function loadItems(){
                 //do nothing
                 //$("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布文章加入~~</div>");
                 $("#blankGroupingTips").text("厉害厉害，已经全部读完了，请查看报告~~~");
-                $("#Center").append('<div style="font-size:12px;line-height:24px;width:100%;text-align:center;"><a href="report-grouping.html?code='+groupingCode+'" style="font-size:12px;padding:2px 5px;">查看报告</a></div>');
+                $("#Center").append('<div style="font-size:12px;line-height:24px;width:100%;text-align:center;"><a href="#" id="refreshGrouping" style="font-size:12px;padding:2px 5px;">刷新列表</a>&nbsp;&nbsp;<a href="report-grouping.html?code='+groupingCode+'" style="font-size:12px;padding:2px 5px;">查看报告</a></div>');
+                $("#refreshGrouping").click(function(){
+                    window.location.href = window.location.href;
+                });
             }else{
                 shownomore(true);
             }         
@@ -329,6 +337,11 @@ function insertItem(){
         advertise = "<img src='https://www.biglistoflittlethings.com/ilife-web-wx/images/rocket.png' width='16' height='16'/>&nbsp;";
     }else if(item.status&&item.status>0){//临时置顶
         tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>顶一下</span>";
+    }
+
+    //是否是自己的文章
+    if(broker&&broker.id==item.broker.id){
+        tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>自己发的</span>";
     }
     
     var title = "<div class='title'>"+tags+item.title/*+(item.counts?"("+item.counts+"阅)":"")*/+advertise+"</div>";
@@ -572,7 +585,7 @@ function logPointCostEvent(article,publisher){
             article.id+"','"+
             article.title+"','"+
             article.url+"',"+
-            publisher.points+","+readCount+",now())",
+            publisher.points+","+readCount+",'"+groupingCode+"',now())",
         type:"post",
         //data:{},
         headers:{

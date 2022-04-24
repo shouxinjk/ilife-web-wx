@@ -553,7 +553,7 @@ function logPointCostEvent(article,publisher){
             article.id+"','"+
             article.title+"','"+
             article.url+"',"+
-            publisher.points+","+readCount+",now())",
+            publisher.points+","+readCount+",'',now())",
         type:"post",
         //data:{},
         headers:{

@@ -26,7 +26,7 @@ $(document).ready(function ()
     if(args["code"]){
         groupingCode = args["code"]; //互阅班车编号
         $("#tipDiv").empty();
-        $("#tipDiv").append('请查收本时段阅读列表&nbsp;&nbsp;<a href="articles-grouping.html?code='+groupingCode+'">查缺补漏</a>');
+        $("#tipDiv").append('请查收本时段阅读列表&nbsp;&nbsp;<a href="articles-grouping.html?code='+groupingCode+'" style="font-size:12px;">返回合集</a>');
     }    
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
@@ -181,6 +181,8 @@ function changeActionType (e) {
     window.location.href = currentActionType+".html";
 }
 
+/**
+//通过mysql加载：由于缺失阅读者信息，废弃
 //加载互阅结果列表
 var groupingReads = [];//记录阅读结果明细
 function loadGroupingResult(){
@@ -221,9 +223,60 @@ function showGroupingReads(){
 
     });    
 }
+//**/
 
+//加载阅读该文章的日志记录：限制10000条
+function loadGroupingResult(){
+    //查询阅读当前用户文章的事件列表
+    var q = "select eventId,readerOpenid as openid,readerNickname as nickname,readerAvatarUrl as avatarUrl,articleId,articleTitle,readCount,ts from ilife.reads where grouping='"+groupingCode+"' order by ts desc limit 10000 format JSON";
+    $.ajax({
+        url:app.config.analyze_api+"?query="+q,
+        type:"get",
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(res){
+            console.log("got read events.", res)
+            if(res && res.rows==0){//如果没有则提示还没有阅读
+                $("#loading").css("display","none");
+                //提示没有任何结果
+                siiimpleToast.message('亲，报告还没生成，请阅读先~~',{
+                  position: 'bottom|center'
+                });
+            }else{//否则显示到页面：简单列表展示
+                groupingReads = res.data;
+                showGroupingReads(); //显示到界面
+                $("#loading").css("display","none");
+                shownomore(true);
+            }            
+        }
+    }); 
+}
 
+//将阅读结果显示到界面
+//按照文章分别展示，然后按照阅读顺序展示
+var articleReads = {};//阅读次数统计
+function showGroupingReads(){
+    //逐条显示
+    groupingReads.forEach(function(item){
+        console.log("try show grouping read.",item);
 
+        //检查文章是否已有div
+        if ($('#articleWrapper'+item.articleId).length <= 0) { //如果不存在则创建
+            var articleWrapperHtml = "<div id='articleWrapper"+item.articleId+"'><div class='article-title' id='title"+item.articleId+"' style='font-size:12px;font-weight:bold;text-align:center;line-height:20px;border-bottom:1px solid silver;width:80%;margin:2px auto;'>"+item.articleTitle+"(1)</div></div>";
+            $("#reportDiv").append(articleWrapperHtml);
+            articleReads[item.articleId]=1;
+        }else{
+            articleReads[item.articleId]=articleReads[item.articleId]+1;
+            $("#title"+item.articleId).text(item.articleTitle+"("+articleReads[item.articleId]+")");
+        }
+        //添加阅读明细
+        var articleReadHtml = "<div class='article-read' style='font-size:12px;text-align:center;line-height:16px;'>"+item.ts+'&nbsp;&nbsp;'+item.nickname+'&nbsp;&nbsp;'+item.readCount+"</div>";
+        $("#articleWrapper"+item.articleId).append(articleReadHtml);
+
+    });    
+}
 
 
 
