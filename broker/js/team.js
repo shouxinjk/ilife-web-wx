@@ -82,6 +82,7 @@ setInterval(function ()
 }, 300);
 
 //加载下级达人
+var childBrokerIds = [];//记录已经加载的达人ID，避免重复
 function loadItems(){
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokersByOpenid/"+currentPerson, function (res) {
         showloading(false);
@@ -94,7 +95,10 @@ function loadItems(){
             //装载具体条目
             var hits = res;
             for(var i = 0 ; i < hits.length ; i++){
-                getBrokerUser(hits[i]);
+                if(childBrokerIds.indexOf(hits[i].id)<0){
+                    childBrokerIds.push(hits[i].id);
+                    getBrokerUser(hits[i]);
+                }
             }
             //insertItem();
         }
