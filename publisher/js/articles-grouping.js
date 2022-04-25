@@ -259,9 +259,9 @@ function registerTimer(brokerId){
             }
         }
 
-        //计数器自减，到时即停止
+        //计数器自减，到时即停止：自动追踪10分钟
         /**
-        if(--sxLoopCount<0){
+        if(new Date().getTime()>parseFloat(timeFrom)+10*60*1000){
             unregisterTimer();
         }
         //**/
@@ -286,10 +286,11 @@ function loadItems(){
         if(res && res.length==0){//如果没有画像则提示，
             if(!items || items.length==0){
                 //do nothing
-                //$("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布文章加入~~</div>");
-                $("#blankGroupingTips").text("厉害厉害，已经全部读完了，请查看报告~~~");
-                $("#blankGroupingTips").css("display","block");
-                $("#Center").append('<div style="font-size:12px;line-height:24px;width:100%;text-align:center;"><a href="#" id="refreshGrouping" style="font-size:12px;padding:2px 5px;">刷新列表</a>&nbsp;&nbsp;<a href="report-grouping.html?code='+groupingCode+'" style="font-size:12px;padding:2px 5px;">查看报告</a></div>');
+                if($("#Center").length<=0)
+                    $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布文章加入~~</div>");
+                //$("#blankGroupingTips").text("厉害厉害，已经全部读完了，请查看报告~~~");
+                //$("#blankGroupingTips").css("display","block");
+                $("#Center").append('<div style="font-size:12px;line-height:24px;width:100%;text-align:center;"><a href="#" id="refreshGrouping" style="font-size:12px;padding:2px 5px;">刷新合集</a>&nbsp;&nbsp;<a href="report-grouping.html?code='+groupingCode+'" style="font-size:12px;padding:2px 5px;">查看报告</a></div>');
                 $("#refreshGrouping").click(function(){
                     window.location.href = window.location.href;
                 });
