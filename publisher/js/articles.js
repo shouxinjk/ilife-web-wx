@@ -61,6 +61,9 @@ $(document).ready(function ()
     //检查是否有缓存事件
     resultCheck();
 
+    //注册分享事件
+    registerShareHandler();
+
 });
 
 //解决返回时不重新加载问题
