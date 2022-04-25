@@ -292,10 +292,10 @@ function showGroupingReads(){
 function registerShareHandler(){
     //准备分享url
     var startTime = new  Date().getTime();
-    var shareUrl = window.location.href.replace(/articles/g,"articles-grouping");//目标页面将检查是否关注与注册
-    shareUrl += "?code="+groupingCode;//code
-    shareUrl += "&timeFrom="+startTime;//默认从当前时间开始
-    shareUrl += "&timeTo="+(startTime + 60*60*1000);//默认1小时结束
+    var shareUrl = window.location.href;//.replace(/report/g,"articles-grouping");//目标页面将检查是否关注与注册
+    //shareUrl += "?code="+groupingCode;//code
+    //shareUrl += "&timeFrom="+startTime;//默认从当前时间开始
+    //shareUrl += "&timeTo="+(startTime + 60*60*1000);//默认1小时结束
 
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
@@ -328,10 +328,10 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:"快闪，我们来一起看文章吧", // 分享标题
+                    title:"文章阅读报告", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:"https://www.biglistoflittlethings.com/static/logo/grouping/default.png", // 分享图标
+                    imgUrl:"https://www.biglistoflittlethings.com/static/logo/grouping/report.png", // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: board分享当前不记录
@@ -344,11 +344,11 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:"哈罗，我们来一起看文章吧", // 分享标题
-                    desc:"发文进入，10秒有效保障，结果自动统计", // 分享描述
+                    title:"文章阅读报告", // 分享标题
+                    desc:"进入查看明细数据，或继续参与阅读", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: "https://www.biglistoflittlethings.com/static/logo/grouping/default.png", // 分享图标
+                    imgUrl: "https://www.biglistoflittlethings.com/static/logo/grouping/report.png", // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
