@@ -512,6 +512,9 @@ function showArticleForm(){
             if( !isUrlValid($("#articleUrl").val()) ){
                 $("#articleUrl").css("border","1px solid red");
                 $("#articleUrl").val("");//清空原有数值，避免交叉
+                siiimpleToast.message('当前仅支持微信文章链接~~',{
+                  position: 'bottom|center'
+                });                 
             }else{
                 console.log("try to submit read event.");
                 submitArticle();
