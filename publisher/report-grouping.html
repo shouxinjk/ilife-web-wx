@@ -59,7 +59,7 @@
     </view>
 
     <div class="tips" id="tipDiv" style="line-height: 16px;">
-        请查收本时段阅读列表&nbsp;&nbsp;<a href="../articles.html">查看更多文章</a>
+        请查收本时段阅读结果，多次阅读仅记录一次
     </div> 
 
     <!--文章及报数列表-->
@@ -75,7 +75,11 @@
     <div id="footer" class="footer-hide" style="border:0;">
         <div style="color:silver;font-size:12px;">~~~~~~报告结束~~~~~~</div>
         <div>&nbsp;<br/>&nbsp;</div>
-        <div><a href="articles.html" style="font-size:12px;padding:2px 5px;">继续查看更多文章</a></div>
+        <div>
+            <a href="#" id="reloadReport" style="font-size:12px;padding:2px 5px;">刷新报告</a>&nbsp;
+            <a href="articles.html" style="font-size:12px;padding:2px 5px;">阅读更多</a>&nbsp;
+            <a href="#" id="reloadGrouping" style="font-size:12px;padding:2px 5px;">返回合集</a>
+        </div>
     </div>  
 
     <div style="height:60px;">
@@ -125,5 +129,5 @@
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript" src="js/common.js?v=1.8"></script> 
-<script type="text/javascript" src="js/report-grouping.js?v=0.5"></script> 
+<script type="text/javascript" src="js/report-grouping.js?v=0.51"></script> 
 </html>

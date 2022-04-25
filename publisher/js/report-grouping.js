@@ -25,8 +25,6 @@ $(document).ready(function ()
     var args = getQuery();//获取参数
     if(args["code"]){
         groupingCode = args["code"]; //互阅班车编号
-        $("#tipDiv").empty();
-        $("#tipDiv").append('请查收本时段阅读列表&nbsp;&nbsp;<a href="articles-grouping.html?code='+groupingCode+'" style="font-size:12px;">返回合集</a>');
     }    
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
@@ -53,7 +51,16 @@ $(document).ready(function ()
     //取消充值
     $("#btnCancelCharge").click(function(e){
         $.unblockUI(); 
-    });                
+    });   
+
+    //注册事件：刷新合集
+    $("#reloadGrouping").click(function(){
+        window.location.href = "articles-grouping.html?code="+groupingCode;
+    });
+    //注册事件：跳转到报告查看页面
+    $("#reloadReport").click(function(){
+        window.location.href = window.location.href;
+    });                   
 
     //加载班车阅读结果
     loadGroupingResult();   
@@ -238,6 +245,7 @@ function loadGroupingResult(){
         },         
         success:function(res){
             console.log("got read events.", res)
+            shownomore(true);
             if(res && res.rows==0){//如果没有则提示还没有阅读
                 $("#loading").css("display","none");
                 //提示没有任何结果
@@ -248,7 +256,6 @@ function loadGroupingResult(){
                 groupingReads = res.data;
                 showGroupingReads(); //显示到界面
                 $("#loading").css("display","none");
-                shownomore(true);
             }            
         }
     }); 
