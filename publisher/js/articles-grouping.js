@@ -97,10 +97,14 @@ $(document).ready(function ()
         $.unblockUI(); 
     });  
 
+    //注册事件：刷新合集
+    $("#reloadGrouping").click(function(){
+        window.location.href = "articles-grouping.html?code="+groupingCode+"&timeFrom="+timeFrom+"&timeTo="+timeTo;
+    });
     //注册事件：跳转到报告查看页面
     $("#checkReport").click(function(){
         window.location.href = "report-grouping.html?code="+groupingCode;
-    });
+    });    
 
     //检查是否有缓存事件
     resultCheck();
@@ -284,6 +288,7 @@ function loadItems(){
         showloading(false);
         console.log("Publisher::Articles::loadItems try to retrive pending articles.", res)
         if(res && res.length==0){//如果没有画像则提示，
+            /**
             if(!items || items.length==0){
                 //do nothing
                 if($("#Center").length<=0)
@@ -296,7 +301,9 @@ function loadItems(){
                 });
             }else{
                 shownomore(true);
-            }         
+            } 
+            //**/
+            shownomore(true);        
         }else{//否则显示到页面
             //更新当前翻页
             page.current = page.current + 1;
