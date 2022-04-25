@@ -671,7 +671,7 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:"互阅快车，自动统计，1小时有效", // 分享标题
+                    title:"快闪，来一起看看文章吧", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:"https://www.biglistoflittlethings.com/static/logo/grouping/default.png", // 分享图标
@@ -687,8 +687,8 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:"互阅快车，自动统计，1小时有效", // 分享标题
-                    desc:"互阅专属，点击进入，发文上车，10秒有效保障，直接看结果统计", // 分享描述
+                    title:"快闪，来一起看看文章吧", // 分享标题
+                    desc:"互阅专属，进入发文，10秒有效保障，结果自动统计", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "https://www.biglistoflittlethings.com/static/logo/grouping/default.png", // 分享图标
