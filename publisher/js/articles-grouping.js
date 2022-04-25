@@ -176,7 +176,9 @@ function showWxQrcode(){
         $.ajax({
             url:app.config.auth_api+"/wechat/ilife/inst-qrcode",
             type:"get",
-            data:{},
+            data:{
+                code:groupingCode  //默认传递班车编码
+            },
             success:function(res){
                 console.log("got qrcode and redirect.",res);
                 //显示二维码
