@@ -57,7 +57,7 @@
     </view>
 
     <div class="tips" style="line-height: 16px;">
-        关注确认后奖励阅豆，阅豆越多排名越靠前哦~~ <br/>还可以<a id="advertiseAccount" href="my-accounts.html" style="font-size: 12px;">置顶</a>&nbsp;或&nbsp;右上角<span style="color:red;">分享</span>到微信群邀请互关
+        关注后返回确认，关注后的公众号将不再显示哦~~ 
     </div> 
 
     <div id="Center">
@@ -75,9 +75,15 @@
         <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
     </div>
 
-    <div id="footer" class="footer-hide">
-        我是有底线的
-    </div>  
+
+    <div id="footer" class="footer-hide" style="border:0;">
+        <div style="color:silver;font-size:12px;">~~~~~合集结束~~~~~</div>
+        <div>&nbsp;<br/>&nbsp;</div>
+        <div>
+            <a id="reloadGrouping" href="#" style="font-size:12px;padding:2px 5px;">刷新合集</a>&nbsp;
+            <a href="accounts.html" style="font-size:12px;padding:2px 5px;">关注更多</a>&nbsp;
+            <a id="checkReport" href="#" style="font-size:12px;padding:2px 5px;">查看报告</a></div>
+    </div>   
 
     <div style="height:60px;">
         &nbsp;&nbsp;
@@ -98,6 +104,7 @@
     </a>        
   </div>
 
+    <!--扫码完成公众号关注-->
     <div id="qrcodeform" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;">长按二维码关注</div> 
             <div  style="font-size:12px;text-align: center" id='pendingAccountQrcode'></div> 
@@ -106,6 +113,15 @@
                 <button type="submit" class="btnYes" id="btnYesSubscribe" style="display:none;margin-left: 5px;">已关注</button> 
             </div>
     </div> 
+
+    <!--新用户进入需要先关注小确幸大生活-->
+    <div id="bindQrcodeform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">请扫码关注后加入互阅</div> 
+            <div id="wxQrcodeDiv">
+
+            </div>
+    </div> 
+
 
     <!--废弃：关注后回来停留在二维码界面。-->
 	<!--div id="checkform" style="display:none; cursor: default;"> 
@@ -117,16 +133,21 @@
 	        </div>
 	</div--> 
 
-	<div id="accountform" style="display:none; cursor: default;"> 
-	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">发布微信公众号</div> 
-            <input type="text" id="accountName"  placeholder="请输入公众号名称。必填。" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;" required/>
-            <input type="text" id="accountOriginalId"  placeholder="公众号微信ID：xxxxxxx。必填。" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;" required/>
-	        <textarea type="text" id="accountDesc" rows="3" placeholder="简要描述。可选。" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;"></textarea> 
-	        <div>
-		        <button type="submit" class="btnNo" id="btnCancel">取消</button>	
-				<button type="submit" class="btnYes" id="btnPublish">确定</button> 
-	        </div>
-	</div> 
+    <div id="accountform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">发布微信公众号</div> 
+            <div style="display:flex;flex-direction: row">
+                <div style="width:80%">
+                    <input type="text" id="accountName"  placeholder="请输入公众号名称。必填。" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required/>
+                    <input type="text" id="accountOriginalId"  placeholder="公众号微信ID：xxxxxxx。必填。" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required/>
+                    <textarea type="text" id="accountDesc" rows="3" placeholder="简要描述。可选。" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;"></textarea> 
+                </div>
+                <div style="width:20%">
+                    <button type="submit" class="btnNo" id="btnCancel" style="margin-top: 2px">取消</button>  
+                    <button type="submit" class="btnYes" id="btnPublish" style="margin-top: 2px">加入</button> 
+                </div>
+            </div>
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">选择已有公众号加入</div> 
+    </div>     
 
     <!--充值-->
     <div id="chargeForm" style="display:none; cursor: default;"> 
@@ -153,6 +174,6 @@
 <script type="text/javascript" src="../js/md5.js?v=1.0"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
-<script type="text/javascript" src="js/common.js?v=1.6"></script> 
-<script type="text/javascript" src="js/accounts.js?v=1.42"></script> 
+<script type="text/javascript" src="js/common.js?v=1.63"></script> 
+<script type="text/javascript" src="js/accounts-grouping.js?v=1.42"></script> 
 </html>

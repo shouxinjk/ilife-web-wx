@@ -36,12 +36,54 @@ $(document).ready(function ()
         byPublisherOpenid = args["byPublisherOpenid"]; //支持传入publisherOpenid
     }        
 
+    if(args["code"]){
+        groupingCode = args["code"]; //支持传入班车code
+    }else{
+        groupingCode = generateShortCode(getUUID());//否则随机生成一个
+    }          
+    if(args["timeFrom"]){
+        timeFrom = args["timeFrom"]; //班车开始时间
+    }else{
+        timeFrom = new Date().getTime();//否则为当前时间
+    }
+    if(args["timeTo"]){
+        timeTo = args["timeTo"]; //班车结束时间
+    }else{
+        timeTo = timeFrom + 60*60*1000;//否则为当前时间持续1小时
+    }
+
     $("body").css("background-color","#fff");//更改body背景为白色
 
     //加载达人信息
     loadBrokerInfo();
 
-    loadPerson(currentPerson);//加载用户
+    //loadPerson(currentPerson);//加载用户
+    if(app.globalData.userInfo&&app.globalData.userInfo._key){//如果本地已有用户则直接加载
+        loadPerson(currentPerson);//加载用户
+    }else{//否则显示二维码
+        showWxQrcode();
+        //显示数据填报表单
+        $.blockUI({ message: $('#bindQrcodeform'),
+            css:{ 
+                padding:        10, 
+                margin:         0, 
+                width:          '80%', 
+                top:            '30%', 
+                left:           '10%', 
+                textAlign:      'center', 
+                color:          '#000', 
+                border:         '1px solid silver', 
+                backgroundColor:'#fff', 
+                cursor:         'normal' 
+            },
+            overlayCSS:  { 
+                backgroundColor: '#000', 
+                opacity:         0.7, 
+                cursor:          'normal' 
+            }
+        });        
+    }
+
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
@@ -71,8 +113,17 @@ $(document).ready(function ()
     //检查是否有缓存事件
     //resultCheck();
 
+    //注册事件：刷新合集
+    $("#reloadGrouping").click(function(){
+        window.location.href = "accounts-grouping.html?code="+groupingCode+"&timeFrom="+timeFrom+"&timeTo="+timeTo;
+    });
+    //注册事件：跳转到报告查看页面
+    $("#checkReport").click(function(){
+        window.location.href = "report-grouping2.html?code="+groupingCode;
+    });   
+
     //注册分享事件
-    registerShareHandler();   
+    registerShareHandler();
 });
 
 //解决返回时不重新加载问题
@@ -86,6 +137,12 @@ util.getUserInfo();//从本地加载cookie
 
 var byOpenid = null;
 var byPublisherOpenid = null;
+
+var instSubscribeTicket = null;//对于即时关注，需要缓存ticket
+var groupingCode = null;//班车code：默认自动生成
+var timeFrom = new Date().getTime();//班车开始时间:long，默认为当前时间
+var timeTo = timeFrom+60*60*1000;//班车结束时间:long，默认持续一个小时
+
 
 //设置默认logo
 var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
@@ -105,6 +162,8 @@ var page = {
     current:-1//当前翻页
 };
 
+var publiserIds = [];//记录已加载文章的发布者ID
+
 var currentActionType = '';//当前操作类型
 var tagging = '';//操作对应的action 如buy view like 等
 
@@ -117,6 +176,76 @@ var broker = {};//当前达人
 var sxTimer = null;
 var sxStartTimestamp=new Date().getTime();//定时器如果超过2分
 var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
+
+
+//请求qrcode并显示二维码，供达人扫码绑定
+function showWxQrcode(){
+    //检查缓存是否有ticket
+    var instTicketInfo = $.cookie('sxInstTicket');
+    console.log("load instTicketInfo from cookie.",instTicketInfo);
+    if(instTicketInfo && instTicketInfo.trim().length>0){//有缓存，表示是已经扫码后返回，直接显示二维码并查询即可
+        var instTicket = JSON.parse(instTicketInfo.trim());
+        //显示二维码
+        $("#wxQrcodeDiv").html("<img width='240' src='"+instTicket.url+"' style='display:block;margin:0 auto;'/>");
+        //开始轮询扫码结果
+        setInterval(function ()
+        {
+          getQrcodeScanResult(instTicket.ticket);//实际是6位短码               
+        }, 500);            
+    }else{//否则表示初次进入，直接请求新的二维码
+        $.ajax({
+            url:app.config.auth_api+"/wechat/ilife/inst-qrcode",
+            type:"get",
+            data:{
+                code:groupingCode  //默认传递班车编码
+            },
+            success:function(res){
+                console.log("got qrcode and redirect.",res);
+                //显示二维码
+                $("#wxQrcodeDiv").html("<img width='240' src='"+res.url+"' style='display:block;margin:0 auto;'/>");
+                //将ticket缓存，在完成关注后返回还能继续查询
+                var expDate = new Date();
+                expDate.setTime(expDate.getTime() + (5 * 60 * 1000)); // 5分钟后自动失效：避免用户进入关注界面超时不回来    
+                console.log("Publisher::Articles-grouping save inst ticket to cookie.",res);
+                $.cookie('sxInstTicket', JSON.stringify(res), { expires: expDate, path: '/' });  //再返回时便于检查  
+                //根据返回的短码，生成链接，便于从公众号关注后的模板消息进入
+                var state = "publisher__articles-grouping___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo;
+                var longUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=";
+                longUrl += state;
+                longUrl += "#wechat_redirect";
+                saveShortCode(hex_md5(longUrl),"page_"+res.ticket,"","","mp",encodeURIComponent(longUrl),res.ticket);             
+                //开始轮询扫码结果
+                setInterval(function ()
+                {
+                  getQrcodeScanResult(res.ticket);//实际是6位短码               
+                }, 500);
+                //**/
+            }
+        });
+    }
+}
+
+//查询扫码结果，将返回openid
+function getQrcodeScanResult(ticket){
+    console.log("try to query scan result by uuid.",ticket);
+    $.ajax({
+        url:app.config.auth_api+"/wechat/ilife/bind-openid?uuid="+ticket,//根据短码查询关注结果
+        type:"get",
+        data:{},
+        success:function(res){
+            console.log("got qrcode scan result.",res);
+            if(res.status && res.openid){//成功扫码，刷新页面：需要通过微信授权页面做一次跳转，要不然无法获取用户信息
+                var state = "publisher__articles-grouping___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo;
+                //https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=index#wechat_redirect
+                var targetUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=";
+                targetUrl += state;
+                targetUrl += "#wechat_redirect";
+                window.location.href = targetUrl;          
+            }
+        }
+    });
+}
+
 
 //优先从cookie加载达人信息
 function loadBrokerInfo(){
@@ -171,14 +300,16 @@ function unregisterTimer(){
 */
 var tmpAccountIds = [];//缓存已加载的公众号ID，避免置顶公众号与普通公众号重复显示
 function loadItems(){
-    util.AJAX(app.config.sx_api+"/wx/wxAccount/rest/pending-accounts", function (res) {
+    util.AJAX(app.config.sx_api+"/wx/wxAccount/rest/grouping-accounts", function (res) {
         showloading(false);
         console.log("Publisher::Accounts::loadItems try to retrive pending accounts.", res)
         if(res && res.length==0){//如果没有画像则提示，
-            shownomore();
+            shownomore(true); 
+            /**
             if(!items || items.length==0){
                 $("#Center").append("<div style='font-size:12px;line-height:24px;width:100%;text-align:center;'>没有待粉公众号哦~~</div>");
-            }         
+            }     
+            //**/    
         }else{//否则显示到页面
             //更新当前翻页
             page.current = page.current + 1;
@@ -192,7 +323,14 @@ function loadItems(){
                 }else{
                     //ignore
                 }
+                //将文章发布者ID缓存，便于检查是否需要提示发布文章
+                if(publiserIds.indexOf(hits[i].broker.id)<0){
+                    publiserIds.push(hits[i].broker.id);
+                }                 
             }
+            //检查用户是否已发布公众号
+            checkAccountGrouping();
+            //开始显示到界面             
             insertItem();
         }
     }, 
@@ -201,10 +339,96 @@ function loadItems(){
         from:(page.current+1)*page.size,
         to:(page.current+1)*page.size+page.size,
         openid:byOpenid?byOpenid:userInfo._key,//当前订阅者的openid：用于排除已经关注的内容
+        code:groupingCode,//微信开车群编号
         publisherOpenid:byPublisherOpenid?byPublisherOpenid:""//发布者 openid：只显示指定发布者的内容
     },
     {});
 }
+
+
+//检查当前文章列表中是否已经有当前用户的文章，如果没有则显示添加文章表单
+var accountsLoaded = false;//文章是否已加载标志，便于多个源头触发
+function checkAccountGrouping(){
+    console.log("check article grouping. publiserIds",publiserIds, broker.id);
+
+    //检查当前达人是否有文章加入开车，以判断是否显示添加文章按钮
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxAccount/rest/grouping-accounts",
+        type:"get",
+        data:{
+            from:0,
+            to:1,//仅用于判断，1条即可
+            openid:"",//忽略是否已经阅读
+            code:groupingCode,//微信群编号
+            publisherOpenid:userInfo._key//发布者 openid：只显示指定发布者的内容
+        },
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },        
+        success:function(myAccounts){
+            if(myAccounts && myAccounts.length==0){//如果当前列表中没有当前达人的文章，则显示添加按钮
+                $("#createAccountEntry").css("display","block");
+                $("#createAccountBtn").css("display","flex");
+                if($("#Center").length<=0)
+                    $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>请发布公众号加入~~</div>");
+            }else{//否则隐藏添加按钮
+                $("#createAccountEntry").css("display","none");
+                $("#createAccountBtn").css("display","none");
+                if($("#Center").length<=0)
+                    $("#Center").append("<div id='blankGroupingTips' style='font-size:12px;line-height:24px;width:100%;text-align:center;'>已发布公众号，请完成关注~~</div>");
+            }
+        }
+    });
+
+    //加载当前达人已发布的公众号，便于选择
+    console.log("try to load accounts.",!accountsLoaded&&broker&&broker.id&&publiserIds.indexOf(broker.id)<0);
+    if(!accountsLoaded&&broker&&broker.id&&publiserIds.indexOf(broker.id)<0){
+        accountsLoaded = true;
+        //加载当前达人发布的文章列表，仅显示最近发布的10篇文章
+        $.ajax({
+            url:app.config.sx_api+"/wx/wxAccount/rest/my-accounts/"+userInfo._key,
+            type:"get",
+            data:{
+                from:0,
+                to: 10 //仅显示最近10条
+            },
+            headers:{
+                "Content-Type":"application/json",
+                "Accept": "application/json"
+            },        
+            success:function(myAccounts){
+                console.log("got my accounts.",myAccounts);
+                myAccounts.forEach(function(myAccount){
+                    //显示到界面
+                    var html = '<div style="display:flex;flex-direction: row"><div style="width:80%;line-height:30px;font-size:12px;">';
+                    html+= myAccount.name;
+                    html+='</div><div style="width:20%">';
+                    html+='<button type="submit" class="btnYes" id="btnPublish'+myAccount.id+'" data-originid="'+myAccount.originalId+'"  data-name="'+myAccount.name+'" data-updateDate="'+myAccount.updateDate+'">加入</button>';
+                    html+='</div></div>';
+                    $("#accountform").append(html);
+                    //注册事件：选择后加入grouping，并显示到界面，然后隐藏当前表单
+                    //需要有id、title、url、updatedate
+                    $("#btnPublish"+myAccount.id).click(function(e){
+                        console.log("add exists article to grouping.");
+                        var selectedItem = {
+                            id:$(this).attr("id").replace(/btnPublish/g,""),
+                            name:$(this).attr("data-name"),
+                            originalId:$(this).attr("data-originid"),
+                            updateDate:$(this).attr("data-updateDate")
+                        }
+                        $.unblockUI(); //屏幕解锁
+                        //加入grouping
+                        groupingItem(selectedItem);
+                        //显示到待阅文章列表内
+                        toppingItem(selectedItem);
+                    });
+                });
+            }
+        });       
+    }
+}
+
 
 //将item显示到页面
 function insertItem(){
@@ -328,6 +552,7 @@ function loadBrokerByOpenid(openid) {
             broker = res.data; 
             insertBroker(res.data);//显示达人信息
             registerTimer(res.data.id);//加载该达人的board列表
+            checkAccountGrouping();//检查加载达人的文章列表
         }
     });
 }
@@ -469,7 +694,7 @@ function logPointCostEvent(account,subscriber){
             account.id+"','"+
             account.name+"','"+
             account.originalId+"',"+
-            subscriber.points+",'',now())",
+            subscriber.points+",'"+groupingCode+"',now())",
         type:"post",
         //data:{},
         headers:{
@@ -581,24 +806,54 @@ function submitAccount(){
             //将公众号显示在自己列表顶部
             if(res.status){//提示文章已发布
                 if(res.code&&res.code=="duplicate"){
-                    siiimpleToast.message('公众号已存在，不需要重复发布哦~~',{
-                          position: 'bottom|center'
-                        });  
+                    //添加到班车列表 
+                    groupingItem(res.data);                    
                 }else{
                     toppingItem(res.data);//将文章显示到界面
                     //扣除阅豆，并更新当前阅豆数
                     if(broker&&broker.points&&res.points){
                         broker.points = broker.points-res.points;
                         insertBroker(broker);
-                    }                     
-                    siiimpleToast.message('发布成功，消耗'+res.points+'阅豆。阅豆越多排名越靠前哦~~',{
-                          position: 'bottom|center'
-                        });  
+                    }    
+                    //添加到班车列表 
+                    groupingItem(res.data);                  
+
                 }   
             }      
         }
     })     
 }
+
+
+//将公众号加入班车列表
+function groupingItem(item){
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxGrouping/rest/grouping",
+        type:"post",
+        data:JSON.stringify({
+            code:groupingCode,
+            timeFrom:timeFrom,
+            timeTo:timeTo,
+            subjectType:'account',
+            subjectId: item.id
+        }),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },        
+        success:function(res){
+            console.log("submit account to wxgroup succeed.",res);
+            //隐藏添加文章按钮：一个班车只允许一个人添加一篇文章
+            $("#createAccountEntry").css("display","none");
+            $("#createAccountBtn").css("display","none");
+            $("#blankGroupingTips").css("display","none");//隐藏提示
+            siiimpleToast.message('亲，公众号已加入，进入列表关注吧~~',{
+                  position: 'bottom|center'
+                });     
+        }
+    }) 
+}
+
 
 //手动置顶
 function toppingItem(item){
@@ -619,7 +874,7 @@ function toppingItem(item){
 
     var title = "<div class='title'>"+tags+item.name+advertise+"</div>";
     var imageBg = "<div id='qrcodeimg"+item.id+"' class='qrcodeimg'></div>";
-    var description = "<div class='description'>"+item.description+"</div>";
+    var description = "<div class='description'>"+(item.description?item.description:"")+"</div>";
     var pubishDate = "<div class='description'>"+item.updateDate+"</div>";
 
     var btns = "<div class='btns'><div id='article-"+item.id+"' data-id='"+item.id+"'>前往关注</div></div>";
@@ -653,12 +908,11 @@ function toppingItem(item){
 }
 
 
-
 //分享到微信群：直接构建互阅班车，便于统计结果
 function registerShareHandler(){
     //准备分享url
     //var startTime = new  Date().getTime();
-    var shareUrl = window.location.href.replace(/accounts/g,"accounts-grouping");//目标页面将检查是否关注与注册
+    var shareUrl = window.location.href;//.replace(/articles/g,"articles-grouping");//目标页面将检查是否关注与注册
     //shareUrl += "?code="+groupingCode;//code
     //shareUrl += "&timeFrom="+timeFrom;//默认从当前时间开始
     //shareUrl += "&timeTo="+timeTo;//默认1小时结束

@@ -528,7 +528,7 @@ function logPointCostEvent(account,subscriber){
             account.id+"','"+
             account.name+"','"+
             account.originalId+"',"+
-            subscriber.points+",now())",
+            subscriber.points+",'',now())",
         type:"post",
         //data:{},
         headers:{
