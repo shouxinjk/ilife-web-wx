@@ -398,13 +398,15 @@ function checkAccountGrouping(){
                 "Accept": "application/json"
             },        
             success:function(myAccounts){
+                //根据结果处理：如果没有则显示新增表单；如果仅有1条则直接加入；如果有多条则提示选择框
                 console.log("got my accounts.",myAccounts);
+
                 myAccounts.forEach(function(myAccount){
                     //显示到界面
                     var html = '<div style="display:flex;flex-direction: row"><div style="width:80%;line-height:30px;font-size:12px;">';
                     html+= myAccount.name;
                     html+='</div><div style="width:20%">';
-                    html+='<button type="submit" class="btnYes" id="btnPublish'+myAccount.id+'" data-originid="'+myAccount.originalId+'"  data-name="'+myAccount.name+'" data-updateDate="'+myAccount.updateDate+'">加入</button>';
+                    html+='<button type="submit" class="btnYes" id="btnPublish_'+myAccount.id+'" data-originid="'+myAccount.originalId+'"  data-name="'+myAccount.name+'" data-updateDate="'+myAccount.updateDate+'">加入</button>';
                     html+='</div></div>';
                     $("#accountform").append(html);
                     //注册事件：选择后加入grouping，并显示到界面，然后隐藏当前表单
@@ -412,7 +414,7 @@ function checkAccountGrouping(){
                     $("#btnPublish"+myAccount.id).click(function(e){
                         console.log("add exists article to grouping.");
                         var selectedItem = {
-                            id:$(this).attr("id").replace(/btnPublish/g,""),
+                            id:$(this).attr("id").replace(/btnPublish_/g,""),
                             name:$(this).attr("data-name"),
                             originalId:$(this).attr("data-originid"),
                             updateDate:$(this).attr("data-updateDate")
@@ -424,6 +426,7 @@ function checkAccountGrouping(){
                         toppingItem(selectedItem);
                     });
                 });
+
             }
         });       
     }
@@ -551,8 +554,16 @@ function loadBrokerByOpenid(openid) {
             $.cookie('sxBroker', JSON.stringify(res.data), {  path: '/' });     
             broker = res.data; 
             insertBroker(res.data);//显示达人信息
-            registerTimer(res.data.id);//加载该达人的board列表
-            checkAccountGrouping();//检查加载达人的文章列表
+            //仅对于在时间有效期内的才加载数据，否则直接提示已结束
+            /**
+            if(timeTo && new Date().getTime()>parseFloat(timeTo) ){//如果传递了截止时间，则判断是否超时
+                $("#Center").append("<div style='width:100%;text-align:center;font-size:12px;margin:20px;'>哎呀，已经结束了，下次请赶早哦~~~</div>");
+                $("#loading").css("display","none");
+            }else{
+                //**/
+                registerTimer(res.data.id);//加载该达人的account列表
+                checkAccountGrouping();//检查加载达人的account列表
+            //}            
         }
     });
 }
@@ -718,27 +729,68 @@ function showAccountForm(){
         siiimpleToast.message('阅豆不足，发布需要10阅豆，去阅读或关注获取吧~~',{
               position: 'bottom|center'
             });
-    }else{      
-        //显示数据填报表单
-        $.blockUI({ message: $('#accountform'),
-            css:{ 
-                padding:        10, 
-                margin:         0, 
-                width:          '80%', 
-                top:            '20%', 
-                left:           '10%', 
-                textAlign:      'center', 
-                color:          '#000', 
-                border:         '1px solid silver', 
-                backgroundColor:'#fff', 
-                cursor:         'normal' 
-            },
-            overlayCSS:  { 
-                backgroundColor: '#000', 
-                opacity:         0.7, 
-                cursor:          'normal' 
+    }else{//根据是否有已发布公众号判断如何处理
+        console.log("found exists accounts.",$("div[id^=btnPublish_]").length);
+        if($("button[id^=btnPublish_]").length==0){//之前没有发布公众号。仅显示新增表单，不显示选择列表
+            $("#hasAccountTitleDiv").css("display","none");
+            //显示数据填报表单
+            $.blockUI({ message: $('#accountform'),
+                css:{ 
+                    padding:        10, 
+                    margin:         0, 
+                    width:          '80%', 
+                    top:            '20%', 
+                    left:           '10%', 
+                    textAlign:      'center', 
+                    color:          '#000', 
+                    border:         '1px solid silver', 
+                    backgroundColor:'#fff', 
+                    cursor:         'normal' 
+                },
+                overlayCSS:  { 
+                    backgroundColor: '#000', 
+                    opacity:         0.7, 
+                    cursor:          'normal' 
+                }
+            });             
+        }else if($("button[id^=btnPublish_]").length==1){//直接添加完事
+            console.log("add exist account to grouping.");
+            var selectedItem = {
+                id:$("button[id^=btnPublish_]").attr("id").replace(/btnPublish_/g,""),
+                name:$("button[id^=btnPublish_]").attr("data-name"),
+                originalId:$("button[id^=btnPublish_]").attr("data-originid"),
+                updateDate:$("button[id^=btnPublish_]").attr("data-updateDate")
             }
-        }); 
+            //加入grouping
+            groupingItem(selectedItem);
+            //显示到待阅文章列表内
+            toppingItem(selectedItem);
+        }else{//从已有的 里面选择 ，不显示新增表单
+            $("#newAccountTitleDiv").css("display","none");
+            $("#newAccountFormDiv").css("display","none");
+            //显示数据填报表单
+            $.blockUI({ message: $('#accountform'),
+                css:{ 
+                    padding:        10, 
+                    margin:         0, 
+                    width:          '80%', 
+                    top:            '20%', 
+                    left:           '10%', 
+                    textAlign:      'center', 
+                    color:          '#000', 
+                    border:         '1px solid silver', 
+                    backgroundColor:'#fff', 
+                    cursor:         'normal' 
+                },
+                overlayCSS:  { 
+                    backgroundColor: '#000', 
+                    opacity:         0.7, 
+                    cursor:          'normal' 
+                }
+            });              
+        }
+
+        //注册事件
         $("#btnCancel").click(function(){       
             $.unblockUI(); //直接取消即可
         });
@@ -885,6 +937,7 @@ function toppingItem(item){
     $("#qrcodeimg"+item.id).css("background-image","url("+logo+")");
 
     //注册事件
+    /**
     $("div[data='"+item.id+"']").click(function(){
         //cookie缓存记录当前浏览文章，返回时检查
         console.log("Publisher::Accounts now jump to account.");
@@ -905,6 +958,55 @@ function toppingItem(item){
         $("#pendingAccountQrcode").append("<img src='"+$(this).attr("data-url")+"' width='200' height='200'/>");        
 
     });
+    //**/
+
+   //注册事件
+    $("div[data='"+item.id+"']").click(function(){
+        //cookie缓存记录当前浏览文章，返回时检查
+        console.log("Publisher::Accounts now jump to account.");
+        var expDate = new Date();
+        expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
+        var pendingAccount = {
+            id:$(this).attr("data"),//id
+            name:$(this).attr("data-title"),//标题
+            originalId:$(this).attr("data-originid"),//公众号ID
+            startTime: new Date().getTime()//开始时间戳：需要超过10秒
+        };
+               
+        console.log("Publisher::Accounts save account to cookie.",pendingAccount);
+        $.cookie('sxAccount', JSON.stringify(pendingAccount), { expires: expDate, path: '/' });  //把浏览中的id写入cookie便于记录阅读数       
+
+        //显示二维码供扫描关注
+        console.log("Publisher::Accounts now show QRcode.");
+        $("#pendingAccountQrcode").append("<img src='"+$(this).attr("data-url")+"' width='200' height='200'/>");    
+        //二维码长按事件：模拟关注，在等待1.5秒后显示确认按钮
+        setTimeout(function(){
+            $("#btnYesSubscribe").css("display","block");
+        },3200);
+        
+        //显示二维码
+        $.blockUI({ message: $('#qrcodeform'),
+            css:{ 
+                padding:        10, 
+                margin:         0, 
+                width:          '80%', 
+                top:            '10%', 
+                left:           '10%', 
+                textAlign:      'center', 
+                color:          '#000', 
+                border:         '1px solid silver', 
+                backgroundColor:'#fff', 
+                cursor:         'normal' 
+            },
+            overlayCSS:  { 
+                backgroundColor: '#000', 
+                opacity:         0.7, 
+                cursor:          'normal' 
+            }
+        });            
+
+    });
+
 }
 
 
