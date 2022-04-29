@@ -657,11 +657,11 @@ function toppingItem(item){
 //分享到微信群：直接构建互阅班车，便于统计结果
 function registerShareHandler(){
     //准备分享url
-    //var startTime = new  Date().getTime();
+    var startTime = new  Date().getTime();
     var shareUrl = window.location.href.replace(/accounts/g,"accounts-grouping");//目标页面将检查是否关注与注册
-    //shareUrl += "?code="+groupingCode;//code
-    //shareUrl += "&timeFrom="+timeFrom;//默认从当前时间开始
-    //shareUrl += "&timeTo="+timeTo;//默认1小时结束
+    shareUrl += "?code="+generateShortCode(getUUID());//code
+    shareUrl += "&timeFrom="+startTime;//默认从当前时间开始
+    shareUrl += "&timeTo="+(startTime+60*60*1000);//默认1小时结束
 
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
@@ -694,7 +694,7 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:"哈罗，我们来一起互关吧", // 分享标题
+                    title:"加入列表，我们来一起互关吧", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:"https://www.biglistoflittlethings.com/static/logo/grouping/subscribe.png", // 分享图标
@@ -710,7 +710,7 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:"哈罗，我们来一起互关吧", // 分享标题
+                    title:"加入列表，我们来一起互关吧", // 分享标题
                     desc:"添加公众后加入，关注后确认，结果自动统计", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,

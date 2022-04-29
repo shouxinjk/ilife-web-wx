@@ -921,7 +921,7 @@ function toppingItem(item){
     }
 
     //新文章默认显示到顶部：仅在发布者界面
-    var tags = "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>新公众号首发</span>";
+    var tags = "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>我自己的</span>";
     var advertise = "";
 
     var title = "<div class='title'>"+tags+item.name+advertise+"</div>";
