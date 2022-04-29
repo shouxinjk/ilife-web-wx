@@ -209,7 +209,7 @@ function loadGroupingResult(){
             if(res && res.rows==0){//如果没有则提示还没有阅读
                 $("#loading").css("display","none");
                 //提示没有任何结果
-                siiimpleToast.message('亲，报告还没生成，请阅读先~~',{
+                siiimpleToast.message('亲，报告还没生成，请关注几个先~~',{
                   position: 'bottom|center'
                 });
             }else{//否则显示到页面：简单列表展示
