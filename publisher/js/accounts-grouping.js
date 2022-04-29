@@ -411,7 +411,7 @@ function checkAccountGrouping(){
                     $("#accountform").append(html);
                     //注册事件：选择后加入grouping，并显示到界面，然后隐藏当前表单
                     //需要有id、title、url、updatedate
-                    $("#btnPublish"+myAccount.id).click(function(e){
+                    $("#btnPublish_"+myAccount.id).click(function(e){
                         console.log("add exists article to grouping.");
                         var selectedItem = {
                             id:$(this).attr("id").replace(/btnPublish_/g,""),
