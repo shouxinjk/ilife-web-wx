@@ -72,6 +72,10 @@ $(document).ready(function ()
     //注册事件：跳转到报告查看页面
     $("#reloadReport").click(function(){
         window.location.href = window.location.href;
+    });     
+    //注册事件：查看全量数据
+    $("#moreData").click(function(){
+        window.location.href = "reads.html";
     });                   
 
     //加载班车阅读结果

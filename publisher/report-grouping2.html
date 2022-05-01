@@ -37,12 +37,12 @@
     <!-- 按钮 --> 
     <view class="order" id="buttons">      
         <div class="order-cell" id="articles" data-tagging="like view">
-            <img class="order-cell-icon-small" src="images/articles-selected.png"/>
-            <div class="actiontype-selected">文章</div>
+            <img class="order-cell-icon-small" src="images/articles.png"/>
+            <div class="actiontype">文章</div>
         </div>           
         <div class="order-cell" id="accounts" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/accounts.png"/>
-            <div class="actiontype">公众号</div>
+            <img class="order-cell-icon-small" src="images/accounts-selected.png"/>
+            <div class="actiontype-selected">公众号</div>
         </div>   
         <div class="order-cell" id="reads" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/reads.png"/>
@@ -59,8 +59,8 @@
     </view>
 
     <div class="tips" id="tipDiv" style="line-height: 16px;">
-        <div>班车名称：<span id="groupingName" style="line-height: 20px;"></span></div>
-        <div>请查收关注数据汇总，多次关注仅记录一次</div>
+        <div>合集：<span id="groupingName" style="line-height: 20px;"></span>&nbsp;数据汇总</div>
+        <div>仅包含合集内数据，全部数据请见&nbsp;<a id="moreData" href="#" style="font-size: 12px;font-weight: bold;">明细</a></div>
     </div> 
 
     <!--文章及报数列表-->
@@ -130,5 +130,5 @@
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript" src="js/common.js?v=1.8"></script> 
-<script type="text/javascript" src="js/report-grouping2.js?v=0.56"></script> 
+<script type="text/javascript" src="js/report-grouping2.js?v=0.57"></script> 
 </html>
