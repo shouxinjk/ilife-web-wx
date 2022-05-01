@@ -56,6 +56,7 @@ $(document).ready(function ()
     //取消关注
     $("#btnQuitQrcode").click(function(){
     	$("#pendingAccountQrcode").empty();
+        $("#btnYesSubscribe").css("display","none");//隐藏已关注按钮，避免作弊
 		$.unblockUI(); 
     });
     $("#btnYesSubscribe").click(function(){//完成关注确认
@@ -395,6 +396,7 @@ function submitResult(){
         $("#btnNoSubscribe").css("display","none");//再次隐藏已关注按钮
         costPoints(account);        	
     }else{
+        $("#btnNoSubscribe").css("display","none");//再次隐藏已关注按钮
       console.log("no accountInfo from cookie.",accountInfo);
     }
 }
@@ -479,6 +481,7 @@ function logPointCostEvent(account,subscriber){
             console.log("===subscribes inserted===\n",json);
             //从当前列表中删除该文章
             $("#pendingAccountQrcode").empty();//清除二维码图片
+            $("#btnYesSubscribe").css("display","none");//隐藏已关注按钮，避免直接显示
             $("div[data='"+account.id+"']").remove();
         }
     });     
