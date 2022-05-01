@@ -446,6 +446,8 @@ function loadBrokerByOpenid(openid) {
             $.cookie('sxBroker', JSON.stringify(res.data), {  path: '/' });     
             broker = res.data; 
             insertBroker(res.data);//显示达人信息
+            if(res.data.points<-5)
+                $("#tipsDiv").html("<div class='blink' style='color:red;font-size:14px;font-weight:bold;line-height:20px;width:100%;'>阅豆低于-5，公众号将不在大厅展示<br/>请阅读或关注获取阅豆吧~~</div>");//显示提示信息：如果阅豆不足则提示
             registerTimer(res.data.id);//加载该达人的board列表
         }
     });
