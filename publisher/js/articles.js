@@ -638,7 +638,7 @@ function toppingItem(item){
 function registerShareHandler(){
     //准备分享url
     var startTime = new  Date().getTime();
-    var shareUrl = window.location.href.replace(/articles/g,"articles-grouping");//目标页面将检查是否关注与注册
+    var shareUrl = window.location.href;//.replace(/articles/g,"articles-grouping");//目标页面将检查是否关注与注册
     shareUrl += "?code="+generateShortCode(getUUID());//临时生成code
     shareUrl += "&timeFrom="+startTime;//默认从当前时间开始
     shareUrl += "&timeTo="+(startTime + 60*60*1000);//默认1小时结束
