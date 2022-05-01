@@ -26,6 +26,18 @@ $(document).ready(function ()
     if(args["code"]){
         groupingCode = args["code"]; //互阅班车编号
     }    
+    if(args["groupingName"]){
+        groupingName = args["groupingName"]; //支持传入班车code
+    }else{
+        groupingName = new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate()+" 互阅班车";//班车名称
+    }  
+    $("#groupingName").text(groupingName);
+    if(args["groupingDesc"]){
+        groupingDesc = args["groupingDesc"]; //支持传入班车code
+    }else{
+        groupingDesc = "发文上车，10秒有效阅读，结果自动统计";//班车描述
+    }  
+
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
@@ -55,7 +67,7 @@ $(document).ready(function ()
 
     //注册事件：刷新合集
     $("#reloadGrouping").click(function(){
-        window.location.href = "articles-grouping.html?code="+groupingCode;
+        window.location.href = "articles-grouping.html?code="+groupingCode+"&groupingName="+groupingName;
     });
     //注册事件：跳转到报告查看页面
     $("#reloadReport").click(function(){
@@ -74,6 +86,8 @@ util.getUserInfo();//从本地加载cookie
 
 var byOpenid = null;
 var groupingCode = "";
+var groupingName = null;//班车名称
+var groupingDesc = null;//班车描述
 
 //设置默认logo
 var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";

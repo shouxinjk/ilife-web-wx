@@ -57,7 +57,7 @@
     </view>
 
     <div class="tips" style="line-height: 16px;" id="tipsDiv">
-        阅读需保持10秒，报数奖励阅豆，阅豆越多排名越靠前<br/>还可以<a id="advertiseArticle" href="my.html" style="font-size: 12px;">置顶</a>&nbsp;或&nbsp;右上角<span style="color:red;">分享</span>到微信群邀请互阅
+        阅读需保持10秒，报数奖励阅豆，阅豆越多排名越靠前<br/>还可以&nbsp;<a id="advertiseArticle" href="my.html" style="font-size: 12px;font-weight:bold;">置顶</a>&nbsp;或&nbsp;<a id="groupingArticleLink" href="#" style="font-size: 12px;font-weight:bold;">组队分享</a>&nbsp;到微信群
     </div> 
 
     <div id="Center">
@@ -124,6 +124,18 @@
 	        </div>
 	</div> 
 
+    <!--班车表单：能够自定义班车名称和描述-->
+    <div id="groupingform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">合集组队</div> 
+            <input type="text" id="groupingName" placeholder="请输入合集名称" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;" required/> 
+
+            <textarea type="text" id="groupingDesc" rows="3" placeholder="组队简要描述" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;" required></textarea> 
+            <div>
+                <button type="submit" class="btnNo" id="btnGroupingNo">取消</button>  
+                <button type="submit" class="btnYes" id="btnGroupingYes">确定</button> 
+            </div>
+    </div> 
+
     <!--充值-->
     <div id="chargeForm" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;">充值阅豆</div> 
@@ -150,5 +162,5 @@
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript" src="js/common.js?v=1.62"></script> 
-<script type="text/javascript" src="js/articles.js?v=1.67"></script> 
+<script type="text/javascript" src="js/articles.js?v=1.7"></script> 
 </html>

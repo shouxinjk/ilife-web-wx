@@ -93,6 +93,12 @@ $(document).ready(function ()
     $("#createArticleBtn").click(function(e){
         showArticleForm();
     });
+
+    //注册互阅开车事件
+    $("#groupingArticleLink").click(function(e){
+        //显示发车表单
+        showGroupingForm();
+    });
     
     //取消充值
     $("#btnCancelCharge").click(function(e){
@@ -104,6 +110,14 @@ $(document).ready(function ()
 
     //注册分享事件
     registerShareHandler();
+
+    //判断是否从班车页面进入：从合集或合集报告界面接入都计算在内
+    if (document.referrer && (document.referrer.indexOf("articles-grouping")>=0 || document.referrer.indexOf("report-grouping")>=0 )  && document.referrer.indexOf("code")>=0 ) {
+        // 表示从班车列表而来
+        var regexp = /code=[0-9A-Za-z]{6}/g;
+        const referGroupingCode = document.referrer.match(regexp)[0].replace(/code=/g,"");
+        console.log("got referGroupingCode.",referGroupingCode);
+    }    
 
 });
 
@@ -123,6 +137,8 @@ var instSubscribeTicket = null;//对于即时关注，需要缓存ticket
 var groupingCode = null;//班车code：默认自动生成
 var timeFrom = new Date().getTime();//班车开始时间:long，默认为当前时间
 var timeTo = timeFrom+60*60*1000;//班车结束时间:long，默认持续一个小时
+
+var referGroupingCode = '';//记录是否从班车跳转到大厅，如果是，从大厅阅读文章也加入班车。默认为空，表示从大厅阅读
 
 //设置默认logo
 var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
@@ -578,7 +594,7 @@ function logPointCostEvent(article,publisher){
             article.id+"','"+
             article.title+"','"+
             article.url+"',"+
-            publisher.points+","+readCount+",'',now())",
+            publisher.points+","+readCount+",'"+referGroupingCode+"',now())",
         type:"post",
         //data:{},
         headers:{
@@ -591,6 +607,53 @@ function logPointCostEvent(article,publisher){
         }
     });     
 }
+
+
+//显示文章互阅表单
+function showGroupingForm(){
+    console.log("show grouping form.");
+
+    //显示数据填报表单
+    $.blockUI({ message: $('#groupingform'),
+        css:{ 
+            padding:        10, 
+            margin:         0, 
+            width:          '80%', 
+            top:            '30%', 
+            left:           '10%', 
+            textAlign:      'center', 
+            color:          '#000', 
+            border:         '1px solid silver', 
+            backgroundColor:'#fff', 
+            cursor:         'normal' 
+        },
+        overlayCSS:  { 
+            backgroundColor: '#000', 
+            opacity:         0.7, 
+            cursor:          'normal' 
+        }
+    }); 
+    $("#btnGroupingNo").click(function(){
+        $("#groupingName").val("");//清空原有数值，避免交叉 
+        $("#groupingDesc").val("");//清空原有数值，避免交叉        
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnGroupingYes").click(function(){//完成阅读后的奖励操作
+        var groupingName = $("#groupingName").val();
+        if(!groupingName||groupingName.trim().length==0){
+            groupingName = new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate()+" 互阅专车";
+        }
+        var groupingDesc = $("#groupingDesc").val();
+        if(!groupingDesc||groupingDesc.trim().length==0){
+            groupingDesc = "发文上车，10秒有效阅读，结果自动统计";
+        }   
+        $("#groupingName").val("");//清空原有数值，避免交叉 
+        $("#groupingDesc").val("");//清空原有数值，避免交叉                
+        window.location.href = "articles-grouping.html?code="+generateShortCode(getUUID())+"&groupingName="+groupingName+"&groupingCode="+groupingDesc;
+    });
+
+}
+
 
 
 //显示发布文章表单

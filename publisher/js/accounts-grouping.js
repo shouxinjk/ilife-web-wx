@@ -40,7 +40,18 @@ $(document).ready(function ()
         groupingCode = args["code"]; //支持传入班车code
     }else{
         groupingCode = generateShortCode(getUUID());//否则随机生成一个
-    }          
+    }   
+    if(args["groupingName"]){
+        groupingName = args["groupingName"]; //支持传入班车code
+    }else{
+        groupingName = new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate()+" 互关班车";//班车名称
+    }  
+    $("#groupingName").text(groupingName);
+    if(args["groupingDesc"]){
+        groupingDesc = args["groupingDesc"]; //支持传入班车code
+    }else{
+        groupingDesc = "发公众号上车，关注确认，结果自动统计";//班车描述
+    }            
     if(args["timeFrom"]){
         timeFrom = args["timeFrom"]; //班车开始时间
     }else{
@@ -115,11 +126,11 @@ $(document).ready(function ()
 
     //注册事件：刷新合集
     $("#reloadGrouping").click(function(){
-        window.location.href = "accounts-grouping.html?code="+groupingCode+"&timeFrom="+timeFrom+"&timeTo="+timeTo;
+        window.location.href = "accounts-grouping.html?code="+groupingCode+"&groupingName="+groupingName+"&timeFrom="+timeFrom+"&timeTo="+timeTo;
     });
     //注册事件：跳转到报告查看页面
     $("#checkReport").click(function(){
-        window.location.href = "report-grouping2.html?code="+groupingCode;
+        window.location.href = "report-grouping2.html?code="+groupingCode+"&groupingName="+groupingName;
     });   
 
     //注册分享事件
@@ -1050,7 +1061,7 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:"加入列表，我们来一起互关吧", // 分享标题
+                    title:groupingName,//"加入列表，我们来一起互关吧", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:"https://www.biglistoflittlethings.com/static/logo/grouping/subscribe.png", // 分享图标
@@ -1066,8 +1077,8 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:"加入列表，我们来一起互关吧", // 分享标题
-                    desc:"添加公众号加入，关注后确认，结果自动统计", // 分享描述
+                    title:groupingName,//"加入列表，我们来一起互关吧", // 分享标题
+                    desc:groupingDesc,//"添加公众号加入，关注后确认，结果自动统计", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "https://www.biglistoflittlethings.com/static/logo/grouping/subscribe.png", // 分享图标

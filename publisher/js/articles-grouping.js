@@ -39,7 +39,18 @@ $(document).ready(function ()
         groupingCode = args["code"]; //支持传入班车code
     }else{
         groupingCode = generateShortCode(getUUID());//否则随机生成一个
-    }          
+    }  
+    if(args["groupingName"]){
+        groupingName = args["groupingName"]; //支持传入班车code
+    }else{
+        groupingName = new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate()+" 互阅班车";//班车名称
+    }  
+    $("#groupingName").text(groupingName);
+    if(args["groupingDesc"]){
+        groupingDesc = args["groupingDesc"]; //支持传入班车code
+    }else{
+        groupingDesc = "发文上车，10秒有效阅读，结果自动统计";//班车描述
+    }                 
     if(args["timeFrom"]){
         timeFrom = args["timeFrom"]; //班车开始时间
     }else{
@@ -99,11 +110,11 @@ $(document).ready(function ()
 
     //注册事件：刷新合集
     $("#reloadGrouping").click(function(){
-        window.location.href = "articles-grouping.html?code="+groupingCode+"&timeFrom="+timeFrom+"&timeTo="+timeTo;
+        window.location.href = "articles-grouping.html?code="+groupingCode+"&groupingName="+groupingName+"&timeFrom="+timeFrom+"&timeTo="+timeTo;
     });
     //注册事件：跳转到报告查看页面
     $("#checkReport").click(function(){
-        window.location.href = "report-grouping.html?code="+groupingCode;
+        window.location.href = "report-grouping.html?code="+groupingCode+"&groupingName="+groupingName;
     });    
 
     //检查是否有缓存事件
@@ -127,6 +138,8 @@ var byPublisherOpenid = null;
 
 var instSubscribeTicket = null;//对于即时关注，需要缓存ticket
 var groupingCode = null;//班车code：默认自动生成
+var groupingName = null;//班车名称
+var groupingDesc = null;//班车描述
 var timeFrom = new Date().getTime();//班车开始时间:long，默认为当前时间
 var timeTo = timeFrom+60*60*1000;//班车结束时间:long，默认持续一个小时
 
@@ -945,7 +958,7 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:"把文章加入列表，我们一起互阅吧", // 分享标题
+                    title:groupingName,//"把文章加入列表，我们一起互阅吧", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:"https://www.biglistoflittlethings.com/static/logo/grouping/default.png", // 分享图标
@@ -961,8 +974,8 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:"把文章加入列表，我们一起互阅吧", // 分享标题
-                    desc:"发文进入，10秒有效阅读，结果自动统计", // 分享描述
+                    title:groupingName,//"把文章加入列表，我们一起互阅吧", // 分享标题
+                    desc:groupingDesc,//"发文进入，10秒有效阅读，结果自动统计", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "https://www.biglistoflittlethings.com/static/logo/grouping/default.png", // 分享图标
