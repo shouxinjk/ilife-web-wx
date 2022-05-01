@@ -123,10 +123,7 @@ $(document).ready(function ()
 });
 
 //解决返回时不重新加载问题
-window.onpageshow = function (event) {
-    siiimpleToast.message('page reload~~'+event.persisted,{
-      position: 'bottom|center'
-    });  
+window.onpageshow = function (event) { 
     if (event.persisted) {
         window.location.reload()
     }
