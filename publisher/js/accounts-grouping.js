@@ -209,7 +209,7 @@ function showWxQrcode(){
                 console.log("Publisher::Articles-grouping save inst ticket to cookie.",res);
                 $.cookie('sxInstTicket', JSON.stringify(res), { expires: expDate, path: '/' });  //再返回时便于检查  
                 //根据返回的短码，生成链接，便于从公众号关注后的模板消息进入
-                var state = "publisher__articles-grouping___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo;
+                var state = "publisher__accounts-grouping___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo;
                 var longUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=";
                 longUrl += state;
                 longUrl += "#wechat_redirect";
@@ -235,7 +235,7 @@ function getQrcodeScanResult(ticket){
         success:function(res){
             console.log("got qrcode scan result.",res);
             if(res.status && res.openid){//成功扫码，刷新页面：需要通过微信授权页面做一次跳转，要不然无法获取用户信息
-                var state = "publisher__articles-grouping___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo;
+                var state = "publisher__accounts-grouping___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo;
                 //https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=index#wechat_redirect
                 var targetUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=";
                 targetUrl += state;

@@ -35,13 +35,54 @@ $(document).ready(function ()
     if(args["byPublisherOpenid"]){
         byPublisherOpenid = args["byPublisherOpenid"]; //支持传入publisherOpenid
     }           
+    //支持整个列表组队互阅
+    if(args["code"]){
+        groupingCode = args["code"]; //支持传入班车code
+    }else{
+        groupingCode = generateShortCode(new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate());//TODO：需要生成当天的互阅班车号
+    }          
+    if(args["timeFrom"]){
+        timeFrom = args["timeFrom"]; //班车开始时间
+    }else{
+        timeFrom = new Date().getTime();//否则为当前时间
+    }
+    if(args["timeTo"]){
+        timeTo = args["timeTo"]; //班车结束时间
+    }else{
+        timeTo = timeFrom + 24*60*60*1000;//否则为当前时间持续1天
+    }
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
     //加载达人信息
     loadBrokerInfo();
 
-    loadPerson(currentPerson);//加载用户
+    //loadPerson(currentPerson);//加载用户
+    if(app.globalData.userInfo&&app.globalData.userInfo._key){//如果本地已有用户则直接加载
+        loadPerson(currentPerson);//加载用户
+    }else{//否则显示二维码
+        showWxQrcode();
+        //显示数据填报表单
+        $.blockUI({ message: $('#bindQrcodeform'),
+            css:{ 
+                padding:        10, 
+                margin:         0, 
+                width:          '80%', 
+                top:            '30%', 
+                left:           '10%', 
+                textAlign:      'center', 
+                color:          '#000', 
+                border:         '1px solid silver', 
+                backgroundColor:'#fff', 
+                cursor:         'normal' 
+            },
+            overlayCSS:  { 
+                backgroundColor: '#000', 
+                opacity:         0.7, 
+                cursor:          'normal' 
+            }
+        });        
+    }
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
@@ -78,6 +119,11 @@ util.getUserInfo();//从本地加载cookie
 var byOpenid = null;
 var byPublisherOpenid = null;
 
+var instSubscribeTicket = null;//对于即时关注，需要缓存ticket
+var groupingCode = null;//班车code：默认自动生成
+var timeFrom = new Date().getTime();//班车开始时间:long，默认为当前时间
+var timeTo = timeFrom+60*60*1000;//班车结束时间:long，默认持续一个小时
+
 //设置默认logo
 var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
 
@@ -108,6 +154,76 @@ var broker = {};//当前达人
 var sxTimer = null;
 var sxStartTimestamp=new Date().getTime();//定时器如果超过2分
 var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
+
+
+//请求qrcode并显示二维码，供达人扫码绑定
+function showWxQrcode(){
+    //检查缓存是否有ticket
+    var instTicketInfo = $.cookie('sxInstTicket');
+    console.log("load instTicketInfo from cookie.",instTicketInfo);
+    if(instTicketInfo && instTicketInfo.trim().length>0){//有缓存，表示是已经扫码后返回，直接显示二维码并查询即可
+        var instTicket = JSON.parse(instTicketInfo.trim());
+        //显示二维码
+        $("#wxQrcodeDiv").html("<img width='240' src='"+instTicket.url+"' style='display:block;margin:0 auto;'/>");
+        //开始轮询扫码结果
+        setInterval(function ()
+        {
+          getQrcodeScanResult(instTicket.ticket);//实际是6位短码               
+        }, 500);            
+    }else{//否则表示初次进入，直接请求新的二维码
+        $.ajax({
+            url:app.config.auth_api+"/wechat/ilife/inst-qrcode",
+            type:"get",
+            data:{
+                code:groupingCode  //默认传递班车编码
+            },
+            success:function(res){
+                console.log("got qrcode and redirect.",res);
+                //显示二维码
+                $("#wxQrcodeDiv").html("<img width='240' src='"+res.url+"' style='display:block;margin:0 auto;'/>");
+                //将ticket缓存，在完成关注后返回还能继续查询
+                var expDate = new Date();
+                expDate.setTime(expDate.getTime() + (5 * 60 * 1000)); // 5分钟后自动失效：避免用户进入关注界面超时不回来    
+                console.log("Publisher::Articles-grouping save inst ticket to cookie.",res);
+                $.cookie('sxInstTicket', JSON.stringify(res), { expires: expDate, path: '/' });  //再返回时便于检查  
+                //根据返回的短码，生成链接，便于从公众号关注后的模板消息进入
+                var state = "publisher__articles___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo;
+                var longUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=";
+                longUrl += state;
+                longUrl += "#wechat_redirect";
+                saveShortCode(hex_md5(longUrl),"page_"+res.ticket,"","","mp",encodeURIComponent(longUrl),res.ticket);             
+                //开始轮询扫码结果
+                setInterval(function ()
+                {
+                  getQrcodeScanResult(res.ticket);//实际是6位短码               
+                }, 500);
+                //**/
+            }
+        });
+    }
+}
+
+//查询扫码结果，将返回openid
+function getQrcodeScanResult(ticket){
+    console.log("try to query scan result by uuid.",ticket);
+    $.ajax({
+        url:app.config.auth_api+"/wechat/ilife/bind-openid?uuid="+ticket,//根据短码查询关注结果
+        type:"get",
+        data:{},
+        success:function(res){
+            console.log("got qrcode scan result.",res);
+            if(res.status && res.openid){//成功扫码，刷新页面：需要通过微信授权页面做一次跳转，要不然无法获取用户信息
+                var state = "publisher__articles___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo;
+                //https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=index#wechat_redirect
+                var targetUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=";
+                targetUrl += state;
+                targetUrl += "#wechat_redirect";
+                window.location.href = targetUrl;          
+            }
+        }
+    });
+}
+
 
 //优先从cookie加载达人信息
 function loadBrokerInfo(){
