@@ -342,7 +342,7 @@ function insertItem(){
     var tagSubscribeta = "<span id='subscriber-subscribeta-"+item.openid+"' class='highlight-tag'></span>";
     var tagReadBtn = "<span id='subscriber-btn-"+item.openid+"' class='action-tag'></span>";
 
-    var subscriber = "<div class='title readerDiv'><div class='readerName'>"+item.nickname+"</div><div class='readtaBtn'>"+ tagReadBtn+"</div></div>";
+    var subscriber = "<div class='title readerDiv'><div class='readerName'>"+(item.nickname?item.nickname.replace(/undefined/g,''):'')+"</div><div class='readtaBtn'>"+ tagReadBtn+"</div></div>";
     var title = "<div class='description'>"+item.accountName+"</div>";
     var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;border-radius:50%;'/>";
     var description = "<div class='description readerCountDiv'><div class='readTimestamp'>"+item.ts+"</div><div class='readCount'>"+tagSubscribeme+tagSubscribeta+"</div></div>";

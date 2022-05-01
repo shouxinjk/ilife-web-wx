@@ -342,7 +342,7 @@ function insertItem(){
     var tagReadta = "<span id='reader-readta-"+item.openid+"' class='highlight-tag'></span>";
     var tagReadBtn = "<span id='reader-btn-"+item.openid+"' class='action-tag'></span>";
 
-    var reader = "<div class='title readerDiv'><div class='readerName'>"+item.nickname+"</div><div class='readtaBtn'>"+ tagReadBtn+"</div></div>";
+    var reader = "<div class='title readerDiv'><div class='readerName'>"+(item.nickname?item.nickname.replace(/undefined/g,''):'')+"</div><div class='readtaBtn'>"+ tagReadBtn+"</div></div>";
     var title = "<div class='description'>"+item.articleTitle+"</div>";
     var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;border-radius:50%;'/>";
     var description = "<div class='description readerCountDiv'><div class='readTimestamp'>"+item.ts+"</div><div class='readCount'>"+tagReadme+tagReadta+"</div></div>";
