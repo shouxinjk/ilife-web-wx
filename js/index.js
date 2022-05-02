@@ -1497,7 +1497,7 @@ function loadPersonById(personId){
       success:function(json){
           console.log("===load latest user===\n",json);
           app.globalData.userInfo = json; //更新本地UserInfo
-          $.cookie('sxUserInfo', JSON.stringify(json), { expires: 3650, path: '/' });//更新到cookie
+          //$.cookie('sxUserInfo', JSON.stringify(json), { expires: 3650, path: '/' });//更新到cookie：重要，切换用户设置到cookie后会导致后续操作中用户身份变化，此处禁止
           currentPersonJson = json;
           if(json.tags && json.tags.length>0){
             currentPersonTagging = json.tags.join(" ");
