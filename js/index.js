@@ -1419,7 +1419,7 @@ function insertPerson(person){
     // 显示HTML
     var html = '';
     html += '<div class="swiper-slide">';
-    html += '<div class="person" id="'+person._key+'" data-tagging="'+(person.tags?person.tags.join(" "):"")+'">';
+    html += '<div class="person" id="'+person._key+'" data-type="'+(person.personOrPersona&&person.personOrPersona.trim().length>0?person.personOrPersona:"person")+'" data-tagging="'+(person.tags?person.tags.join(" "):"")+'">';
     var style= person._key==currentPerson?'-selected':'';
     html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+person.avatarUrl+'"/></div>';
     html += '<div class="person-info">';
@@ -1509,10 +1509,21 @@ function loadPersonById(personId){
             $("#no-persona-tip").removeClass("no-persona-tip-show");
             $("#no-persona-tip").addClass("no-persona-tip-hide");            
           }else{
-            $("#no-persona-tip").removeClass("no-persona-tip-hide");
-            $("#no-persona-tip").addClass("no-persona-tip-show");
             $("#no-persona-tip").click(function(){//点击显示persona列表，并提示选择。注意需要带入当前选择的personId
-              window.location.href = "user-choosepersona.html?refer=index&id="+personId;
+              var personType = $("#"+personId).attr("data-type");//获取类别区分，是person或是persona。
+              console.log("try to detect person type.",personType);
+              if(personType=="person"){//如果是用户则先选择画像，然后修改
+                $("#no-persona-tip").removeClass("no-persona-tip-hide");
+                $("#no-persona-tip").addClass("no-persona-tip-show");
+                window.location.href = "user-choosepersona.html?refer=index&id="+personId;
+              }else if(personType=="persona"){//如果是画像，不显示修改提示。因为画像本身不需要修改，可以在客群里直接设置
+                $("#no-persona-tip").removeClass("no-persona-tip-show");
+                $("#no-persona-tip").addClass("no-persona-tip-hide"); 
+                //window.location.href = "user-updatepersona.html?refer=index&id="+personId+""+;
+              }else{
+                console.log("wrong person type.",personType);
+              }
+              
             });
           }
       }
