@@ -312,11 +312,11 @@ function checkReadsDiff(openid){
         $("#reader-readta-"+openid).text("阅TA 0");
     } 
     if(diff<0){
-        $("#reader-btn-"+openid).text("去看TA");
+        $("#reader-btn-"+openid).text("回阅TA");
         $("#reader-btn-"+openid).removeClass("action-tag-grey");
         $("#reader-btn-"+openid).addClass("action-tag");        
     }else{
-        $("#reader-btn-"+openid).text("去看TA");
+        $("#reader-btn-"+openid).text("回阅TA");
         $("#reader-btn-"+openid).removeClass("action-tag");
         $("#reader-btn-"+openid).addClass("action-tag-grey");
     }

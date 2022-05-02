@@ -282,22 +282,53 @@ function loadGroupingResult(){
     }); 
 }
 
+
+//查询单篇文章阅读总数：累计阅读次数
+var totalReads = {};//记录 articleId:totalReads
+function countReadsTotal(articleId){
+    $.ajax({
+        url:app.config.analyze_api+"?query=select count(eventId) as totalCount from ilife.reads where articleId='"+articleId+"' format JSON",
+        type:"get",
+        //async:false,
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(res){
+            console.log("Publisher::ReportGrouping::countReadsTotal try to retrive readme count.", res)
+            if(res && res.rows==0){//无返回则直接忽略
+                //do nothing
+            }else{//如果大于0则更新到页面
+                if(res.data[0].totalCount>0){
+                    totalReads[articleId]=res.data[0].totalCount;
+                }
+            }
+        }
+    }); 
+}
+
 //将阅读结果显示到界面
 //按照文章分别展示，然后按照阅读顺序展示
 var articleReads = {};//阅读次数统计
 function showGroupingReads(){
     //逐条显示
     groupingReads.forEach(function(item){
-        console.log("try show grouping read.",item);
+        //console.log("try show grouping read.",item);
 
         //检查文章是否已有div
         if ($('#articleWrapper'+item.articleId).length <= 0) { //如果不存在则创建
+            //查询该文章累计阅读数
+            //countReadsTotal(item.articleId);//此处不严格，未作回调处理，仅在下次组装显示时引用
             var articleWrapperHtml = "<div id='articleWrapper"+item.articleId+"'><div class='article-title' id='title"+item.articleId+"' style='font-size:12px;font-weight:bold;text-align:center;line-height:20px;border-bottom:1px solid silver;width:80%;margin:2px auto;'>"+item.articleTitle+"(1)</div></div>";
             $("#reportDiv").append(articleWrapperHtml);
             articleReads[item.articleId]=1;
         }else{
             articleReads[item.articleId]=articleReads[item.articleId]+1;
-            $("#title"+item.articleId).text(item.articleTitle+"("+articleReads[item.articleId]+")");
+            if(totalReads[item.articleId] && totalReads[item.articleId] >= articleReads[item.articleId] ){//有累计值则一并显示
+                $("#title"+item.articleId).text(item.articleTitle+"(班车:"+articleReads[item.articleId]+" 累计:"+totalReads[item.articleId]+")");
+            }else{
+                $("#title"+item.articleId).text(item.articleTitle+"("+articleReads[item.articleId]+")");
+            }
         }
         //添加阅读明细
         var articleReadHtml = "<div class='article-read' style='font-size:12px;text-align:center;line-height:16px;'>"+item.ts+'&nbsp;&nbsp;'+item.nickname+'&nbsp;&nbsp;'+item.readCount+"</div>";
