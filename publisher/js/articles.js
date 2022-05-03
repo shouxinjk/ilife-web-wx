@@ -371,7 +371,7 @@ function insertItem(){
         //cookie缓存记录当前浏览文章，返回时检查
         console.log("Publisher::Articles now jump to article.");
         var expDate = new Date();
-        expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
+        expDate.setTime(expDate.getTime() + (5 * 60 * 1000)); // 5分钟后自动失效：避免用户直接叉掉页面不再回来    
         var readingArticle = {
             id:$(this).attr("data"),//文章id
             title:$(this).attr("data-title"),//文章标题
@@ -798,7 +798,7 @@ function toppingItem(item){
         //cookie缓存记录当前浏览文章，返回时检查
         console.log("Publisher::Articles now jump to article.");
         var expDate = new Date();
-        expDate.setTime(expDate.getTime() + (60 * 1000)); // 60秒钟后自动失效：避免用户直接叉掉页面不再回来    
+        expDate.setTime(expDate.getTime() + (5 * 60 * 1000)); // 5分钟后自动失效：避免用户直接叉掉页面不再回来    
         var readingArticle = {
             id:$(this).attr("data"),//文章id
             title:$(this).attr("data-title"),//文章标题
