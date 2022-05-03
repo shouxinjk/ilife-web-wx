@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="../ext/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
-    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=0.9">
+    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=1.01">
     <link rel="stylesheet" type="text/css" href="css/articles.css?v=1.5">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
@@ -106,7 +106,7 @@
     </a>        
   </div>
     <!--阅读报数表单-->
-	<div id="checkform" style="display:none; cursor: default;"> 
+	<div id="checkform" style="display:none; cursor: default;height:60%;"> 
 	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">阅读报数</div> 
 	        <input type="number" id="viewNumbers" placeholder="请输入阅读数" style="width:80%;border:1px solid silver;line-height: 24px;font-size:16px;margin:5px auto;" required/> 
 	        <div>
@@ -163,7 +163,7 @@
     <!--置顶明细列表-->
     <div id="upcomingToppingForm" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;">即将置顶列表</div> 
-            <div id="upcomingToppingDiv"><div style="line-height: 30px;font-size: 12px;">没有待置顶记录哦，赶紧设置吧~~</div></div>  
+            <div id="upcomingToppingDiv" class="wx-scroll-list"><div style="line-height: 30px;font-size: 12px;">没有待置顶记录哦，赶紧设置吧~~</div></div>  
             <div>
                 <button type="submit" class="btnNo" id="btnCancelUpcomingTopping">取消</button>  
                 <button type="submit" class="btnYes" id="btnOkUpcomingTopping2">无敌置顶</button> 
@@ -172,8 +172,8 @@
 
     <!--阅读报数明细列表-->
     <div id="readsForm" style="display:none; cursor: default;"> 
-            <div style="font-size:16px;font-weight:bold;line-height: 20px;">阅读报数列表</div> 
-            <div id="readsDiv"><div style="line-height: 30px;font-size: 12px;">没有阅读记录哦，尝试获得更多阅豆或置顶吧~~</div></div>  
+            <div id="readsDivTitle" style="font-size:16px;font-weight:bold;line-height: 20px;">阅读报数列表</div> 
+            <div id="readsDiv" class="wx-scroll-list"><div style="line-height: 30px;font-size: 12px;">没有阅读记录哦，尝试获得更多阅豆或置顶吧~~</div></div>  
             <div>
                 <button type="submit" class="btnNo" id="btnCancelReads">取消</button>  
                 <button type="submit" class="btnYes" id="btnOkReads">无敌置顶</button> 
@@ -208,5 +208,5 @@
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript" src="js/common.js?v=1.8"></script> 
-<script type="text/javascript" src="js/my.js?v=2.21"></script> 
+<script type="text/javascript" src="js/my.js?v=2.22"></script> 
 </html>

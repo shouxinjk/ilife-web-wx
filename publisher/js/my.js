@@ -1312,6 +1312,7 @@ function loadReads(articleId){
                 $("#readsDiv").html('<div style="line-height: 30px;font-size: 12px;">没有阅读记录哦，尝试获得更多阅豆或置顶吧~~</div>');
             }else{//否则显示到页面：简单列表展示
                 $("#readsDiv").empty();
+                //$("#readsDivTitle").text("阅读报数明细("+res.rows+"阅读)");//注意：由于clickhouse和mysql数据可能不一致
                 res.data.forEach(function(item){
                     var html = "";
                     html += "<div class='reads-item'>";
