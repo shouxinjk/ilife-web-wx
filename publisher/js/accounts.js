@@ -155,6 +155,7 @@ var referGroupingCode = '';//记录是否从班车跳转到大厅，如果是，
 
 //设置默认logo
 var logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
+var wxLogoPrefix = "https://open.weixin.qq.com/qr/code?username=";//微信公众号图片前缀
 
 var columnWidth = 800;//默认宽度600px
 var columnMargin = 5;//默认留白5px
@@ -355,7 +356,7 @@ function insertItem(){
     logo = "https://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg";
     //直接根据originalId显示缩略图
     if(item.originalId){
-        logo = "https://open.weixin.qq.com/qr/code?username="+item.originalId;
+        logo = wxLogoPrefix + item.originalId;
     }
 
     //判断有无置顶广告位
@@ -706,23 +707,67 @@ function showAccountForm(){
             if(!$("#accountName").val() || $("#accountName").val().trim().length==0){
                 $("#accountName").css("border","1px solid red");
                 $("#accountName").val("");//清空原有数值，避免交叉
-            }else if(!isOriginalIdValid($("#accountOriginalId").val())){
+                siiimpleToast.message('公众号名称不能为空，请重新输入~~',{
+                  position: 'bottom|center'
+                });                 
+            }else{//先检查微信公众号图片
+                isOriginalIdValid($("#accountOriginalId").val());
+            }
+            /**
+            else if(!isOriginalIdValid($("#accountOriginalId").val())){
+                $("#accountName").css("border","1px solid silver");
                 $("#accountOriginalId").css("border","1px solid red");
                 $("#accountOriginalId").val("");//清空原有数值，避免交叉
+                $("#accountOriginalId").attr('placeholder',"进入要发布的公众号介绍界面，在【基础信息】中复制【微信号】，粘贴即可");
+                siiimpleToast.message('公众号微信ID输入有误，请重新输入~~',{
+                  position: 'bottom|center'
+                }); 
             }else{
+                $("#accountName").css("border","1px solid silver");
+                $("#accountOriginalId").css("border","1px solid silver");
                 console.log("try to submit subscribe event.");
                 submitAccount();
             }
+            //**/
         });
     }
 }
 
 //判定公众号原始ID是否正确
 function isOriginalIdValid(originalId) {
-	console.log("originalId",originalId);
-	return true;
-	//对于更改微信号的，不符合gh_xxxx格式
-    //return /gh_[a-zA-Z0-9]+/i.test(originalId);
+	//console.log("originalId",originalId);
+    var pathImg = wxLogoPrefix + originalId;
+    console.log("originalId",originalId, pathImg);
+
+    var ImgObj = new Image();
+    ImgObj.src= pathImg;
+    ImgObj.onload = function(){
+         console.log("got wx account logo image.",ImgObj.width,ImgObj.height);
+         if(ImgObj.fileSize > 0 || (ImgObj.width > 0 && ImgObj.height > 0)){//图片存在则认为是正确的公众号ID
+            $("#accountName").css("border","1px solid silver");
+            $("#accountOriginalId").css("border","1px solid silver");
+            console.log("try to submit subscribe event.");
+            submitAccount();
+         }else{//否则也提示错误
+            $("#accountName").css("border","1px solid silver");
+            $("#accountOriginalId").css("border","1px solid red");
+            $("#accountOriginalId").val("");//清空原有数值，避免交叉
+            $("#accountOriginalId").attr('placeholder',"进入要发布的公众号介绍界面，在【基础信息】中复制【微信号】，粘贴即可");
+            siiimpleToast.message('公众号微信ID输入有误，请重新输入~~',{
+              position: 'bottom|center'
+            }); 
+         }
+    };
+    ImgObj.onerror = function() {
+        console.log("Image failed!",originalId, pathImg);
+        $("#accountName").css("border","1px solid silver");
+        $("#accountOriginalId").css("border","1px solid red");
+        $("#accountOriginalId").val("");//清空原有数值，避免交叉
+        $("#accountOriginalId").attr('placeholder',"进入要发布的公众号介绍界面，在【基础信息】中复制【微信号】，粘贴即可");
+        siiimpleToast.message('公众号微信ID输入有误，请重新输入~~',{
+          position: 'bottom|center'
+        });         
+    };    
 }
 
 //添加公众号：获取名称、描述、原始ID
