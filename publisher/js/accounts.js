@@ -123,13 +123,15 @@ $(document).ready(function ()
     //注册分享事件
     registerShareHandler();   
 
-    //判断是否从班车页面进入
+    //判断是否从班车页面进入：暂未启用：也对导致由于进入大厅的人少，班车中出现很多个只有一个关注的情况 
+    /**
     if (document.referrer && (document.referrer.indexOf("accounts-grouping")>=0 || document.referrer.indexOf("report-grouping2")>=0  ) && document.referrer.indexOf("code")>=0 ) {
         // 表示从班车列表而来
         var regexp = /code=[0-9A-Za-z]{6}/g;
         const referGroupingCode = document.referrer.match(regexp)[0].replace(/code=/g,"");
         console.log("got referGroupingCode.",referGroupingCode);
     }  
+    //**/
 
 });
 

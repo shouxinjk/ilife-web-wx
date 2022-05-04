@@ -111,13 +111,15 @@ $(document).ready(function ()
     //注册分享事件
     registerShareHandler();
 
-    //判断是否从班车页面进入：从合集或合集报告界面接入都计算在内
+    //判断是否从班车页面进入：从合集或合集报告界面接入都计算在内：暂未启用：也对导致由于进入大厅的人少，班车中出现很多个只有一个阅读的情况
+    /**
     if (document.referrer && (document.referrer.indexOf("articles-grouping")>=0 || document.referrer.indexOf("report-grouping")>=0 )  && document.referrer.indexOf("code")>=0 ) {
         // 表示从班车列表而来
         var regexp = /code=[0-9A-Za-z]{6}/g;
         const referGroupingCode = document.referrer.match(regexp)[0].replace(/code=/g,"");
         console.log("got referGroupingCode.",referGroupingCode);
-    }    
+    } 
+    //**/   
 
 });
 
