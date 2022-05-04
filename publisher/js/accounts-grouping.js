@@ -103,7 +103,7 @@ $(document).ready(function ()
 
     //注册点击创建按钮事件 ：显示表单
     $("#createAccountBtn").click(function(e){
-        showAccountForm();
+        showAccountForm();//发布前将检查阅豆数
     });
 
     //取消关注
@@ -379,7 +379,7 @@ function checkAccountGrouping(){
             "Accept": "application/json"
         },        
         success:function(myAccounts){
-            if(myAccounts && myAccounts.length==0){//如果当前列表中没有当前达人的文章，则显示添加按钮
+            if(myAccounts && myAccounts.length==0){//如果当前列表中没有当前达人的文章
                 $("#createAccountEntry").css("display","block");
                 $("#createAccountBtn").css("display","flex");
                 if($("#Center").length<=0)
@@ -736,14 +736,15 @@ function logPointCostEvent(account,subscriber){
 //显示发布公众号表单
 function showAccountForm(){
     console.log("show account form.");
-    //判断阅豆是否足够：
-    if(broker&&broker.points<10){
-        siiimpleToast.message('阅豆不足，发布需要10阅豆，去阅读或关注获取吧~~',{
-              position: 'bottom|center'
-            });
-    }else{//根据是否有已发布公众号判断如何处理
-        console.log("found exists accounts.",$("div[id^=btnPublish_]").length);
-        if($("button[id^=btnPublish_]").length==0){//之前没有发布公众号。仅显示新增表单，不显示选择列表
+    //根据是否有已发布公众号判断如何处理
+    console.log("found exists accounts.",$("div[id^=btnPublish_]").length);
+    if($("button[id^=btnPublish_]").length==0){//之前没有发布公众号。仅显示新增表单，不显示选择列表
+        //对于新发号，需要判断阅豆是否足够：
+        if(broker&&broker.points<10){
+            siiimpleToast.message('亲，发号需要10阅豆，先阅读或关注获取吧~~',{
+                  position: 'bottom|center'
+                });
+        }else{
             $("#hasAccountTitleDiv").css("display","none");
             //显示数据填报表单
             $.blockUI({ message: $('#accountform'),
@@ -764,76 +765,76 @@ function showAccountForm(){
                     opacity:         0.7, 
                     cursor:          'normal' 
                 }
-            });             
-        }else if($("button[id^=btnPublish_]").length==1){//直接添加完事
-            console.log("add exist account to grouping.");
-            var selectedItem = {
-                id:$("button[id^=btnPublish_]").attr("id").replace(/btnPublish_/g,""),
-                name:$("button[id^=btnPublish_]").attr("data-name"),
-                originalId:$("button[id^=btnPublish_]").attr("data-originid"),
-                updateDate:$("button[id^=btnPublish_]").attr("data-updateDate")
-            }
-            //加入grouping
-            groupingItem(selectedItem);
-            //显示到待阅文章列表内
-            toppingItem(selectedItem);
-        }else{//从已有的 里面选择 ，不显示新增表单
-            $("#newAccountTitleDiv").css("display","none");
-            $("#newAccountFormDiv").css("display","none");
-            //显示数据填报表单
-            $.blockUI({ message: $('#accountform'),
-                css:{ 
-                    padding:        10, 
-                    margin:         0, 
-                    width:          '80%', 
-                    top:            '20%', 
-                    left:           '10%', 
-                    textAlign:      'center', 
-                    color:          '#000', 
-                    border:         '1px solid silver', 
-                    backgroundColor:'#fff', 
-                    cursor:         'normal' 
-                },
-                overlayCSS:  { 
-                    backgroundColor: '#000', 
-                    opacity:         0.7, 
-                    cursor:          'normal' 
-                }
-            });              
+            });         
+        }            
+    }else if($("button[id^=btnPublish_]").length==1){//直接添加完事
+        console.log("add exist account to grouping.");
+        var selectedItem = {
+            id:$("button[id^=btnPublish_]").attr("id").replace(/btnPublish_/g,""),
+            name:$("button[id^=btnPublish_]").attr("data-name"),
+            originalId:$("button[id^=btnPublish_]").attr("data-originid"),
+            updateDate:$("button[id^=btnPublish_]").attr("data-updateDate")
         }
-
-        //注册事件
-        $("#btnCancel").click(function(){       
-            $.unblockUI(); //直接取消即可
-        });
-        $("#btnPublish").click(function(){//发布公众号
-            if(!$("#accountName").val() || $("#accountName").val().trim().length==0){
-                $("#accountName").css("border","1px solid red");
-                $("#accountName").val("");//清空原有数值，避免交叉
-                siiimpleToast.message('公众号名称不能为空，请重新输入~~',{
-                  position: 'bottom|center'
-                });                 
-            }else{//先检查微信公众号图片
-                isOriginalIdValid($("#accountOriginalId").val());
+        //加入grouping
+        groupingItem(selectedItem);
+        //显示到待阅文章列表内
+        toppingItem(selectedItem);
+    }else{//从已有的 里面选择 ，不显示新增表单
+        $("#newAccountTitleDiv").css("display","none");
+        $("#newAccountFormDiv").css("display","none");
+        //显示数据填报表单
+        $.blockUI({ message: $('#accountform'),
+            css:{ 
+                padding:        10, 
+                margin:         0, 
+                width:          '80%', 
+                top:            '20%', 
+                left:           '10%', 
+                textAlign:      'center', 
+                color:          '#000', 
+                border:         '1px solid silver', 
+                backgroundColor:'#fff', 
+                cursor:         'normal' 
+            },
+            overlayCSS:  { 
+                backgroundColor: '#000', 
+                opacity:         0.7, 
+                cursor:          'normal' 
             }
-            /**
-            else if(!isOriginalIdValid($("#accountOriginalId").val())){
-                $("#accountName").css("border","1px solid silver");
-                $("#accountOriginalId").css("border","1px solid red");
-                $("#accountOriginalId").val("");//清空原有数值，避免交叉
-                $("#accountOriginalId").attr('placeholder',"进入要发布的公众号介绍界面，在【基础信息】中复制【微信号】，粘贴即可");
-                siiimpleToast.message('公众号微信ID输入有误，请重新输入~~',{
-                  position: 'bottom|center'
-                }); 
-            }else{
-                $("#accountName").css("border","1px solid silver");
-                $("#accountOriginalId").css("border","1px solid silver");
-                console.log("try to submit subscribe event.");
-                submitAccount();
-            }
-            //**/
-        });      
+        });              
     }
+
+    //注册事件
+    $("#btnCancel").click(function(){       
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnPublish").click(function(){//发布公众号
+        if(!$("#accountName").val() || $("#accountName").val().trim().length==0){
+            $("#accountName").css("border","1px solid red");
+            $("#accountName").val("");//清空原有数值，避免交叉
+            siiimpleToast.message('公众号名称不能为空，请重新输入~~',{
+              position: 'bottom|center'
+            });                 
+        }else{//先检查微信公众号图片
+            isOriginalIdValid($("#accountOriginalId").val());
+        }
+        /**
+        else if(!isOriginalIdValid($("#accountOriginalId").val())){
+            $("#accountName").css("border","1px solid silver");
+            $("#accountOriginalId").css("border","1px solid red");
+            $("#accountOriginalId").val("");//清空原有数值，避免交叉
+            $("#accountOriginalId").attr('placeholder',"进入要发布的公众号介绍界面，在【基础信息】中复制【微信号】，粘贴即可");
+            siiimpleToast.message('公众号微信ID输入有误，请重新输入~~',{
+              position: 'bottom|center'
+            }); 
+        }else{
+            $("#accountName").css("border","1px solid silver");
+            $("#accountOriginalId").css("border","1px solid silver");
+            console.log("try to submit subscribe event.");
+            submitAccount();
+        }
+        //**/
+    });      
 }
 
 
@@ -856,7 +857,7 @@ function isOriginalIdValid(originalId) {
             $("#accountName").css("border","1px solid silver");
             $("#accountOriginalId").css("border","1px solid red");
             $("#accountOriginalId").val("");//清空原有数值，避免交叉
-            $("#accountOriginalId").attr('placeholder',"进入要发布的公众号介绍界面，在【基础信息】中复制【微信号】，粘贴即可");
+            $("#accountOriginalId").attr('placeholder',"进入要发布的公众号介绍界面，复制微信号，粘贴即可");
             siiimpleToast.message('公众号微信ID输入有误，请重新输入~~',{
               position: 'bottom|center'
             }); 
@@ -867,7 +868,7 @@ function isOriginalIdValid(originalId) {
         $("#accountName").css("border","1px solid silver");
         $("#accountOriginalId").css("border","1px solid red");
         $("#accountOriginalId").val("");//清空原有数值，避免交叉
-        $("#accountOriginalId").attr('placeholder',"进入要发布的公众号介绍界面，在【基础信息】中复制【微信号】，粘贴即可");
+        $("#accountOriginalId").attr('placeholder',"进入要发布的公众号介绍界面，复制微信号，粘贴即可");
         siiimpleToast.message('公众号微信ID输入有误，请重新输入~~',{
           position: 'bottom|center'
         });         

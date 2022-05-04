@@ -100,7 +100,7 @@ $(document).ready(function ()
 
     //注册点击创建按钮事件 ：显示表单
     $("#createArticleBtn").click(function(e){
-        showArticleForm();
+        showArticleForm();//发布前将检查阅豆数   
     });
     
     //取消充值
@@ -731,7 +731,7 @@ function showArticleForm(){
     console.log("show article form.");
     //判断阅豆是否足够：
     if(broker&&broker.points<5){
-        siiimpleToast.message('阅豆不足，发布文章需要5阅豆，去阅读或关注获取吧~~',{
+        siiimpleToast.message('亲，发文需要5阅豆，先阅读或关注获取吧~~',{
               position: 'bottom|center'
             });
     }else{    
