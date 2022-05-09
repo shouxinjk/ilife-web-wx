@@ -19,14 +19,15 @@
 .wave-tip{
   text-align: center;
   position: fixed;
-  width: 80px;
+  width: 54px;
   background-color:rgba(220,38,38,0);
   font-size:16px;
-  bottom: 82px;
+  line-height: 54px;
   font-weight: bold;
-  color: silver;
-  right: 20px;
-  z-index: 90;
+  color: #fff;
+  bottom: 63px;
+  right: 33px;
+  z-index: 10;
 }
 
 .wave {

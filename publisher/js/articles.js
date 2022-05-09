@@ -206,6 +206,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
 
     //得到剩余条数：默认为20条
     remainCount = 20 - Object.keys(readingRecords).length;
+    remainCount = 4;
     var remainRatio = remainCount*5;//remainCount*100/20
 
     //更新界面能量球
@@ -213,7 +214,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
     if(remainRatio>70){
         $("#wave").css("border","2px solid #32cd32");
         $("#wave").css("background-color","#32cd32");
-        $("#wave-tip").text(remainCount+" / 20");
+        $("#wave-tip").text(remainCount+"/20");
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -222,7 +223,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
     }else if(remainRatio>40){
         $("#wave").css("border","2px solid #00ffa1");
         $("#wave").css("background-color","#00ffa1");
-        $("#wave-tip").text(remainCount+" / 20");
+        $("#wave-tip").text(remainCount+"/20");
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -231,7 +232,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
     }else if(remainRatio>20){
         $("#wave").css("border","2px solid #46ffa5");
         $("#wave").css("background-color","#46ffa5");
-        $("#wave-tip").text(remainCount+" / 20");
+        $("#wave-tip").text(remainCount+"/20");
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -240,7 +241,8 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
     }else if(remainRatio>10){
         $("#wave").css("border","2px solid #e3ff00");
         $("#wave").css("background-color","#e3ff00");
-        $("#wave-tip").text(remainCount+" / 20");
+        $("#wave-tip").text(remainCount+"/20");
+        $("#wave-tip").css("color","silver");
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -249,7 +251,8 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
     }else if(remainRatio>=5){
         $("#wave").css("border","2px solid #ff1601");
         $("#wave").css("background-color","#ff1601");
-        $("#wave-tip").text(remainCount+" / 20");
+        $("#wave-tip").text(remainCount+"/20");
+        $("#wave-tip").css("color","silver");
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -259,7 +262,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#wave").css("border","2px solid silver");
         $("#wave").css("background-color","#32cd32");
         $("#wave-tip").text("休息");
-        //$("#wave-tip").css("font-size","16px");
+        $("#wave-tip").css("color","silver");
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
