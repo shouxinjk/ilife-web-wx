@@ -206,7 +206,6 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
 
     //得到剩余条数：默认为20条
     remainCount = 20 - Object.keys(readingRecords).length;
-    remainCount = 0;
     var remainRatio = remainCount*5;//remainCount*100/20
 
     //更新界面能量球
