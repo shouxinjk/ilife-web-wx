@@ -20,6 +20,7 @@
   text-align: center;
   position: fixed;
   width: 80px;
+  background-color:rgba(220,38,38,0);
   line-height: 80px;
   font-size:16px;
   font-weight: bold;

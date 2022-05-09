@@ -597,8 +597,6 @@ function resultCheck(){
         //检查时间是否已达到10秒
         var duration = new Date().getTime() - Number(article.startTime);
         if( duration > 10000){
-            //加入阅读列表
-            checkReadingRecords(article.id);
             //显示数据填报表单
             $.blockUI({ message: $('#checkform'),
                 css:{ 
@@ -624,6 +622,8 @@ function resultCheck(){
                 $.unblockUI(); 
             });
             $("#btnYes").click(function(){//完成阅读后的奖励操作
+                //加入阅读列表
+                checkReadingRecords(article.id);                
                 //检查数字：必填。TODO：此处需要判断是否胡乱填报
                 var readCount = Number($("#viewNumbers").val());
                 if(readCount <=0 ){
