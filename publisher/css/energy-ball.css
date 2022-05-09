@@ -14,9 +14,9 @@
   bottom: 50px;
   right: 20px;
   border-radius: 50%;
-  width: 84px;
-  height: 84px;
-  border: 2px solid red; /*通过js动态修改调整*/  
+  width: 82px;
+  height: 82px;
+  border: 1px solid silver; /*通过js动态修改调整*/  
   z-index: 999;
 }
 

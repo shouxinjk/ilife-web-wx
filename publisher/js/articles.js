@@ -211,7 +211,8 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
     //更新界面能量球
     console.log("try to update energy ball.",remainCount,remainRatio);
     if(remainRatio>70){
-        $("#energy-ball").css("border","2px solid #32cd32");
+        $("#energy-ball").css("border","1px solid #32cd32");
+        $("#wave").css("border","1px solid #32cd32");
         $("#wave").css("background-color","#32cd32");
         $("#wave-tip").text(remainCount+" / 20");
         $("div[class^=g-wave]").each(function(){
@@ -220,7 +221,8 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
             $(this).addClass("g-wave100");
         });
     }else if(remainRatio>40){
-        $("#energy-ball").css("border","2px solid #00ffa1");
+        $("#energy-ball").css("border","1px solid #00ffa1");
+        $("#wave").css("border","1px solid #00ffa1");
         $("#wave").css("background-color","#00ffa1");
         $("#wave-tip").text(remainCount+" / 20");
         $("div[class^=g-wave]").each(function(){
@@ -229,7 +231,8 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
             $(this).addClass("g-wave70");
         });
     }else if(remainRatio>20){
-        $("#energy-ball").css("border","2px solid #46ffa5");
+        $("#energy-ball").css("border","1px solid #46ffa5");
+        $("#wave").css("border","1px solid #46ffa5");
         $("#wave").css("background-color","#46ffa5");
         $("#wave-tip").text(remainCount+" / 20");
         $("div[class^=g-wave]").each(function(){
@@ -238,7 +241,8 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
             $(this).addClass("g-wave40");
         });
     }else if(remainRatio>10){
-        $("#energy-ball").css("border","2px solid #e3ff00");
+        $("#energy-ball").css("border","1px solid #e3ff00");
+        $("#wave").css("border","1px solid #e3ff00");
         $("#wave").css("background-color","#e3ff00");
         $("#wave-tip").text(remainCount+" / 20");
         $("#wave-tip").css("color","silver");
@@ -248,7 +252,8 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
             $(this).addClass("g-wave20");
         });
     }else if(remainRatio>=5){
-        $("#energy-ball").css("border","2px solid #ff1601");
+        $("#energy-ball").css("border","1px solid #ff1601");
+        $("#wave").css("border","1px solid #ff1601");
         $("#wave").css("background-color","#ff1601");
         $("#wave-tip").text(remainCount+" / 20");
         $("#wave-tip").css("color","silver");
@@ -258,7 +263,8 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
             $(this).addClass("g-wave10");
         });
     }else{
-        $("#energy-ball").css("border","2px solid silver");
+        $("#energy-ball").css("border","1px solid silver");
+        $("#wave").css("border","1px solid silver");
         $("#wave").css("background-color","#32cd32");
         $("#wave-tip").text("休息");
         $("#wave-tip").css("color","silver");
