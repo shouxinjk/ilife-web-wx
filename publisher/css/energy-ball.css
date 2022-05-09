@@ -13,20 +13,22 @@
   position: fixed;
   bottom: 50px;
   right: 20px;
+  border-radius: 50%;
+  border: 2px solid red; /*通过js动态修改调整*/  
   z-index: 9;
 }
 
 .wave-tip{
   text-align: center;
   position: fixed;
-  width: 54px;
-  background-color:rgba(220,38,38,0);
+  width: 80px;
+  /*background-color:rgba(220,38,38,0);*/
   font-size:16px;
-  line-height: 54px;
+  line-height: 80px;
   font-weight: bold;
   color: #fff;
-  bottom: 63px;
-  right: 33px;
+  bottom: 50px;
+  right: 20px;
   z-index: 10;
 }
 
@@ -35,9 +37,9 @@
     width: 80px;
     height: 80px;
     background-color: rgb(225, 218, 255);/*通过js动态修改调整*/
-    border-radius: 50%;
     overflow: hidden;
-    border: 2px solid red; /*通过js动态修改调整*/
+    border-radius: 50%;
+    /*border: 2px solid red; /*通过js动态修改调整*/
 
     &::before,
     &::after {
