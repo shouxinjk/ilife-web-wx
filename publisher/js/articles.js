@@ -177,8 +177,10 @@ var sxStartTimestamp=new Date().getTime();//定时器如果超过2分
 var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
 
 var remainCount = 1;//默认可以接着读
+var remainCountTips = "一会儿";//提示文字
 function checkReadingRecords(articleId){//传递articleId时将自动添加到列表
     var readingRecords = {};//记录当前阅读记录：仅存储距今1小时的记录，通过cookie缓存。存储的是articleId:timestamp，其中timestamp为long型
+    var oldestTimestamp = new Date().getTime();//记录当前阅读记录中时间最久的那一个，用于计算需要休息多久恢复阅读
     
     //首先读取缓存
     var readingRecordsInfo = $.cookie('sxReadingRecord');
@@ -192,6 +194,8 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         var ts = readingRecords[key];
         if(new Date().getTime()-ts>60*60*1000){//如果该记录距今超过1小时，则删除
             delete readingRecords[key];
+        }else{//找到并设置最老的哪一个
+            if(ts<oldestTimestamp)oldestTimestamp=ts;//用最老的那一条
         }
     });
 
@@ -263,11 +267,18 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
             $(this).addClass("g-wave10");
         });
     }else{
+        //计算恢复时间
+        var pauseTime = 60*60*1000-(new Date().getTime()-oldestTimestamp);
+        var pauseMinutes = Math.floor(pauseTime/1000/60/10*10);//以10分钟为单位
+        if(pauseMinutes<=0)pauseMinutes=1;
+        remainCountTips = pauseMinutes+"分钟";
+
         $("#energy-ball").css("border","1px solid silver");
         $("#wave").css("border","1px solid silver");
         $("#wave").css("background-color","#32cd32");
-        $("#wave-tip").text("休息");
+        $("#wave-tip").text("休息"+pauseMinutes+"分钟");
         $("#wave-tip").css("color","silver");
+        $("#wave-tip").css("font-size","12px");
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -475,7 +486,7 @@ function insertItem(){
     $("div[data='"+item.id+"']").click(function(){
         //检查能量值
         if(remainCount<1){//提示休息：
-            siiimpleToast.message('亲，休息，休息一会儿~~',{
+            siiimpleToast.message('亲，喝口水，等'+remainCountTips+'再来吧~~',{
                   position: 'bottom|center'
                 });
         }else{
