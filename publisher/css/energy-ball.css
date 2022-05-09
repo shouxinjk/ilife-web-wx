@@ -21,11 +21,10 @@
   position: fixed;
   width: 80px;
   background-color:rgba(220,38,38,0);
-  line-height: 80px;
   font-size:16px;
+  bottom: 82px;
   font-weight: bold;
   color: silver;
-  bottom: 50px;
   right: 20px;
   z-index: 90;
 }
@@ -38,7 +37,6 @@
     border-radius: 50%;
     overflow: hidden;
     border: 2px solid red; /*通过js动态修改调整*/
-    padding:2px;
 
     &::before,
     &::after {

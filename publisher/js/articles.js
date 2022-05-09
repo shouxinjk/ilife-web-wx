@@ -259,7 +259,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#wave").css("border","2px solid silver");
         $("#wave").css("background-color","#32cd32");
         $("#wave-tip").text("休息");
-        $("#wave-tip").css("font-size","16px");
+        //$("#wave-tip").css("font-size","16px");
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
