@@ -572,7 +572,11 @@ function logPointCostEvent(article,publisher){
 function showArticleForm(){
     console.log("show article form.");
     //判断阅豆是否足够：
-    if(broker&&broker.points<5){
+    if(broker&&broker.status=='disabled'){
+        siiimpleToast.message('抱歉，你的账户出现异常，请与我们联系~~',{
+              position: 'bottom|center'
+            });
+    }else if(broker&&broker.points<5){
         siiimpleToast.message('阅豆不足，发布文章需要5阅豆，去阅读或关注获取吧~~',{
               position: 'bottom|center'
             });

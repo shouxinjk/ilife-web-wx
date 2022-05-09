@@ -740,7 +740,11 @@ function showAccountForm(){
     console.log("found exists accounts.",$("div[id^=btnPublish_]").length);
     if($("button[id^=btnPublish_]").length==0){//之前没有发布公众号。仅显示新增表单，不显示选择列表
         //对于新发号，需要判断阅豆是否足够：
-        if(broker&&broker.points<10){
+        if(broker&&broker.status=='disabled'){
+            siiimpleToast.message('抱歉，你的账户出现异常，请与我们联系~~',{
+                  position: 'bottom|center'
+                });
+        }else if(broker&&broker.points<10){
             siiimpleToast.message('亲，发号需要10阅豆，先阅读或关注获取吧~~',{
                   position: 'bottom|center'
                 });
