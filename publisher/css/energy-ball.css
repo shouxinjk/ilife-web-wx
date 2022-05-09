@@ -1,0 +1,238 @@
+/*
+按照数量高低显示能量球
+
+按照100绿色、70浅绿、40黄色、20橙色、10红色；
+
+需要硬编码
+
+*/
+
+/*energy ball*/
+.energy-ball{
+  text-align: center;
+  position: fixed;
+  bottom: 50px;
+  right: 20px;
+  z-index: 9;
+}
+
+.wave-tip{
+  text-align: center;
+  position: fixed;
+  width: 80px;
+  line-height: 80px;
+  font-size:16px;
+  font-weight: bold;
+  color: silver;
+  bottom: 50px;
+  right: 20px;
+  z-index: 90;
+}
+
+.wave {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    background-color: rgb(225, 218, 255);/*通过js动态修改调整*/
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid red; /*通过js动态修改调整*/
+    padding:2px;
+
+    &::before,
+    &::after {
+        content: "";
+        position: absolute;
+        width: 200px;
+        height: 200px;
+        top: 0;
+        left: 50%;
+        background-color: rgba(255, 255, 255, .4);
+        border-radius: 45%;
+        transform: translate(-50%, -70%) rotate(0);
+        animation: rotate 6s linear infinite;
+        z-index: 10;
+    }
+
+    &::after {
+        border-radius: 47%;
+        background-color: rgba(255, 255, 255, .9);
+        transform: translate(-50%, -70%) rotate(0);
+        animation: rotate 10s linear -5s infinite;
+        z-index: 20;
+    }
+}
+
+@keyframes rotate {
+    50% {
+        transform: translate(-50%, -73%) rotate(180deg);
+    } 100% {
+        transform: translate(-50%, -70%) rotate(360deg);
+    }
+}
+
+/*通过预先设置完成*/
+/*需要在js中动态修改g-wave类型*/
+
+/*能量：100*/
+.g-wave100{
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, .8);
+    border-radius: 45% 47% 44% 42%;
+    bottom: 25px;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    z-index: 1;
+    animation: move100 10s linear infinite;
+}
+.g-wave100:nth-child(2) {
+    border-radius: 38% 46% 43% 47%;
+    transform: translate(-53%, -18%) rotate(-135deg);
+}
+.g-wave100:nth-child(3) {
+    border-radius: 42% 46% 37% 40%;
+    transform: translate(-55%, -18%) rotate(135deg);
+}
+@keyframes move100 {
+    100% {
+        transform: translate(-50%, -18%) rotate(720deg);
+    }
+}
+
+/*能量：70*/
+.g-wave70{
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, .8);
+    border-radius: 45% 47% 44% 42%;
+    bottom: 25px;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    z-index: 1;
+    animation: move70 10s linear infinite;/*需要在js中动态修改move类型*/
+}
+.g-wave70:nth-child(2) {
+    border-radius: 38% 46% 43% 47%;
+    transform: translate(-53%, -15%) rotate(-135deg);
+}
+.g-wave70:nth-child(3) {
+    border-radius: 42% 46% 37% 40%;
+    transform: translate(-55%, -15%) rotate(135deg);
+}
+@keyframes move70 {
+    100% {
+        transform: translate(-50%, -15%) rotate(720deg);
+    }
+}
+
+/*能量：40*/
+.g-wave40{
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, .8);
+    border-radius: 45% 47% 44% 42%;
+    bottom: 25px;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    z-index: 1;
+    animation: move40 10s linear infinite;/*需要在js中动态修改move类型*/
+}
+.g-wave40:nth-child(2) {
+    border-radius: 38% 46% 43% 47%;
+    transform: translate(-53%, -9%) rotate(-135deg);
+}
+.g-wave40:nth-child(3) {
+    border-radius: 42% 46% 37% 40%;
+    transform: translate(-55%, -9%) rotate(135deg);
+}
+@keyframes move40 {
+    100% {
+        transform: translate(-50%, -9%) rotate(720deg);
+    }
+}
+
+/*能量：20*/
+.g-wave20{
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, .8);
+    border-radius: 45% 47% 44% 42%;
+    bottom: 25px;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    z-index: 1;
+    animation: move20 10s linear infinite;/*需要在js中动态修改move类型*/
+}
+.g-wave20:nth-child(2) {
+    border-radius: 38% 46% 43% 47%;
+    transform: translate(-53%, -3%) rotate(-135deg);
+}
+.g-wave20:nth-child(3) {
+    border-radius: 42% 46% 37% 40%;
+    transform: translate(-55%, -3%) rotate(135deg);
+}
+@keyframes move20 {
+    100% {
+        transform: translate(-50%, -3%) rotate(720deg);
+    }
+}
+
+/*能量：10*/
+.g-wave10{
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, .8);
+    border-radius: 45% 47% 44% 42%;
+    bottom: 25px;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    z-index: 1;
+    animation: move10 10s linear infinite;/*需要在js中动态修改move类型*/
+}
+.g-wave10:nth-child(2) {
+    border-radius: 38% 46% 43% 47%;
+    transform: translate(-53%, 5%) rotate(-135deg);
+}
+.g-wave10:nth-child(3) {
+    border-radius: 42% 46% 37% 40%;
+    transform: translate(-55%, 5%) rotate(135deg);
+}
+@keyframes move10 {
+    100% {
+        transform: translate(-50%, 5%) rotate(720deg);
+    }
+}
+
+/*能量：10*/
+.g-wave0{
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, .8);
+    border-radius: 45% 47% 44% 42%;
+    bottom: 25px;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    z-index: 1;
+    animation: move0 10s linear infinite;/*需要在js中动态修改move类型*/
+}
+.g-wave0:nth-child(2) {
+    border-radius: 38% 46% 43% 47%;
+    transform: translate(-53%, 15%) rotate(-135deg);
+}
+.g-wave0:nth-child(3) {
+    border-radius: 42% 46% 37% 40%;
+    transform: translate(-55%, 15%) rotate(135deg);
+}
+@keyframes move0 {
+    100% {
+        transform: translate(-50%, 15%) rotate(720deg);
+    }
+}
+/*end of energy ball*/

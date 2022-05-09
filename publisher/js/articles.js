@@ -111,6 +111,9 @@ $(document).ready(function ()
     //注册分享事件
     registerShareHandler();
 
+    //显示能量球
+    checkReadingRecords();
+
     //判断是否从班车页面进入：从合集或合集报告界面接入都计算在内：暂未启用：也对导致由于进入大厅的人少，班车中出现很多个只有一个阅读的情况
     /**
     if (document.referrer && (document.referrer.indexOf("articles-grouping")>=0 || document.referrer.indexOf("report-grouping")>=0 )  && document.referrer.indexOf("code")>=0 ) {
@@ -173,6 +176,99 @@ var sxTimer = null;
 var sxStartTimestamp=new Date().getTime();//定时器如果超过2分
 var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
 
+var remainCount = 1;//默认可以接着读
+function checkReadingRecords(articleId){//传递articleId时将自动添加到列表
+    var readingRecords = {};//记录当前阅读记录：仅存储距今1小时的记录，通过cookie缓存。存储的是articleId:timestamp，其中timestamp为long型
+    
+    //首先读取缓存
+    var readingRecordsInfo = $.cookie('sxReadingRecord');
+    console.log("load readingRecordsInfo from cookie.",readingRecordsInfo);
+    if(readingRecordsInfo && readingRecordsInfo.trim().length>0){
+        readingRecords = JSON.parse(readingRecordsInfo);
+    }  
+
+    //根据时间检查是否超时，得到新的列表
+    Object.keys(readingRecords).forEach(function(key){
+        var ts = readingRecords[key];
+        if(new Date().getTime()-ts>60*60*1000){//如果该记录距今超过1小时，则删除
+            delete readingRecords[key];
+        }
+    });
+
+    //如果传递新articleId 则加入
+    if(articleId && articleId.trim().length>0)
+        readingRecords[articleId] = new Date().getTime();
+
+    //写入cookie
+    var expDate = new Date();
+    expDate.setTime(expDate.getTime() + (60 * 60 * 1000)); // 60分钟后自动失效：避免用户长时间不回来  
+    $.cookie('sxReadingRecord', JSON.stringify(readingRecords), { expires: expDate, path: '/' });  //1小时自动失效 
+
+    //得到剩余条数：默认为20条
+    remainCount = 20 - Object.keys(readingRecords).length;
+    remainCount = 0;
+    var remainRatio = remainCount*5;//remainCount*100/20
+
+    //更新界面能量球
+    console.log("try to update energy ball.",remainCount,remainRatio);
+    if(remainRatio>70){
+        $("#wave").css("border","2px solid #32cd32");
+        $("#wave").css("background-color","#32cd32");
+        $("#wave-tip").text(remainCount+" / 20");
+        $("div[class^=g-wave]").each(function(){
+            var oldClass = $(this).attr("class");
+            $(this).removeClass(oldClass);
+            $(this).addClass("g-wave100");
+        });
+    }else if(remainRatio>40){
+        $("#wave").css("border","2px solid #00ffa1");
+        $("#wave").css("background-color","#00ffa1");
+        $("#wave-tip").text(remainCount+" / 20");
+        $("div[class^=g-wave]").each(function(){
+            var oldClass = $(this).attr("class");
+            $(this).removeClass(oldClass);
+            $(this).addClass("g-wave70");
+        });
+    }else if(remainRatio>20){
+        $("#wave").css("border","2px solid #46ffa5");
+        $("#wave").css("background-color","#46ffa5");
+        $("#wave-tip").text(remainCount+" / 20");
+        $("div[class^=g-wave]").each(function(){
+            var oldClass = $(this).attr("class");
+            $(this).removeClass(oldClass);
+            $(this).addClass("g-wave40");
+        });
+    }else if(remainRatio>10){
+        $("#wave").css("border","2px solid #e3ff00");
+        $("#wave").css("background-color","#e3ff00");
+        $("#wave-tip").text(remainCount+" / 20");
+        $("div[class^=g-wave]").each(function(){
+            var oldClass = $(this).attr("class");
+            $(this).removeClass(oldClass);
+            $(this).addClass("g-wave20");
+        });
+    }else if(remainRatio>=5){
+        $("#wave").css("border","2px solid #ff1601");
+        $("#wave").css("background-color","#ff1601");
+        $("#wave-tip").text(remainCount+" / 20");
+        $("div[class^=g-wave]").each(function(){
+            var oldClass = $(this).attr("class");
+            $(this).removeClass(oldClass);
+            $(this).addClass("g-wave10");
+        });
+    }else{
+        $("#wave").css("border","2px solid silver");
+        $("#wave").css("background-color","#32cd32");
+        $("#wave-tip").text("休息");
+        $("#wave-tip").css("font-size","16px");
+        $("div[class^=g-wave]").each(function(){
+            var oldClass = $(this).attr("class");
+            $(this).removeClass(oldClass);
+            $(this).addClass("g-wave0");
+        });
+    }
+    
+}
 
 //请求qrcode并显示二维码，供达人扫码绑定
 function showWxQrcode(){
@@ -370,24 +466,31 @@ function insertItem(){
 
     //注册事件
     $("div[data='"+item.id+"']").click(function(){
-        //cookie缓存记录当前浏览文章，返回时检查
-        console.log("Publisher::Articles now jump to article.");
-        var expDate = new Date();
-        expDate.setTime(expDate.getTime() + (5 * 60 * 1000)); // 5分钟后自动失效：避免用户直接叉掉页面不再回来    
-        var readingArticle = {
-            id:$(this).attr("data"),//文章id
-            title:$(this).attr("data-title"),//文章标题
-            url:$(this).attr("data-url"),//文章URL
-            startTime: new Date().getTime()//开始时间戳：需要超过10秒
-        };
-               
-        console.log("Publisher::Articles save article to cookie.",readingArticle);
-        $.cookie('sxArticle', JSON.stringify(readingArticle), { expires: expDate, path: '/' });  //把浏览中的文章id写入cookie便于记录阅读数       
+        //检查能量值
+        if(remainCount<1){//提示休息：
+            siiimpleToast.message('亲，休息，休息一会儿~~',{
+                  position: 'bottom|center'
+                });
+        }else{
+            //cookie缓存记录当前浏览文章，返回时检查
+            console.log("Publisher::Articles now jump to article.");
+            var expDate = new Date();
+            expDate.setTime(expDate.getTime() + (5 * 60 * 1000)); // 5分钟后自动失效：避免用户直接叉掉页面不再回来    
+            var readingArticle = {
+                id:$(this).attr("data"),//文章id
+                title:$(this).attr("data-title"),//文章标题
+                url:$(this).attr("data-url"),//文章URL
+                startTime: new Date().getTime()//开始时间戳：需要超过10秒
+            };
+                   
+            console.log("Publisher::Articles save article to cookie.",readingArticle);
+            $.cookie('sxArticle', JSON.stringify(readingArticle), { expires: expDate, path: '/' });  //把浏览中的文章id写入cookie便于记录阅读数       
 
-        //跳转到原始页面完成阅读
-        console.log("Publisher::Articles now jump to article.");
-        //window.location.href = "../index.html";   
-        window.location.href = $(this).attr("data-url");          
+            //跳转到原始页面完成阅读
+            console.log("Publisher::Articles now jump to article.");
+            //window.location.href = "../index.html";   
+            window.location.href = $(this).attr("data-url");    
+        }      
 
     });
 
@@ -495,6 +598,8 @@ function resultCheck(){
         //检查时间是否已达到10秒
         var duration = new Date().getTime() - Number(article.startTime);
         if( duration > 10000){
+            //加入阅读列表
+            checkReadingRecords(article.id);
             //显示数据填报表单
             $.blockUI({ message: $('#checkform'),
                 css:{ 
@@ -720,6 +825,10 @@ function isUrlValid(url) {
 }
 //**/
 function isUrlValid(url) {
+    //仅支持短连接，不支持带参数的长链接
+    if(url&&url.trim().length>0){
+        url = url.split("?")[0];
+    }
     return /^https:\/\/mp\.weixin\.qq\.com\/s\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]$/i.test(url);
 }
 
