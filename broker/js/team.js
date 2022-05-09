@@ -136,36 +136,39 @@ function insertItem(){
 
     var brokerUser = brokerUsers[item.id];
 
-    //计算文字高度：按照1倍行距计算
-    //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+(brokerUser.avatarUrl?brokerUser.avatarUrl:(brokerUser.headImgUrl?brokerUser.headImgUrl:"../images/avatar/default.jpg"))+"' width='50' height='50'  class='persona-logo' alt=''/>";
-        //**
-    var tagTmpl = "<a class='persona-tag' href='#'>__TAG</a>";
-    var tags = "<div class='persona-tags'>";
-    var taggingList = [];
-    taggingList.push(item.level);
-    if(brokerUser.province)taggingList.push(brokerUser.province);
-    if(brokerUser.city)taggingList.push(brokerUser.city);
-    for(var t in taggingList){
-        var txt = taggingList[t];
-        if(txt.trim().length>1 && txt.trim().length<6){
-            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
+    //仅显示已激活下级团队：至少使用一次，已经获得微信信息
+    if(brokerUser&&brokerUser.nickname){
+        //计算文字高度：按照1倍行距计算
+        //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
+        var image = "<img src='"+(brokerUser.avatarUrl?brokerUser.avatarUrl:(brokerUser.headImgUrl?brokerUser.headImgUrl:"../images/avatar/default.jpg"))+"' width='50' height='50'  class='persona-logo' alt=''/>";
+            //**
+        var tagTmpl = "<a class='persona-tag' href='#'>__TAG</a>";
+        var tags = "<div class='persona-tags'>";
+        var taggingList = [];
+        taggingList.push(item.level);
+        if(brokerUser.province)taggingList.push(brokerUser.province);
+        if(brokerUser.city)taggingList.push(brokerUser.city);
+        for(var t in taggingList){
+            var txt = taggingList[t];
+            if(txt.trim().length>1 && txt.trim().length<6){
+                tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
+            }
         }
+        tags += "</div>";
+        //**/
+        var phone= "<div class='persona-description'>电话："+(item.phone?item.phone:"--")+"</div>";
+        //var title = "<div class='persona-title'>"+(item.name?item.name:faker.name.findName())+(brokerUser.nickname?("("+brokerUser.nickname+")"):"")+"</div>"
+        var title = "<div class='persona-title'>"+(brokerUser.nickname?brokerUser.nickname:faker.name.findName())+"</div>"
+        //var description = "<div class='description'>"+(brokerUser.province?brokerUser.province:"")+(brokerUser.city?(" "+brokerUser.city):"")+"</div>"
+        //var description = "<div class='description'>等级："+item.level+"</div>"
+        //$("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo'>" + image +"</div><div class='persona-info'>" +title +phone+description+ "</div></li>");
+        $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +phone+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
+
+        //注册事件
+        $("div[data='"+item.id+"']").click(function(){
+            //点击后跳转到对应用户推荐界面？
+        });
     }
-    tags += "</div>";
-    //**/
-    var phone= "<div class='persona-description'>电话："+(item.phone?item.phone:"--")+"</div>";
-    var title = "<div class='persona-title'>"+(item.name?item.name:faker.name.findName())+(brokerUser.nickname?("("+brokerUser.nickname+")"):"")+"</div>"
-    //var description = "<div class='description'>"+(brokerUser.province?brokerUser.province:"")+(brokerUser.city?(" "+brokerUser.city):"")+"</div>"
-    //var description = "<div class='description'>等级："+item.level+"</div>"
-    //$("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo'>" + image +"</div><div class='persona-info'>" +title +phone+description+ "</div></li>");
-    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +phone+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
-
-    //注册事件
-    $("div[data='"+item.id+"']").click(function(){
-        //点击后跳转到对应用户推荐界面？
-    });
-
     num++;//下标加一
     loading = false;// 表示加载结束
 }
