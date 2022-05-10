@@ -111,8 +111,8 @@ $(document).ready(function ()
     //注册分享事件
     registerShareHandler();
 
-    //显示能量球
-    checkReadingRecords();
+    //显示能量球：当前隐藏
+    //checkReadingRecords();
 
     //判断是否从班车页面进入：从合集或合集报告界面接入都计算在内：暂未启用：也对导致由于进入大厅的人少，班车中出现很多个只有一个阅读的情况
     /**
@@ -641,8 +641,8 @@ function resultCheck(){
                 $.unblockUI(); 
             });
             $("#btnYes").click(function(){//完成阅读后的奖励操作
-                //加入阅读列表
-                checkReadingRecords(article.id);                
+                //加入阅读列表：当前隐藏
+                //checkReadingRecords(article.id);                
                 //检查数字：必填。TODO：此处需要判断是否胡乱填报
                 var readCount = Number($("#viewNumbers").val());
                 if(readCount <=0 ){
