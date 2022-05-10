@@ -26,6 +26,13 @@ $(document).ready(function ()
         delay: 100,
     });  
 //**/
+
+    //判断是否从流量主页面进入：如果是流量主界面，则调整二维码文字
+    if (document.referrer && (document.referrer.indexOf("publisher")>=0 )) {
+        console.log("referrer from publisher.");
+        type = "publisher";//默认为生活家
+    }  
+
     //显示遮罩层
     //showPostMask();
 
@@ -42,6 +49,9 @@ var imgPrefix = "https://www.biglistoflittlethings.com/3rdparty?url=";
 
 //分享清单格式：board2、board2-waterfall
 var boardType = "board2-waterfall";//默认为图片流
+
+//海报类型：流量主、生活家
+var type = "broker";//默认为生活家
 
 //临时用户
 var tmpUser = "";
@@ -285,8 +295,14 @@ function requestQRcode(broker) {
 
 //显示二维码
 function showContent(url) {
-    $("#broker-name").html(app.globalData.userInfo.nickName+ " 邀请");    //默认作者为board创建者
-    $("#shop-name").html("分享赚钱，自购省钱<br/>一起用小确幸填满大生活"); //店铺名称
+    if(type=='publisher'){
+        $("#broker-name").html(app.globalData.userInfo.nickName+ " 邀请加入");    //默认作者为board创建者
+        $("#shop-name").html("公众号运营、交流平台<br/>我们一起，把公众号做的更好"); //店铺名称  ，
+    }else{
+        $("#broker-name").html(app.globalData.userInfo.nickName+ " 邀请加入");    //默认作者为board创建者
+        $("#shop-name").html("选出好的商品，分享给对的人<br/>一起用小确幸填满大生活"); //店铺名称          
+    }
+    
     //$("#content").html("用小确幸填满大生活"); //店铺名称
     //logo：注意使用代理避免跨域问题
     //preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表

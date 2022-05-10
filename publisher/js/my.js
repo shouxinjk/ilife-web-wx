@@ -47,6 +47,9 @@ $(document).ready(function ()
     $("#myAccountFilter").click(function(e){
         window.location.href = "my-accounts.html";
     });
+    $("#myTeamFilter").click(function(e){
+        window.location.href = "team.html";
+    }); 
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
@@ -791,7 +794,10 @@ function countReadmeTotal(){
                 //if(res.data[0].totalCount>0){
                     var oldTxt = $("#myArticleFilter").text();
                     totalReadme = res.data[0].totalCount;
-                    $("#myArticleFilter").text("文章(总"+totalArticles+"阅"+totalReadme+")");
+                    if(totalArticles>0){//仅在有文章时才展示
+                        $("#myArticleFilter").text("文章(总"+totalArticles+"阅"+totalReadme+")");
+                        //$("#myArticleFilter").text("文章("+totalReadme+"阅)");
+                    }
                 //}
             }
         }
@@ -809,7 +815,10 @@ function countArticleTotal(){
             if(res.status && res.count){//显示到界面
                 var oldTxt = $("#myArticleFilter").text(); 
                 totalArticles = res.count;
-                $("#myArticleFilter").text("文章(总"+totalArticles+"阅"+totalReadme+")");             
+                if(totalArticles>0){//仅在有文章时才展示
+                    $("#myArticleFilter").text("文章(总"+totalArticles+"阅"+totalReadme+")");       
+                    //$("#myArticleFilter").text("文章("+totalReadme+"阅)"); 
+                }   
             }      
         }
     }) 

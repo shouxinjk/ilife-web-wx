@@ -347,7 +347,7 @@ function logstash(item,client,action,fromUser="",fromBroker="",fn){//记录日�
         }]
     };
     //提交用户行为日志
-    //console.log("$.support.cors",$.support.cors);
+    console.log("logstash commit user action.",data.records[0].value);
     $.ajax({
         //url:"http://kafka-rest.shouxinjk.net/topics/log",
         url:"https://data.shouxinjk.net/kafka-rest/topics/log",

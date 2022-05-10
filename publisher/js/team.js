@@ -25,6 +25,17 @@ $(document).ready(function ()
 
     loadPerson(currentPerson);//加载用户
 
+    //注册切换：文章/公众号
+    $("#myArticleFilter").click(function(e){
+        window.location.href = "my.html";
+    });
+    $("#myAccountFilter").click(function(e){
+        window.location.href = "my-accounts.html";
+    });
+    $("#myTeamFilter").click(function(e){
+        window.location.href = "team.html";
+    }); 
+
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
         changeActionType(e);
@@ -33,8 +44,13 @@ $(document).ready(function ()
     //注册添加关心的人事件
     $("#add-team-member").click(function(){
         //点击后跳转到对应用户设置界面
-        window.location.href = "team-poster.html";//跳转到海报生成界面
+        window.location.href = "../broker/team-poster.html";//跳转到海报生成界面
     });     
+
+    //取消充值
+    $("#btnCancelCharge").click(function(e){
+        $.unblockUI(); 
+    });      
 
     //对于关注时未能获取userInfo使用Fake填充
     faker.locale = "zh_CN";//默认英文
@@ -185,6 +201,21 @@ function insertItem(){
     loading = false;// 表示加载结束
 }
 
+//查询团队总数
+function countChildrenTotal(broker){
+    $.ajax({
+        url:app.config.sx_api+"/mod/broker/rest/count/"+broker.id,
+        type:"get",        
+        success:function(res){
+            console.log("got children count.",res);
+            if(res.count){//显示到界面
+                var oldTxt = $("#myTeamFilter").text(); 
+                $("#myTeamFilter").text("团队(共"+res.count+")");        
+            }      
+        }
+    }) 
+}
+
 //load person
 function loadPerson(personId) {
     console.log("try to load person info.",personId);
@@ -213,6 +244,8 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {
             insertBroker(res.data);//显示达人信息
+            //查询团队总数
+            countChildrenTotal(res.data)//查询下级达人总数
             //二维码需要手动点击后显示，此处不自动加载
             /**
             if(res.data.qrcodeUrl && res.data.qrcodeUrl.indexOf("http")>-1){//如果有QRcode则显示

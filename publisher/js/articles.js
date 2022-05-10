@@ -507,7 +507,7 @@ function insertItem(){
             //跳转到原始页面完成阅读
             console.log("Publisher::Articles now jump to article.");
             //window.location.href = "../index.html";   
-            window.location.href = $(this).attr("data-url");    
+            window.location.href = $(this).attr("data-url")+"?t="+generateShortCode(getUUID()); //添加随机数
         }      
 
     });
