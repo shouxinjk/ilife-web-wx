@@ -235,8 +235,8 @@ function generateImage() {
             "height": canvas.height / scale + "px",
         });
         //隐藏原有元素
-        //$("#container").toggleClass("container-hide",true);
-       //$("#container").toggleClass("container",false);
+        $("#container").toggleClass("container-hide",true);
+       $("#container").toggleClass("container",false);
 
         //显示图片
        $("#share-img").toggleClass("share-img-hide",false);
