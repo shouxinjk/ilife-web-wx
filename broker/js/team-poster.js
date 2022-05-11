@@ -317,6 +317,14 @@ function showContent(url) {
     $("#qrcode").css(css2); 
     //$("#qrcode").css("background-image","url(" + url+ ")"); 
 
+    $("#logo").css({
+        width: "100%",
+        "margin-top":"-200px",
+        "line-height": "200px",
+        "text-align": "center",
+        "vertical-align": "center"
+    });
+
     /**
     //由于不同手机分辨率不同，需要根据qrcode的实际高度  调整logo的高度及margin-top
     var clientWidth = document.getElementsByTagName('html')[0].clientWidth;
