@@ -316,6 +316,25 @@ function showContent(url) {
     };
     $("#qrcode").css(css2); 
     //$("#qrcode").css("background-image","url(" + url+ ")"); 
+
+    //由于不同手机分辨率不同，需要根据qrcode的实际高度  调整logo的高度及margin-top
+    var clientWidth = document.getElementsByTagName('html')[0].clientWidth;
+    var screenWidth = window.screen.width;
+    //var qrcodeImgHeight = $("#qrcode img").height();
+    var scaleRatio = clientWidth/screenWidth;
+    console.log("reset qrcode image height. scale ratio:"+scaleRatio,clientWidth,screenWidth);
+    $("#logo").css("line-height",200*scaleRatio+"px");
+    $("#logo").css("margin-top","-"+200*scaleRatio+"px");
+       
+    generateImage();//生成分享海报        
+
+    /**
+    //由于不同手机分辨率不同，需要根据qrcode的实际高度  调整logo的高度及margin-top
+    var qrcodeImgHeight = $("#qrcode img").height();
+    console.log("got qrcode image height."+qrcodeImgHeight);
+    $("#logo").css("line-height",qrcodeImgHeight/2+"px");
+    $("#logo").css("margin-top","-"+qrcodeImgHeight/2+"px");
        
     generateImage();//生成分享海报
+    //**/
 }
