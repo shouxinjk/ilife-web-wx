@@ -367,14 +367,14 @@
 
 .filter-selected{
   color:#e16531;
-  font-size: 14px;
+  font-size: 12px;
   font-weight:bold;
   line-height: 20px;
   border-bottom: 2px solid #e16531;
 }
 .filter{
   color:silver;
-  font-size: 14px;
+  font-size: 12px;
   font-weight:bold;
   line-height: 20px;
   border-bottom: 2px solid silver;

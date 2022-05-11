@@ -840,7 +840,9 @@ function countSubscribemeTotal(){
                 //if(res.data[0].totalCount>0){
                     var oldTxt = $("#myAccountFilter").text();
                     totalSubscribeme = res.data[0].totalCount;
-                    $("#myAccountFilter").text("公众号(总"+totalAccounts+"粉"+totalSubscribeme+")");
+                    if(totalAccounts>0){
+                        $("#myAccountFilter").text("公众号(总"+totalAccounts+"粉"+totalSubscribeme+")");
+                    }
                 //}
             }
         }
@@ -858,7 +860,9 @@ function countAccountTotal(){
             if(res.status && res.count){//显示到界面
                 var oldTxt = $("#myAccountFilter").text(); 
                 totalAccounts = res.count;
-                $("#myAccountFilter").text("公众号(总"+totalAccounts+"粉"+totalSubscribeme+")");             
+                if(totalAccounts>0){
+                    $("#myAccountFilter").text("公众号(总"+totalAccounts+"粉"+totalSubscribeme+")");  
+                }          
             }      
         }
     }) 
