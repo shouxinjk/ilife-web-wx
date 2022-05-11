@@ -317,6 +317,8 @@ function showContent(url) {
     $("#qrcode").css(css2); 
     //$("#qrcode").css("background-image","url(" + url+ ")"); 
 
+    /*
+    //当前不工作：暂缓
     //由于不同手机分辨率不同，需要根据qrcode的实际高度  调整logo的高度及margin-top
     //默认设计高度为1920，根据屏幕高度，动态修改
     var clientWidth = document.getElementsByTagName('html')[0].clientWidth;
@@ -326,12 +328,15 @@ function showContent(url) {
     var dpr = window.devicePixelRatio;//以基准dpr=3设计
     //var qrcodeImgHeight = $("#qrcode img").height();
     var scaleRatio = 1;
-    if(dpr<2)scaleRatio=2/dpr;
+    var browserType = checkBrowserType();
+    if(dpr<=2)scaleRatio=2/dpr;
     console.log("reset qrcode image height. scale ratio:"+scaleRatio,dpr);
-    $("#share-img-tips").text(""+scaleRatio+" "+dpr+" "+ screenWidth+" "+ screenHeight);
+    $("#share-img-tips").text(""+scaleRatio+" "+dpr+" "+ screenWidth+" "+ screenHeight +" "+browserType);
     $("#logo").css("line-height",200*scaleRatio+"px");
     $("#logo").css("margin-top","-"+200*scaleRatio+"px");
     //**/
+
+
        
     generateImage();//生成分享海报        
 
@@ -344,4 +349,20 @@ function showContent(url) {
        
     generateImage();//生成分享海报
     //**/
+}
+
+/*判断客户端*/
+function checkBrowserType() {
+    let u = navigator.userAgent;
+    let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1;   //判断是否是 android终端
+    let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/);     //判断是否是 iOS终端
+    console.log('是否是Android：' + isAndroid); //true,false
+    console.log('是否是iOS：' + isIOS);
+    if(isAndroid){
+      return 'android';
+    }else if(isIOS){
+      return 'ios';
+    }else{
+      return 'pc';
+    }
 }
