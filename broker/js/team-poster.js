@@ -317,22 +317,18 @@ function showContent(url) {
     $("#qrcode").css(css2); 
     //$("#qrcode").css("background-image","url(" + url+ ")"); 
 
-    $("#logo").css({
-        width: "100%",
-        "margin-top":"-200px",
-        "line-height": "200px",
-        "text-align": "center",
-        "vertical-align": "center"
-    });
-
-    /**
     //由于不同手机分辨率不同，需要根据qrcode的实际高度  调整logo的高度及margin-top
+    //默认设计高度为1920，根据屏幕高度，动态修改
     var clientWidth = document.getElementsByTagName('html')[0].clientWidth;
     var screenWidth = window.screen.width;
     var screenHeight = window.screen.height;//以分辨率高度1920为基准 调整
+
+    var dpr = window.devicePixelRatio;//以基准dpr=3设计
     //var qrcodeImgHeight = $("#qrcode img").height();
-    var scaleRatio = window.devicePixelRatio;
-    console.log("reset qrcode image height. scale ratio:"+scaleRatio,screenHeight);
+    var scaleRatio = 1;
+    if(dpr<2)scaleRatio=2/dpr;
+    console.log("reset qrcode image height. scale ratio:"+scaleRatio,dpr);
+    $("#share-img-tips").text(""+scaleRatio+" "+dpr+" "+ screenWidth+" "+ screenHeight);
     $("#logo").css("line-height",200*scaleRatio+"px");
     $("#logo").css("margin-top","-"+200*scaleRatio+"px");
     //**/
