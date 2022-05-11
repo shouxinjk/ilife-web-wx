@@ -317,14 +317,17 @@ function showContent(url) {
     $("#qrcode").css(css2); 
     //$("#qrcode").css("background-image","url(" + url+ ")"); 
 
+    /**
     //由于不同手机分辨率不同，需要根据qrcode的实际高度  调整logo的高度及margin-top
     var clientWidth = document.getElementsByTagName('html')[0].clientWidth;
     var screenWidth = window.screen.width;
+    var screenHeight = window.screen.height;//以分辨率高度1920为基准 调整
     //var qrcodeImgHeight = $("#qrcode img").height();
-    var scaleRatio = clientWidth/screenWidth;
-    console.log("reset qrcode image height. scale ratio:"+scaleRatio,clientWidth,screenWidth);
+    var scaleRatio = window.devicePixelRatio;
+    console.log("reset qrcode image height. scale ratio:"+scaleRatio,screenHeight);
     $("#logo").css("line-height",200*scaleRatio+"px");
     $("#logo").css("margin-top","-"+200*scaleRatio+"px");
+    //**/
        
     generateImage();//生成分享海报        
 
