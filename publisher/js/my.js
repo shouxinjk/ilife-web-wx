@@ -795,7 +795,7 @@ function countReadmeTotal(){
                     var oldTxt = $("#myArticleFilter").text();
                     totalReadme = res.data[0].totalCount;
                     if(totalArticles>0){//仅在有文章时才展示
-                        $("#myArticleFilter").text("文章(总"+totalArticles+"阅"+totalReadme+")");
+                        $("#myArticleFilter").text("文章("+totalReadme+"/"+totalArticles+")");   
                         //$("#myArticleFilter").text("文章("+totalReadme+"阅)");
                     }
                 //}
@@ -816,9 +816,9 @@ function countArticleTotal(){
                 var oldTxt = $("#myArticleFilter").text(); 
                 totalArticles = res.count;
                 if(totalArticles>0){//仅在有文章时才展示
-                    $("#myArticleFilter").text("文章(总"+totalArticles+"阅"+totalReadme+")");       
+                    $("#myArticleFilter").text("文章("+totalReadme+"/"+totalArticles+")");       
                     //$("#myArticleFilter").text("文章("+totalReadme+"阅)"); 
-                }   
+                }  
             }      
         }
     }) 

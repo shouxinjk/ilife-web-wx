@@ -210,7 +210,7 @@ function countChildrenTotal(broker){
             console.log("got children count.",res);
             if(res.count){//显示到界面
                 var oldTxt = $("#myTeamFilter").text(); 
-                $("#myTeamFilter").text("团队(共"+res.count+")");        
+                $("#myTeamFilter").text("团队("+res.count+")");        
             }      
         }
     }) 
