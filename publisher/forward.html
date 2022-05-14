@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>流量主-小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="../ext/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
+    <link rel="stylesheet" type="text/css" href="../css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/publisher.css?v=1.02">
+    <link rel="stylesheet" type="text/css" href="css/articles.css?v=1.5">
+    <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
+    <script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+
+
+    <style>
+        table{
+            border-collapse:collapse;
+            border-spacing:0;
+            border:1px solid silver;
+          }
+        tr{
+            background-color: white;
+        }
+        td{
+              border:1px solid silver;
+              padding:2px;
+              line-height: 24px;
+              font-size: 12px;
+           }
+        td a{
+              font-size: 12px;
+           }           
+    </style>
+
+
+</head>
+
+<body>
+    <!--div class="header">
+        <div class="search">
+            <span>MAN生活</span>
+            <input placeholder=" 小确幸,大生活">
+        </div>
+    </div-->
+
+    <!-- 导航菜单 -->
+    <!--div class="nav">
+        <ul class="navUl">
+        </ul>
+    </div-->   
+
+    <!-- 用户信息 --> 
+    <!--view class="info" id="user"></view-->
+    <!-- 按钮 --> 
+    <!--view class="order" id="buttons">      
+        <div class="order-cell" id="articles" data-tagging="like view">
+            <img class="order-cell-icon-small" src="images/articles.png"/>
+            <div class="actiontype">文章</div>
+        </div>           
+        <div class="order-cell" id="accounts" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/accounts.png"/>
+            <div class="actiontype">公众号</div>
+        </div>   
+        <div class="order-cell" id="reads" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/reads.png"/>
+            <div class="actiontype">阅读</div>
+        </div>  
+        <div class="order-cell" id="subscribes" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/subscribes.png"/>
+            <div class="actiontype">关注</div>
+        </div>                  
+        <div class="order-cell" id="my" data-tagging="share">
+            <img class="order-cell-icon-small" src="images/my-selected.png"/>
+            <div class="actiontype-selected">我的</div>
+        </div>                                    
+    </view-->
+
+    <div class="tips" style="line-height: 36px;font-size: 14px;">
+        以下是开白申请详情，粉丝在等待回应哦~~
+    </div> 
+
+    <!--div style="width:90%;text-align: center;margin:5px auto;display: flex;flex-direction: row;flex-wrap: nowrap;">
+        <div class='filter-selected' style="width:33%" id="myArticleFilter">文章</div>
+        <div class='filter' style="width:33%" id="myAccountFilter">公众号</div>
+        <div class='filter' style="width:33%" id="myTeamFilter">团队</div>
+    </div-->
+
+    <!--文章列表。提供上架、下架、顶一下、置顶功能-->
+    <div id="Center">
+
+        <table width="80%" cellpadding="0" cellspacing="1" bgcolor="black" style="margin:0px auto;">
+            <tr>
+                <td colspan="2" align="center">申请者信息</td>
+            </tr>
+
+            <tr>
+                <td width="100">号主昵称</td>
+                <td id="requester"></td>
+            </tr>
+            <tr>
+                <td>公众号名称</td>
+                <td id="requestAccountName"></td>
+            </tr>
+            <tr>
+                <td>公众号ID</td>
+                <td id="requestAccountId"></td>
+            </tr>
+            <tr>
+                <td>公众号简介</td>
+                <td id="requestAccountDesc"></td>
+            </tr>
+            <tr>
+                <td>申请时间</td>
+                <td id="requestTime"></td>
+            </tr>
+
+            <tr>
+                <td colspan="2" align="center">开白请求信息</td>
+            </tr>
+
+            <tr>
+                <td>请求开白内容</td>
+                <td id="requestTitle"></td>
+            </tr>
+            <tr>
+                <td>请求开白类型</td>
+                <td id="requestType"></td>
+            </tr>
+            <tr>
+                <td>回应结果</td>
+                <td id="respondType"></td>
+            </tr>            
+            <tr>
+                <td>回应时间</td>
+                <td id="respondTime"></td>
+            </tr>
+
+        </table>
+
+        <!--操作按钮-->
+        <div id="respondBtns" style="text-align: center;margin-top:10px;font-size: 12px;">                          
+            <button type="submit" class="btn btn-default" id="rejected" style="background-color: red;display:none;font-size: 12px;color: #fff;">拒绝</button>
+            <button type="submit" class="btn btn-default" id="approvedByArticle" style="display: none;background-color: green;font-size: 12px;color: #fff;">已单篇开白</button>
+            <button type="submit" class="btn btn-default" id="approvedByAccount" style="display: none;background-color: green;font-size: 12px;color: #fff;">已全局开白</button>
+        </div>  
+
+        <div id="respondTips" style="display:none;font-size: 12px;text-align: center;margin-top:20px;">已回应，<a style="font-size:12px;" href="articles.html">去看看更多文章</a></div>
+
+    </div>
+
+
+    <div style="height:60px;">
+        &nbsp;&nbsp;
+    </div> 
+
+  <div id="sx-menu">
+    <a href="../index.html" class="menu-btn">
+        <img src="../images/smile-happy.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;推荐</div>
+    </a>
+    <a href="../feeds.html" class="menu-btn">
+        <img src="../images/biglist.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;发现</div>
+    </a>
+    <a href="#" class="menu-btn">
+        <img src="../images/my-selected.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt-selected">&nbsp;流量主</div>
+    </a>        
+  </div>
+   
+
+</body>
+
+<script type="text/javascript" src="../ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../ext/jquery.validate.min.js"></script>
+<script type="text/javascript" src="../ext/date-formatter.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/siiimple-toast.min.js"></script>
+<script type="text/javascript" src="../ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="../ext/jquery-ui.min.js"></script>
+<script type="text/javascript" src="../js/newWaterfall.js"></script>
+<script type="text/javascript" src="../js/swiper.min.js"></script>
+<script type="text/javascript" src="../js/jquery.cookie.js"></script>
+<script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+<script type="text/javascript" src="../js/md5.js?v=1.0"></script>
+<script type="text/javascript" src="../js/util.js?v=3.0"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+<script type="text/javascript" src="js/common.js?v=1.8"></script> 
+<script type="text/javascript" src="js/forward.js?v=0.2"></script> 
+</html>

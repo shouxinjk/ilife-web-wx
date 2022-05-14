@@ -108,6 +108,11 @@ $(document).ready(function ()
         setTimeout(function(){loadSoldAds(toppingArticleId);},500);//继续沿用当前文章ID
     });   
 
+    //取消查看开白明细
+    $("#btnCancelForwards").click(function(e){
+        $.unblockUI(); 
+    }); 
+
     //取消充值
     $("#btnCancelCharge").click(function(e){
         $.unblockUI(); 
@@ -287,7 +292,7 @@ function insertItem(){
     //置顶明细：弹出显示置顶明细列表，包括置顶及顶一下
     btns += '<button type="submit" class="action-tag-black" id="btnToppingHistory'+item.id+'">置顶明细</button> ';   
     //开白明细：弹出显示开白明细列表
-    //btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';           
+    btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';           
     //报数明细：能够查看报数历史
     btns += '<button type="submit" class="action-tag-black" id="btnReadHistory'+item.id+'">报数明细</button> ';     
     var btnsDiv = "<div class='btns' style='display:flex;flex-direction:row;flex-wrap:nowrap;margin-top:5px;'>"+btns+"</div>";    
@@ -340,7 +345,10 @@ function insertItem(){
     });     
     $("#btnReadHistory"+item.id).click(function(){ //显示当前文章的报数明细
         loadReads($(this).attr("id").replace(/btnReadHistory/,""));//需要传递当前文章ID
-    });          
+    }); 
+    $("#btnForwardList"+item.id).click(function(){ //显示开白请求明细 
+        loadForwards($(this).attr("id").replace(/btnForwardList/,""));//需要传递当前文章ID
+    });             
     // 表示加载结束
     loading = false;
 }
@@ -721,7 +729,7 @@ function toppingItem(item){
     //置顶明细：弹出显示置顶明细列表，包括置顶及顶一下
     btns += '<button type="submit" class="action-tag-black" id="btnToppingHistory'+item.id+'">置顶明细</button> ';   
     //开白明细：弹出显示开白明细列表
-    //btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';      
+    btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';      
     //报数明细：能够查看报数历史
     btns += '<button type="submit" class="action-tag-black" id="btnReadHistory'+item.id+'">报数明细</button> ';     
     var btnsDiv = "<div class='btns' style='display:flex;flex-direction:row;flex-wrap:nowrap;margin-top:5px;'>"+btns+"</div>";    
@@ -772,7 +780,10 @@ function toppingItem(item){
     });     
     $("#btnReadHistory"+item.id).click(function(){ //显示当前文章的报数明细
         loadReads($(this).attr("id").replace(/btnReadHistory/,""));//需要传递当前文章ID
-    });     
+    });  
+    $("#btnForwardList"+item.id).click(function(){ //显示开白请求明细 
+        loadForwards($(this).attr("id").replace(/btnForwardList/,""));//需要传递当前文章ID
+    });       
 }
 
 //查询阅我总数：排除自己的阅读
@@ -1360,6 +1371,62 @@ function loadReads(articleId){
     }); 
 }
 
+
+//加载开白明细：加载全部。默认数据不会超过100条
+function loadForwards(articleId){
+    //查询阅读当前用户文章的事件列表
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxForward/rest/requests/article/"+articleId,
+        type:"get",
+        //data:{},         
+        success:function(res){
+            console.log("got forward events.", res)
+            if(res && res.length==0){//如果没有则提示还没有
+                $("#forwardsDiv").html('<div style="line-height: 30px;font-size: 12px;">还没有开白请求哦~~</div>');
+            }else{//否则显示到页面：简单列表展示
+                $("#forwardsDiv").empty();
+                res.forEach(function(item){
+                    var statusStr = "待回应";
+                    if(item.status=="rejected"){
+                       statusStr = "已拒绝"; 
+                    }else if(item.status=="approved"){
+                       statusStr = "已开白"; 
+                    }else{//显示前往处理
+                        statusStr = "<a href='forward.html?id="+item.id+"'>待回应</a>";
+                    }
+                    var html = "";
+                    html += "<div class='reads-item'>";
+                    html += "<div class='reads-date'>"+item.createDate+"</div>";
+                    html += "<div class='reads-readername'>"+item.requestAccountName+"</div>";
+                    html += "<div class='reads-count'>"+statusStr+"</div>";
+                    html += "</div>";
+                    $("#forwardsDiv").append(html);
+                });
+            }
+            //显示置顶明细表单
+            $.blockUI({ message: $('#forwardsForm'),
+                css:{ 
+                    padding:        10, 
+                    margin:         0, 
+                    width:          '80%', 
+                    top:            '10%', 
+                    left:           '10%', 
+                    textAlign:      'center', 
+                    color:          '#000', 
+                    border:         '1px solid silver', 
+                    backgroundColor:'#fff', 
+                    cursor:         'normal' 
+                },
+                overlayCSS:  { 
+                    backgroundColor: '#000', 
+                    opacity:         0.7, 
+                    cursor:          'normal' 
+                }
+            });             
+        }
+    }); 
+ 
+}
 
 
 

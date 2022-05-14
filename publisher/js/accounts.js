@@ -34,7 +34,16 @@ $(document).ready(function ()
     }  
     if(args["byPublisherOpenid"]){
         byPublisherOpenid = args["byPublisherOpenid"]; //支持传入publisherOpenid
-    }        
+    }   
+
+    //获取邀请者信息
+    if(args["fromBroker"]){
+        fromBroker = args["fromBroker"]; //支持传入邀请者ID
+    }   
+    if(args["isNewBroker"]&&args["isNewBroker"]=="true"){
+        isNewBroker = true; //判断当前达人是否是新加入
+    }  
+
     //支持整个列表组队互阅
     if(args["code"]){
         groupingCode = args["code"]; //支持传入班车code
@@ -120,6 +129,9 @@ $(document).ready(function ()
     //检查是否有缓存事件
     //resultCheck();
 
+    //加载达人自己公众号列表，便于申请转载
+    loadMyAccounts();
+
     //注册分享事件
     registerShareHandler();   
 
@@ -146,6 +158,9 @@ util.getUserInfo();//从本地加载cookie
 
 var byOpenid = null;
 var byPublisherOpenid = null;
+
+var fromBroker = null;
+var isNewBroker = false;
 
 var instSubscribeTicket = null;//对于即时关注，需要缓存ticket
 var groupingCode = null;//班车code：默认自动生成
@@ -245,7 +260,7 @@ function getQrcodeScanResult(ticket){
         success:function(res){
             console.log("got qrcode scan result.",res);
             if(res.status && res.openid){//成功扫码，刷新页面：需要通过微信授权页面做一次跳转，要不然无法获取用户信息
-                var state = "publisher__accounts___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo;
+                var state = "publisher__accounts___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo+"__isNewBroker=true__fromBroker="+fromBroker;
                 //https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=index#wechat_redirect
                 var targetUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=";
                 targetUrl += state;
@@ -256,6 +271,26 @@ function getQrcodeScanResult(ticket){
     });
 }
 
+//检查邀请信息：
+//初次扫描码后会增加标记isNewBroker=true，通过标记区分。
+function checkInviteInfo(){
+    if(isNewBroker && fromBroker && fromBroker.trim().length>0){//仅在两个参数同时具备的情况下才认为是邀请成功
+        //传递当前达人id： broker.id
+        //传递上级达人id: fromBroker
+        console.log("try to change invite info.",broker.id,fromBroker);
+        $.ajax({
+            url:app.config.sx_api+"/mod/broker/rest/change/invite/"+broker.id+"/"+fromBroker,
+            type:"post",     
+            data:JSON.stringify({}),   
+            success:function(res){
+                console.log("invite info changed.",res);
+                //do nothing
+            }
+        });        
+    }else{
+        //do nothing
+    }
+}
 
 //优先从cookie加载达人信息
 function loadBrokerInfo(){
@@ -407,7 +442,10 @@ function insertItem(){
         //二维码长按事件：模拟关注，在等待1.5秒后显示确认按钮
         setTimeout(function(){
             $("#btnYesSubscribe").css("display","block");
-        },3200);
+            //显示开白请求
+            $("#requestForwardTip").css("display","block");
+            $("#myaccountlist").css("display","block");
+        },7200);
         
 	    //显示二维码
 	    $.blockUI({ message: $('#qrcodeform'),
@@ -468,6 +506,9 @@ function loadBrokerByOpenid(openid) {
             insertBroker(res.data);//显示达人信息
             if(res.data.points<-5)
                 $("#tipsDiv").html("<div class='blink' style='color:red;font-size:14px;font-weight:bold;line-height:20px;width:100%;'>阅豆低于-5，公众号将不在大厅展示<br/>请阅读或关注获取阅豆吧~~</div>");//显示提示信息：如果阅豆不足则提示
+            //检查是否是新邀请加入达人
+            checkInviteInfo();
+            //加载列表            
             registerTimer(res.data.id);//加载该达人的board列表
         }
     });
@@ -534,11 +575,40 @@ function submitResult(){
         console.log("try to submit subscribe event.");
         $.cookie('sxAccount', "", { path: '/' }); //清除cookie重新来过
         $("#btnNoSubscribe").css("display","none");//再次隐藏已关注按钮
-        costPoints(account);        	
+        costPoints(account);       
     }else{
         $("#btnNoSubscribe").css("display","none");//再次隐藏已关注按钮
       console.log("no accountInfo from cookie.",accountInfo);
     }
+}
+
+//请求开白：accountId为请求者公众号Id，account为待开白公众号
+function  requestForword(account,accountId,publisher){
+    console.log("try to request forward.",account,accountId);
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxForward/rest/requests/"+accountId,
+        type:"post",
+        data:JSON.stringify({
+            account: account,
+            type: "account",//单文章转载
+            requester: broker,//是当前达人
+            responder: {id:publisher.brokerId},
+            requestAccount:{id:accountId},//后端接口竟然不自己构建，要重复传一次
+            subjectType: "account",//请求发起内容类型
+            subjectId:account.id
+        }),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },         
+        success:function(res){
+            console.log("forward request send succeed.",res);            
+            //提示阅读已完成
+            siiimpleToast.message('请求已发送，请留意号主回复通知~~',{
+                  position: 'bottom|center'
+                });            
+        }
+    })
 }
 
 //检查关注效果：如果检查到有cookie，则显示已关注按钮
@@ -624,7 +694,13 @@ function logPointCostEvent(account,subscriber){
             $("#btnYesSubscribe").css("display","none");//隐藏已关注按钮，避免直接显示
             $("div[data='"+account.id+"']").remove();
         }
-    });     
+    });  
+
+    //发送开白申请
+    $('input[name="myaccount"]:checked').each(function(){ 
+        var accountId = $(this).val();
+        requestForword(account,accountId,subscriber);
+    });         
 }
 
 
@@ -888,6 +964,31 @@ function toppingItem(item){
     });
 }
 
+/*
+根据当前用户openid加载已发布公众号列表：按照最后修改时间倒序排列。用于显示到转载列表里
+*/
+function loadMyAccounts(){
+    util.AJAX(app.config.sx_api+"/wx/wxAccount/rest/my-accounts/"+app.globalData.userInfo._key, function (res) {
+        showloading(false);
+        console.log("Publisher::articles::loadMyAccounts try to retrive my accounts.", res)
+        if(res && res.length==0){//如果没有则啥也不干
+            //do nothing
+        }else{//否则显示到页面：均显示为checkbox，等待用户选择
+            $("#myaccountlist").empty();
+            //$("#myaccountlist").append("<div>同时申请转载我的公众号</div>");
+            for(var i = 0 ; i < res.length ; i++){
+                var item = res[i];
+                $("#myaccountlist").append("<div style='margin-top:5px;'><input type='checkbox' name='myaccount' id='acc"+item.id+"' value='"+item.id+"'  style='vertical-align: bottom;'></input><label for='acc"+item.id+"' style='font-size:12px;margin-bottom:1px;margin-left:5px;'>"+item.name+"</label></div>");
+            }
+        }
+    }, 
+    "GET",
+    {
+        from:0,
+        to:20 //10个已经很多了吧？
+    },
+    {});
+}
 
 
 //分享到微信群：直接构建互阅班车，便于统计结果
@@ -896,6 +997,7 @@ function registerShareHandler(){
     var startTime = new  Date().getTime();
     var shareUrl = window.location.href;//.replace(/accounts/g,"accounts-grouping");//目标页面将检查是否关注与注册
     shareUrl += "?code="+generateShortCode(getUUID());//code
+    shareUrl += "&fromBroker="+broker.id;//邀请者信息：为当前登录达人ID 
     shareUrl += "&timeFrom="+startTime;//默认从当前时间开始
     shareUrl += "&timeTo="+(startTime+60*60*1000);//默认1小时结束
 
