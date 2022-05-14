@@ -1397,7 +1397,7 @@ function loadForwards(articleId){
                     var html = "";
                     html += "<div class='reads-item'>";
                     html += "<div class='reads-date'>"+item.createDate+"</div>";
-                    html += "<div class='reads-readername'>"+item.requestAccountName+"</div>";
+                    html += "<div class='reads-readername'>"+item.requestAccount.name+"</div>";
                     html += "<div class='reads-count'>"+statusStr+"</div>";
                     html += "</div>";
                     $("#forwardsDiv").append(html);
