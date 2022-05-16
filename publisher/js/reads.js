@@ -49,6 +49,13 @@ $(document).ready(function ()
     $("#readme").click(function(e){
         window.location.href = "reads.html?filter=byReadme";
     });    
+    //注册切换到 阅TA 
+    $("#subscribeta").click(function(e){
+        window.location.href = "subscribes.html?filter=bySubscribeta";
+    });
+    $("#subscribeme").click(function(e){
+        window.location.href = "subscribes.html?filter=bySubscribeme";
+    });     
 
     //根据filter切换界面高亮显示
     if(filter=="byReadta"){

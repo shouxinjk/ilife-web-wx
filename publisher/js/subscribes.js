@@ -42,6 +42,15 @@ $(document).ready(function ()
         changeActionType(e);
     });
 
+
+    //注册切换到 阅TA 
+    $("#readta").click(function(e){
+        window.location.href = "reads.html?filter=byReadta";
+    });
+    $("#readme").click(function(e){
+        window.location.href = "reads.html?filter=byReadme";
+    }); 
+    
     //注册切换到 阅TA 
     $("#subscribeta").click(function(e){
         window.location.href = "subscribes.html?filter=bySubscribeta";
