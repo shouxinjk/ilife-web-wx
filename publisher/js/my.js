@@ -50,7 +50,10 @@ $(document).ready(function ()
     $("#myTeamFilter").click(function(e){
         window.location.href = "team.html";
     }); 
-
+    $("#myMoneyFilter").click(function(e){
+        window.location.href = "money.html";
+    });  
+    
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
         changeActionType(e);

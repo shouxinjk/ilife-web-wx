@@ -7,9 +7,10 @@
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
+     <link rel="stylesheet" type="text/css" href="css/publisher.css?v=1.02">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
-    <link rel="stylesheet" type="text/css" href="css/broker.css">
-    <link rel="stylesheet" type="text/css" href="css/broker-money.css?v=1.7">
+    <link rel="stylesheet" type="text/css" href="../broker/css/broker.css">
+    <link rel="stylesheet" type="text/css" href="../broker/css/broker-money.css?v=1.7">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -33,32 +34,39 @@
     <!-- 用户信息 --> 
     <view class="info" id="user"></view>
     <!-- 按钮 --> 
-    <view class="order" id="buttons">
-        <div class="order-cell" id="task" data-tagging="like view">
-            <img class="order-cell-icon-small" src="images/task.png"/>
-            <div class="actiontype">任务</div>
-        </div>  
-        <div class="order-cell" id="boards" data-tagging="like view">
-            <img class="order-cell-icon-small" src="images/boards.png"/>
-            <div class="actiontype">清单</div>
-        </div>          
-        <div class="order-cell" id="team" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/team.png"/>
-            <div class="actiontype">团队</div>
+    <view class="order" id="buttons">      
+        <div class="order-cell" id="articles" data-tagging="like view">
+            <img class="order-cell-icon-small" src="images/articles.png"/>
+            <div class="actiontype">文章</div>
+        </div>           
+        <div class="order-cell" id="accounts" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/accounts.png"/>
+            <div class="actiontype">公众号</div>
         </div>   
-        <div class="order-cell" id="my" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/my.png"/>
-            <div class="actiontype">客群</div>
+        <div class="order-cell" id="material" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/material.png"/>
+            <div class="actiontype">带货</div>
         </div>  
-        <div class="order-cell" id="money" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/money-selected.png"/>
-            <div class="actiontype-selected">收益</div>
-        </div>                                   
+        <div class="order-cell" id="reads" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/reads.png"/>
+            <div class="actiontype">数据</div>
+        </div>                 
+        <div class="order-cell" id="my" data-tagging="share">
+            <img class="order-cell-icon-small" src="images/my-selected.png"/>
+            <div class="actiontype-selected">我的</div>
+        </div>                                    
     </view>
 
     <div class="tips">
-        &nbsp;&nbsp;
+        以下为带货收益汇总，满100元即可发起提现申请
     </div> 
+
+    <div style="width:90%;text-align: center;margin:5px auto;display: flex;flex-direction: row;flex-wrap: nowrap;">
+        <div class='filter' style="width:25%" id="myArticleFilter">文章</div>
+        <div class='filter' style="width:25%" id="myAccountFilter">公众号</div>
+        <div class='filter' style="width:25%" id="myTeamFilter">团队</div>
+        <div class='filter-selected' style="width:25%" id="myMoneyFilter">收益</div>
+    </div>
 
     <div id="Center">
         <div class="money-all" id="amountTotal">￥0</div>
@@ -100,9 +108,8 @@
         <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
     </div>
 
-    <div id="footer" class="footer-hide">
-
-    </div>  
+    <div id="footer" class="footer-hide" style="border:none;font-size:10px;">
+    </div> 
 
   <div id="sx-menu">
     <a href="../index.html" class="menu-btn">
@@ -115,9 +122,20 @@
     </a>
     <a href="#" class="menu-btn">
         <img src="../images/my-selected.png" width="20px" height="20px"/>
-        <div class="menu-btn-txt-selected">&nbsp;生活家</div>
+        <div class="menu-btn-txt-selected">&nbsp;流量主</div>
     </a>        
   </div>
+
+    <!--充值-->
+    <div id="chargeForm" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">充值阅豆</div> 
+            <div id="chargeDiv" class="poor-topping-div">
+                
+            </div>
+            <div>
+                <button type="submit" class="btnNo" style="color:silver;border-color:silver;" id="btnCancelCharge">取消</button> 
+            </div>
+    </div> 
 
 </body>
 
@@ -130,5 +148,5 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.3"></script> 
-<script type="text/javascript" src="js/money.js?v=2.21"></script> 
+<script type="text/javascript" src="js/money.js?v=2.22"></script> 
 </html>

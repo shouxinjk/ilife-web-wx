@@ -28,6 +28,26 @@ $(document).ready(function ()
     loadPlatforms();//加载电商平台列表
     loadPerson(currentPerson);//加载用户
 
+
+    //注册切换：文章/公众号
+    $("#myArticleFilter").click(function(e){
+        window.location.href = "my.html";
+    });
+    $("#myAccountFilter").click(function(e){
+        window.location.href = "my-accounts.html";
+    });
+    $("#myTeamFilter").click(function(e){
+        window.location.href = "team.html";
+    }); 
+    $("#myMoneyFilter").click(function(e){
+        window.location.href = "money.html";
+    });  
+
+    //取消充值
+    $("#btnCancelCharge").click(function(e){
+        $.unblockUI(); 
+    });      
+
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
         changeActionType(e);
