@@ -190,7 +190,7 @@ var sxStartTimestamp=new Date().getTime();//定时器如果超过2分
 var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
 
 var checkRemainCount = false;//是否检查阅读数：将严格限制，能够禁止点击
-var amountPerHour = 30; //每小时阅读数，默认为20，当前放宽为30，超过40后将不允许点击
+var amountPerHour = 25; //每小时阅读数，默认为20，当前放宽为30，超过40后将不允许点击
 var remainCount = 1;//默认可以接着读
 var remainCountTips = "一会儿";//提示文字
 var todayReadingRecords = 0;//今日累计阅读数
@@ -256,7 +256,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#energy-ball").css("border","1px solid #32cd32");
         $("#wave").css("border","1px solid #32cd32");
         $("#wave").css("background-color","#32cd32");
-        $("#tired-tip").text("可阅:"+remainCount);
+        $("#tired-tip").text("待阅:"+remainCount);
         $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
@@ -268,7 +268,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#energy-ball").css("border","1px solid #00ffa1");
         $("#wave").css("border","1px solid #00ffa1");
         $("#wave").css("background-color","#00ffa1");
-        $("#tired-tip").text("可阅:"+remainCount);
+        $("#tired-tip").text("待阅:"+remainCount);
         $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
@@ -281,7 +281,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#wave").css("border","1px solid #46ffa5");
         $("#wave").css("background-color","#46ffa5");
         $("#tired-tip").css("color","silver");
-        $("#tired-tip").text("可阅:"+remainCount);
+        $("#tired-tip").text("待阅:"+remainCount);
         $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
@@ -296,7 +296,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#tired-tip").css("color","silver");
         $("#tired-hour").css("color","silver");
         $("#tired-today").css("color","silver");
-        $("#tired-tip").text("可阅:"+remainCount);
+        $("#tired-tip").text("待阅:"+remainCount);
         $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
@@ -311,7 +311,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#tired-tip").css("color","silver");
         $("#tired-hour").css("color","silver");
         $("#tired-today").css("color","silver");        
-        $("#tired-tip").text("可阅:"+remainCount);
+        $("#tired-tip").text("待阅:"+remainCount);
         $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
