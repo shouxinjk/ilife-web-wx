@@ -37,13 +37,13 @@
   line-height: 80px;
   font-weight: bold;
   color: #fff;
-  bottom: 70px;
-  right: 20px;
+  bottom: 60px;
+  right: 22px;
   z-index: 3;
 }
 
 .wave-tip div{
-    line-height: 16px;
+    line-height: 20px;
 }
 
 .wave {

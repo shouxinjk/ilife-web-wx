@@ -189,6 +189,8 @@ var sxTimer = null;
 var sxStartTimestamp=new Date().getTime();//定时器如果超过2分
 var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
 
+var checkRemainCount = false;//是否检查阅读数：将严格限制，能够禁止点击
+var amountPerHour = 30; //每小时阅读数，默认为20，当前放宽为30，超过40后将不允许点击
 var remainCount = 1;//默认可以接着读
 var remainCountTips = "一会儿";//提示文字
 var todayReadingRecords = 0;//今日累计阅读数
@@ -244,11 +246,9 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
     expDate.setTime(expDate.getTime() + (60 * 60 * 1000)); // 60分钟后自动失效：避免用户长时间不回来  
     $.cookie('sxReadingRecord', JSON.stringify(readingRecords), { expires: expDate, path: '/' });  //1小时自动失效 
 
-    //得到剩余条数：默认为20条
-    remainCount = 20 - Object.keys(readingRecords).length;
-    remainCount = 0;
-    var remainRatio = remainCount*5;//remainCount*100/20
-    var total1h = 20;
+    //得到剩余条数
+    remainCount = amountPerHour - Object.keys(readingRecords).length;
+    var remainRatio = remainCount*100/amountPerHour;//remainCount*100/20
 
     //更新界面能量球
     console.log("try to update energy ball.",remainCount,remainRatio);
@@ -257,7 +257,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#wave").css("border","1px solid #32cd32");
         $("#wave").css("background-color","#32cd32");
         $("#tired-tip").text("可阅:"+remainCount);
-        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
@@ -269,7 +269,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#wave").css("border","1px solid #00ffa1");
         $("#wave").css("background-color","#00ffa1");
         $("#tired-tip").text("可阅:"+remainCount);
-        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
@@ -282,7 +282,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#wave").css("background-color","#46ffa5");
         $("#tired-tip").css("color","silver");
         $("#tired-tip").text("可阅:"+remainCount);
-        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
@@ -297,7 +297,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#tired-hour").css("color","silver");
         $("#tired-today").css("color","silver");
         $("#tired-tip").text("可阅:"+remainCount);
-        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
@@ -312,7 +312,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#tired-hour").css("color","silver");
         $("#tired-today").css("color","silver");        
         $("#tired-tip").text("可阅:"+remainCount);
-        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
@@ -333,7 +333,7 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#tired-hour").css("color","silver");
         $("#tired-today").css("color","silver");         
         $("#tired-tip").text("休息"+pauseMinutes+"分钟");
-        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-hour").text("最近1h:"+(amountPerHour-remainCount)+"/"+amountPerHour);
         $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
@@ -569,7 +569,7 @@ function insertItem(){
     //注册事件
     $("div[data='"+item.id+"']").click(function(){
         //检查能量值
-        if(remainCount<1){//提示休息：
+        if(checkRemainCount && remainCount<1){//提示休息：
             siiimpleToast.message('亲，喝口水，等'+remainCountTips+'再来吧~~',{
                   position: 'bottom|center'
                 });
