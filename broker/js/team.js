@@ -97,7 +97,12 @@ function loadItems(){
             for(var i = 0 ; i < hits.length ; i++){
                 if(childBrokerIds.indexOf(hits[i].id)<0){
                     childBrokerIds.push(hits[i].id);
-                    getBrokerUser(hits[i]);
+                    //getBrokerUser(hits[i]);//不加载用户详情，提升性能
+                    //直接显示到界面
+                    items.push(hits[i]);//仅在用户存在是显示达人，否则不显示
+                    brokerUsers[hits[i].id]=hits[i];//存储对应的用户详情：此处直接使用broker信息，未加载用户详情
+                    insertItem();  
+                    //end of 直接显示到界面
                 }
             }
             //insertItem();
@@ -134,7 +139,7 @@ function insertItem(){
     // 加载内容
     var item = items[num-1];
 
-    var brokerUser = brokerUsers[item.id];
+    var brokerUser = item;//brokerUsers[item.id];//性能优化，不从nosql加载用户详情
 
     //仅显示已激活下级团队：至少使用一次，已经获得微信信息
     if(brokerUser&&brokerUser.nickname){

@@ -122,7 +122,7 @@ $(document).ready(function ()
     registerShareHandler();
 
     //显示能量球：当前隐藏
-    //checkReadingRecords();
+    checkReadingRecords();
 
     //判断是否从班车页面进入：从合集或合集报告界面接入都计算在内：暂未启用：也对导致由于进入大厅的人少，班车中出现很多个只有一个阅读的情况
     /**
@@ -191,6 +191,8 @@ var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
 
 var remainCount = 1;//默认可以接着读
 var remainCountTips = "一会儿";//提示文字
+var todayReadingRecords = 0;//今日累计阅读数
+
 function checkReadingRecords(articleId){//传递articleId时将自动添加到列表
     var readingRecords = {};//记录当前阅读记录：仅存储距今1小时的记录，通过cookie缓存。存储的是articleId:timestamp，其中timestamp为long型
     var oldestTimestamp = new Date().getTime();//记录当前阅读记录中时间最久的那一个，用于计算需要休息多久恢复阅读
@@ -212,9 +214,30 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         }
     });
 
+
     //如果传递新articleId 则加入
-    if(articleId && articleId.trim().length>0)
+    if(articleId && articleId.trim().length>0){
         readingRecords[articleId] = new Date().getTime();
+
+        //检查今日累计：存储到当前日期cookie键值里，sxYYYYMMdd，有效期一天。仅累计
+        var today = new Date();
+        var sxTodayReadingCountKey = "sxToday"+today.getFullYear()+""+
+                                (today.getMonth()<9?"0"+(today.getMonth()+1):(today.getMonth()+1))+""+
+                                (today.getDate()<9?"0"+(today.getDate()+1):(today.getDate()+1));
+        //从cookie先读取
+        var todayReadingRecordsInfo = $.cookie(sxTodayReadingCountKey);
+        console.log("load sxTodayReadingCountKey from cookie.",todayReadingRecordsInfo);
+        if(todayReadingRecordsInfo && todayReadingRecordsInfo.trim().length>0){
+            todayReadingRecords = Number(todayReadingRecordsInfo)+1;
+        }else{
+            todayReadingRecords = 1;
+        }  
+        //把今日阅读总量写入cookie
+        var todayExp = new Date();
+        todayExp.setTime(todayExp.getTime() + (24 * 60 * 60 * 1000)); // 1天后自动失效 
+        $.cookie(sxTodayReadingCountKey, ""+todayReadingRecords, { expires: todayExp, path: '/' });  //1天后自动失效 
+        //处理今日累计阅读数结束        
+    }
 
     //写入cookie
     var expDate = new Date();
@@ -223,7 +246,9 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
 
     //得到剩余条数：默认为20条
     remainCount = 20 - Object.keys(readingRecords).length;
+    remainCount = 0;
     var remainRatio = remainCount*5;//remainCount*100/20
+    var total1h = 20;
 
     //更新界面能量球
     console.log("try to update energy ball.",remainCount,remainRatio);
@@ -231,7 +256,9 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#energy-ball").css("border","1px solid #32cd32");
         $("#wave").css("border","1px solid #32cd32");
         $("#wave").css("background-color","#32cd32");
-        $("#wave-tip").text(remainCount+" / 20");
+        $("#tired-tip").text("可阅:"+remainCount);
+        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -241,7 +268,9 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#energy-ball").css("border","1px solid #00ffa1");
         $("#wave").css("border","1px solid #00ffa1");
         $("#wave").css("background-color","#00ffa1");
-        $("#wave-tip").text(remainCount+" / 20");
+        $("#tired-tip").text("可阅:"+remainCount);
+        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -251,7 +280,10 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#energy-ball").css("border","1px solid #46ffa5");
         $("#wave").css("border","1px solid #46ffa5");
         $("#wave").css("background-color","#46ffa5");
-        $("#wave-tip").text(remainCount+" / 20");
+        $("#tired-tip").css("color","silver");
+        $("#tired-tip").text("可阅:"+remainCount);
+        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -261,8 +293,12 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#energy-ball").css("border","1px solid #e3ff00");
         $("#wave").css("border","1px solid #e3ff00");
         $("#wave").css("background-color","#e3ff00");
-        $("#wave-tip").text(remainCount+" / 20");
-        $("#wave-tip").css("color","silver");
+        $("#tired-tip").css("color","silver");
+        $("#tired-hour").css("color","silver");
+        $("#tired-today").css("color","silver");
+        $("#tired-tip").text("可阅:"+remainCount);
+        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -272,8 +308,12 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#energy-ball").css("border","1px solid #ff1601");
         $("#wave").css("border","1px solid #ff1601");
         $("#wave").css("background-color","#ff1601");
-        $("#wave-tip").text(remainCount+" / 20");
-        $("#wave-tip").css("color","silver");
+        $("#tired-tip").css("color","silver");
+        $("#tired-hour").css("color","silver");
+        $("#tired-today").css("color","silver");        
+        $("#tired-tip").text("可阅:"+remainCount);
+        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -289,9 +329,12 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         $("#energy-ball").css("border","1px solid silver");
         $("#wave").css("border","1px solid silver");
         $("#wave").css("background-color","#32cd32");
-        $("#wave-tip").text("休息"+pauseMinutes+"分钟");
-        $("#wave-tip").css("color","silver");
-        $("#wave-tip").css("font-size","12px");
+        $("#tired-tip").css("color","silver");
+        $("#tired-hour").css("color","silver");
+        $("#tired-today").css("color","silver");         
+        $("#tired-tip").text("休息"+pauseMinutes+"分钟");
+        $("#tired-hour").text("最近1h:"+(total1h-remainCount)+"/20");
+        $("#tired-today").text("今天:"+todayReadingRecords);
         $("div[class^=g-wave]").each(function(){
             var oldClass = $(this).attr("class");
             $(this).removeClass(oldClass);
@@ -372,7 +415,11 @@ function getQrcodeScanResult(ticket){
 //检查邀请信息：
 //初次扫描码后会增加标记isNewBroker=true，通过标记区分。
 function checkInviteInfo(){
-    if(isNewBroker && fromBroker && fromBroker.trim().length>0){//仅在两个参数同时具备的情况下才认为是邀请成功
+    //检查cookie数据
+    var isNewRegistered = true;
+    if( $.cookie('sxIsNewRegistered') && $.cookie('sxIsNewRegistered') == "true")isNewRegistered = false;
+
+    if(isNewRegistered && isNewBroker && fromBroker && fromBroker.trim().length>0){//仅在两个参数同时具备的情况下才认为是邀请成功
         //传递当前达人id： broker.id
         //传递上级达人id: fromBroker
         console.log("try to change invite info.",broker.id,fromBroker);
@@ -382,7 +429,10 @@ function checkInviteInfo(){
             data:JSON.stringify({}),   
             success:function(res){
                 console.log("invite info changed.",res);
-                //do nothing
+                //避免多次刷新导致错误请求，记录到cookie
+                var expDate = new Date();
+                expDate.setTime(expDate.getTime() + (365 * 24 * 60 * 60 * 1000)); // 保持1年 
+                $.cookie('sxIsNewRegistered', "true", { expires: expDate, path: '/' });    
             }
         });        
     }else{
@@ -707,7 +757,7 @@ function resultCheck(){
             });
             $("#btnYes").click(function(){//完成阅读后的奖励操作
                 //加入阅读列表：当前隐藏
-                //checkReadingRecords(article.id);                
+                checkReadingRecords(article.id);                
                 //检查数字：必填。TODO：此处需要判断是否胡乱填报
                 var readCount = Number($("#viewNumbers").val());
                 if(readCount <=0 ){
