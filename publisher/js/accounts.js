@@ -274,7 +274,11 @@ function getQrcodeScanResult(ticket){
 //检查邀请信息：
 //初次扫描码后会增加标记isNewBroker=true，通过标记区分。
 function checkInviteInfo(){
-    if(isNewBroker && fromBroker && fromBroker.trim().length>0){//仅在两个参数同时具备的情况下才认为是邀请成功
+    //检查cookie数据
+    var isNewRegistered = true;
+    if( $.cookie('sxIsNewRegistered') && $.cookie('sxIsNewRegistered') == "true")isNewRegistered = false;
+
+    if(isNewRegistered && isNewBroker && fromBroker && fromBroker.trim().length>0){//仅在两个参数同时具备的情况下才认为是邀请成功
         //传递当前达人id： broker.id
         //传递上级达人id: fromBroker
         console.log("try to change invite info.",broker.id,fromBroker);
@@ -284,7 +288,10 @@ function checkInviteInfo(){
             data:JSON.stringify({}),   
             success:function(res){
                 console.log("invite info changed.",res);
-                //do nothing
+                //避免多次刷新导致错误请求，记录到cookie
+                var expDate = new Date();
+                expDate.setTime(expDate.getTime() + (365 * 24 * 60 * 60 * 1000)); // 保持1年 
+                $.cookie('sxIsNewRegistered', "true", { expires: expDate, path: '/' });    
             }
         });        
     }else{
