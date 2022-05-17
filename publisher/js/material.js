@@ -504,11 +504,11 @@ function insertItem(){
       if(item.price&&item.price.profit2&&item.price.profit2>0.01)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.price.profit2*100)/100).toFixed(2)))+"</span>";
     }else if(item.price&&item.type=='board'){//集合佣金显示
         //店返：范围
-      profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.price.profit*100)/100).toFixed(2)))
+      profitTags += "<span class='profitTipOrder'>单返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.price.profit*100)/100).toFixed(2)))
       if(item.price&&item.price.profit2&&item.price.profit2>0.01&&item.price.profit2>item.price.profit)profitTags += "-"+(parseFloat((Math.floor(item.price.profit2*100)/100).toFixed(2)));
       profitTags += "</span>";
         //团返：注意是前端手动计算的，按照店返的20%计算
-      profitTags += "<span class='profitTipTeam'>单返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.price.profit*2)/10).toFixed(2)))
+      profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.price.profit*2)/10).toFixed(2)))
       if(item.price&&item.price.profit2&&item.price.profit2>0.01&&item.price.profit2>item.price.profit)profitTags += "-" + (parseFloat((Math.floor(item.price.profit2*20)/100).toFixed(2)));   
       +"</span>";  
     } 

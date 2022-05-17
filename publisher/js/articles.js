@@ -239,6 +239,17 @@ function checkReadingRecords(articleId){//传递articleId时将自动添加到�
         todayExp.setTime(todayExp.getTime() + (24 * 60 * 60 * 1000)); // 1天后自动失效 
         $.cookie(sxTodayReadingCountKey, ""+todayReadingRecords, { expires: todayExp, path: '/' });  //1天后自动失效 
         //处理今日累计阅读数结束        
+    }else{//仅仅读取今日累计，要不然今日累计显示0
+        //从cookie先读取
+        var today = new Date();
+        var sxTodayReadingCountKey = "sxToday"+today.getFullYear()+""+
+                                (today.getMonth()<9?"0"+(today.getMonth()+1):(today.getMonth()+1))+""+
+                                (today.getDate()<9?"0"+(today.getDate()+1):(today.getDate()+1));        
+        var todayReadingRecordsInfo = $.cookie(sxTodayReadingCountKey);
+        console.log("load sxTodayReadingCountKey from cookie.",todayReadingRecordsInfo);
+        if(todayReadingRecordsInfo && todayReadingRecordsInfo.trim().length>0){
+            todayReadingRecords = Number(todayReadingRecordsInfo);
+        }
     }
 
     //写入cookie
