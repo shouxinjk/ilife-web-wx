@@ -715,6 +715,12 @@ function logPointCostEvent(account,subscriber){
 function showGroupingForm(){
     console.log("show grouping form.");
 
+    //设置默认的名称及提示
+    var defaultGroupingName = new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate()+" 互关专车";
+    var defaultGroupingDesc = "复制公众号的微信号并发布，每人一号，关注确认，自动统计结果";
+    $("#groupingName").attr("placeholder",defaultGroupingName);
+    $("#groupingDesc").attr("placeholder",defaultGroupingDesc);
+
     //显示数据填报表单
     $.blockUI({ message: $('#groupingform'),
         css:{ 
@@ -743,11 +749,11 @@ function showGroupingForm(){
     $("#btnGroupingYes").click(function(){//完成阅读后的奖励操作
         var groupingName = $("#groupingName").val();
         if(!groupingName||groupingName.trim().length==0){
-            groupingName = new Date().getFullYear()+"-"+(new Date().getMonth()+1)+"-"+new Date().getDate()+" 互关专车";
+            groupingName = defaultGroupingName;
         }
         var groupingDesc = $("#groupingDesc").val();
         if(!groupingDesc||groupingDesc.trim().length==0){
-            groupingDesc = "发布公众号上车，确认关注，结果自动统计";
+            groupingDesc = defaultGroupingDesc;
         }   
         $("#groupingName").val("");//清空原有数值，避免交叉 
         $("#groupingDesc").val("");//清空原有数值，避免交叉                

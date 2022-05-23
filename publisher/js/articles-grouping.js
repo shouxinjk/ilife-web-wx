@@ -35,6 +35,13 @@ $(document).ready(function ()
     if(args["byPublisherOpenid"]){
         byPublisherOpenid = args["byPublisherOpenid"]; //支持传入publisherOpenid
     }  
+    //获取邀请者信息
+    if(args["fromBroker"]){
+        fromBroker = args["fromBroker"]; //支持传入邀请者ID
+    }   
+    if(args["isNewBroker"]&&args["isNewBroker"]=="true"){
+        isNewBroker = true; //判断当前达人是否是新加入
+    }     
     if(args["code"]){
         groupingCode = args["code"]; //支持传入班车code
     }else{
@@ -49,7 +56,7 @@ $(document).ready(function ()
     if(args["groupingDesc"]){
         groupingDesc = args["groupingDesc"]; //支持传入班车code
     }else{
-        groupingDesc = "发文上车，10秒有效阅读，结果自动统计";//班车描述
+        groupingDesc = "发文上车，每人一篇，10秒有效阅读，结果自动统计";//班车描述
     }                 
     if(args["timeFrom"]){
         timeFrom = args["timeFrom"]; //班车开始时间
@@ -135,6 +142,9 @@ util.getUserInfo();//从本地加载cookie
 
 var byOpenid = null;
 var byPublisherOpenid = null;
+
+var fromBroker = null;
+var isNewBroker = false;
 
 var instSubscribeTicket = null;//对于即时关注，需要缓存ticket
 var groupingCode = null;//班车code：默认自动生成
@@ -234,7 +244,7 @@ function getQrcodeScanResult(ticket){
         success:function(res){
             console.log("got qrcode scan result.",res);
             if(res.status && res.openid){//成功扫码，刷新页面：需要通过微信授权页面做一次跳转，要不然无法获取用户信息
-                var state = "publisher__articles-grouping___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo;
+                var state = "publisher__articles-grouping___code="+groupingCode+"__timeFrom="+timeFrom+"__timeTo="+timeTo+"__isNewBroker=true__fromBroker="+fromBroker;
                 //https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=index#wechat_redirect
                 var targetUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=";
                 targetUrl += state;
@@ -243,6 +253,34 @@ function getQrcodeScanResult(ticket){
             }
         }
     });
+}
+
+//检查邀请信息：
+//初次扫描码后会增加标记isNewBroker=true，通过标记区分。
+function checkInviteInfo(){
+    //检查cookie数据
+    var isNewRegistered = true;
+    if( $.cookie('sxIsNewRegistered') && $.cookie('sxIsNewRegistered') == "true")isNewRegistered = false;
+
+    if(isNewRegistered && isNewBroker && fromBroker && fromBroker.trim().length>0){//仅在两个参数同时具备的情况下才认为是邀请成功
+        //传递当前达人id： broker.id
+        //传递上级达人id: fromBroker
+        console.log("try to change invite info.",broker.id,fromBroker);
+        $.ajax({
+            url:app.config.sx_api+"/mod/broker/rest/change/invite/"+broker.id+"/"+fromBroker,
+            type:"post",     
+            data:JSON.stringify({}),   
+            success:function(res){
+                console.log("invite info changed.",res);
+                //避免多次刷新导致错误请求，记录到cookie
+                var expDate = new Date();
+                expDate.setTime(expDate.getTime() + (365 * 24 * 60 * 60 * 1000)); // 保持1年 
+                $.cookie('sxIsNewRegistered', "true", { expires: expDate, path: '/' });    
+            }
+        });        
+    }else{
+        //do nothing
+    }
 }
 
 //优先从cookie加载达人信息
@@ -533,7 +571,7 @@ function loadBrokerByOpenid(openid) {
         if (res.status) {
             $.cookie('sxBroker', JSON.stringify(res.data), {  path: '/' });     
             broker = res.data; 
-            insertBroker(res.data);//显示达人信息
+            insertBroker(res.data);//显示达人信息          
             //仅对于在时间有效期内的才加载数据，否则直接提示已结束
             /**
             if(timeTo && new Date().getTime()>parseFloat(timeTo) ){//如果传递了截止时间，则判断是否超时
@@ -544,6 +582,8 @@ function loadBrokerByOpenid(openid) {
                 registerTimer(res.data.id);//加载该达人的board列表
                 checkArticleGrouping();//检查加载达人的文章列表
             //}
+            //检查是否是新邀请加入达人
+            checkInviteInfo();              
         }
     });
 }
@@ -927,6 +967,10 @@ function registerShareHandler(){
     //准备分享url
     //var startTime = new  Date().getTime();
     var shareUrl = window.location.href;//.replace(/articles/g,"articles-grouping");//目标页面将检查是否关注与注册
+    if(shareUrl.indexOf("?")>0)
+        shareUrl += "&fromBroker="+broker.id;//邀请者信息：为当前登录达人ID 
+    else
+        shareUrl += "?fromBroker="+broker.id;//邀请者信息：为当前登录达人ID 
     //shareUrl += "?code="+groupingCode;//code
     //shareUrl += "&timeFrom="+timeFrom;//默认从当前时间开始
     //shareUrl += "&timeTo="+timeTo;//默认1小时结束
