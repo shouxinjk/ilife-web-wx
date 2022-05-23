@@ -288,7 +288,7 @@ function insertBoardItem(){
 
     var logoImg = "images/tasks/board.png";
     if(item.stuff && item.stuff.images && item.stuff.images.length>0){
-        logoImg = item.stuff.images[0];//默认用第一张图片做logo
+        logoImg = item.stuff.images[0].replace(/\.avif/,'');//默认用第一张图片做logo
     }
 
     //计算图片宽度与高度

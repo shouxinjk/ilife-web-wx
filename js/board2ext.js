@@ -427,7 +427,7 @@ function loadBoardItem(item){//获取内容列表
 
             //准备生成海报：
             //将图片加入到预加载列表内：
-            preloadList.push(imgPrefix+item.stuff.images[0]);
+            preloadList.push(imgPrefix+item.stuff.images[0].replace(/\.avif/,''));
             if(items.length >= totalItems){//加载完成后生成海报，默认提前限制加载条数
                 console.log("start generate post.[num,total]",items.length,totalItems);
                 window.setTimeout(generateImage,2000);//需要等待图片加载完成
@@ -449,7 +449,7 @@ function insertBoardItem(){
     var logoImg = "images/tasks/board.png";
     if(item.stuff && item.stuff.images && item.stuff.images.length>0){
         //logoImg = item.stuff.images[0];//默认用第一张图片做logo
-        logoImg = imgPrefix+item.stuff.images[0];//对第三方图片使用代理，避免跨域问题
+        logoImg = imgPrefix+item.stuff.images[0].replace(/\.avif/,'');//对第三方图片使用代理，避免跨域问题
     }
 
     //显示所关联stuff内容

@@ -1668,12 +1668,9 @@ function createBoard(){
             loadData();//重新加载数据：以便于显示“添加清单”按钮
             showShareContent();//刷新分享按钮，提示分享
             //显示提示浮框
-            $.toast({//浮框提示已添加成功
-                heading: '清单已创建',
-                text: '请选择商品添加到清单内',
-                showHideTransition: 'fade',
-                icon: 'success'
-            });            
+            siiimpleToast.message('清单已创建，选择商品添加吧~~',{
+                  position: 'bottom|center'
+                });                      
         }
     }, "POST",data,header);
 }
