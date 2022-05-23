@@ -1650,7 +1650,7 @@ function createBoard(){
         logo:"",
         title:app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName+" 的推荐清单":"新的推荐清单",
         //title:broker&&broker.name?broker.name+" 的推荐清单":"新的推荐清单",
-        description:"根据你的需求，我们精心挑选了以下清单，请查收",
+        description:"我们精心挑选了以下好物，希望你会喜欢",
         tags:boardkeywords,
         poster:JSON.stringify({}),
         article:JSON.stringify({}),
@@ -1668,7 +1668,7 @@ function createBoard(){
             loadData();//重新加载数据：以便于显示“添加清单”按钮
             showShareContent();//刷新分享按钮，提示分享
             //显示提示浮框
-            siiimpleToast.message('清单已创建，选择商品添加吧~~',{
+            siiimpleToast.message('清单已创建，点商品右下方「加入清单」添加吧~~',{
                   position: 'bottom|center'
                 });                      
         }
