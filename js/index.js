@@ -832,13 +832,13 @@ function insertItem(){
     var imgHeight = random(50, 300);//随机指定初始值
     //计算图片高度
     var img = new Image();
-    img.src = item.images?item.images[0]:"https://www.biglistoflittlethings.com/list/images/logo00.jpeg";
+    img.src = item.images?item.images[0].replace(/\.avif/,''):"https://www.biglistoflittlethings.com/list/images/logo00.jpeg";
     var orgWidth = img.width;
     var orgHeight = img.height;
     imgHeight = orgHeight/orgWidth*imgWidth;
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.images[0]+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
+    var image = "<img src='"+item.images[0].replace(/\.avif/,'')+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
     var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
     var highlights = "<div class='itemTags'>";
     highlights += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";

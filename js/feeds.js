@@ -395,7 +395,7 @@ function insertItem(){
     // 加载内容
     var item = actionItem.item;
     console.log("Favorite::insertItem add item to html.",num,item);
-    var image = "<img src='"+item.images[0]+"' width='60px' height='60px'/>"
+    var image = "<img src='"+item.images[0].replace(/\.avif/,'')+"' width='60px' height='60px'/>"
     var tagTmpl = "<a class='itemTagTiny' href='index.html?keyword=__TAGGING'>__TAG</a>";
     var tags = "<div class='itemTagging'>";
     tags += "<div class='itemTagging-summary'>";

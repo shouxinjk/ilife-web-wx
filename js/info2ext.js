@@ -314,7 +314,7 @@ function showContent(item){
     $("#item-title").html(item.title);
 
     //图片
-    $("#item-logo").append("<img src='" +imgPrefix+ item.images[0] + "' width='80%'/>");//正文图片
+    $("#item-logo").append("<img src='" +imgPrefix+ item.images[0].replace(/\.avif/,'') + "' width='80%'/>");//正文图片
 
     //使用类目作为推荐语
     var advice = "用小确幸填满你的大生活";
@@ -410,7 +410,7 @@ function loadItem(key){//获取内容列表
             stuff = data;//本地保存，用于分享等后续操作
             //准备生成海报：
             //将图片加入到预加载列表内：
-            preloadList.push(imgPrefix+stuff.images[0]);
+            preloadList.push(imgPrefix+stuff.images[0].replace(/\.avif/,''));
             showContent(stuff);
 
             //准备注册分享事件。需要等待内容加载完成后才注册
@@ -506,7 +506,7 @@ function registerShareHandler(){
                     title:stuff?stuff.title:"小确幸，大生活", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
+                    imgUrl:stuff?stuff.images[0].replace(/\.avif/,''):"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
@@ -520,7 +520,7 @@ function registerShareHandler(){
                     desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: stuff?stuff.images[0]:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    imgUrl: stuff?stuff.images[0].replace(/\.avif/,''):"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
