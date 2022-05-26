@@ -155,7 +155,7 @@ function insertItem(){
         if(brokerUser.city)taggingList.push(brokerUser.city);
         for(var t in taggingList){
             var txt = taggingList[t];
-            if(txt.trim().length>1 && txt.trim().length<6){
+            if(txt && txt.trim().length>1 && txt.trim().length<6){
                 tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
             }
         }
