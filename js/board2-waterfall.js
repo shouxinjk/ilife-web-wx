@@ -182,10 +182,14 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
-            $("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board           
+            $("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board     
+            $("#sharebox").css("display","block");      //仅对达人显示分享框
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
+        siiimpleToast.message('分享：'+fromBroker,{
+              position: 'bottom|center'
+            });        
         //如果带有fromBroker，则加载对应达人并显示到作者。注意：仅修改显示，不修改broker信息
         if(fromBroker && fromBroker.trim().length>0){//根据分享者加载对应达人
             loadBrokerById(fromBroker);
