@@ -209,7 +209,10 @@ function loadBoard(boardId){
 
             //准备注册分享事件。需要等待内容加载完成后才注册
             //判断是否为已注册用户
-            if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
+            if(fromBroker&&fromUser){//根据分享用户加载对应达人
+                loadBrokerByOpenid(fromUser);
+                //注意：在加载完成后会注册分享事件，并用相应的broker进行填充
+            }else if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
                 loadBrokerByOpenid(app.globalData.userInfo._key);
                 //注意：在加载完成后会注册分享事件，并用相应的broker进行填充
             }else{//直接注册分享分享事件，默认broker为system，默认fromUser为system
