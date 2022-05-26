@@ -186,6 +186,10 @@ function loadBrokerByOpenid(openid) {
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
+        //如果带有fromBroker，则加载对应达人并显示到作者。注意：仅修改显示，不修改broker信息
+        if(fromBroker && fromBroker.trim().length>0){//根据分享者加载对应达人
+            loadBrokerById(fromBroker);
+        } 
     });
 }
 
@@ -195,8 +199,7 @@ function loadBrokerById(brokerId) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerById/"+brokerId, function (res) {
         console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
-            broker = res.data;
-            $("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board           
+            $("#author").html(res.data.nickname);    //如果当前用户是达人，则转为其个人board           
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
@@ -223,10 +226,7 @@ function loadBoard(boardId){
 
             //准备注册分享事件。需要等待内容加载完成后才注册
             //判断是否为已注册用户
-            if(fromBroker){//根据分享者加载对应达人
-                loadBrokerById(fromBroker);
-                //注意：在加载完成后会注册分享事件，并用相应的broker进行填充
-            }else if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
+            if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
                 loadBrokerByOpenid(app.globalData.userInfo._key);
                 //注意：在加载完成后会注册分享事件，并用相应的broker进行填充
             }else{//直接注册分享分享事件，默认broker为system，默认fromUser为system
