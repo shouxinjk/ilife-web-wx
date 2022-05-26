@@ -186,14 +186,7 @@ function loadBrokerByOpenid(openid) {
             $("#sharebox").css("display","block");      //仅对达人显示分享框
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
-        registerShareHandler();
-        siiimpleToast.message('分享：'+fromBroker,{
-              position: 'bottom|center'
-            });        
-        //如果带有fromBroker，则加载对应达人并显示到作者。注意：仅修改显示，不修改broker信息
-        if(fromBroker && fromBroker.trim().length>0){//根据分享者加载对应达人
-            loadBrokerById(fromBroker);
-        } 
+        registerShareHandler();       
     });
 }
 
@@ -246,7 +239,12 @@ function loadBoard(boardId){
                     $.cookie('tmpUserId', tmpUser, { expires: 3650, path: '/' });  
                 }
                 registerShareHandler();
-            } 
+            }
+
+            //如果带有fromBroker，则加载对应达人并显示到作者。注意：仅修改显示，不修改broker信息
+            if(fromBroker && fromBroker.trim().length>0){//根据分享者加载对应达人
+                loadBrokerById(fromBroker);
+            }              
 
         }
     }, "GET",{},header);
