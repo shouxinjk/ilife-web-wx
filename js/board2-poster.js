@@ -198,9 +198,12 @@ function loadBrokerByOpenid(openid) {
             $("#broker-name").html(broker.name+ " 推荐");    //如果当前用户是达人，则显示当前用户
             //生成达人推广二维码
             generateQrcode();
+            //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
+            registerShareHandler();            
+        }else{//不是达人，则直接显示列表页面供下单
+            var directUrl = window.location.href.replace(/board2-poster/,boardType);
+            window.location.href = directUrl;
         }
-        //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
-        registerShareHandler();
     });
 }
 
