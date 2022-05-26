@@ -133,6 +133,15 @@ function showContent(board){
         $("#share-link").attr("href","board2ext.html?type=board2-waterfall&id="+id);
     }
 
+    //检查并修改分享者为fromBroker
+    siiimpleToast.message('分享者：'+fromBroker,{
+      position: 'top|center'
+    }); 
+    //如果带有fromBroker，则加载对应达人并显示到作者。注意：仅修改显示，不修改broker信息
+    if(fromBroker && fromBroker.trim().length>0){//根据分享者加载对应达人
+        loadBrokerById(fromBroker);
+    }  
+
     //TODO:记录board浏览历史
     /*
     logstash(item,from,"view",fromUser,fromBroker,function(){
@@ -194,7 +203,7 @@ function loadBrokerByOpenid(openid) {
 function loadBrokerById(brokerId) {
     //console.log("try to load broker info by id.[brokerId]",brokerId);
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerById/"+brokerId, function (res) {
-        console.log("load broker info.",openid,res);
+        console.log("load broker info.",brokerId,res);
         siiimpleToast.message('分享：'+res.status,{
               position: 'top|center'
             }); 
@@ -242,15 +251,7 @@ function loadBoard(boardId){
                     $.cookie('tmpUserId', tmpUser, { expires: 3650, path: '/' });  
                 }
                 registerShareHandler();
-            }
-
-            siiimpleToast.message('分享：'+fromBroker,{
-              position: 'top|center'
-            }); 
-            //如果带有fromBroker，则加载对应达人并显示到作者。注意：仅修改显示，不修改broker信息
-            if(fromBroker && fromBroker.trim().length>0){//根据分享者加载对应达人
-                loadBrokerById(fromBroker);
-            }              
+            }            
 
         }
     }, "GET",{},header);
