@@ -22,7 +22,7 @@ $(document).ready(function ()
 
     //由于本页是中间页，将直接跳转到第三方商品详情页面，在返回时，需要能够退回到上一个页面。
     //通过document.referrer处理
-    if($.cookie('sxJumpUrl') && $.cookie('sxJumpUrl').trim().length>0){//如果是从第三方页面返回，则会记录有cookie，根据cookie记录返回
+    if($.cookie('sxJumpUrl') && $.cookie('sxJumpUrl').trim().length>0 && document.referrer && document.referrer.indexOf('biglistoflittlethings'<0)){//如果是从第三方页面返回，则会记录有cookie，根据cookie记录返回
         var toUrl = $.cookie('sxJumpUrl');
         $.cookie('sxJumpUrl', '', { expires: 1, path: '/' });//清除原记录
         window.location.href=toUrl;
