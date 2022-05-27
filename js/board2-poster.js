@@ -237,6 +237,9 @@ function loadBoard(boardId){
                     $.cookie('tmpUserId', tmpUser, { expires: 3650, path: '/' });  
                 }
                 registerShareHandler();
+                //直接显示列表页面，认为不是达人，则直接显示列表页面供下单
+                var directUrl = window.location.href.replace(/board2-poster/,boardType);
+                window.location.href = directUrl;            
             } 
 
         }
