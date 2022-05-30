@@ -16,6 +16,12 @@ $(document).ready(function ()
     if(args["id"])inputPerson=args["id"];//从请求中获取需要展示的person或personaId
     from = args["from"]?args["from"]:"mp";//来源于公众号、企业微信、web端
     fromUser = args["fromUser"]?args["fromUser"]:"o8HmJ1ItjXilTlFtJNO25-CAQbbg";//从连接中获取分享用户ID：默认设置为Judy
+    fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
+
+    //检查设置首次触达达人
+    if(fromBroker && fromBroker.trim().length>0){
+        util.checkInitBroker(fromBroker);
+    }
 
     console.log("got params from & fromUser from query.",from,fromUser);
 
@@ -67,6 +73,8 @@ $(document).ready(function ()
         tagging = $(".search input").val().trim();
         //window.location.href="index.html?keyword="+tagging;
         loadData();
+        //重新注册分享事件：携带filter
+        registerShareHandler();        
     }); 
 
     //加载filter并高亮
@@ -79,6 +87,9 @@ $(document).ready(function ()
 
     //显示清单分享浮框
     showShareContent();
+
+    //注册分享事件
+    registerShareHandler()
 
 //TODO：切换为复杂查询。需要在索引结构更新后进行
     //console.log("assemble", assembleEsQuery());     
@@ -97,6 +108,7 @@ var broker = {
 //记录分享用户、分享达人
 var from = "mp";//链接来源，页面来源有三类：公众号、企业微信、web端。从公众号进入为默认处理，其他的需要特殊处理
 var fromUser = "";
+var fromBroker = "";
 
 //加载board信息
 var boardId = null;
@@ -1181,6 +1193,9 @@ function changeCategory(key,q){
     category = key;//更改当前category
     categoryTagging = q;//使用当前category对应的查询更新查询字符串
     loadData();
+
+    //重新注册分享事件：携带filter
+    registerShareHandler();    
 }
 
 function loadData(){
@@ -1582,6 +1597,9 @@ function changeFilter(currentFilter){
     }else{
       loadData();
     }
+
+    //重新注册分享事件：携带filter
+    registerShareHandler();
 }
 
 function showShareContent(){
@@ -1745,3 +1763,123 @@ function showMeasureScores(stuff,featuredDimension,itemScore){
     $("#measure-"+stuff._key).css("display","block");
 }
 
+
+//注册分享事件
+function registerShareHandler(){
+    //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system
+    var shareBrokerId = "system";//默认为平台直接分享
+    if(broker&&broker.id){//如果当前分享用户本身是达人，则直接引用其自身ID
+        shareBrokerId=broker.id;
+    }else if(fromBroker && fromBroker.trim().length>0){//如果当前用户不是达人，但页面带有前述达人，则使用前述达人ID
+        shareBrokerId=fromBroker;
+    }
+    //计算分享用户：如果是注册用户则使用当前用户，否则默认为平台用户
+    var shareUserId = "system";//默认为平台直接分享
+    /**
+    if(tmpUser&&tmpUser.trim().length>0){//如果是临时用户进行记录。注意有时序关系，需要放在用户信息检查之前。
+        shareUserId = tmpUser;
+    }
+    //**/
+    if(app.globalData.userInfo && app.globalData.userInfo._key){//如果为注册用户，则使用当前用户
+        shareUserId = app.globalData.userInfo._key;
+    }
+
+    //准备分享url，需要增加分享的 fromUser、fromBroker信息
+    //var shareUrl = window.location.href.replace(/info2/g,"share");//需要使用中间页进行跳转
+    var shareUrl = window.location.href;//通过中间页直接跳转到第三方电商详情页面
+    if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
+        shareUrl += "&fromUser="+shareUserId;
+        shareUrl += "&fromBroker="+shareBrokerId;
+        if(tagging&&tagging.trim().length>0)shareUrl += "&keyword="+tagging;//传递关键词
+        if(category&&category.trim().length>0)shareUrl += "&category="+category;//传递当前类目
+        if(filter&&filter.trim().length>0)shareUrl += "&filter="+filter;//传递当前过滤器
+    }else{//否则作为第一个参数增加
+        shareUrl += "?fromUser="+shareUserId;
+        shareUrl += "&fromBroker="+shareBrokerId;       
+        if(tagging&&tagging.trim().length>0)shareUrl += "&keyword="+tagging;//传递关键词
+        if(category&&category.trim().length>0)shareUrl += "&category="+category;//传递当前类目
+        if(filter&&filter.trim().length>0)shareUrl += "&filter="+filter;//传递当前过滤器         
+    }
+    shareUrl += "&origin=index";//添加源，表示是一个单品分享
+
+    console.log("target share url.",shareUrl);
+    ////多站点处理：start//////////////////////////////////
+    //由于不同平台通过不同站点，需要进行区分是shouxinjk.net还是biglistoflittlethings.com
+    /*
+    if(stuff&&stuff.source=="jd"){//如果是京东，则需要指明跳转到shouxinjk.net
+        shareUrl += "&toSite=shouxinjk"; 
+    }
+    //**/
+    ////多站点处理：end////////////////////////////////////
+
+    $.ajax({
+        url:app.config.auth_api+"/wechat/jssdk/ticket",
+        type:"get",
+        data:{url:window.location.href},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
+        success:function(json){
+            console.log("===got jssdk ticket===\n",json);
+            wx.config({
+                debug:false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: json.appId, // 必填，公众号的唯一标识
+                timestamp:json.timestamp , // 必填，生成签名的时间戳
+                nonceStr: json.nonceStr, // 必填，生成签名的随机串
+                signature: json.signature,// 必填，签名
+                jsApiList: [
+                   // 'onMenuShareTimeline', 'onMenuShareAppMessage','onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone',
+                  'updateAppMessageShareData',
+                  'updateTimelineShareData',
+                  'onMenuShareAppMessage',
+                  'onMenuShareTimeline',
+                  'chooseWXPay',
+                  'showOptionMenu',
+                  "hideMenuItems",
+                  "showMenuItems",
+                  "onMenuShareTimeline",
+                  'onMenuShareAppMessage'                   
+                ] // 必填，需要使用的JS接口列表
+            });
+            wx.ready(function() {
+                // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
+                // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                //准备分享的描述：优先采用推荐语、其次tagging、再次tags
+                var advice = "选出好的物，分享给对的人，让生活充满小确幸。";               
+                //分享到朋友圈
+                wx.onMenuShareTimeline({
+                    title:"小确幸，大生活", // 分享标题
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl:"https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
+                    success: function () {
+                        // do nothing
+                    },
+                });
+                //分享给朋友
+                wx.onMenuShareAppMessage({
+                    title:"小确幸，大生活", // 分享标题
+                    desc:advice, // 分享描述
+                    //desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                    success: function () {
+                      // do nothing
+                    }
+                });  
+                //分享到微博
+                wx.onMenuShareWeibo({
+                    title:"小确幸，大生活", // 分享标题
+                    desc:advice, // 分享描述
+                    //desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
+                    success: function () {
+                      // do nothing
+                    }
+                });                             
+            });
+        }
+    })    
+}
