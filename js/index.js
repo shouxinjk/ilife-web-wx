@@ -1815,8 +1815,8 @@ function registerShareHandler(){
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
         type:"get",
-        //data:{url:window.location.href},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
-        data:{url:shareUrl},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
+        data:{url:window.location.href},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
+        //data:{url:shareUrl},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
         success:function(json){
             console.log("===got jssdk ticket===\n",json);
             wx.config({
