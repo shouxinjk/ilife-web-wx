@@ -15,6 +15,10 @@ $(document).ready(function ()
     var args = getQuery();
     var category = args["category"]; //当前目录
     id = args["id"];//当前内容
+    if(args["templateId"]){
+        templateId = args["templateId"];//指定的显示模板ID。不传递则使用本地默认模板显示
+        currentTemplate = args["templateId"];//指定的显示模板ID。不传递则使用本地默认模板显示
+    }
 
     from = args["from"]?args["from"]:"mp";//可能为groupmessage,timeline等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
@@ -23,8 +27,8 @@ $(document).ready(function ()
     //显示遮罩层
     showPostMask();
 
-    //加载内容
-    loadItem(id); 
+    //请求所有模板列表。请求完成后将触发生成
+    requestViewTemplates();
     
 });
 
@@ -40,6 +44,9 @@ var tmpUser = "";
 var id = "null";
 var bonus = 0;
 
+//viewTemplate id 根据指定模板显示海报。默认为null，将采用本地默认内容显示。本地显示同时作为新模板测试用途。
+var templateId = null;
+
 //当前浏览内容
 var stuff=null;
 
@@ -51,6 +58,59 @@ var from = "mp";//链接来源，默认为公众号进入
 var fromUser = "";
 var fromBroker = "";
 var broker = {};//当前达人
+
+
+//加载海报模板列表：加载所有可用单品海报模板
+var viewTemplates = {};//缓存所有模板，格式：id:{view template object}
+function requestViewTemplates(){
+    //获取模板列表
+    $.ajax({
+        url:app.config.sx_api+"/mod/viewTemplate/rest/listByType/item-poster",
+        type:"get",
+        data:{},
+        success:function(schemes){
+            console.log("\n===got item poster schemes ===\n",schemes);
+            //遍历模板
+            for(var i=0;i<schemes.length;i++){
+                //将模板显示到界面，等待选择后生成
+                if(!viewTemplates[schemes[i].id])
+                    viewTemplates[schemes[i].id] = schemes[i];
+            }
+            showSwiper("template");
+        },
+         error: function(xhr, status, error){
+             console.log("load item poster scheme error.",error);
+         },
+         complete:function(data){
+            //加载商品并尝试生成海报：无论失败与否都要加载的
+            loadItem(id);             
+         }
+    });  
+}
+
+//获取海报列表
+var posterSchemes = {};
+function requestPosterScheme(){
+    //仅对已经确定类目的商品进行
+    if(!stuff.meta || !stuff.meta.category)
+        return;
+
+    $.ajax({
+        url:app.config.sx_api+"/mod/posterTemplate/rest/item-templates",
+        type:"get",
+        data:{categoryId:stuff.meta.category},
+        success:function(schemes){
+            console.log("\n===got item poster scheme ===\n",schemes);
+            //遍历海报模板
+            for(var i=0;i<schemes.length;i++){
+                if(!posterSchemes[schemes[i].id])
+                    posterSchemes[schemes[i].id] = schemes[i];//记录poster定义
+            }
+            showSwiper("poster");
+        }
+    });  
+}
+
 
 //对于联联周边游、旅划算等，直接显示原始海报
 function show3rdPartyPost(){
@@ -308,8 +368,103 @@ function generateImage() {
     });
 }
 
-//将item显示到页面
-function showContent(item){
+//显示本地默认海报：用于测试用途
+function buildDefaultPoster(item){
+//动态计算海报宽度与高度
+    var width = document.getElementsByTagName('html')[0].clientWidth;
+    var height = width*240/750;//按照宽度750，高度240计算
+    //html模板：用于装载样式
+    var templateHtml = `
+        <div id="body">  
+            <div id="item-logo" style="width:100%;position:relative;">
+                <img src="" style="object-fit:cover;width:100%;height:__heightpx;">
+                <div id="item-platform" style="position:absolute;top:5px;right:5px;font-size:12px;font-weight:bold;color:#fff;border-radius:12px;background-color:#F6824B;padding:2px 5px;"></div>
+                <div id="item-title" style="position:absolute;top:__top1px;left:0;right:0;bottom:0;margin:auto;font-size:20px;font-weight:bold;width:80%;display:inline-block;white-space: nowrap; overflow:hidden;text-overflow:ellipsis;text-align:center;color:#fff;"></div> 
+                <div id="item-advice" style="position:absolute;top:__top2px;left:0;right:0;bottom:0;margin:auto;font-size:16px;font-weight:bold;width:90%;display:inline-block;white-space: nowrap; overflow:hidden;text-overflow:ellipsis;text-align:center;color:#fff;"></div>  
+            </div>  
+             
+                                
+        </div>
+
+        <div class="foot">
+            <div id="app-text" class="app-text">
+                <div class="app-desc">Life is all about having a good time.</div>
+                <div class="app-desc">每一个人都是生活的专家。<br/>选出好的，分享对的，让生活充满小确幸。</div>
+                <div class="app-tips">长按识别二维码进入</div> 
+                <div class="app-name">发现属于你的小确幸</div>
+            </div>   
+            <div id="app-qrcode" class="app-qrcode">
+                <div id="app-qrcode-box" class="app-qrcode-box"></div>  
+            </div>  
+        </div>  
+    `;
+    $("#container").html(templateHtml.replace(/__height/,height).replace(/__top1/,(height/2-15)).replace(/__top2/,(height/2+15)));
+    $("#container").css("background","#fff");
+    //标题
+    $("#item-title").html(item.title);
+    //平台
+    $("#item-platform").html(item.distributor.name);
+
+    //图片
+    $("#item-logo img").attr("src", imgPrefix+ item.images[0].replace(/\.avif/,'') );//正文图片
+
+    //使用类目作为推荐语
+    var advice = "用小确幸填满你的大生活";
+    if(item.category&&Array.isArray(item.category)&&item.category.length>0){//如果是列表，取最后一项
+        advice = item.category[item.category.length-1];
+    }else if(item.category&&item.category.length>0){//如果是字符串则直接使用
+        advice = item.category;
+    }else if(item.props&&item.props.brand&&item.props.brand.trim().length>0){//有品牌则直接使用
+        advice = item.props.brand;
+    }else if(item.tagging&&item.tagging.length>0){//如果有tagging，则分割后采用第一条
+        advice = item.tagging.split(" ")[0];
+    }else{
+        //留空，采用默认值
+    } 
+
+    //推荐语
+    $("#item-advice").html(advice); 
+
+    //logo：注意使用代理避免跨域问题
+    preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
+    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");
+}
+
+//显示本地默认海报：用于测试用途
+function buildDefaultPosterV1(item){
+    //html模板：用于装载样式
+    var templateHtml = `
+       <div class="head">
+            小确幸大生活
+        </div>
+
+        <div id="body">  
+            <div id="broker" class="broker">
+                <div id="broker-logo" class="broker-logo"></div>
+                <div id="broker-shop" class="broker-shop">
+                    <div id="broker-name" class="broker-name"></div> 
+                    <div id="shop-name" class="shop-name"></div> 
+                    <div id="content" class="content"></div> 
+                </div>
+            </div>
+
+            <div id="item-logo" class="item-logo"></div>  
+            <div id="item-title" class="item-title"></div>                      
+        </div>
+
+        <div class="foot">
+            <div id="app-text" class="app-text">
+                <div class="app-desc">Life is all about having a good time.</div>
+                <div class="app-desc">每一个人都是生活的专家。<br/>选出好的，分享对的，让生活充满小确幸。</div>
+                <div class="app-tips">长按识别二维码进入</div> 
+                <div class="app-name">发现属于你的小确幸</div>
+            </div>   
+            <div id="app-qrcode" class="app-qrcode">
+                <div id="app-qrcode-box" class="app-qrcode-box"></div>  
+            </div>  
+        </div>  
+    `;
+    $("#container").html(templateHtml);
     //标题
     $("#item-title").html(item.title);
 
@@ -335,28 +490,29 @@ function showContent(item){
 
     //logo：注意使用代理避免跨域问题
     preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
-    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");
- 
-    //二维码：使用海报图，将其中二维码进行裁剪
-    /*
-    if(item.link.qrcode){
-        $("#qrcodeImg").attr("src",item.link.qrcode);
-        $('#qrcodeImg').addClass('qrcode-'+item.source);//应用对应不同source的二维码裁剪属性
-        $('#qrcodeImgDiv').addClass('qrcode-'+item.source+'-div');//应用对应不同source的二维码裁剪属性
-        $("#qrcodeImgDiv").css('visibility', 'visible');
-        $("#jumpbtn").text('长按下面的图片扫码购买');
-    }else if(item.link.token && item.link.token.trim().length>0){//如果是口令
-        $('#jumpbtn').attr('data-clipboard-text',item.link.token);//将口令预先设置好    
-        $('#jumpbtn').html("复制口令并前往"+item.distributor.name);
-    }
-    //**/
+    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");    
+}
 
-    //trace user action
-    /*
-    logstash(item,from,"share-post",fromUser,fromBroker,function(){
-        //do nothing
-    });      
-    //*/
+//将item显示到页面：当前仅作为本地模板验证
+function showContent(item){
+    console.log("try to show content.[template id]",currentTemplate);
+    //判断是否指定模板ID
+    if(currentTemplate && currentTemplate.trim().length>0){//如果指定了显示模板则根据显示模板装配内容
+        //直接eval显示模板
+        try{
+            console.log("try to eval template expression.",viewTemplates[currentTemplate]);
+            eval(viewTemplates[currentTemplate].expression);//注意：直接eval
+        }catch(err){
+            console.log("eval poster expression error.",err);
+            //显示提示浮框
+            siiimpleToast.message('参数错误，将生成默认海报~~',{
+                  position: 'bottom|center'
+                });             
+            buildDefaultPoster(item);//这里出错了就只能拿本地的来垫背了
+        }        
+    }else{//否则装配本地默认内容
+        buildDefaultPoster(item)
+    }
     
     //分享海报日志
     //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system
@@ -388,7 +544,7 @@ function loadBrokerByOpenid(openid) {
         if (res.status) {
             broker = res.data;    
             //填写清单信息
-            $("#broker-name").html((broker.name?broker.name:app.globalData.userInfo.nickName)+ " 推荐");    //默认作者为当前broker    
+            $("#broker-name").html((broker.nickname?broker.nickname:app.globalData.userInfo.nickName)+ " 推荐");    //默认作者为当前broker ：注意模板中broker-name必须包含，否则此处无效
             if(stuff&&stuff.link&&stuff.link.qrcode){//直接用原始二维码图片
                 show3rdPartyPost();
             }else{//生成达人专属二维码，并在二维创建后生成海报
@@ -408,6 +564,10 @@ function loadItem(key){//获取内容列表
         success:function(data){
             console.log("load item.", data);
             stuff = data;//本地保存，用于分享等后续操作
+
+            //请求所有海报定义模板：必须在请求stuff之后才能加载，查询poster需要meta.category。
+            requestPosterScheme();//将同时装配显示到滑动条   
+                     
             //准备生成海报：
             //将图片加入到预加载列表内：
             preloadList.push(imgPrefix+stuff.images[0].replace(/\.avif/,''));
@@ -436,6 +596,115 @@ function loadItem(key){//获取内容列表
     })            
 }
 
+//装载模板选择滑动条
+var currentTemplate = null;
+var hasTemplates = false;
+var hasPosters = false;
+function showSwiper(type){
+    if(type=="template")hasTemplates=true;
+    if(type=="poster")hasPosters=true;
+
+    //必须template及poster均已加载才装配
+    if(!hasTemplates || !hasPosters)
+        return;
+
+    //将viewTemplate装载到页面
+    for (var key in viewTemplates) {
+        if($("#"+key).length == 0)
+            insertTemplate(viewTemplates[key],"template");
+    }  
+    //将posterScheme装载到页面  
+    for (var key in posterSchemes) {
+        if($("#"+key).length == 0)
+            insertTemplate(posterSchemes[key],"poster");
+    }      
+  
+    //显示滑动条
+    var mySwiper = new Swiper ('.swiper-container', {
+        //slidesPerView: 4,
+        slidesPerView: from=="web"?parseInt(document.getElementsByTagName('html')[0].clientWidth/100):7,
+    });  
+    //调整swiper 风格，使之悬浮显示
+    $(".swiper-container").css("position","relative");
+    $(".swiper-container").css("left","0");
+    $(".swiper-container").css("top","40");
+    $(".swiper-container").css("z-index","999");
+    $(".swiper-container").css("background-color","#f6d0ca");
+    //$(".swiper-container").css("margin-bottom","3px");
+  
+    //将当前用户设为高亮  
+    if(templateId && templateId.trim().length>0){
+        currentTemplate = templateId;
+    }else{//根据当前用户加载数据：默认使用第一个：注意由于viewTemplates为object，需要根据第一个键值获取
+        currentTemplate = viewTemplates[Object.keys(viewTemplates)[0]].id; 
+    }   
+    //把当前选中的高亮  
+    highlightTemplate(currentTemplate);      
+}
+
+//将viewTemplate及psoterScheme显示到滑动条
+//注意默认认为两者都拥有id及logo字段，并在装载时指定type
+function insertTemplate(item,type){
+    console.log("insert template.",type,item);
+    // 获取logo
+    var logo = "http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg";
+    if(item.logo)
+        logo = item.logo;
+    // 显示HTML
+    var html = '';
+    html += '<div class="swiper-slide">';
+    html += '<div id="'+item.id+'" data-type="'+type+'" style="border:1px solid siver;border-radius:5px;vertical-align:middle;padding:3px 0;">';
+    var style= item.id==currentTemplate?'border:2px solid #fff':'border:2px solid #f6d0ca';
+    html += '<img style="object-fit:cover;border-radius:10px;'+style+'" src="'+logo+'" width="48" height="48"/>';
+    html += '</div>';
+    $("#tempaltes").append(html);
+
+    //注册事件:点击后切换
+    $("#"+item.id).click(function(e){
+        console.log("try to change template.",e.currentTarget.id,$(this).data("type"));
+        if(e.currentTarget.id == currentTemplate){//点击当前选中模板，啥也不干
+            //do nothing
+        }else{//否则，高亮显示选中的模板
+            changeTemplate(e.currentTarget.id,$(this).data("type"));
+        }
+    });
+}
+
+//切换海报模板
+function changeTemplate (templateId,type) {
+    var ids = templateId;
+    if (app.globalData.isDebug) console.log("Feed::ChangePerson change person.",currentTemplate,templateId);
+    $("#"+currentTemplate+" img").css("border","2px solid #fff");
+    $("#"+ids+" img").css("border","2px solid #f6d0ca");
+
+    //TODO 重新生成海报
+    if(type=="template"){//如果是viewTemplate则直接重新生成
+        window.location.href=window.location.href.replace(currentTemplate,templateId);//直接跳转
+        //当前页面内生成有问题，直接采用跳转的方式生成
+        /**
+        currentTemplate = templateId;
+        $("#container").empty();//清空海报容器及内容
+        $("#share-img").empty();//清空已经生成的图片
+        //$("#post-mask").toggleClass("post-mask-hide",false);  
+        showPostMask();
+        preloadList.push(imgPrefix+stuff.images[0].replace(/\.avif/,''));
+        showContent(stuff);
+        //loadBrokerByOpenid(app.globalData.userInfo._key);
+        generateQrcode(); //重新生成二维码
+        //**/
+    }else{//否则跳转到后台海报生成界面
+        window.location.href=window.location.href.replace(/info2ext/,"info2-poster")+"&posterId="+templateId;
+    }
+
+  } 
+
+//仅高亮模板标记，不重新加载数据
+function highlightTemplate (templateId) {
+    var ids = templateId;
+    if (app.globalData.isDebug) console.log("Index::highlightPerson highlight person.",currentTemplate);
+    $("#"+currentTemplate+" img").css("border","2px solid #f6d0ca");
+    $("#"+ids+" img").css("border","2px solid #fff");
+  }  
 
 function registerShareHandler(){
     //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system

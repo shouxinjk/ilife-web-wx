@@ -238,8 +238,10 @@ function loadBoard(boardId){
                 }
                 registerShareHandler();
                 //直接显示列表页面，认为不是达人，则直接显示列表页面供下单
+                //20220527：临时修复
                 var directUrl = window.location.href.replace(/board2-poster/,boardType);
-                window.location.href = directUrl;            
+                window.location.href = directUrl;    
+                //20220527：临时修复结束        
             } 
 
         }

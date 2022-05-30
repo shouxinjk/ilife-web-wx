@@ -4,7 +4,13 @@
     <title>小确幸大生活</title>
     <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+    <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="Cache" content="no-cache">  
     <link rel="stylesheet" type="text/css" href="ext/galleryview/css/galleryview.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css"> 
+    <link rel="stylesheet" type="text/css" href="ext/siiimple-toast-master/style.css?v=1.0">    
     <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="css/common.css?v=2.7">
@@ -12,38 +18,17 @@
     <link rel="stylesheet" type="text/css" href="css/info2ext.css?v=3.0">
 </head>
 <body>
+    <!-- 模板选择滑动条 -->
+    <div class="swiper-container menus" style="background-color: #f6d0ca;">
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper btn-area" id="tempaltes" style="background-color: #f6d0ca;">
 
+        </div>
+    </div>   
+
+    <!-- 分享海报元素 -->
     <div id="container" class="container">
-        <div class="head">
-            小确幸大生活
-        </div>
-
-        <div id="body">  
-            <div id="broker" class="broker">
-                <div id="broker-logo" class="broker-logo"></div>
-                <div id="broker-shop" class="broker-shop">
-                    <div id="broker-name" class="broker-name"></div> 
-                    <div id="shop-name" class="shop-name"></div> 
-                    <div id="content" class="content"></div> 
-                </div>
-            </div>
-
-            <div id="item-logo" class="item-logo"></div>  
-            <div id="item-title" class="item-title"></div>                      
-        </div>
-
-        <div class="foot">
-            <div id="app-text" class="app-text">
-                <div class="app-desc">Life is all about having a good time.</div>
-                <div class="app-desc">消费决策服务，提供基于生活方式和领域知识的选品能力，让每一个人都成为生活家，用小确幸填满大生活。</div>
-                <div class="app-tips">长按识别二维码进入</div> 
-                <div class="app-name">发现属于你的小确幸</div>
-            </div>   
-            <div id="app-qrcode" class="app-qrcode">
-                <div id="app-qrcode-box" class="app-qrcode-box"></div>  
-            </div>  
-        </div>  
-
+ 
     </div>
 
     <div id="share-img-tips" class="share-img-tips-hide">长按下面的图片保存，分享给朋友</div>
@@ -59,6 +44,8 @@
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
 <script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="js/swiper.min.js"></script>
 <script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
@@ -69,7 +56,7 @@
 <script type="text/javascript" src="ext/easy.qrcode.min.js"></script>
 <!--script type="text/javascript" src="ext/html2canvas/qrcode.js"></script-->
 <!--script type="text/javascript" src="ext/jquery.qrcode.min.js"></script-->
-<script type="text/javascript" src="ext/html2canvas/html2canvas.js"></script>
+<script type="text/javascript" src="ext/html2canvas/html2canvas.js?v=0.1"></script>
 <script type="text/javascript" src="ext/html2canvas/canvas2image.js"></script>
 <script type="text/javascript" src="ext/html2canvas/vue-2.4.2.min.js"></script>
 <script type="text/javascript" src="js/util.js?v=7.2"></script>
@@ -77,5 +64,5 @@
 <script type="text/javascript" src="js/helper.js?v=1.13"></script>
 <script type="text/javascript" src="js/md5.js?v=1.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script>
-<script type="text/javascript" src="js/info2ext.js?v=1.11"></script>
+<script type="text/javascript" src="js/info2ext.js?v=1.28"></script>
 </html>
