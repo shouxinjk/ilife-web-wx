@@ -375,7 +375,7 @@ function buildDefaultPoster(item){
     var height = width*240/750;//按照宽度750，高度240计算
     //html模板：用于装载样式
     var templateHtml = `
-        <div id="body">  
+        <div id="body" style="background-color:#fff;">  
             <div id="item-logo" style="width:100%;position:relative;">
                 <img src="" style="object-fit:cover;width:100%;height:__heightpx;">
                 <div id="item-platform" style="position:absolute;top:5px;right:5px;font-size:12px;font-weight:bold;color:#fff;border-radius:12px;background-color:#F6824B;padding:2px 5px;"></div>
