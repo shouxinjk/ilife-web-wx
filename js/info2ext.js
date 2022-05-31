@@ -130,7 +130,7 @@ function show3rdPartyPost(){
    $("#share-img-tips").toggleClass("share-img-tips-hide",false);
    $("#share-img-tips").toggleClass("share-img-tips-show",true);
    //显示重新生成链接，可以重新刷新页面
-   $("#error-link").html("<a href='"+window.location.href+"' style='font-size:1.25rem;text-decoration:none;'>重新生成海报</a>");
+   $("#error-link").html("<a href='"+window.location.href+"' style='font-size:1.25rem;text-decoration:none;display:inline-block;'>重新生成海报</a>");
    $("#error-link").toggleClass("share-img-tips-hide",false);
    $("#error-link").toggleClass("share-img-tips-show",true);       
 
