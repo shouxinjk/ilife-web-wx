@@ -369,7 +369,7 @@ function generateImage() {
 }
 
 //显示本地默认海报：用于测试用途
-function buildDefaultPoster(item){
+function buildDefaultPosterForTest(item){
 //动态计算海报宽度与高度
     var width = document.getElementsByTagName('html')[0].clientWidth;
     var height = width*240/750;//按照宽度750，高度240计算
@@ -431,7 +431,7 @@ function buildDefaultPoster(item){
 }
 
 //显示本地默认海报：用于测试用途
-function buildDefaultPosterV1(item){
+function buildDefaultPoster(item){
     //html模板：用于装载样式
     var templateHtml = `
        <div class="head">
@@ -679,7 +679,15 @@ function changeTemplate (templateId,type) {
 
     //TODO 重新生成海报
     if(type=="template"){//如果是viewTemplate则直接重新生成
-        window.location.href=window.location.href.replace(currentTemplate,templateId);//直接跳转
+        var targetUrl = window.location.href;
+        if(targetUrl.indexOf("templateId")>0){
+            targetUrl = window.location.href.replace(currentTemplate,templateId);//直接跳转
+        }else if(targetUrl.indexOf("?")>0){
+            targetUrl = window.location.href+"&templateId="+templateId;//直接跳转
+        }else{//啥玩意，这种情况不会出现，至少会有一个id参数
+            targetUrl = window.location.href+"?templateId="+templateId;//直接跳转
+        }
+        window.location.href = targetUrl;
         //当前页面内生成有问题，直接采用跳转的方式生成
         /**
         currentTemplate = templateId;
@@ -693,7 +701,7 @@ function changeTemplate (templateId,type) {
         generateQrcode(); //重新生成二维码
         //**/
     }else{//否则跳转到后台海报生成界面
-        window.location.href=window.location.href.replace(/info2ext/,"info2-poster")+"&posterId="+templateId;
+        window.location.href=window.location.href.replace(/info2ext/,"info2-poster").replace(/templateId/,"posterId").replace(currentTemplate,templateId);
     }
 
   } 

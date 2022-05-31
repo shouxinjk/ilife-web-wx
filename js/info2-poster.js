@@ -345,7 +345,8 @@ function changeTemplate (templateId,type) {
 
     //TODO 重新生成海报
     if(type=="template"){//如果是viewTemplate则直接重新生成
-        window.location.href=window.location.href.replace(/info2-poster/,"info2ext")+"&tempalteId="+templateId;
+        //window.location.href=window.location.href.replace(/info2-poster/,"info2ext")+"&tempalteId="+templateId;
+        window.location.href=window.location.href.replace(/info2-poster/,"info2ext").replace(/posterId/,"templateId").replace(currentTemplate,templateId);
         //当前页面内生成有问题，直接采用跳转的方式生成
         /**
         currentTemplate = templateId;
@@ -359,7 +360,8 @@ function changeTemplate (templateId,type) {
         generateQrcode(); //重新生成二维码
         //**/
     }else{//否则跳转到后台海报生成界面
-        window.location.href=window.location.href.replace(/info2ext/,"info2-poster")+"&posterId="+templateId;
+        //window.location.href=window.location.href.replace(/info2ext/,"info2-poster")+"&posterId="+templateId;
+        window.location.href=window.location.href.replace(currentTemplate,templateId);//直接跳转
     }
 
   } 
