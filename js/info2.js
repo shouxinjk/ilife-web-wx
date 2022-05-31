@@ -146,15 +146,18 @@ var currentPerson = app.globalData.userInfo;
 
 var _sxdebug = true;
 
+//评价指标列表
+var measureScheme = [];//每一项包含name weight children
+
 //将item显示到页面
 function showContent(item){
-    //分享链接
+    //如果带有海报则直接跳到海报分享界面
     if(posterId){
         $("#share-link").attr("href","info2-poster.html?id="+id+"&posterId="+posterId);   
     }else{
        $("#share-link").attr("href","info2ext.html?id="+id);    
     }
-     
+
     //购买按钮
     if(item.distributor && item.distributor.name)
         $("#jumpbtn").text("立即前往 "+item.distributor.name+" >> ");
@@ -264,7 +267,10 @@ function showContent(item){
         loadSxCategories();
     }else{
         //显示提示信息
-        $("#tabs-data").html("<div class='prop-value'>尚未完成评价，请稍等……</div>");        
+        //$("#tabs-data").html("<div class='prop-value'>尚未完成评价，请稍等……</div>");   
+        //当前开放所有人能够标注
+        $("#category-wrapper-tip").css("display","block");
+        loadSxCategories();             
     }
     //显示已经生成的海报：仅显示客观评价海报
     var showPoster = false;
@@ -1028,6 +1034,148 @@ function loadCategories(currentCategory){
     })    
 }
 
+
+
+//生成客观评价蒙德里安格子图。每一个单品都值得拥有
+//1，查询得到客观评价构成，包含id、名称、占比；包含关联的属性节点
+//2，查询fact及info，得到已经计算的标注值
+//3，组装treemap数据结构，如果没有计算值则根据标注反向计算
+//4，生成格子图并显示
+var itemInfos = null;//默认为null。如果返回为空则为空数组
+function showDimensionMondrian(){
+    //根据category获取客观评价数据
+    var data={
+        categoryId:stuff.meta.category
+    };
+
+    if(!measureScheme || measureScheme.length==0){
+        console.log("try to load dimension data.",data);
+        util.AJAX(app.config.sx_api+"/mod/itemDimension/rest/dim-tree-by-category", function (res) {
+            console.log("======\nload dimension.",data,res);
+            if (res.length>0) {//构建数据集
+                measureScheme = res;
+                if(measureScheme && measureScheme.length>0)
+                    buildMondrianDataset();
+            }else{//没有则啥也不干
+                //do nothing
+                console.log("failed load dimension tree.",data);
+            }
+        },"GET",data);         
+    }else{
+        buildMondrianDataset();
+    }
+    
+    //根据itemKey查询info
+    $.ajax({
+        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
+        type:"get",
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(ret){
+            console.log("===got item score===\n",ret);
+            itemInfos = ret.data;
+            buildMondrianDataset();
+        }
+    });     
+}
+
+//构建蒙德里安格子画数据集
+//根据评价维度及评价数据得到
+/**
+{
+    value:xxx,//根据总量计算得到
+    color:xxx, //通过chooseMondrianColor得到
+    children:xxx
+}
+//**/
+var colorRatio = {red:0.2,yellow:0.4,blue:0.1,black:0.1};
+function buildMondrianDataset(){
+    if( !measureScheme || measureScheme.length==0 || !itemInfos )//注意仅检查评价结构，数据无需检查。itemInfos如果没有数据为：[]
+        return;
+
+    //先根据权重排序，仅取前4个高权重维度设置颜色比例
+    measureScheme.sort(function (s1, s2) {
+      x1 = s1.weight;
+      x2 = s2.weight;
+      if (x1 < x2) {
+          return 1;
+      }
+      if (x1 > x2) {
+          return -1;
+      }
+      return 0;
+    });
+    //根据顶级评价维度占比 设置 默认颜色方案，只考虑权重大的前4个
+    var i=0;
+    measureScheme.forEach(function(entry){
+        if(i==0)colorRatio.red = entry.weight*0.1;
+        if(i==1)colorRatio.yellow = entry.weight*0.1;
+        if(i==2)colorRatio.blue = entry.weight*0.1;
+        if(i==3)colorRatio.black = entry.weight*0.1;
+        i++;
+    });
+    var mondrianData = {};
+    mondrianData.value = 100;//顶部默认为100
+    //mondrianData.color = chooseMondrianColor(colorRatio.red,colorRatio.yellow,colorRatio.blue,colorRatio.black);
+    mondrianData.color = chooseMondrianColor(colorRatio);
+    mondrianData.children = generateModrianData(measureScheme);//递归构建
+
+    //生成图片
+    showMondrian(mondrianData);
+}
+
+//递归生成数据
+function generateModrianData(childMeasureScheme){
+    //console.log("prepare mondrian record.",childMeasureScheme);
+    var child = [];
+    childMeasureScheme.forEach(function(entry){
+        console.log("prepare mondrian record.",entry);
+        var  node = {}; 
+        node.value = entry.weight;
+        //node.color = chooseMondrianColor(colorRatio.red,colorRatio.yellow,colorRatio.blue,colorRatio.black);
+        node.color = chooseMondrianColor(colorRatio);
+        if(entry.children && entry.children.length>0)
+            node.children = generateModrianData(entry.children);//递归构建
+        child.push(node);
+    });
+    return child;
+}
+
+function showMondrian(data){
+    //显示标题：
+    $("#mondrianTitle").css("display","block");
+    //显示sunburst图表    
+    Mondrian("#mondrian",data, {
+      w: width,//默认为整屏宽度
+      h: width*9/16//采用16:9
+    });
+
+    //将生成的客观评价图片提交到fdfs
+    var canvas = $("#mondrian svg")[0];
+    console.log("got canvas.",canvas);
+    //调用方法转换即可，转换结果就是uri,
+    var width = $(canvas).attr("width");
+    var height = $(canvas).attr("height");
+    var options = {
+            encoderOptions:1,
+            scale:2,
+            //left:-1*Number(width)/2,
+            //top:-1*Number(height)/2,
+            left:0,
+            top:0,
+            width:Number(width),
+            height:Number(height)
+        };
+    svgAsPngUri(canvas, options, function(uri) {
+        //console.log("image uri.",dataURLtoFile(uri,"dimension.png"));
+        //将图片提交到服务器端。保存文件文件key为：measure-scheme
+        uploadPngFile(uri, "mondrian.png", "mondrian");//文件上传后将在stuff.media下增加{measure-scheme:imagepath}键值对
+    });  
+}
+
+
 //generate and show radar chart
 //TODO: to query result for specified item
 //step1: query featured measures by meta.category
@@ -1252,6 +1400,10 @@ function loadMeasureAndScore(){
     //显示雷达图
     if(!stuff.media || !stuff.media["measure"])//仅在第一次进入时才尝试自动生成
         showRadar();//显示评价图
+
+    //显示蒙德里安格子图
+    if(!stuff.media || !stuff.media["mondrian"])//仅在第一次进入时才尝试自动生成
+        showDimensionMondrian();//显示评价图
 
     //显示measureScore表格提供标注功能
     showMeasureScores();

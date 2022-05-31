@@ -96,7 +96,7 @@ function generateQRcode(){
 //生成短连接及二维码
 function generateQrcode(){
     console.log("start generate qrcode......");
-    var longUrl = window.location.href.replace(/info2ext/g,"info").replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
+    var longUrl = window.location.href.replace(/info2ext/g,"info2").replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
     longUrl += "&fromBroker="+broker.id;
     longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:""); 
     
@@ -448,7 +448,7 @@ function requestPoster(scheme,xBroker,xItem,xUser){
     if(!isOk){//如果不满足则直接跳过
         console.log("condition not satisifed. ignore.");
         //显示提示浮框
-        siiimpleToast.message('啊哦，条件不满足，不能生成~~',{
+        siiimpleToast.message('啊哦，需要完成标注才可以哦~~',{
               position: 'bottom|center'
             });         
         return;       

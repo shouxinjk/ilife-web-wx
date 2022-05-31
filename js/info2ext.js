@@ -154,7 +154,7 @@ function showPostMask(){
 //生成短连接及二维码
 function generateQrcode(){
     console.log("start generate qrcode......");
-    var longUrl = window.location.href.replace(/info2ext/g,"info").replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
+    var longUrl = window.location.href.replace(/info2ext/g,"info2").replace(/fromBroker/g,"fromBrokerOrigin").replace(/fromUser/g,"fromUserOrigin");//获取分享目标链接
     longUrl += "&fromBroker="+broker.id;
     longUrl += "&fromUser="+(app.globalData.userInfo._key?app.globalData.userInfo._key:"");   
     
@@ -702,7 +702,15 @@ function changeTemplate (templateId,type) {
         generateQrcode(); //重新生成二维码
         //**/
     }else{//否则跳转到后台海报生成界面
-        window.location.href=window.location.href.replace(/info2ext/,"info2-poster").replace(/templateId/,"posterId").replace(currentTemplate,templateId);
+        var targetUrl = window.location.href.replace(/info2ext/,"info2-poster").replace(/templateId/,"posterId").replace(currentTemplate,templateId);
+        if(targetUrl.indexOf("posterId")>0){
+            targetUrl = targetUrl.replace(currentTemplate,templateId);//直接跳转：实际不会生效
+        }else if(targetUrl.indexOf("?")>0){
+            targetUrl = targetUrl+"&posterId="+templateId;//直接跳转
+        }else{//啥玩意，这种情况不会出现，至少会有一个id参数
+            targetUrl = targetUrl+"?posterId="+templateId;//直接跳转
+        }
+        window.location.href=targetUrl;
     }
 
   } 
