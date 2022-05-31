@@ -654,7 +654,7 @@ function insertTemplate(item,type){
     var html = '';
     html += '<div class="swiper-slide">';
     html += '<div id="'+item.id+'" data-type="'+type+'" style="border:1px solid siver;border-radius:5px;vertical-align:middle;padding:3px 0;">';
-    var style= item.id==currentTemplate?'border:2px solid #fff':'border:2px solid #f6d0ca';
+    var style= item.id==currentTemplate?'border:2px solid #e16531':'border:2px solid #f6d0ca';
     html += '<img style="object-fit:cover;border-radius:10px;'+style+'" src="'+logo+'" width="68" height="68"/>';
     html += '</div>';
     $("#tempaltes").append(html);
@@ -674,7 +674,7 @@ function insertTemplate(item,type){
 function changeTemplate (templateId,type) {
     var ids = templateId;
     if (app.globalData.isDebug) console.log("Feed::ChangePerson change person.",currentTemplate,templateId);
-    $("#"+currentTemplate+" img").css("border","2px solid #fff");
+    $("#"+currentTemplate+" img").css("border","2px solid #e16531");
     $("#"+ids+" img").css("border","2px solid #f6d0ca");
 
     //TODO 重新生成海报
@@ -703,7 +703,7 @@ function highlightTemplate (templateId) {
     var ids = templateId;
     if (app.globalData.isDebug) console.log("Index::highlightPerson highlight person.",currentTemplate);
     $("#"+currentTemplate+" img").css("border","2px solid #f6d0ca");
-    $("#"+ids+" img").css("border","2px solid #fff");
+    $("#"+ids+" img").css("border","2px solid #e16531");
   }  
 
 function registerShareHandler(){
