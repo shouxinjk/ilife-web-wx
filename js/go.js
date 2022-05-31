@@ -20,9 +20,12 @@ $(document).ready(function ()
         fromBroker = util.getInitBroker();
     }
 
+    //直接跳转：采用缓存会导致连续扫码错误：1分钟内会直接采用上一次扫码结果
+    jump(id);
+/**
     //由于本页是中间页，将直接跳转到第三方商品详情页面，在返回时，需要能够退回到上一个页面。
     //通过document.referrer处理
-    if($.cookie('sxJumpUrl') && $.cookie('sxJumpUrl').trim().length>0 /*&& document.referrer && document.referrer.indexOf('biglistoflittlethings'<0)*/){//如果是从第三方页面返回，则会记录有cookie，根据cookie记录返回
+    if($.cookie('sxJumpUrl') && $.cookie('sxJumpUrl').trim().length>0 && document.referrer && document.referrer.indexOf('biglistoflittlethings'<0)){//如果是从第三方页面返回，则会记录有cookie，根据cookie记录返回
         var toUrl = $.cookie('sxJumpUrl');
         $.cookie('sxJumpUrl', '', { expires: 1, path: '/' });//清除原记录
         window.location.href=toUrl;
@@ -38,7 +41,7 @@ $(document).ready(function ()
         $.cookie('sxJumpUrl', fromUrl, { expires: expDate, path: '/' });//记录返回时要跳转的链接 
         jump(id);
     }
-
+//**/
     //检查cookie中是否有临时跳转信息，如果是从index直接跳转将存储该标志，返回时直接跳到index
     /**
     if($.cookie('sxJump') && $.cookie('sxJump').trim().length>0 && $.cookie('sxJump').trim()=="true"){//表示是从首页跳转，直接返回首页

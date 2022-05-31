@@ -50,26 +50,11 @@ function checkShortCode(shortCode){//获取详细内容
             }
 
             if(json&&json.itemKey&&json.itemKey.indexOf("board_")>-1){//如果是board地址，其itemKey构造为：board_xxxxxxxxxx，其中xxxxxxx为boardId
-                var targetUrl = json.longUrl;
-                if(targetUrl.indexOf("?")>0)
-                    targetUrl += '&random=' + Math.random();//添加随机数
-                else
-                    targetUrl += '?random=' + Math.random();//添加随机数
-                window.location.href = targetUrl//直接跳转展示  
+                window.location.href = json.longUrl//直接跳转展示  
             }else if(json&&json.itemKey&&json.itemKey.indexOf("page_")>-1){//如果是指定page，则直接跳转，如流量主跳转到互阅列表
-                var targetUrl = json.longUrl;
-                if(targetUrl.indexOf("?")>0)
-                    targetUrl += '&random=' + Math.random();//添加随机数
-                else
-                    targetUrl += '?random=' + Math.random();//添加随机数
-                window.location.href = targetUrl//直接跳转展示   
+                window.location.href = json.longUrl//直接跳转展示   
             }else if(json&&json.itemKey&&broker&&broker.id){//如果有达人信息，则进入详情界面，便于分享或生成二维码
-                var targetUrl = json.longUrl;
-                if(targetUrl.indexOf("?")>0)
-                    targetUrl += '&random=' + Math.random();//添加随机数
-                else
-                    targetUrl += '?random=' + Math.random();//添加随机数
-                window.location.href = targetUrl//直接跳转展示  
+                window.location.href = json.longUrl//直接跳转展示  
             }else if(json&&json.itemKey){//如果不是达人则直接进入第三方页面，便于成单
                 jump(json.itemKey);  
             }else{//跳转到首页
@@ -90,6 +75,7 @@ function jump(itemKey){//获取详细内容
             logstash(item,from,"buy step2",fromUser,fromBroker,function(){});
             //获取达人链接并跳转
             if(item.link.cps && item.link.cps[fromBroker] ){//能够直接获得达人链接则直接显示
+                console.log("jump to broker cps link.",item.link.cps[fromBroker]);
                 window.location.href = item.link.cps[fromBroker];
             }else{//否则请求其链接并显示
                 getBrokerCpsLink(fromBroker,item);
