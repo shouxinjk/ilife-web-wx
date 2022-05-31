@@ -622,7 +622,7 @@ function showSwiper(type){
     //显示滑动条
     var mySwiper = new Swiper ('.swiper-container', {
         //slidesPerView: 4,
-        slidesPerView: from=="web"?parseInt(document.getElementsByTagName('html')[0].clientWidth/100):7,
+        slidesPerView: from=="web"?parseInt(document.getElementsByTagName('html')[0].clientWidth/100):5,
     });  
     //调整swiper 风格，使之悬浮显示
     $(".swiper-container").css("position","relative");
@@ -655,7 +655,7 @@ function insertTemplate(item,type){
     html += '<div class="swiper-slide">';
     html += '<div id="'+item.id+'" data-type="'+type+'" style="border:1px solid siver;border-radius:5px;vertical-align:middle;padding:3px 0;">';
     var style= item.id==currentTemplate?'border:2px solid #fff':'border:2px solid #f6d0ca';
-    html += '<img style="object-fit:cover;border-radius:10px;'+style+'" src="'+logo+'" width="48" height="48"/>';
+    html += '<img style="object-fit:cover;border-radius:10px;'+style+'" src="'+logo+'" width="68" height="68"/>';
     html += '</div>';
     $("#tempaltes").append(html);
 
