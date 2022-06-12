@@ -920,7 +920,7 @@ function registerShareHandler(){
                     title:"内容带货，让所读即所得", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:"https://www.biglistoflittlethings.com/static/logo/grouping/default.png", // 分享图标
+                    imgUrl:"https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: board分享当前不记录
@@ -937,7 +937,7 @@ function registerShareHandler(){
                     desc:"精准选品，在文章中嵌入符合读者需求的商品", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: "https://www.biglistoflittlethings.com/static/logo/grouping/default.png", // 分享图标
+                    imgUrl: "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
