@@ -885,9 +885,6 @@ function registerShareHandler(){
     //准备分享url
     var startTime = new  Date().getTime();
     var shareUrl = window.location.href;//.replace(/articles/g,"articles-grouping");//目标页面将检查是否关注与注册
-    shareUrl += "?code="+generateShortCode(getUUID());//临时生成code
-    shareUrl += "&timeFrom="+startTime;//默认从当前时间开始
-    shareUrl += "&timeTo="+(startTime + 60*60*1000);//默认1小时结束
 
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
@@ -920,7 +917,7 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:"把文章加入合集，让更多人看到", // 分享标题
+                    title:"内容带货，让所读即所得", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:"https://www.biglistoflittlethings.com/static/logo/grouping/default.png", // 分享图标
@@ -936,8 +933,8 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:"把文章加入合集，让更多人看到", // 分享标题
-                    desc:"发文进入，10秒有效阅读，结果自动统计", // 分享描述
+                    title:"内容带货，让所读即所得", // 分享标题
+                    desc:"精准选品，在文章中嵌入符合读者需求的商品", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "https://www.biglistoflittlethings.com/static/logo/grouping/default.png", // 分享图标
