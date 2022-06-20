@@ -745,6 +745,9 @@ function loadBrokerByOpenid(openid) {
                 //showShareContent();//显示分享card
             }
             showShareContent();//注意，所有单个商品均显示分享卡片            
+        }else{//如果不是达人，则直接跳转到第三方商城，便于成单
+            var  directUrl = window.location.href.replace(/info2/,"go");
+            window.location.href=directUrl;
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
