@@ -9,9 +9,17 @@
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="css/common.css?v=2.6">
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css"> 
-    <link rel="stylesheet" type="text/css" href="css/board2ext.css?v=3.6">
+    <link rel="stylesheet" type="text/css" href="css/board2ext.css?v=3.62">
 </head>
 <body>
+
+    <!-- 模板选择滑动条 -->
+    <div class="swiper-container menus" style="background-color: #f6d0ca;">
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper btn-area" id="tempaltes" style="background-color: #f6d0ca;">
+
+        </div>
+    </div> 
 
     <div id="container" class="container">
         <div class="head">
@@ -47,7 +55,7 @@
     <div id="share-img-tips" class="share-img-tips-hide">长按下面的图片保存，分享给朋友</div>
     <div id="share-img" class="share-image-hide"></div>
     <div id="error-link" class="share-img-tips-hide"></div>
-    <div id="post-mask" class="post-mask-show">
+    <div id="post-mask" class="post-mask-show" style="margin-top: 80px;">
         <div>正在生成海报，请稍等...</div>
         <div><img src="images/loading.gif"/></div>
     </div>
@@ -72,5 +80,5 @@
 <script type="text/javascript" src="js/util.js?v=7.2"></script>
 <script type="text/javascript" src="js/md5.js?v=1.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script>
-<script type="text/javascript" src="js/board2ext.js?v=5.72"></script>
+<script type="text/javascript" src="js/board2ext.js?v=5.73"></script>
 </html>

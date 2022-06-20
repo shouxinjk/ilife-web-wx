@@ -9,13 +9,21 @@
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="css/common.css?v=2.6">
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css"> 
-    <link rel="stylesheet" type="text/css" href="css/board2ext.css?v=3.6">
+    <link rel="stylesheet" type="text/css" href="css/board2ext.css?v=3.62">
 </head>
 <body>
 
+    <!-- 模板选择滑动条 -->
+    <div class="swiper-container menus" style="background-color: #f6d0ca;">
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper btn-area" id="tempaltes" style="background-color: #f6d0ca;">
+
+        </div>
+    </div>   
+
     <div id="share-img-tips" style="text-align: center;margin: 5px auto;display:none;">长按下面的图片保存，分享给朋友</div>
     <div id="poster"></div>
-    <div id="post-mask" class="post-mask-show">
+    <div id="post-mask" class="post-mask-show" style="margin-top: 80px;">
         <div>正在生成海报，请稍等...</div>
         <div><img src="images/loading.gif"/></div>
     </div>
@@ -26,6 +34,8 @@
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
 <script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="js/swiper.min.js"></script>
 <script type="text/javascript" src="js/newWaterfall.js"></script>
@@ -41,5 +51,5 @@
 <script type="text/javascript" src="js/md5.js?v=1.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script>
 <script type="text/javascript" src="js/util.js?v=7.2"></script>
-<script type="text/javascript" src="js/board2-poster.js?v=1.12"></script>
+<script type="text/javascript" src="js/board2-poster.js?v=1.16"></script>
 </html>

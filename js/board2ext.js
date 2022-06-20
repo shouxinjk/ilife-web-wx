@@ -16,6 +16,11 @@ $(document).ready(function ()
     var category = args["category"]; //当前目录
     id = args["id"];//当前board id
 
+    if(args["templateId"]){
+        templateId = args["templateId"];//指定的显示模板ID。不传递则使用本地默认模板显示
+        currentTemplate = args["templateId"];//指定的显示模板ID。不传递则使用本地默认模板显示
+    }
+
     from = args["from"]?args["from"]:"mp";//可能为groupmessage,timeline等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
@@ -31,10 +36,13 @@ $(document).ready(function ()
     //生成二维码：需要提前生成，避免时延导致显示不完整
     //generateQRcode();//在加载达人信息后显示，需要将达人ID写入URL
 
+    //请求所有模板列表。请求完成后将触发生成
+    requestViewTemplates();
+    requestPosterScheme();//将同时装配显示到滑动条 
     //加载内容
-    loadBoard(id); 
+    //loadBoard(id); 
     //加载清单item列表
-    loadBoardItems(id);
+    //loadBoardItems(id);
     
 });
 
@@ -47,6 +55,8 @@ var imgPrefix = "https://www.biglistoflittlethings.com/3rdparty?url=";
 
 //分享清单格式：board2、board2-waterfall
 var boardType = "board2-waterfall";//默认为图片流
+//viewTemplate id 根据指定模板显示海报。默认为null，将采用本地默认内容显示。本地显示同时作为新模板测试用途。
+var templateId = null;
 
 //临时用户
 var tmpUser = "";
@@ -74,6 +84,58 @@ var boardItemTemplate = '<div class="board-item-wrapper">'+
                             '</div>'+   
                             '<div class="board-item-description">__DESCRIPTION</div>'+                                   
                         '</div>';
+
+
+//加载海报模板列表：加载所有可用单品海报模板
+var viewTemplates = {};//缓存所有模板，格式：id:{view template object}
+function requestViewTemplates(){
+    //获取模板列表
+    $.ajax({
+        url:app.config.sx_api+"/mod/viewTemplate/rest/listByType/board-poster",
+        type:"get",
+        data:{},
+        success:function(schemes){
+            console.log("\n===got item poster tempaltes ===\n",schemes);
+            //遍历模板
+            for(var i=0;i<schemes.length;i++){
+                //将模板显示到界面，等待选择后生成
+                if(!viewTemplates[schemes[i].id])
+                    viewTemplates[schemes[i].id] = schemes[i];
+            }
+            showSwiper("template");
+        },
+         error: function(xhr, status, error){
+             console.log("load item poster scheme error.",error);
+         },
+         complete:function(data){
+            //加载商品并尝试生成海报：无论失败与否都要加载的
+            //加载内容
+            loadBoard(id); 
+            //加载清单item列表
+            loadBoardItems(id);            
+         }
+    });  
+}
+
+//获取海报列表
+var posterSchemes = {};
+function requestPosterScheme(){
+    $.ajax({
+        url:app.config.sx_api+"/mod/posterTemplate/rest/board-templates",
+        type:"get",
+        //data:{categoryId:stuff.meta.category},
+        success:function(schemes){
+            console.log("\n===got item poster scheme ===\n",schemes);
+            //遍历海报模板
+            for(var i=0;i<schemes.length;i++){
+                if(!posterSchemes[schemes[i].id])
+                    posterSchemes[schemes[i].id] = schemes[i];//记录poster定义
+            }
+            showSwiper("poster");
+        }
+    });  
+}
+
 
 function showPostMask(){
     var shareContent = document.querySelector("#container");//需要截图的包裹的（原生的）DOM 对象：注意，必须是原生DOM对象，不能是jQuery对象
@@ -118,7 +180,7 @@ function generateQrcode(){
 
 //将board内容显示到页面
 function showContent(board){
-    $("#broker-name").html((board.broker.name?board.broker.name:app.globalData.userInfo.nickName)+ " 推荐");    //默认作者为board创建者
+    $("#broker-name").html((board.broker.nickname?board.broker.nickname:app.globalData.userInfo.nickName)+ " 推荐");    //默认作者为board创建者
     $("#shop-name").html(board.title); //店铺名称
     //logo：注意使用代理避免跨域问题
     preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
@@ -520,6 +582,132 @@ function loadCategories(currentCategory){
         }
     })    
 }
+
+//装载模板选择滑动条
+var currentTemplate = null;
+var hasTemplates = false;
+var hasPosters = false;
+function showSwiper(type){
+    if(type=="template")hasTemplates=true;
+    if(type=="poster")hasPosters=true;
+
+    //必须template及poster均已加载才装配
+    if(!hasTemplates || !hasPosters)
+        return;
+
+    //将viewTemplate装载到页面
+    for (var key in viewTemplates) {
+        if($("#"+key).length == 0)
+            insertTemplate(viewTemplates[key],"template");
+    }  
+    //将posterScheme装载到页面  
+    for (var key in posterSchemes) {
+        if($("#"+key).length == 0)
+            insertTemplate(posterSchemes[key],"poster");
+    }      
+  
+    //显示滑动条
+    var mySwiper = new Swiper ('.swiper-container', {
+        //slidesPerView: 4,
+        slidesPerView: from=="web"?parseInt(document.getElementsByTagName('html')[0].clientWidth/100):5,
+    });  
+    //调整swiper 风格，使之悬浮显示
+    $(".swiper-container").css("position","relative");
+    $(".swiper-container").css("left","0");
+    $(".swiper-container").css("top","40");
+    $(".swiper-container").css("z-index","999");
+    $(".swiper-container").css("background-color","#f6d0ca");
+    //$(".swiper-container").css("margin-bottom","3px");
+  
+    //将当前用户设为高亮  
+    if(templateId && templateId.trim().length>0){
+        currentTemplate = templateId;
+    }else{//根据当前用户加载数据：默认使用第一个：注意由于viewTemplates为object，需要根据第一个键值获取
+        currentTemplate = viewTemplates[Object.keys(viewTemplates)[0]].id; 
+    }   
+    //把当前选中的高亮  
+    highlightTemplate(currentTemplate);      
+}
+
+//将viewTemplate及psoterScheme显示到滑动条
+//注意默认认为两者都拥有id及logo字段，并在装载时指定type
+function insertTemplate(item,type){
+    console.log("insert template.",type,item);
+    // 获取logo
+    var logo = "http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg";
+    if(item.logo)
+        logo = item.logo;
+    // 显示HTML
+    var html = '';
+    html += '<div class="swiper-slide">';
+    html += '<div id="'+item.id+'" data-type="'+type+'" style="border:1px solid siver;border-radius:5px;vertical-align:middle;padding:3px 0;">';
+    var style= item.id==currentTemplate?'border:2px solid #e16531':'border:2px solid #f6d0ca';
+    html += '<img style="object-fit:cover;border-radius:10px;'+style+'" src="'+logo+'" width="68" height="68"/>';
+    html += '</div>';
+    $("#tempaltes").append(html);
+
+    //注册事件:点击后切换
+    $("#"+item.id).click(function(e){
+        console.log("try to change template.",e.currentTarget.id,$(this).data("type"));
+        if(e.currentTarget.id == currentTemplate){//点击当前选中模板，啥也不干
+            //do nothing
+        }else{//否则，高亮显示选中的模板
+            changeTemplate(e.currentTarget.id,$(this).data("type"));
+        }
+    });
+}
+
+//切换海报模板
+function changeTemplate (templateId,type) {
+    var ids = templateId;
+    if (app.globalData.isDebug) console.log("Feed::ChangePerson change person.",currentTemplate,templateId);
+    $("#"+currentTemplate+" img").css("border","2px solid #e16531");
+    $("#"+ids+" img").css("border","2px solid #f6d0ca");
+
+    //TODO 重新生成海报
+    if(type=="template"){//如果是viewTemplate则直接重新生成
+        var targetUrl = window.location.href;
+        if(targetUrl.indexOf("templateId")>0){
+            targetUrl = window.location.href.replace(currentTemplate,templateId);//直接跳转
+        }else if(targetUrl.indexOf("?")>0){
+            targetUrl = window.location.href+"&templateId="+templateId;//直接跳转
+        }else{//啥玩意，这种情况不会出现，至少会有一个id参数
+            targetUrl = window.location.href+"?templateId="+templateId;//直接跳转
+        }
+        window.location.href = targetUrl;
+        //当前页面内生成有问题，直接采用跳转的方式生成
+        /**
+        currentTemplate = templateId;
+        $("#container").empty();//清空海报容器及内容
+        $("#share-img").empty();//清空已经生成的图片
+        //$("#post-mask").toggleClass("post-mask-hide",false);  
+        showPostMask();
+        preloadList.push(imgPrefix+stuff.images[0].replace(/\.avif/,''));
+        showContent(stuff);
+        //loadBrokerByOpenid(app.globalData.userInfo._key);
+        generateQrcode(); //重新生成二维码
+        //**/
+    }else{//否则跳转到后台海报生成界面
+        var targetUrl = window.location.href.replace(/board2ext/,"board2-poster").replace(/templateId/,"posterId").replace(currentTemplate,templateId);
+        if(targetUrl.indexOf("posterId")>0){
+            targetUrl = targetUrl.replace(currentTemplate,templateId);//直接跳转：实际不会生效
+        }else if(targetUrl.indexOf("?")>0){
+            targetUrl = targetUrl+"&posterId="+templateId;//直接跳转
+        }else{//啥玩意，这种情况不会出现，至少会有一个id参数
+            targetUrl = targetUrl+"?posterId="+templateId;//直接跳转
+        }
+        window.location.href=targetUrl;
+    }
+} 
+
+//仅高亮模板标记，不重新加载数据
+function highlightTemplate (templateId) {
+    var ids = templateId;
+    if (app.globalData.isDebug) console.log("Index::highlightPerson highlight person.",currentTemplate);
+    $("#"+currentTemplate+" img").css("border","2px solid #f6d0ca");
+    $("#"+ids+" img").css("border","2px solid #e16531");
+  }  
+
 
 function registerShareHandler(){
     //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system

@@ -14,7 +14,7 @@ $(document).ready(function ()
     //处理参数
     var args = getQuery();
     var category = args["category"]; //当前目录
-    var id = args["id"];//当前board id
+    id = args["id"];//当前board id
 
     from = args["from"]?args["from"]:"mp";//可能为groupmessage,timeline等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
@@ -22,12 +22,17 @@ $(document).ready(function ()
     boardType = args["type"]?args["type"]:"board2-waterfall";//从连接中获取清单类型，默认为waterfall
 
     posterId = args["posterId"]?args["posterId"]:null;//从连接中获取海报ID，默认为空。如果没有则跳转到默认海报生成
+    templateId = posterId;//设置为与posterId一致
 
     //生成二维码：需要提前生成，避免时延导致显示不完整
     //generateQRcode();//在加载达人信息后显示，需要将达人ID写入URL
     $("#generate-link").click(function(){
         window.location.href = window.location.href;//重新生成
     });    
+
+    //请求所有模板列表。请求完成后将触发生成
+    requestViewTemplates();
+    requestPosterScheme();//将同时装配显示到滑动条 
 
     //加载内容
     loadBoard(id); 
@@ -47,6 +52,9 @@ var boardType = "board2-waterfall";//默认为图片流
 //临时用户
 var tmpUser = "";
 
+//board id
+var id = "null";
+
 var items = [];//board item 列表
 var totalItems = 0;// 记录总共的item条数，由于是异步处理，需要对数量进行控制，避免数量过少时不能生成海报
 
@@ -62,6 +70,9 @@ var fromUser = "";
 var fromBroker = "";
 var broker = {};//当前达人
 var board = {};//当前board
+
+//viewTemplate id 根据指定模板显示海报。默认为null，将采用本地默认内容显示。本地显示同时作为新模板测试用途。
+var templateId = null;//此处仅兼容posterId
 
 var posterId = null;//海报scheme
 var brokerQrcode = null;//存放达人二维码url
@@ -306,6 +317,183 @@ function requestPosterScheme(){
                 }
             }
             console.log("cannot find poster scheme by id.[id]"+posterId);
+        }
+    });  
+}
+
+
+
+//装载模板选择滑动条
+var currentTemplate = null;
+var hasTemplates = false;
+var hasPosters = false;
+function showSwiper(type){
+    if(type=="template")hasTemplates=true;
+    if(type=="poster")hasPosters=true;
+
+    //必须template及poster均已加载才装配
+    if(!hasTemplates || !hasPosters)
+        return;
+
+    //将viewTemplate装载到页面
+    for (var key in viewTemplates) {
+        if($("#"+key).length == 0)
+            insertTemplate(viewTemplates[key],"template");
+    }  
+    //将posterScheme装载到页面  
+    for (var key in posterSchemes) {
+        if($("#"+key).length == 0)
+            insertTemplate(posterSchemes[key],"poster");
+    }      
+  
+    //显示滑动条
+    var mySwiper = new Swiper ('.swiper-container', {
+        //slidesPerView: 4,
+        slidesPerView: from=="web"?parseInt(document.getElementsByTagName('html')[0].clientWidth/100):5,
+    });  
+    //调整swiper 风格，使之悬浮显示
+    $(".swiper-container").css("position","relative");
+    $(".swiper-container").css("left","0");
+    $(".swiper-container").css("top","40");
+    $(".swiper-container").css("z-index","999");
+    $(".swiper-container").css("background-color","#f6d0ca");
+    //$(".swiper-container").css("margin-bottom","3px");
+  
+    //将当前用户设为高亮  
+    if(templateId && templateId.trim().length>0){
+        currentTemplate = templateId;
+    }else{//根据当前用户加载数据：默认使用第一个：注意由于viewTemplates为object，需要根据第一个键值获取
+        currentTemplate = viewTemplates[Object.keys(viewTemplates)[0]].id; 
+    }   
+    //把当前选中的高亮  
+    highlightTemplate(currentTemplate);      
+}
+
+//将viewTemplate及psoterScheme显示到滑动条
+//注意默认认为两者都拥有id及logo字段，并在装载时指定type
+function insertTemplate(item,type){
+    console.log("insert template.",type,item);
+    // 获取logo
+    var logo = "http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg";
+    if(item.logo)
+        logo = item.logo;
+    // 显示HTML
+    var html = '';
+    html += '<div class="swiper-slide">';
+    html += '<div id="'+item.id+'" data-type="'+type+'" style="border:1px solid siver;border-radius:5px;vertical-align:middle;padding:3px 0;">';
+    var style= item.id==currentTemplate?'border:2px solid #e16531':'border:2px solid #f6d0ca';
+    html += '<img style="object-fit:cover;border-radius:10px;'+style+'" src="'+logo+'" width="68" height="68"/>';
+    html += '</div>';
+    $("#tempaltes").append(html);
+
+    //注册事件:点击后切换
+    $("#"+item.id).click(function(e){
+        console.log("try to change template.",e.currentTarget.id,$(this).data("type"));
+        if(e.currentTarget.id == currentTemplate){//点击当前选中模板，啥也不干
+            //do nothing
+        }else{//否则，高亮显示选中的模板
+            changeTemplate(e.currentTarget.id,$(this).data("type"));
+        }
+    });
+}
+
+//切换海报模板
+function changeTemplate (templateId,type) {
+    var ids = templateId;
+    if (app.globalData.isDebug) console.log("Feed::ChangePerson change person.",currentTemplate,templateId);
+    $("#"+currentTemplate+" img").css("border","2px solid #e16531");
+    $("#"+ids+" img").css("border","2px solid #f6d0ca");
+
+    //TODO 重新生成海报
+    if(type=="template"){//如果是viewTemplate则直接重新生成
+        //window.location.href=window.location.href.replace(/info2-poster/,"info2ext")+"&tempalteId="+templateId;
+        window.location.href=window.location.href.replace(/board2-poster/,"board2ext").replace(/posterId/,"templateId").replace(currentTemplate,templateId);
+        //当前页面内生成有问题，直接采用跳转的方式生成
+        /**
+        currentTemplate = templateId;
+        $("#container").empty();//清空海报容器及内容
+        $("#share-img").empty();//清空已经生成的图片
+        //$("#post-mask").toggleClass("post-mask-hide",false);  
+        showPostMask();
+        preloadList.push(imgPrefix+stuff.images[0].replace(/\.avif/,''));
+        showContent(stuff);
+        //loadBrokerByOpenid(app.globalData.userInfo._key);
+        generateQrcode(); //重新生成二维码
+        //**/
+    }else{//否则跳转到后台海报生成界面
+        //window.location.href=window.location.href.replace(/info2ext/,"info2-poster")+"&posterId="+templateId;
+        window.location.href=window.location.href.replace(currentTemplate,templateId);//直接跳转
+    }
+
+  } 
+
+//仅高亮模板标记，不重新加载数据
+function highlightTemplate (templateId) {
+    var ids = templateId;
+    if (app.globalData.isDebug) console.log("Index::highlightPerson highlight person.",currentTemplate);
+    $("#"+currentTemplate+" img").css("border","2px solid #f6d0ca");
+    $("#"+ids+" img").css("border","2px solid #e16531");
+  }  
+
+//加载海报模板列表：加载所有可用单品海报模板
+var viewTemplates = {};//缓存所有模板，格式：id:{view template object}
+function requestViewTemplates(){
+    //获取模板列表
+    $.ajax({
+        url:app.config.sx_api+"/mod/viewTemplate/rest/listByType/board-poster",
+        type:"get",
+        data:{},
+        success:function(schemes){
+            console.log("\n===got item poster schemes ===\n",schemes);
+            //遍历模板
+            for(var i=0;i<schemes.length;i++){
+                //将模板显示到界面，等待选择后生成
+                if(!viewTemplates[schemes[i].id])
+                    viewTemplates[schemes[i].id] = schemes[i];
+            }
+            showSwiper("template");
+        },
+         error: function(xhr, status, error){
+             console.log("load item poster scheme error.",error);
+         },
+         complete:function(data){
+            //do nothing: 仅显示到模板列表即可，无需再次请求
+            //加载商品并尝试生成海报：无论失败与否都要加载的
+                //加载内容
+            //loadBoard(id); 
+            //加载清单item列表
+            //loadBoardItems(id);      
+         }
+    });  
+}
+
+            
+//生成商品海报：先获得海报列表
+//TODO：当前是从所有列表中过滤，需要调整为根据ID获取海报scheme
+var posterSchemes = {};
+function requestPosterScheme(){
+    if( !brokerQrcode ){
+        console.log("poster is not ready....wait....");
+        return;
+    }
+    console.log("poster ready....try to generate....");
+    $.ajax({
+        url:app.config.sx_api+"/mod/posterTemplate/rest/board-templates",
+        type:"get",
+        //data:{categoryId:stuff.meta.category},
+        success:function(schemes){
+            console.log("\n===got item poster scheme ===\n",schemes);
+            //遍历海报并生成
+            for(var i=0;i<schemes.length;i++){
+                if(!posterSchemes[schemes[i].id])
+                    posterSchemes[schemes[i].id] = schemes[i];//记录poster定义
+                if(posterId == schemes[i].id){
+                    requestPoster(schemes[i]);
+                    //break;//找到就结束
+                }
+                console.log("cannot find poster scheme by id.[id]"+posterId);
+            }
+            showSwiper("poster");
         }
     });  
 }
