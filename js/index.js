@@ -1790,13 +1790,13 @@ function registerShareHandler(){
     if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
         shareUrl += "&fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;
-        if(tagging&&tagging.trim().length>0)shareUrl += "&keyword="+tagging;//传递关键词
+        if(tagging&&tagging.trim().length>0)shareUrl += "&keyword="+encodeURIComponent(tagging);//传递关键词
         if(category&&category.trim().length>0)shareUrl += "&category="+category;//传递当前类目
         if(filter&&filter.trim().length>0)shareUrl += "&filter="+filter;//传递当前过滤器
     }else{//否则作为第一个参数增加
         shareUrl += "?fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;       
-        if(tagging&&tagging.trim().length>0)shareUrl += "&keyword="+tagging;//传递关键词
+        if(tagging&&tagging.trim().length>0)shareUrl += "&keyword="+encodeURIComponent(tagging);//传递关键词
         if(category&&category.trim().length>0)shareUrl += "&category="+category;//传递当前类目
         if(filter&&filter.trim().length>0)shareUrl += "&filter="+filter;//传递当前过滤器         
     }
