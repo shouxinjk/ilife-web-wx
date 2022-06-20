@@ -490,6 +490,7 @@ function showCascader(categoryId){
             //重新生成图表
             showRadar();
             showDimensionBurst();
+            showDimensionMondrian();
             //隐藏级联选择组件
             $("#category-wrapper-tip").css("display","none");
             $("#category-wrapper").css("display","none");            

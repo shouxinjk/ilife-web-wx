@@ -370,13 +370,13 @@ function generateImage() {
 }
 
 //显示本地默认海报：用于测试用途
-function buildDefaultPosterForTest(item){
+function buildDefaultPoster(item){
 //动态计算海报宽度与高度
     var width = document.getElementsByTagName('html')[0].clientWidth;
-    var height = width*240/750;//按照宽度750，高度240计算
+    var height = width*9/16;//宽高比4:3
     //html模板：用于装载样式
     var templateHtml = `
-        <div id="body" style="background-color:#fff;">  
+        <div id="body" style="background-color:#fff;padding-left:0;width:100%">  
             <div id="item-logo" style="width:100%;position:relative;">
                 <img src="" style="object-fit:cover;width:100%;height:__heightpx;">
                 <div id="item-platform" style="position:absolute;top:5px;right:5px;font-size:12px;font-weight:bold;color:#fff;border-radius:12px;background-color:#F6824B;padding:2px 5px;"></div>
@@ -387,16 +387,8 @@ function buildDefaultPosterForTest(item){
                                 
         </div>
 
-        <div class="foot">
-            <div id="app-text" class="app-text">
-                <div class="app-desc">Life is all about having a good time.</div>
-                <div class="app-desc">每一个人都是生活的专家。<br/>选出好的，分享对的，让生活充满小确幸。</div>
-                <div class="app-tips">长按识别二维码进入</div> 
-                <div class="app-name">发现属于你的小确幸</div>
-            </div>   
-            <div id="app-qrcode" class="app-qrcode">
-                <div id="app-qrcode-box" class="app-qrcode-box"></div>  
-            </div>  
+        <div style="display:table;" id="smallpics"> 
+            <div id="app-qrcode-box" style="display:table-cell;"></div>  
         </div>  
     `;
     $("#container").html(templateHtml.replace(/__height/,height).replace(/__top1/,(height/2-15)).replace(/__top2/,(height/2+15)));
@@ -407,24 +399,30 @@ function buildDefaultPosterForTest(item){
     $("#item-platform").html(item.distributor.name);
 
     //图片
-    $("#item-logo img").attr("src", imgPrefix+ item.images[0].replace(/\.avif/,'') );//正文图片
+    $("#item-logo img").attr("src", imgPrefix+ (item.logo?item.logo.replace(/\.avif/,''):item.images[0].replace(/\.avif/,'') ));//正文图片
 
-    //使用类目作为推荐语
-    var advice = "用小确幸填满你的大生活";
-    if(item.category&&Array.isArray(item.category)&&item.category.length>0){//如果是列表，取最后一项
-        advice = item.category[item.category.length-1];
-    }else if(item.category&&item.category.length>0){//如果是字符串则直接使用
-        advice = item.category;
-    }else if(item.props&&item.props.brand&&item.props.brand.trim().length>0){//有品牌则直接使用
-        advice = item.props.brand;
-    }else if(item.tagging&&item.tagging.length>0){//如果有tagging，则分割后采用第一条
-        advice = item.tagging.split(" ")[0];
-    }else{
-        //留空，采用默认值
-    } 
+    var picHtml = `
+            <div class="app-qrcode" style="display:table-cell;border-right:3px solid #fff;">
+                <img src="__src" style="object-fit:cover;width:__widthpx;height:__heightpx"/> 
+            </div>    
+        `;
 
-    //推荐语
-    $("#item-advice").html(advice); 
+    var smallPicWidth = (width-12-96)/3;//二维码为98*98，中间留白为4
+    var smallPicHeight = smallPicWidth>98?98:smallPicWidth;
+    //填充小图片：默认采用固定大小，并优先用默认图片填充
+    var k=0;//仅取3张
+    for(var i=0;i<4&&k<3;i++){
+        var imgUrl = imgPrefix + "";//默认图片
+        if(item.images&&item.images[i]&&item.images[i]!=item.logo){
+            imgUrl = imgPrefix + item.images[i].replace(/\.avif/,'');
+        }else{
+            continue;
+        }
+        $("#smallpics").prepend(picHtml.replace(/__src/,imgUrl).replace(/__width/,smallPicWidth).replace(/__height/,smallPicHeight));
+        preloadList.push(imgUrl);//将图片加入预加载列表
+        k++;
+    }
+
 
     //logo：注意使用代理避免跨域问题
     preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
@@ -432,7 +430,7 @@ function buildDefaultPosterForTest(item){
 }
 
 //显示本地默认海报：用于测试用途
-function buildDefaultPoster(item){
+function buildDefaultPosterForTest(item){
     //html模板：用于装载样式
     var templateHtml = `
        <div class="head">
