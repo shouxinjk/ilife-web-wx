@@ -152,14 +152,12 @@ var measureScheme = [];//每一项包含name weight children
 //将item显示到页面
 function showContent(item){
     //如果带有海报则直接跳到海报分享界面
-    /**
     if(posterId){
         $("#share-link").attr("href","info2-poster.html?id="+id+"&posterId="+posterId);   
     }else{
        $("#share-link").attr("href","info2ext.html?id="+id);    
     }
-    //**/
-    
+
     //购买按钮
     if(item.distributor && item.distributor.name)
         $("#jumpbtn").text("立即前往 "+item.distributor.name+" >> ");
