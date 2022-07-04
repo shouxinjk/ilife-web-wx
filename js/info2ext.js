@@ -403,7 +403,7 @@ function buildDefaultPoster(item){
 
     var picHtml = `
             <div class="app-qrcode" style="display:table-cell;border-right:3px solid #fff;">
-                <img src="__src" style="object-fit:cover;width:__widthpx;height:__heightpx"/> 
+                <img src="__src" style="object-fit:cover;width:__widthpx;height:128px"/> 
             </div>    
         `;
 

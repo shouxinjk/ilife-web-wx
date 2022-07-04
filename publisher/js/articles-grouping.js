@@ -966,14 +966,15 @@ function toppingItem(item){
 function registerShareHandler(){
     //准备分享url
     //var startTime = new  Date().getTime();
-    var shareUrl = window.location.href;//.replace(/articles/g,"articles-grouping");//目标页面将检查是否关注与注册
+    var shareUrl = window.location.href.split("?")[0];//.replace(/articles/g,"articles-grouping");//目标页面将检查是否关注与注册
     if(shareUrl.indexOf("?")>0)
         shareUrl += "&fromBroker="+broker.id;//邀请者信息：为当前登录达人ID 
     else
         shareUrl += "?fromBroker="+broker.id;//邀请者信息：为当前登录达人ID 
-    //shareUrl += "?code="+groupingCode;//code
-    //shareUrl += "&timeFrom="+timeFrom;//默认从当前时间开始
-    //shareUrl += "&timeTo="+timeTo;//默认1小时结束
+    shareUrl += "&code="+groupingCode;//code
+    shareUrl += "&groupingName="+encodeURIComponent(groupingName);//groupingName
+    shareUrl += "&timeFrom="+timeFrom;//默认从当前时间开始
+    shareUrl += "&timeTo="+timeTo;//默认1小时结束
 
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
