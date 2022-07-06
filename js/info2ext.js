@@ -169,15 +169,16 @@ function generateQrcode(){
     //生成二维码
     var qrcode = new QRCode(document.getElementById("app-qrcode-box"), {
         text: shortUrl,
-        width: 96,
-        height: 96,    
+        width: 56,//96,
+        height: 56,//96,    
         drawer: 'png',
         logo: logoUrl,
-        logoWidth: 24,
-        logoHeight: 24,
+        logoWidth: 14,//24,
+        logoHeight: 14,//24,
         logoBackgroundColor: '#ffffff',
         logoBackgroundTransparent: false
     });  
+
     setTimeout(generateImage,1200);
 }
 
@@ -370,7 +371,7 @@ function generateImage() {
 }
 
 //显示本地默认海报：用于测试用途
-function buildDefaultPoster(item){
+function buildDefaultPosterForTest(item){
 //动态计算海报宽度与高度
     var width = document.getElementsByTagName('html')[0].clientWidth;
     var height = width*9/16;//宽高比4:3
@@ -429,67 +430,247 @@ function buildDefaultPoster(item){
     $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");
 }
 
+
 //显示本地默认海报：用于测试用途
-function buildDefaultPosterForTest(item){
+function buildDefaultPosterObsolete(item){
+//动态计算海报宽度与高度
+    var width = document.getElementsByTagName('html')[0].clientWidth;
+    var height = width*9/16;//宽高比4:3
     //html模板：用于装载样式
     var templateHtml = `
-       <div class="head">
-            小确幸大生活
-        </div>
+        <div id="body" style="background-color:#fff;padding-left:0;width:100%">  
+            <div id="item-logo" style="width:100%;">
+                <img src="" style="object-fit:cover;width:100%;height:__heightpx;">
+            </div>   
 
-        <div id="body">  
-            <div id="broker" class="broker">
-                <div id="broker-logo" class="broker-logo"></div>
-                <div id="broker-shop" class="broker-shop">
-                    <div id="broker-name" class="broker-name"></div> 
-                    <div id="shop-name" class="shop-name"></div> 
-                    <div id="content" class="content"></div> 
-                </div>
+           <!--顶部显示来源及标题-->
+            <div id="basic" style="display:flex;flex-direction:row;width:100%;z-index:999;">
+                <div id="item-platform" style="font-size:16px;line-height:20px;font-weight:bold;color:#fff;border-radius:20px;background-color:#F6824B;padding:2px 5px;width:60px;text-align:center;"></div>
+                <div id="item-title" style="font-size:16px;line-height:20px;font-weight:bold;width:calc(100%-80px);white-space: nowrap; overflow:hidden;text-overflow:ellipsis;color:#fff;background-color:grey;border-radius:20px;padding:2px 5px;"></div> 
             </div>
 
-            <div id="item-logo" class="item-logo"></div>  
-            <div id="item-title" class="item-title"></div>                      
-        </div>
+            <div id="item-title-placeholder">&nbsp;&nbsp;</div>
 
-        <div class="foot">
-            <div id="app-text" class="app-text">
-                <div class="app-desc">Life is all about having a good time.</div>
-                <div class="app-desc">每一个人都是生活的专家。<br/>选出好的，分享对的，让生活充满小确幸。</div>
-                <div class="app-tips">长按识别二维码进入</div> 
-                <div class="app-name">发现属于你的小确幸</div>
-            </div>   
-            <div id="app-qrcode" class="app-qrcode">
-                <div id="app-qrcode-box" class="app-qrcode-box"></div>  
-            </div>  
-        </div>  
+            <div id="item-recommend" style="width:100%;">
+
+                <div style="display:flex;width:100%;"> 
+                    <!--推荐者-->
+                    <div id="broker" class="broker" style="width:calc(100% - 112px);margin:0;display:flex;">
+                        <div id="broker-logo" class="broker-logo" style="border-radius:24px;"></div>
+                        <div id="broker-shop" class="broker-shop">
+                            <div id="broker-name" class="broker-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div> 
+                            <div id="shop-name" class="shop-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div> 
+                        </div>
+                    </div> 
+
+                    <!--评价LOGO，是静态图片-->
+                    <div>
+                        <img src="images/rate-logo.jpg" style="width:56px;margin-top:-2px;"/>
+                    </div>      
+                      
+                    <div id="app-qrcode-box"></div>  
+                </div>   
+            </div>                         
+        </div> 
     `;
-    $("#container").html(templateHtml);
+    $("#container").html(templateHtml.replace(/__height/,height).replace(/__top1/,(height/2-15)).replace(/__top2/,(height/2+15)));
+    $("#container").css("background","#fff");
+
     //标题
     $("#item-title").html(item.title);
+    var itemTitleCss={
+        "margin-top":"-"+height+"px",
+        "line-height":"20px",
+        "padding":"5px"
+    };
+    $("#basic").css(itemTitleCss);
+    $("#item-title-placeholder").css({
+        "height":(height-30)+"px",
+    });
 
-    //图片
-    $("#item-logo").append("<img src='" +imgPrefix+ item.images[0].replace(/\.avif/,'') + "' width='80%'/>");//正文图片
+    //来源
+    $("#item-platform").html(item.distributor.name); //来源  
 
     //使用类目作为推荐语
     var advice = "用小确幸填满你的大生活";
-    if(item.category&&Array.isArray(item.category)&&item.category.length>0){//如果是列表，取最后一项
-        advice = item.category[item.category.length-1];
+    if(item.advice&&item.advice.length>0){//优先采用推荐语
+        var k = Math.floor(Math.random()*100); 
+        advice = item.advice[k%item.advice.length];
+    }else if(item.tagging&&item.tagging.length>0){//如果有tagging，则分割后采用第一条
+        advice = item.tagging;//item.tagging.split(" ")[0];
     }else if(item.category&&item.category.length>0){//如果是字符串则直接使用
         advice = item.category;
     }else if(item.props&&item.props.brand&&item.props.brand.trim().length>0){//有品牌则直接使用
         advice = item.props.brand;
-    }else if(item.tagging&&item.tagging.length>0){//如果有tagging，则分割后采用第一条
-        advice = item.tagging.split(" ")[0];
+    }else if(item.category&&Array.isArray(item.category)&&item.category.length>0){//如果是列表，取最后一项
+        advice = item.category[item.category.length-1];
     }else{
         //留空，采用默认值
     } 
+    //$("#shop-name").html(item.category&&item.category.length>0?item.category[0]:""); //店铺名称   
+    $("#shop-name").html(advice); //店铺名称     
+
+    //图片
+    $("#item-logo img").attr("src", imgPrefix+ (item.logo?item.logo.replace(/\.avif/,''):item.images[0].replace(/\.avif/,'') ));//正文图片
+
+    //logo：注意使用代理避免跨域问题
+    preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
+    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");
+
+}
+
+//显示本地默认海报：用于测试用途
+function buildDefaultPoster(item){
+    //动态计算海报宽度与高度
+    var width = document.getElementsByTagName('html')[0].clientWidth;
+    var height = width*9/16;//宽高比4:3    
+
+    var minHeight = 340;//112*2 + 56 + 20 + 20;//计算一个最低高度
+
+    if(height<minHeight){
+        height = minHeight;
+    }
+    //html模板：用于装载样式
+    var templateHtml = `
+        <div id="body" style="background-color:#fff;padding-left:0;width:100%;min-height:340px;">  
+            <!--logo图片作为背景-->
+            <div id="item-logo">
+                <img src="" width="100%" style="object-fit:cover;"/>
+            </div>
+
+            <div id="item-recommend" style="position:absolute;top:85px;left:5px;width:100%;">
+                <!--顶部显示来源及标题-->
+                <div id="basic" style="display:flex;flex-direction:row;width:100%;">
+                    <div id="item-distributor" style="width:60px;background-color:#F6824B;color:#fff;text-align:center;border-radius:20px;line-height:20px;padding:auto 5px;border:1px solid silver;"></div> 
+                    <div id="item-title" style="background-color:#fff;color:grey;text-align:center;border-radius:20px;line-height:20px;margin-left:5px;padding:auto 5px;padding:2px 5px;width:calc(100% - 180px);border:1px solid silver;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" ></div> 
+                    <div id="item-tip" style="background-color:#fff;color:grey;text-align:center;border-radius:20px;line-height:18px;margin-left:5px;padding:auto 5px;padding:2px 5px;margin-right:10px;width:112px;border:1px solid silver;" >@小确幸大生活</div> 
+                </div>
+
+                <!--图表缺乏时填充空白-->
+                <div id="matrix-placeholder" style="display:flex;flex-direction:column;width:100%">&nbsp;</div>
+
+                <!--中间显示评价规则及评价得分-->
+                <div id="matrix" style="display:flex;flex-direction:column;width:100%;margin-bottom:5px;">
+                    <div id="item-sunburst" style="text-align:right;margin-right:10px;"></div> 
+                    <div id="item-radar" style="text-align:right;margin-right:10px;" ></div> 
+                </div>
+
+
+                <!--底部显示推荐信息、评价logo、二维码-->
+                <div id="sxRecommend" style="display:flex;flex-direction:row;flex-wrap:nowrap;">
+
+                    <!--推荐者-->
+                    <div id="broker" class="broker" style="width:calc(100% - 112px);margin:0;display:flex;">
+                        <div id="broker-logo" class="broker-logo" style="border-radius:24px;"></div>
+                        <div id="broker-shop" class="broker-shop">
+                            <div id="broker-name" class="broker-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div> 
+                            <div id="shop-name" class="shop-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div> 
+                        </div>
+                    </div> 
+
+                    <!--评价LOGO，是静态图片-->
+                    <div>
+                        <img src="images/rate-logo.png" style="width:56px;margin-top:-2px;"/>
+                    </div>      
+                      
+                    <div id="app-qrcode-box"></div>                 
+
+                </div> 
+            </div>
+
+        </div>
+    `;
+    $("#container").html(templateHtml);
+    $("#container").css("border-radius","0");
+    //distributor
+    $("#item-distributor").html(item.distributor.name);
+    //标题
+    $("#item-title").html(item.title);    
+
+    //图片：作为背景图
+    var itemLogo = imgPrefix+ item.images[0].replace(/\.avif/,'');
+    if(item.logo){
+        itemLogo = imgPrefix+ item.logo.replace(/\.avif/,'');
+    }
+
+    $("#item-logo img").attr("src", itemLogo);//正文图片
+
+    //根据图片高度调整留白空隙
+    $("#item-logo img").get(0).onload = function(){
+
+        //根据图片实际高度调整布局
+        var imgHeight = $("#item-logo img").height();
+
+        //如果图片高度过低则以最低高度计算
+        if(imgHeight<minHeight){
+            imgHeight = minHeight;
+        }
+
+        //计算评价图表距上方的距离
+        var matrixMargin = height - 2*112 - 20 - 56 - 11 - 2*6 -2;//先按照有评价图表计算，去掉顶部高度及底部高度
+          
+        //叠加评价图表
+        if(item.media && item.media["measure-scheme"]){
+            $("#item-sunburst").append('<img src="'+imgPrefix+item.media["measure-scheme"]+'" style="width:112px;height:112px;border:1px solid silver;border-radius:5px;padding:2px;"/>');
+            //matrixMargin -= 112;
+            matrixMargin -= 4;
+        }else{
+            $("#item-sunburst").html("&nbsp;");
+            $("#item-sunburst").css("line-height","112px");
+        }
+        if(item.media && item.media["measure"]){
+            $("#item-radar").append('<img src="'+imgPrefix+item.media["measure"]+'" style="width:112px;height:112px;border:1px solid silver;border-radius:5px;padding:2px;"/>');
+            //matrixMargin -= 112;
+            matrixMargin -= 4;
+        }else{
+            $("#item-radar").html("&nbsp;");
+            $("#item-radar").css("line-height","112px");
+        }
+
+        if(matrixMargin<=0){
+            matrixMargin = 10;
+        }
+        //根据图片高度和海报高度调整留白
+        console.log("got image height and poster height.",imgHeight,height);
+        if(imgHeight>height){//以实际图片高度输出
+            matrixMargin += imgHeight - height;
+        }
+
+        $("#matrix").css({
+            //"margin-top":"-"+matrixMargin+"px"
+        });
+
+        $("#matrix-placeholder").css({
+            "height":matrixMargin+"px",
+            //"margin-top":"-"+matrixMargin+"px"
+        });   
+
+    } 
+
+    //使用类目作为推荐语
+    var advice = "用小确幸填满你的大生活";
+    if(item.advice&&item.advice.length>0){//优先采用推荐语
+        var k = Math.floor(Math.random()*100); 
+        advice = item.advice[k%item.advice.length];
+    }else if(item.tagging&&item.tagging.length>0){//如果有tagging，则分割后采用第一条
+        advice = item.tagging;//item.tagging.split(" ")[0];
+    }else if(item.category&&item.category.length>0){//如果是字符串则直接使用
+        advice = item.category;
+    }else if(item.props&&item.props.brand&&item.props.brand.trim().length>0){//有品牌则直接使用
+        advice = item.props.brand;
+    }else if(item.category&&Array.isArray(item.category)&&item.category.length>0){//如果是列表，取最后一项
+        advice = item.category[item.category.length-1];
+    }else{
+        //留空，采用默认值
+    }
 
     //$("#shop-name").html(item.category&&item.category.length>0?item.category[0]:""); //店铺名称   
     $("#shop-name").html(advice); //店铺名称   
 
     //logo：注意使用代理避免跨域问题
     preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
-    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");    
+    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");  
+    $("#broker-logo img").css("margin-left","0");     
 }
 
 //将item显示到页面：当前仅作为本地模板验证

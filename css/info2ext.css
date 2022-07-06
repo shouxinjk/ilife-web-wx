@@ -10,10 +10,10 @@
 .container{
   margin:0;
   /*cannot generate by canvas2image*/
-  background-image: url("../images/bg/bg00.jpeg");
+  /*background-image: url("../images/bg/bg00.jpeg");*/
   background-repeat:no-repeat;
   background-size: cover;
-  background-color: darkgrey;
+  background-color: #fff;
 }
 
 .container-hide{
