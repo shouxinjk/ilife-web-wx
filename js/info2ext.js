@@ -34,6 +34,9 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
+var qrcodeSize = 56;
+var qrcodeLogoSize = 14;
+
 //使用代理避免跨域问题。后端将代理到指定的URL地址。使用https
 var imgPrefix = "https://www.biglistoflittlethings.com/3rdparty?url=";
 
@@ -169,12 +172,12 @@ function generateQrcode(){
     //生成二维码
     var qrcode = new QRCode(document.getElementById("app-qrcode-box"), {
         text: shortUrl,
-        width: 56,//96,
-        height: 56,//96,    
+        width: qrcodeSize,//56,//96,
+        height: qrcodeSize,//56,//96,    
         drawer: 'png',
         logo: logoUrl,
-        logoWidth: 14,//24,
-        logoHeight: 14,//24,
+        logoWidth: qrcodeLogoSize,//14,//24,
+        logoHeight: qrcodeLogoSize,//14,//24,
         logoBackgroundColor: '#ffffff',
         logoBackgroundTransparent: false
     });  
@@ -371,156 +374,19 @@ function generateImage() {
 }
 
 //显示本地默认海报：用于测试用途
-function buildDefaultPosterForTest(item){
-//动态计算海报宽度与高度
-    var width = document.getElementsByTagName('html')[0].clientWidth;
-    var height = width*9/16;//宽高比4:3
-    //html模板：用于装载样式
-    var templateHtml = `
-        <div id="body" style="background-color:#fff;padding-left:0;width:100%">  
-            <div id="item-logo" style="width:100%;position:relative;">
-                <img src="" style="object-fit:cover;width:100%;height:__heightpx;">
-                <div id="item-platform" style="position:absolute;top:5px;right:5px;font-size:12px;font-weight:bold;color:#fff;border-radius:12px;background-color:#F6824B;padding:2px 5px;"></div>
-                <div id="item-title" style="position:absolute;top:__top1px;left:0;right:0;bottom:0;margin:auto;font-size:20px;font-weight:bold;width:80%;display:inline-block;white-space: nowrap; overflow:hidden;text-overflow:ellipsis;text-align:center;color:#fff;"></div> 
-                <div id="item-advice" style="position:absolute;top:__top2px;left:0;right:0;bottom:0;margin:auto;font-size:16px;font-weight:bold;width:90%;display:inline-block;white-space: nowrap; overflow:hidden;text-overflow:ellipsis;text-align:center;color:#fff;"></div>  
-            </div>  
-             
-                                
-        </div>
-
-        <div style="display:table;" id="smallpics"> 
-            <div id="app-qrcode-box" style="display:table-cell;"></div>  
-        </div>  
-    `;
-    $("#container").html(templateHtml.replace(/__height/,height).replace(/__top1/,(height/2-15)).replace(/__top2/,(height/2+15)));
-    $("#container").css("background","#fff");
-    //标题
-    $("#item-title").html(item.title);
-    //平台
-    $("#item-platform").html(item.distributor.name);
-
-    //图片
-    $("#item-logo img").attr("src", imgPrefix+ (item.logo?item.logo.replace(/\.avif/,''):item.images[0].replace(/\.avif/,'') ));//正文图片
-
-    var picHtml = `
-            <div class="app-qrcode" style="display:table-cell;border-right:3px solid #fff;">
-                <img src="__src" style="object-fit:cover;width:__widthpx;height:128px"/> 
-            </div>    
-        `;
-
-    var smallPicWidth = (width-12-96)/3;//二维码为98*98，中间留白为4
-    var smallPicHeight = smallPicWidth>98?98:smallPicWidth;
-    //填充小图片：默认采用固定大小，并优先用默认图片填充
-    var k=0;//仅取3张
-    for(var i=0;i<4&&k<3;i++){
-        var imgUrl = imgPrefix + "";//默认图片
-        if(item.images&&item.images[i]&&item.images[i]!=item.logo){
-            imgUrl = imgPrefix + item.images[i].replace(/\.avif/,'');
-        }else{
-            continue;
-        }
-        $("#smallpics").prepend(picHtml.replace(/__src/,imgUrl).replace(/__width/,smallPicWidth).replace(/__height/,smallPicHeight));
-        preloadList.push(imgUrl);//将图片加入预加载列表
-        k++;
-    }
-
-
-    //logo：注意使用代理避免跨域问题
-    preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
-    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");
-}
-
-
-//显示本地默认海报：用于测试用途
-function buildDefaultPosterObsolete(item){
-//动态计算海报宽度与高度
-    var width = document.getElementsByTagName('html')[0].clientWidth;
-    var height = width*9/16;//宽高比4:3
-    //html模板：用于装载样式
-    var templateHtml = `
-        <div id="body" style="background-color:#fff;padding-left:0;width:100%">  
-            <div id="item-logo" style="width:100%;">
-                <img src="" style="object-fit:cover;width:100%;height:__heightpx;">
-            </div>   
-
-           <!--顶部显示来源及标题-->
-            <div id="basic" style="display:flex;flex-direction:row;width:100%;z-index:999;">
-                <div id="item-platform" style="font-size:16px;line-height:20px;font-weight:bold;color:#fff;border-radius:20px;background-color:#F6824B;padding:2px 5px;width:60px;text-align:center;"></div>
-                <div id="item-title" style="font-size:16px;line-height:20px;font-weight:bold;width:calc(100%-80px);white-space: nowrap; overflow:hidden;text-overflow:ellipsis;color:#fff;background-color:grey;border-radius:20px;padding:2px 5px;"></div> 
-            </div>
-
-            <div id="item-title-placeholder">&nbsp;&nbsp;</div>
-
-            <div id="item-recommend" style="width:100%;">
-
-                <div style="display:flex;width:100%;"> 
-                    <!--推荐者-->
-                    <div id="broker" class="broker" style="width:calc(100% - 112px);margin:0;display:flex;">
-                        <div id="broker-logo" class="broker-logo" style="border-radius:24px;"></div>
-                        <div id="broker-shop" class="broker-shop">
-                            <div id="broker-name" class="broker-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div> 
-                            <div id="shop-name" class="shop-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div> 
-                        </div>
-                    </div> 
-
-                    <!--评价LOGO，是静态图片-->
-                    <div>
-                        <img src="images/rate-logo.jpg" style="width:56px;margin-top:-2px;"/>
-                    </div>      
-                      
-                    <div id="app-qrcode-box"></div>  
-                </div>   
-            </div>                         
-        </div> 
-    `;
-    $("#container").html(templateHtml.replace(/__height/,height).replace(/__top1/,(height/2-15)).replace(/__top2/,(height/2+15)));
-    $("#container").css("background","#fff");
-
-    //标题
-    $("#item-title").html(item.title);
-    var itemTitleCss={
-        "margin-top":"-"+height+"px",
-        "line-height":"20px",
-        "padding":"5px"
-    };
-    $("#basic").css(itemTitleCss);
-    $("#item-title-placeholder").css({
-        "height":(height-30)+"px",
-    });
-
-    //来源
-    $("#item-platform").html(item.distributor.name); //来源  
-
-    //使用类目作为推荐语
-    var advice = "用小确幸填满你的大生活";
-    if(item.advice&&item.advice.length>0){//优先采用推荐语
-        var k = Math.floor(Math.random()*100); 
-        advice = item.advice[k%item.advice.length];
-    }else if(item.tagging&&item.tagging.length>0){//如果有tagging，则分割后采用第一条
-        advice = item.tagging;//item.tagging.split(" ")[0];
-    }else if(item.category&&item.category.length>0){//如果是字符串则直接使用
-        advice = item.category;
-    }else if(item.props&&item.props.brand&&item.props.brand.trim().length>0){//有品牌则直接使用
-        advice = item.props.brand;
-    }else if(item.category&&Array.isArray(item.category)&&item.category.length>0){//如果是列表，取最后一项
-        advice = item.category[item.category.length-1];
-    }else{
-        //留空，采用默认值
-    } 
-    //$("#shop-name").html(item.category&&item.category.length>0?item.category[0]:""); //店铺名称   
-    $("#shop-name").html(advice); //店铺名称     
-
-    //图片
-    $("#item-logo img").attr("src", imgPrefix+ (item.logo?item.logo.replace(/\.avif/,''):item.images[0].replace(/\.avif/,'') ));//正文图片
-
-    //logo：注意使用代理避免跨域问题
-    preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
-    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");
-
-}
-
-//显示本地默认海报：用于测试用途
 function buildDefaultPoster(item){
+//设置二维码大小
+    qrcodeSize = 56;
+    qrcodeLogoSize = 14;
+    //修改svg二维码尺寸：由于是异步生成，需要同时调整
+    var svgs = document.getElementsByTagName("svg");
+    if(svgs && svgs.length>0){
+        var svg = svgs[0];
+        svg.setAttribute('width',''+qrcodeSize);
+        svg.setAttribute('height',''+qrcodeSize);
+    }
+    
+
     //动态计算海报宽度与高度
     var width = document.getElementsByTagName('html')[0].clientWidth;
     var height = width*9/16;//宽高比4:3    
@@ -541,7 +407,7 @@ function buildDefaultPoster(item){
             <div id="item-recommend" style="position:absolute;top:85px;left:5px;width:100%;">
                 <!--顶部显示来源及标题-->
                 <div id="basic" style="display:flex;flex-direction:row;width:100%;">
-                    <div id="item-distributor" style="width:60px;background-color:#F6824B;color:#fff;text-align:center;border-radius:20px;line-height:20px;padding:auto 5px;border:1px solid silver;"></div> 
+                    <div id="item-distributor" style="width:60px;background-color:#F6824B;color:#fff;text-align:center;border-radius:20px;line-height:20px;padding:2px 5px;border:1px solid silver;"></div> 
                     <div id="item-title" style="background-color:#fff;color:grey;text-align:center;border-radius:20px;line-height:20px;margin-left:5px;padding:auto 5px;padding:2px 5px;width:calc(100% - 180px);border:1px solid silver;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" ></div> 
                     <div id="item-tip" style="background-color:#fff;color:grey;text-align:center;border-radius:20px;line-height:18px;margin-left:5px;padding:auto 5px;padding:2px 5px;margin-right:10px;width:112px;border:1px solid silver;" >@小确幸大生活</div> 
                 </div>
@@ -607,7 +473,7 @@ function buildDefaultPoster(item){
         }
 
         //计算评价图表距上方的距离
-        var matrixMargin = height - 2*112 - 20 - 56 - 11 - 2*6 -2;//先按照有评价图表计算，去掉顶部高度及底部高度
+        var matrixMargin = height - 2*112 - 20 - 56 - 9 - 2*6;//先按照有评价图表计算，去掉顶部高度及底部高度
           
         //叠加评价图表
         if(item.media && item.media["measure-scheme"]){
@@ -670,8 +536,79 @@ function buildDefaultPoster(item){
     //logo：注意使用代理避免跨域问题
     preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
     $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");  
-    $("#broker-logo img").css("margin-left","0");     
+    $("#broker-logo img").css("margin-left","0");
 }
+
+
+function buildDefaultPosterForTest(item){
+    //html模板：用于装载样式
+    var templateHtml = `
+       <div class="head">
+            小确幸大生活
+        </div>
+
+        <div id="body">  
+            <div id="broker" class="broker">
+                <div id="broker-logo" class="broker-logo"></div>
+                <div id="broker-shop" class="broker-shop">
+                    <div id="broker-name" class="broker-name"></div> 
+                    <div id="shop-name" class="shop-name"></div> 
+                    <div id="content" class="content"></div> 
+                </div>
+            </div>
+
+            <div id="item-logo" class="item-logo"></div>  
+            <div id="item-title" class="item-title"></div>                      
+        </div>
+
+        <div class="foot" style="display:flex;margin-top:2px;">
+            <div id="app-text" class="app-text" style="width:calc(100%-112px)">
+                <div class="app-desc">Life is all about having a good time.</div>
+               <div class="app-desc">每一个人都是生活的专家。<br/>选出好的，分享对的，让生活充满小确幸。</div>
+            </div>   
+            <!--评价LOGO，是静态图片-->
+            <div style="width:56px;display:table-cell;">
+                <img src="images/rate-logo.png" style="width:56px;"/>
+            </div>  
+
+            <!--二维码-->       
+            <div id="app-qrcode-box" class="app-qrcode-box" style="width:56px;text-align:right;margin-top:2px;"></div>   
+        </div>  
+    `;
+    $("#container").html(templateHtml);
+    $("#container").css( "background" ,'url("images/bg/bg00.jpeg")');
+    //标题
+    $("#item-title").html(item.title);
+
+    //图片
+    $("#item-logo").append("<img src='" +imgPrefix+ item.images[0].replace(/\.avif/,'') + "' width='80%'/>");//正文图片
+
+    //使用类目作为推荐语
+    var advice = "用小确幸填满你的大生活";
+    if(item.advice&&item.advice.length>0){//优先采用推荐语
+        var k = Math.floor(Math.random()*100); 
+        advice = item.advice[k%item.advice.length];
+    }else if(item.tagging&&item.tagging.length>0){//如果有tagging，则分割后采用第一条
+        advice = item.tagging;//item.tagging.split(" ")[0];
+    }else if(item.category&&item.category.length>0){//如果是字符串则直接使用
+        advice = item.category;
+    }else if(item.props&&item.props.brand&&item.props.brand.trim().length>0){//有品牌则直接使用
+        advice = item.props.brand;
+    }else if(item.category&&Array.isArray(item.category)&&item.category.length>0){//如果是列表，取最后一项
+        advice = item.category[item.category.length-1];
+    }else{
+        //留空，采用默认值
+    } 
+
+    //$("#shop-name").html(item.category&&item.category.length>0?item.category[0]:""); //店铺名称   
+    $("#shop-name").html(advice); //店铺名称   
+
+    //logo：注意使用代理避免跨域问题
+    preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
+    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");
+    $("#broker-logo img").css("margin-left","10px");
+}
+
 
 //将item显示到页面：当前仅作为本地模板验证
 function showContent(item){
