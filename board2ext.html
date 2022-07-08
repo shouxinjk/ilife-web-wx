@@ -40,16 +40,19 @@
             </div>              
         </div>
 
-        <div class="foot">
-            <div id="app-text" class="app-text">
+        <div class="foot" style="display:flex;margin-top:2px;">
+            <div id="app-text" class="app-text" style="width:calc(100%-112px)">
                 <div class="app-desc">Life is all about having a good time.</div>
-                <div class="app-desc">消费决策服务，提供基于生活方式和领域知识的选品能力，让每一个人都成为生活家，用小确幸填满大生活。</div>
-                <div class="app-tips">长按识别二维码进入</div> 
-                <div class="app-name">发现属于你的小确幸</div>
+                <div class="app-desc">每一个人都是生活的专家。<br/>选出好的，分享对的，让生活充满小确幸。</div>
+                <!--div class="app-tips">长按识别二维码进入</div> 
+                <div class="app-name">发现属于你的小确幸</div-->
             </div>   
-            <div id="app-qrcode" class="app-qrcode">
-                <div id="app-qrcode-box" class="app-qrcode-box"></div>  
-            </div>  
+            <!--评价LOGO，是静态图片-->
+            <div style="width:56px;display:table-cell;">
+                <img src="images/rate-logo.png" style="width:56px;"/>
+            </div>    
+            <!--二维码-->
+            <div id="app-qrcode-box" class="app-qrcode-box" style="width:56px;text-align:right;margin-top:2px;"></div>             
         </div>            
     </div>
     <div id="share-img-tips" class="share-img-tips-hide">长按下面的图片保存，分享给朋友</div>
@@ -80,5 +83,5 @@
 <script type="text/javascript" src="js/util.js?v=7.2"></script>
 <script type="text/javascript" src="js/md5.js?v=1.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script>
-<script type="text/javascript" src="js/board2ext.js?v=5.73"></script>
+<script type="text/javascript" src="js/board2ext.js?v=5.74"></script>
 </html>

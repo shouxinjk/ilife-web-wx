@@ -167,12 +167,12 @@ function generateQrcode(){
     //生成二维码
     var qrcode = new QRCode(document.getElementById("app-qrcode-box"), {
         text: shortUrl,
-        width: 96,
-        height: 96,    
+        width: 56,//96,
+        height: 56,//96,    
         drawer: 'png',
         logo: logoUrl,
-        logoWidth: 24,
-        logoHeight: 24,
+        logoWidth: 14,//24,
+        logoHeight: 14,//24,
         logoBackgroundColor: '#ffffff',
         logoBackgroundTransparent: false
     });  
