@@ -937,7 +937,7 @@ function insertItem(){
     }
 
     //添加评价指标
-    var measures = "<div id='measure-"+item._key+"' style='display:none'></>";
+    var measures = "<div id='measure-"+item._key+"' style='display:none'></div>";
 
     $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights +title+ tags+boartBtns+measures+ "</div></li>");
     num++;

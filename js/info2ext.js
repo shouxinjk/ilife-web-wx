@@ -34,6 +34,9 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
+//记录客观评价维度数量
+var totalFeaturedDimension = 7;//默认为5个，表示无客观评价数据
+
 var qrcodeSize = 56;
 var qrcodeLogoSize = 14;
 
@@ -391,11 +394,16 @@ function buildDefaultPoster(item){
     var width = document.getElementsByTagName('html')[0].clientWidth;
     var height = width*9/16;//宽高比4:3    
 
+    console.log("got poster height.",height);
+
     var minHeight = 340;//112*2 + 56 + 20 + 20;//计算一个最低高度
 
+    /**
     if(height<minHeight){
         height = minHeight;
     }
+    //**/
+
     //html模板：用于装载样式
     var templateHtml = `
         <div id="body" style="background-color:#fff;padding-left:0;width:100%;min-height:340px;">  
@@ -404,7 +412,7 @@ function buildDefaultPoster(item){
                 <img src="" width="100%" style="object-fit:cover;"/>
             </div>
 
-            <div id="item-recommend" style="position:absolute;top:85px;left:5px;width:100%;">
+            <div id="item-recommend" style="position:absolute;top:85px;left:3px;width:100%;">
                 <!--顶部显示来源及标题-->
                 <div id="basic" style="display:flex;flex-direction:row;width:100%;">
                     <div id="item-distributor" style="width:60px;background-color:#F6824B;color:#fff;text-align:center;border-radius:20px;line-height:20px;padding:2px 5px;border:1px solid silver;"></div> 
@@ -412,15 +420,12 @@ function buildDefaultPoster(item){
                     <div id="item-tip" style="background-color:#fff;color:grey;text-align:center;border-radius:20px;line-height:18px;margin-left:5px;padding:auto 5px;padding:2px 5px;margin-right:10px;width:112px;border:1px solid silver;" >@小确幸大生活</div> 
                 </div>
 
-                <!--图表缺乏时填充空白-->
-                <div id="matrix-placeholder" style="display:flex;flex-direction:column;width:100%">&nbsp;</div>
-
-                <!--中间显示评价规则及评价得分-->
-                <div id="matrix" style="display:flex;flex-direction:column;width:100%;margin-bottom:5px;">
-                    <div id="item-sunburst" style="text-align:right;margin-right:10px;"></div> 
-                    <div id="item-radar" style="text-align:right;margin-right:10px;" ></div> 
+                <!--中间显示评价规则及评价得分，其中评价得分采用barchart显示-->
+                <div id="matrix" style="display:table;width:100%;">
+                    <!--图表缺乏时填充空白，其高度等于图片高度--> 
+                    <div id="matrix-placeholder" style="display:table-cell;width:50%;"></div> 
+                    <div id='measure-__itemKey' style="margin-right:10px;width:112px;float:right;border:1px solid silver;background-color:#fff;border-radius:5px;padding:2px;display:table-cell;margin-top:5px;"></div>
                 </div>
-
 
                 <!--底部显示推荐信息、评价logo、二维码-->
                 <div id="sxRecommend" style="display:flex;flex-direction:row;flex-wrap:nowrap;">
@@ -446,7 +451,7 @@ function buildDefaultPoster(item){
 
         </div>
     `;
-    $("#container").html(templateHtml);
+    $("#container").html(templateHtml.replace(/__itemKey/,item._key));
     $("#container").css("border-radius","0");
     //distributor
     $("#item-distributor").html(item.distributor.name);
@@ -466,50 +471,29 @@ function buildDefaultPoster(item){
 
         //根据图片实际高度调整布局
         var imgHeight = $("#item-logo img").height();
+        console.log("got image height.",imgHeight);
 
-        //如果图片高度过低则以最低高度计算
-        if(imgHeight<minHeight){
-            imgHeight = minHeight;
-        }
-
-        //计算评价图表距上方的距离
-        var matrixMargin = height - 2*112 - 20 - 56 - 9 - 2*6;//先按照有评价图表计算，去掉顶部高度及底部高度
-          
-        //叠加评价图表
-        if(item.media && item.media["measure-scheme"]){
-            $("#item-sunburst").append('<img src="'+imgPrefix+item.media["measure-scheme"]+'" style="width:112px;height:112px;border:1px solid silver;border-radius:5px;padding:2px;"/>');
-            //matrixMargin -= 112;
-            matrixMargin -= 4;
+        if(item.meta&&item.meta.category){
+          loadMeasureSchemes(item);
         }else{
-            $("#item-sunburst").html("&nbsp;");
-            $("#item-sunburst").css("line-height","112px");
-        }
-        if(item.media && item.media["measure"]){
-            $("#item-radar").append('<img src="'+imgPrefix+item.media["measure"]+'" style="width:112px;height:112px;border:1px solid silver;border-radius:5px;padding:2px;"/>');
-            //matrixMargin -= 112;
-            matrixMargin -= 4;
-        }else{
-            $("#item-radar").html("&nbsp;");
-            $("#item-radar").css("line-height","112px");
+            //$("#measure-"+item._key).html("&nbsp;");
+            $("#measure-"+item._key).css("display","none");
+            $("#measure-"+item._key).css("border","");
+            $("#measure-"+item._key).css("border-radius","");
+            $("#measure-"+item._key).css("padding","");
         }
 
-        if(matrixMargin<=0){
-            matrixMargin = 10;
-        }
-        //根据图片高度和海报高度调整留白
-        console.log("got image height and poster height.",imgHeight,height);
-        if(imgHeight>height){//以实际图片高度输出
-            matrixMargin += imgHeight - height;
-        }
-
-        $("#matrix").css({
-            //"margin-top":"-"+matrixMargin+"px"
-        });
-
+        var matrixMargin = $("#item-logo img").height() - 26 -2;//采用固定高度，去掉顶部标题行均为图表显示区域
         $("#matrix-placeholder").css({
             "height":matrixMargin+"px",
-            //"margin-top":"-"+matrixMargin+"px"
-        });   
+        }); 
+
+        //计算整个海报高度：由于图片高度不固定，需要根据图片高度实际计算
+        //海报高度 = 图片高度+56；其中图片高度由logo缩放得到，56为底部推荐条高度；海报最低高度340
+        var posterHeight = $("#item-logo img").height() + 56;
+        $("#body").css({
+            "height":posterHeight+"px",
+        });        
 
     } 
 
@@ -609,6 +593,76 @@ function buildDefaultPosterForTest(item){
     $("#broker-logo img").css("margin-left","10px");
 }
 
+
+//加载客观评价指标
+function loadMeasureSchemes(stuff){
+    //获取类目下的特征维度列表
+    $.ajax({
+        url:app.config.sx_api+"/mod/itemDimension/rest/featured-dimension",
+        type:"get",
+        //async:false,//同步调用
+        data:{categoryId:stuff.meta.category},
+        success:function(featuredDimension){
+            console.log("===got featured dimension===\n",featuredDimension);
+            totalFeaturedDimension = featuredDimension.length;
+            if(totalFeaturedDimension==0){//如果没有则隐藏 评分图表
+                $("#measure-"+stuff._key).css("display","none");
+                $("#measure-"+stuff._key).css("border","");
+                $("#measure-"+stuff._key).css("border-radius","");
+                $("#measure-"+stuff._key).css("padding","");
+            }else{
+                loadMeasureScores(stuff,featuredDimension);
+            }
+            
+        }
+    });  
+}
+//加载指定item的评分
+function loadMeasureScores(stuff,featuredDimension){
+    var itemScore = {};
+    //根据itemKey获取评价结果
+    //feature = 1；dimensionType：0客观评价，1主观评价
+    //注意：由于clickhouse非严格唯一，需要取最后更新值
+    $.ajax({
+        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where feature=1 and dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
+        type:"get",
+        //async:false,//同步调用
+        //data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },         
+        success:function(json){
+            console.log("===got item score===\n",json);
+            for(var i=0;i<json.rows;i++){
+                itemScore[json.data[i].dimensionId] = json.data[i].score;
+            }
+            console.log("===assemble item score===\n",itemScore);
+            showMeasureScores(stuff,featuredDimension,itemScore);
+        }
+    });   
+}
+//显示客观评价得分
+function showMeasureScores(stuff,featuredDimension,itemScore){
+    var colors = ['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#00ffff','#40e0d0','#9acd32','#32cd32','#228b22'];
+    //准备评分表格：根据评价维度逐行显示
+    featuredDimension.forEach(function(dimension){
+      var html  = '<div id="mscore-'+stuff._key+dimension.id+'" data-init="true"></div>';//以itemKey+dimensionId为唯一识别
+      var score = itemScore[dimension.id]?itemScore[dimension.id]*10:(Math.floor(Math.random() * 75)*0.1+2.5);//如果没有标注则随机展示
+      var colorIndex = Math.round(score);//四舍五入取整
+      if(colorIndex>9)colorIndex=9;
+      $("#measure-"+stuff._key).append(html);
+      $('#mscore-'+stuff._key+dimension.id).LineProgressbar({
+                percentage: score,
+                title:dimension.name,
+                unit:'/10',
+                fillBackgroundColor:colors[colorIndex],
+                //animation:false
+            });    
+    });   
+    $("#measure-"+stuff._key).css("display","block");
+    //调整css
+    $("#measure-"+stuff._key+" .percentCount").css("width","");
+}
 
 //将item显示到页面：当前仅作为本地模板验证
 function showContent(item){
@@ -837,7 +891,7 @@ function highlightTemplate (templateId) {
     if (app.globalData.isDebug) console.log("Index::highlightPerson highlight person.",currentTemplate);
     $("#"+currentTemplate+" img").css("border","2px solid #f6d0ca");
     $("#"+ids+" img").css("border","2px solid #e16531");
-  }  
+  }    
 
 function registerShareHandler(){
     //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system
