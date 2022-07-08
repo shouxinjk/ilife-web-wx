@@ -684,6 +684,15 @@ function showContent(item){
     }else{//否则装配本地默认内容
         buildDefaultPoster(item)
     }
+
+    //显示推荐语：
+    if(item.advice&&item.advice.length>0){
+        item.advice.forEach(function(entry){
+            $("#advicesDiv").append("<div style='line-height:18px;line-height:18px;width:90%;border-top:1px solid silver;font-size:12px;padding-top:10px; padding-bottom:10px;'>"+entry.replace(/:::/," ").replace(/::/," ")+"</div>");
+        });
+    }else{
+        $("#advicesTitleDiv").css("display","none");
+    }
     
     //分享海报日志
     //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system

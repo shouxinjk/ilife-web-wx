@@ -398,6 +398,14 @@ function buildDefaultPoster(board){
 //将board内容显示到页面
 function showContent(board){
     console.log("try to show content.[template id]",currentTemplate);
+    //将描述作为推荐语
+    //显示推荐语：
+    if(board.description && board.description.trim().length>0){
+        $("#advicesDiv").append("<div style='line-height:18px;width:90%;border-top:1px solid silver;font-size:12px;padding-top:10px; padding-bottom:10px;'>"+board.description+"</div>");
+    }else{
+        $("#advicesTitleDiv").css("display","none");
+    }
+
     //判断是否指定模板ID
     if(templateId && currentTemplate && currentTemplate.trim().length>0){//如果指定了显示模板则根据显示模板装配内容
         //直接eval显示模板
@@ -738,6 +746,13 @@ function insertBoardItem(){
     // 加载内容
     var item = items[num-1];
     if(!item)return;
+
+    //显示推荐语：
+    /**
+    if(item.description && item.description.trim().length>0){
+        $("#advicesDiv").append("<div style='line-height:18px;line-height:18px;width:90%;border-top:1px solid silver;font-size:12px;padding-top:10px; padding-bottom:10px;'>"+item.description+"</div>");
+    }
+    //**/
 
     var logoImg = "images/tasks/board.png";
     if(item.stuff && item.stuff.images && item.stuff.images.length>0){
