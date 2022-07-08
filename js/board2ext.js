@@ -178,7 +178,7 @@ function generateQrcode(){
     });  
 }
 
-function buildDefaultPoster(board){
+function buildDefaultPosterTest(board){
     //动态计算海报宽度与高度
     var width = document.getElementsByTagName('html')[0].clientWidth;
     var height = width*9/16;//宽高比4:3    
@@ -308,7 +308,7 @@ function buildDefaultPoster(board){
     },1200);
 }
 
-function buildDefaultPosterTest(board){
+function buildDefaultPoster(board){
     //动态计算海报宽度与高度
     var width = document.getElementsByTagName('html')[0].clientWidth;
     var height = width*9/16;//宽高比4:3
