@@ -178,13 +178,244 @@ function generateQrcode(){
     });  
 }
 
+function buildDefaultPoster(board){
+    //动态计算海报宽度与高度
+    var width = document.getElementsByTagName('html')[0].clientWidth;
+    var height = width*9/16;//宽高比4:3    
+
+    console.log("got poster height.",height);
+
+    var minHeight = 340;//112*2 + 56 + 20 + 20;//计算一个最低高度
+
+    //html模板：用于装载样式
+    var templateHtml = `
+        <div id="body" style="background-color:#fff;padding-left:0;width:100%;min-height:340px;height:360px;">  
+            <!--logo图片作为背景：是多张grid组合-->
+            <div id="item-logo" style="width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows: 1fr 1fr;grid-gap: 0px;">
+                <div id="logo1" style="grid-area: 1 / 1 / 3 / 3;background-color:blue"></div>
+                <div id="logo2" style="background-color:orange"></div>
+                <div id="logo3" style="background-color:green"></div>
+            </div>
+
+            <div id="item-recommend" style="position:absolute;top:85px;left:3px;width:100%;">
+                <!--顶部显示标题及ilife logo-->
+                <div id="basic" style="display:flex;flex-direction:row;width:100%;">
+                    <div id="item-title" style="background-color:#fff;color:grey;text-align:center;border-radius:20px;line-height:20px;margin-left:5px;padding:auto 5px;padding:2px 5px;width:calc(100% - 120px);border:1px solid silver;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" ></div> 
+                    <div id="item-tip" style="background-color:#fff;color:grey;text-align:center;border-radius:20px;line-height:18px;margin-left:5px;padding:auto 5px;padding:2px 5px;margin-right:10px;width:112px;border:1px solid silver;" >@小确幸大生活</div> 
+                </div>
+
+                <!--中间显示评价规则及评价得分，其中评价得分采用barchart显示-->
+                <div id="matrix" style="display:table;width:100%;">
+                    <!--图表缺乏时填充空白，其高度等于图片高度--> 
+                    <div id="matrix-placeholder" style="display:table-cell;width:50%;"></div> 
+                </div>
+
+                <!--底部显示推荐信息、评价logo、二维码-->
+                <div id="sxRecommend" style="display:flex;flex-direction:row;flex-wrap:nowrap;">
+
+                    <!--推荐者-->
+                    <div id="broker" class="broker" style="width:calc(100% - 112px);margin:0;display:flex;">
+                        <div id="broker-logo" class="broker-logo" style="border-radius:24px;"></div>
+                        <div id="broker-shop" class="broker-shop">
+                            <div id="broker-name" class="broker-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div> 
+                            <div id="shop-name" class="shop-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div> 
+                        </div>
+                    </div> 
+
+                    <!--评价LOGO，是静态图片-->
+                    <div>
+                        <img src="images/rate-logo.png" style="width:56px;margin-top:-2px;"/>
+                    </div>      
+                      
+                    <div id="app-qrcode-box"></div>                 
+
+                </div> 
+            </div>
+
+        </div>
+    `;
+    $("#container").html(templateHtml);
+    $("#container").css("border-radius","0");
+    //标题
+    $("#item-title").html(board.title);          
+
+    //使用类目作为推荐语
+    var advice = "用小确幸填满大生活";
+    if(board.tags) advice = board.tags;
+
+    //$("#shop-name").html(item.category&&item.category.length>0?item.category[0]:""); //店铺名称   
+    $("#shop-name").html(advice); //店铺名称   
+
+    //设置div高度：需要动态计算
+    var imgWidths = [2,1,1];
+    var imgHeights = [2,1,1];
+    var widthUnit = width/3;
+    var heightUnit = height/2;
+
+    var picHtml = `
+            <img src="__src" style="object-fit:cover;/*width:__widthpx;height:__heightpx;*/width:100%;height:100%;"/>    
+        `;
+
+    //由于需要加载详情列表，此处需要有一个等待时间
+    setTimeout(function(){
+        //图片：将所有board图片放进图片列表内
+        var  imgList  = [];
+        if(board.logo) imgList.push(board.logo);
+        //逐条放入item的图片：优先logo
+        items.forEach(function(item){
+            if(item.stuff&&item.stuff.logo&&imgList.indexOf(item.stuff.logo)<0)
+                imgList.push(item.stuff.logo)
+        });
+        //逐条放入item的图片：images[0]
+        items.forEach(function(item){
+            if(item.stuff&&item.stuff.images&&imgList.indexOf(item.stuff.images[0])<0)
+                imgList.push(item.stuff.images[0])
+        });
+        //逐条放入item的图片：images[1]
+        items.forEach(function(item){
+            if(item.stuff&&item.stuff.images&&item.stuff.images[1]&&imgList.indexOf(item.stuff.images[1])<0)
+                imgList.push(item.stuff.images[1])
+        });        
+
+
+        //将图片放入grid
+        for(var i=0;i<3 && i<imgList.length;i++){
+            var imgUrl = imgPrefix + imgList[i].replace(/\.avif/,'');
+            $("#logo"+(i+1)).append(picHtml.replace(/__src/,imgUrl).replace(/__width/,imgWidths[i]*widthUnit).replace(/__height/,imgHeights[i]*heightUnit));//正文图片
+            //需要通过父级div元素完成图片自适应
+            $("#logo"+(i+1)).css({
+                height:imgHeights[i]*heightUnit,
+                width:imgWidths[i]*widthUnit
+            });
+            preloadList.push(imgUrl);//将图片加入预加载列表
+        }
+
+        var matrixMargin = $("#item-logo").height() - 26 -2;//采用固定高度，去掉顶部标题行均为图表显示区域
+        $("#matrix-placeholder").css({
+            "height":matrixMargin+"px",
+        }); 
+
+        //计算整个海报高度：由于图片高度不固定，需要根据图片高度实际计算
+        //海报高度 = 图片高度+56；其中图片高度由logo缩放得到，56为底部推荐条高度；海报最低高度340
+        var posterHeight = $("#item-logo").height() + 56;
+        $("#body").css({
+            "height":posterHeight+"px",
+        });          
+
+        //logo：注意使用代理避免跨域问题
+        preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
+        $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");        
+    },1200);
+}
+
+function buildDefaultPosterTest(board){
+    //动态计算海报宽度与高度
+    var width = document.getElementsByTagName('html')[0].clientWidth;
+    var height = width*9/16;//宽高比4:3
+    //html模板：用于装载样式
+    var templateHtml = `
+        <div id="body" style="background-color:#fff;padding-left:0;width:100%;padding-top:0;">  
+            <div id="item-logo" style="width:100%;position:relative;">
+                <img src="" style="object-fit:cover;width:100%;height:__heightpx;">
+                <div id="item-platform" style="position:absolute;top:5px;right:5px;font-size:12px;font-weight:bold;color:#fff;border-radius:12px;background-color:#F6824B;padding:2px 5px;"></div>
+                <div id="item-title" style="position:absolute;top:__top1px;left:0;right:0;bottom:0;margin:auto;font-size:20px;font-weight:bold;width:80%;display:inline-block;white-space: nowrap; overflow:hidden;text-overflow:ellipsis;text-align:center;color:#fff;"></div> 
+                <div id="item-advice" style="position:absolute;top:__top2px;left:0;right:0;bottom:0;margin:auto;font-size:16px;font-weight:bold;width:90%;display:inline-block;white-space: nowrap; overflow:hidden;text-overflow:ellipsis;text-align:center;color:#fff;"></div>  
+            </div>  
+             
+                                
+        </div>
+
+        <div style="display:table;margin-left:-2px;margin-top:-2px;" id="smallpics"> 
+            <!--评价LOGO，是静态图片-->
+            <div style="display:table-cell;">
+                <img src="images/rate-logo.png" style="width:52px;"/>
+            </div>  
+
+            <!--二维码-->        
+            <div id="app-qrcode-box" style="width:56px;display:table-cell;"></div>  
+        </div>  
+    `;
+    $("#container").html(templateHtml.replace(/__height/,height).replace(/__top1/,(height/2-15)).replace(/__top2/,(height/2+15)));
+    $("#container").css("background","#fff");
+    //标题
+    $("#item-title").html(board.title);
+    //标题
+    $("#item-advice").html(board.tags);    
+    //平台
+    $("#item-platform").html(app.globalData.userInfo.nickname);//默认显示推荐者昵称
+
+    //由于需要加载详情列表，此处需要有一个等待时间
+    setTimeout(function(){
+        //图片
+        var boardLogo = "";
+        if(board.logo){
+            boardLogo = board.logo;//正文图片
+        }else{//默认随机从列表内容中选一张
+            var randomIndex = new Date().getTime() % items.length;
+            var stuff = items[randomIndex].stuff;
+            if(stuff.logo){
+                boardLogo = stuff.logo;//使用logo
+            }else{
+                boardLogo = stuff.images[0];//从图片列表内获取
+            }
+        }
+        $("#item-logo img").attr("src", imgPrefix+ boardLogo.replace(/\.avif/,''));//正文图片
+
+        var picHtml = `
+                <div class="app-qrcode" style="display:table-cell;border-right:2px solid #fff;">
+                    <img src="__src" style="object-fit:cover;width:__widthpx;height:__heightpx"/> 
+                </div>    
+            `;
+
+        var smallPicWidth = (width-8-112)/4;//二维码为98*98，中间留白为4
+        var smallPicHeight = smallPicWidth>49?49:smallPicWidth;
+        //填充小图片：默认采用固定大小，并优先用默认图片填充
+        var k=0;//仅取3张
+        for(var i=0;i<4&&k<3&&items.length>3;i++){//需要items长度超过3
+            var imgUrl = imgPrefix + "";//默认图片
+            var itemLogo = items[i].stuff.logo;
+            if(!itemLogo) itemLogo = items[i].stuff.images[0];
+            if(itemLogo != boardLogo ){
+                imgUrl = imgPrefix + itemLogo.replace(/\.avif/,'');
+            }else{
+                continue;
+            }
+            $("#smallpics").prepend(picHtml.replace(/__src/,imgUrl).replace(/__width/,smallPicWidth).replace(/__height/,smallPicHeight));
+            preloadList.push(imgUrl);//将图片加入预加载列表
+            k++;
+        }
+
+        //将用户logo作为首图
+        $("#smallpics").prepend(picHtml.replace(/__src/,imgPrefix+app.globalData.userInfo.avatarUrl).replace(/__width/,smallPicWidth).replace(/__height/,smallPicHeight));
+
+        //logo：注意使用代理避免跨域问题
+        preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
+        $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");        
+    },1200);
+
+}
+
 //将board内容显示到页面
 function showContent(board){
-    $("#broker-name").html((board.broker.nickname?board.broker.nickname:app.globalData.userInfo.nickName)+ " 推荐");    //默认作者为board创建者
-    $("#shop-name").html(board.title); //店铺名称
-    //logo：注意使用代理避免跨域问题
-    preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
-    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");
+    console.log("try to show content.[template id]",currentTemplate);
+    //判断是否指定模板ID
+    if(templateId && currentTemplate && currentTemplate.trim().length>0){//如果指定了显示模板则根据显示模板装配内容
+        //直接eval显示模板
+        try{
+            console.log("try to eval template expression.",viewTemplates[currentTemplate]);
+            eval(viewTemplates[currentTemplate].expression);//注意：直接eval
+        }catch(err){
+            console.log("eval poster expression error.",err);
+            //显示提示浮框
+            siiimpleToast.message('参数错误，将生成默认海报~~',{
+                  position: 'bottom|center'
+                });             
+            buildDefaultPoster(board);//这里出错了就只能拿本地的来垫背了
+        }        
+    }else{//否则装配本地默认内容
+        console.log("ignore poster template. generate default poster.",currentTemplate);
+        buildDefaultPoster(board)
+    }
 
     //qrcode.makeCode(window.location.href.replace(/board2ext/g,"board2"));
     //$("#publish-time").html(board.updateDate.split(" ")[0]);   
