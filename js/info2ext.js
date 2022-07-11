@@ -98,23 +98,24 @@ function requestViewTemplates(){
 var posterSchemes = {};
 function requestPosterScheme(){
     //仅对已经确定类目的商品进行
-    if(!stuff.meta || !stuff.meta.category)
-        return;
-
-    $.ajax({
-        url:app.config.sx_api+"/mod/posterTemplate/rest/item-templates",
-        type:"get",
-        data:{categoryId:stuff.meta.category},
-        success:function(schemes){
-            console.log("\n===got item poster scheme ===\n",schemes);
-            //遍历海报模板
-            for(var i=0;i<schemes.length;i++){
-                if(!posterSchemes[schemes[i].id])
-                    posterSchemes[schemes[i].id] = schemes[i];//记录poster定义
+    if(!stuff.meta || !stuff.meta.category){
+        showSwiper("poster"); //return; //直接显示viewtemplate
+    }else{
+        $.ajax({
+            url:app.config.sx_api+"/mod/posterTemplate/rest/item-templates",
+            type:"get",
+            data:{categoryId:stuff.meta.category},
+            success:function(schemes){
+                console.log("\n===got item poster scheme ===\n",schemes);
+                //遍历海报模板
+                for(var i=0;i<schemes.length;i++){
+                    if(!posterSchemes[schemes[i].id])
+                        posterSchemes[schemes[i].id] = schemes[i];//记录poster定义
+                }
+                showSwiper("poster");
             }
-            showSwiper("poster");
-        }
-    });  
+        });  
+    }
 }
 
 
