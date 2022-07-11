@@ -178,7 +178,7 @@ function generateQrcode(){
     });  
 }
 
-function buildDefaultPosterTest(board){
+function buildDefaultPoster(board){
     //动态计算海报宽度与高度
     var width = document.getElementsByTagName('html')[0].clientWidth;
     var height = width*9/16;//宽高比4:3    
@@ -189,7 +189,7 @@ function buildDefaultPosterTest(board){
 
     //html模板：用于装载样式
     var templateHtml = `
-        <div id="body" style="background-color:#fff;padding-left:0;width:100%;min-height:340px;height:360px;">  
+        <div id="body" style="background-color:#fff;padding-left:0;width:100%;height:360px;">  
             <!--logo图片作为背景：是多张grid组合-->
             <div id="item-logo" style="width:100%;display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows: 1fr 1fr;grid-gap: 0px;">
                 <div id="logo1" style="grid-area: 1 / 1 / 3 / 3;background-color:blue"></div>
@@ -300,7 +300,7 @@ function buildDefaultPosterTest(board){
         var posterHeight = $("#item-logo").height() + 56;
         $("#body").css({
             "height":posterHeight+"px",
-        });          
+        });        
 
         //logo：注意使用代理避免跨域问题
         preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
@@ -308,7 +308,7 @@ function buildDefaultPosterTest(board){
     },1200);
 }
 
-function buildDefaultPoster(board){
+function buildDefaultPosterForTest(board){
     //动态计算海报宽度与高度
     var width = document.getElementsByTagName('html')[0].clientWidth;
     var height = width*9/16;//宽高比4:3
