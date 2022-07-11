@@ -377,7 +377,7 @@ function generateImage() {
 }
 
 //显示本地默认海报：用于测试用途
-function buildDefaultPoster(item){
+function buildDefaultPosterForTest(item){
 //设置二维码大小
     qrcodeSize = 56;
     qrcodeLogoSize = 14;
@@ -524,48 +524,154 @@ function buildDefaultPoster(item){
 }
 
 
-function buildDefaultPosterForTest(item){
+function buildDefaultPoster(item){
+//设置二维码大小
+    qrcodeSize = 56;
+    qrcodeLogoSize = 14;
+    //修改svg二维码尺寸：由于是异步生成，需要同时调整
+    var svgs = document.getElementsByTagName("svg");
+    if(svgs && svgs.length>0){
+        var svg = svgs[0];
+        svg.setAttribute('width',''+qrcodeSize);
+        svg.setAttribute('height',''+qrcodeSize);
+    }
+    
+
+    //动态计算海报宽度与高度
+    var width = document.getElementsByTagName('html')[0].clientWidth;
+    var height = width*9/16;//宽高比4:3    
+
+    var minHeight = 340;//112*2 + 56 + 20 + 20;//计算一个最低高度
+
+    if(height<minHeight){
+        height = minHeight;
+    }
     //html模板：用于装载样式
     var templateHtml = `
-       <div class="head">
-            小确幸大生活
-        </div>
-
-        <div id="body">  
-            <div id="broker" class="broker">
-                <div id="broker-logo" class="broker-logo"></div>
-                <div id="broker-shop" class="broker-shop">
-                    <div id="broker-name" class="broker-name"></div> 
-                    <div id="shop-name" class="shop-name"></div> 
-                    <div id="content" class="content"></div> 
-                </div>
+        <div id="body" style="background-color:#fff;padding-left:0;width:100%;min-height:340px;">  
+            <!--logo图片作为背景-->
+            <div id="item-logo">
+                <img src="" width="100%" style="object-fit:cover;"/>
             </div>
 
-            <div id="item-logo" class="item-logo"></div>  
-            <div id="item-title" class="item-title"></div>                      
+            <div id="item-recommend" style="position:absolute;top:85px;left:5px;width:100%;">
+                <!--顶部显示来源及标题-->
+                <div id="basic" style="display:flex;flex-direction:row;width:100%;">
+                    <div id="item-distributor" style="width:60px;background-color:#F6824B;color:#fff;text-align:center;border-radius:20px;line-height:20px;padding:2px 5px;border:1px solid silver;"></div> 
+                    <div id="item-title" style="background-color:#fff;color:grey;text-align:center;border-radius:20px;line-height:20px;margin-left:5px;padding:auto 5px;padding:2px 5px;width:calc(100% - 180px);border:1px solid silver;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" ></div> 
+                    <div id="item-tip" style="background-color:#fff;color:grey;text-align:center;border-radius:20px;line-height:18px;margin-left:5px;padding:auto 5px;padding:2px 5px;margin-right:10px;width:112px;border:1px solid silver;" >@小确幸大生活</div> 
+                </div>
+
+                <!--图表缺乏时填充空白-->
+                <div id="matrix-placeholder" style="display:flex;flex-direction:column;width:100%">&nbsp;</div>
+
+                <!--中间显示评价规则及评价得分-->
+                <div id="matrix" style="display:flex;flex-direction:column;width:100%;margin-bottom:5px;">
+                    <div id="item-sunburst" style="text-align:right;margin-right:10px;"></div> 
+                    <div id="item-radar" style="text-align:right;margin-right:10px;" ></div> 
+                </div>
+
+
+                <!--底部显示推荐信息、评价logo、二维码-->
+                <div id="sxRecommend" style="display:flex;flex-direction:row;flex-wrap:nowrap;">
+
+                    <!--推荐者-->
+                    <div id="broker" class="broker" style="width:calc(100% - 112px);margin:0;display:flex;">
+                        <div id="broker-logo" class="broker-logo" style="border-radius:24px;"></div>
+                        <div id="broker-shop" class="broker-shop">
+                            <div id="broker-name" class="broker-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div> 
+                            <div id="shop-name" class="shop-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div> 
+                        </div>
+                    </div> 
+
+                    <!--评价LOGO，是静态图片-->
+                    <div>
+                        <img src="images/rate-logo.png" style="width:56px;margin-top:-2px;"/>
+                    </div>      
+                      
+                    <div id="app-qrcode-box"></div>                 
+
+                </div> 
+            </div>
+
         </div>
-
-        <div class="foot" style="display:flex;margin-top:2px;">
-            <div id="app-text" class="app-text" style="width:calc(100%-112px)">
-                <div class="app-desc">Life is all about having a good time.</div>
-               <div class="app-desc">每一个人都是生活的专家。<br/>选出好的，分享对的，让生活充满小确幸。</div>
-            </div>   
-            <!--评价LOGO，是静态图片-->
-            <div style="width:56px;display:table-cell;">
-                <img src="images/rate-logo.png" style="width:56px;"/>
-            </div>  
-
-            <!--二维码-->       
-            <div id="app-qrcode-box" class="app-qrcode-box" style="width:56px;text-align:right;margin-top:2px;"></div>   
-        </div>  
     `;
     $("#container").html(templateHtml);
-    $("#container").css( "background" ,'url("images/bg/bg00.jpeg")');
+    $("#container").css("border-radius","0");
+    //distributor
+    $("#item-distributor").html(item.distributor.name);
     //标题
-    $("#item-title").html(item.title);
+    $("#item-title").html(item.title);    
 
-    //图片
-    $("#item-logo").append("<img src='" +imgPrefix+ item.images[0].replace(/\.avif/,'') + "' width='80%'/>");//正文图片
+    //图片：作为背景图
+    var itemLogo = imgPrefix+ item.images[0].replace(/\.avif/,'');
+    if(item.logo){
+        itemLogo = imgPrefix+ item.logo.replace(/\.avif/,'');
+    }
+
+    $("#item-logo img").attr("src", itemLogo);//正文图片
+
+    //根据图片高度调整留白空隙
+    $("#item-logo img").get(0).onload = function(){
+
+        //根据图片实际高度调整布局
+        var imgHeight = $("#item-logo img").height();
+
+        //如果图片高度过低则以最低高度计算
+        if(imgHeight<minHeight){
+            imgHeight = minHeight;
+        }
+
+        //计算评价图表距上方的距离
+        //var matrixMargin = height - 2*112 - 20 - 56 - 9 - 2*6;//先按照有评价图表计算，去掉顶部高度及底部高度
+        var matrixMargin = $("#item-logo img").height() - 26 -8;//采用固定高度，去掉顶部标题行均为图表显示区域
+        $("#matrix-placeholder").css({
+            "height":matrixMargin+"px",
+        }); 
+          
+        //叠加评价图表
+        if(item.media && item.media["measure-scheme"]){
+            $("#item-sunburst").append('<img src="'+imgPrefix+item.media["measure-scheme"]+'" style="width:112px;height:112px;border:1px solid silver;border-radius:5px;padding:2px;"/>');
+            matrixMargin -= 112+7;
+        }else{
+            $("#item-sunburst").html("&nbsp;");
+            $("#item-sunburst").css("line-height","112px");
+            matrixMargin -= 112;
+        }
+
+        if(item.media && item.media["measure"]){
+            $("#item-radar").append('<img src="'+imgPrefix+item.media["measure"]+'" style="width:112px;height:112px;border:1px solid silver;border-radius:5px;padding:2px;"/>');
+            matrixMargin -= 112+7;
+        }else{
+            $("#item-radar").html("&nbsp;");
+            $("#item-radar").css("line-height","112px");
+            matrixMargin -= 112;
+        }
+
+        if(matrixMargin<=0){
+            matrixMargin = 10;
+        }
+        //根据图片高度和海报高度调整留白
+        /**
+        console.log("got image height and poster height.",imgHeight,height);
+        if(imgHeight>height){//以实际图片高度输出
+            matrixMargin += imgHeight - height;
+        }
+        //**/
+
+        $("#matrix-placeholder").css({
+            "height":matrixMargin+"px",
+            //"margin-top":"-"+matrixMargin+"px"
+        });   
+
+        //计算整个海报高度：由于图片高度不固定，需要根据图片高度实际计算
+        //海报高度 = 图片高度+56；其中图片高度由logo缩放得到，56为底部推荐条高度；海报最低高度340
+        var posterHeight = $("#item-logo img").height() + 56;
+        $("#body").css({
+            "height":posterHeight+"px",
+        });  
+
+    } 
 
     //使用类目作为推荐语
     var advice = "用小确幸填满你的大生活";
@@ -582,15 +688,15 @@ function buildDefaultPosterForTest(item){
         advice = item.category[item.category.length-1];
     }else{
         //留空，采用默认值
-    } 
+    }
 
     //$("#shop-name").html(item.category&&item.category.length>0?item.category[0]:""); //店铺名称   
     $("#shop-name").html(advice); //店铺名称   
 
     //logo：注意使用代理避免跨域问题
     preloadList.push(imgPrefix+app.globalData.userInfo.avatarUrl);//将图片加入预加载列表
-    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");
-    $("#broker-logo img").css("margin-left","10px");
+    $("#broker-logo").html("<img src='"+imgPrefix+app.globalData.userInfo.avatarUrl+"'/>");  
+    $("#broker-logo img").css("margin-left","0");
 }
 
 
