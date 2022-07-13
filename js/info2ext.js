@@ -29,7 +29,9 @@ $(document).ready(function ()
 
     //请求所有模板列表。请求完成后将触发生成
     requestViewTemplates();
-    
+        
+    //加载导航和关注列表
+    loadCategories(category);  
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -378,7 +380,7 @@ function generateImage() {
 }
 
 //显示本地默认海报：用于测试用途
-function buildDefaultPosterForTest(item){
+function buildDefaultPoster(item){
 //设置二维码大小
     qrcodeSize = 56;
     qrcodeLogoSize = 14;
@@ -413,7 +415,7 @@ function buildDefaultPosterForTest(item){
                 <img src="" width="100%" style="object-fit:cover;"/>
             </div>
 
-            <div id="item-recommend" style="position:absolute;top:85px;left:3px;width:100%;">
+            <div id="item-recommend" style="position:absolute;top:125px;left:3px;width:100%;">
                 <!--顶部显示来源及标题-->
                 <div id="basic" style="display:flex;flex-direction:row;width:100%;">
                     <div id="item-distributor" style="width:60px;background-color:#F6824B;color:#fff;text-align:center;border-radius:20px;line-height:20px;padding:2px 5px;border:1px solid silver;"></div> 
@@ -525,7 +527,7 @@ function buildDefaultPosterForTest(item){
 }
 
 
-function buildDefaultPoster(item){
+function buildDefaultPosterForTest(item){
 //设置二维码大小
     qrcodeSize = 56;
     qrcodeLogoSize = 14;
@@ -555,7 +557,7 @@ function buildDefaultPoster(item){
                 <img src="" width="100%" style="object-fit:cover;"/>
             </div>
 
-            <div id="item-recommend" style="position:absolute;top:85px;left:5px;width:100%;">
+            <div id="item-recommend" style="position:absolute;top:125px;left:5px;width:100%;">
                 <!--顶部显示来源及标题-->
                 <div id="basic" style="display:flex;flex-direction:row;width:100%;">
                     <div id="item-distributor" style="width:60px;background-color:#F6824B;color:#fff;text-align:center;border-radius:20px;line-height:20px;padding:2px 5px;border:1px solid silver;"></div> 
@@ -881,6 +883,27 @@ function loadItem(key){//获取内容列表
             }            
         }
     })            
+}
+
+function loadCategories(currentCategory){
+    $.ajax({
+        url:app.config.sx_api+"/mod/channel/rest/channels/active",
+        type:"get",
+        success:function(msg){
+            var navObj = $(".navUl");
+            for(var i = 0 ; i < msg.length ; i++){
+                navObj.append("<li data='"+msg[i].id+"' style='line-height:40px;font-size:12px;font-weight:bold;'>"+msg[i].name+"</li>");
+                if(currentCategory == msg[i].id)//高亮显示当前选中的category
+                    $(navObj.find("li")[i]).addClass("showNav");
+            }
+            //注册点击事件
+            navObj.find("li").click(function(){
+                var key = $(this).attr("data");
+                //跳转到首页
+                window.location.href = "index.html?category="+key;
+            })
+        }
+    })    
 }
 
 //装载模板选择滑动条
