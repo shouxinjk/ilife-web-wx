@@ -43,7 +43,8 @@ $(document).ready(function ()
     //loadBoard(id); 
     //加载清单item列表
     //loadBoardItems(id);
-    
+    //加载导航和关注列表
+    loadCategories(category);      
 });
 
 var id=null;
@@ -178,7 +179,7 @@ function generateQrcode(){
     });  
 }
 
-function buildDefaultPoster(board){
+function buildDefaultPosterForTest(board){
     //动态计算海报宽度与高度
     var width = document.getElementsByTagName('html')[0].clientWidth;
     var height = width*9/16;//宽高比4:3    
@@ -197,7 +198,7 @@ function buildDefaultPoster(board){
                 <div id="logo3" style="background-color:green"></div>
             </div>
 
-            <div id="item-recommend" style="position:absolute;top:85px;left:3px;width:100%;">
+            <div id="item-recommend" style="position:absolute;top:125px;left:3px;width:100%;">
                 <!--顶部显示标题及ilife logo-->
                 <div id="basic" style="display:flex;flex-direction:row;width:100%;">
                     <div id="item-title" style="background-color:#fff;color:grey;text-align:center;border-radius:20px;line-height:20px;margin-left:5px;padding:auto 5px;padding:2px 5px;width:calc(100% - 120px);border:1px solid silver;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" ></div> 
@@ -308,7 +309,7 @@ function buildDefaultPoster(board){
     },1200);
 }
 
-function buildDefaultPosterForTest(board){
+function buildDefaultPoster(board){
     //动态计算海报宽度与高度
     var width = document.getElementsByTagName('html')[0].clientWidth;
     var height = width*9/16;//宽高比4:3
@@ -810,13 +811,13 @@ function insertBoardItem(){
 
 function loadCategories(currentCategory){
     $.ajax({
-        url:"https://data.shouxinjk.net/_db/sea/category/categories",
+        url:app.config.sx_api+"/mod/channel/rest/channels/active",
         type:"get",
         success:function(msg){
             var navObj = $(".navUl");
             for(var i = 0 ; i < msg.length ; i++){
-                navObj.append("<li data='"+msg[i]._key+"'>"+msg[i].name+"</li>");
-                if(currentCategory == msg[i]._key)//高亮显示当前选中的category
+                navObj.append("<li data='"+msg[i].id+"' style='line-height:40px;font-size:12px;font-weight:bold;'>"+msg[i].name+"</li>");
+                if(currentCategory == msg[i].id)//高亮显示当前选中的category
                     $(navObj.find("li")[i]).addClass("showNav");
             }
             //注册点击事件
