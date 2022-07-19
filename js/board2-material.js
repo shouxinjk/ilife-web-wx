@@ -281,13 +281,14 @@ function insertArticleScheme(item){
             .replace(/__DESCRIPTION/g,item.description?item.description:"");
 
     //按钮
-    var btns = "<span id='gen"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'>生成</span>"+
-               "<span id='view"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'></span>"; 
+    var btns = "<div style='margin-bottom:10px;'><span id='gen"+item.id+"' style='line-height:20px;color:#006cfd;font-size:12px;'>生成</span>"+
+               "<span id='view"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'></span></div>"; 
     if(board.article && board.article[item.id]){
-        btns = "<span id='gen"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'>更新</span>"+
-               "<span id='view"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'>查看</span>";   
+        btns = "<div style='margin-bottom:10px;'><span id='gen"+item.id+"' style='line-height:20px;color:#006cfd;font-size:12px;'>更新</span>"+
+               "<span id='view"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'>查看</span></div>";   
     }
 
+    /**
     $("#waterfall").append("<li>"+
         '<div class="board-item-title" style="margin-top:16px;" id="scheme"'+item.id+'>'+
           '<span class="board-item-title-text">'+item.name+'</span>'+btns+
@@ -297,6 +298,11 @@ function insertArticleScheme(item){
             "<div class='board-item-description'>"+item.description+"</div>"+
         "</div>"+       
         "</li>");
+    //**/
+    var image = "<img src='"+logoImg+"' style='width:60px;object-fit:cover;'/>";
+    var title = "<div class='title' style='line-height:20px;font-size:14px;font-weight:bold;'>"+item.name+"</div>";
+    var description = "<div class='description'>"+item.description+"</div>";
+    $("#waterfall").append("<li><div class='task' data='scheme"+item.id+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+btns+"</div></li>");
 
     //注册事件：点击生成则重新生成并发布article
     $('#gen'+item.id).click(function(){

@@ -202,7 +202,7 @@ function insertItem(){
     var description = "<div class='description'>"+item.description+"</div>";
     var tags = "<div class='tags'>"+item.tags+"</div>";
     //var btns = "<div class='btns'><a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享文字列表</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享图片列表</a></div>";
-    var btns = "<div class='btns'><a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享海报</a></div>&nbsp;<a href='../board2-material.html?id="+item.id+"'>分享图文内容</a></div>";
+    var btns = "<div class='btns'><a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享海报</a>&nbsp;<a href='../board2-material.html?id="+item.id+"'>分享图文内容</a></div>";
     if(item.broker.id == currentBroker){
         //btns = "<div class='btns'><a href='../index.html?keyword="+item.keywords+"&boardId="+item.id+"'>添加商品</a>&nbsp;<a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享文字列表</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享图片列表</a></div>";
         btns = "<div class='btns'><a href='../index.html?keyword="+item.keywords+"&boardId="+item.id+"'>添加商品</a>&nbsp;<a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享海报</a>&nbsp;<a href='../board2-material.html?id="+item.id+"'>分享图文内容</a></div>";
