@@ -520,18 +520,55 @@ function insertItem(){
     var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
     var description = "<div class='description'>"+item.updateDate+"</div>";//更新时间
 
+    //操作按钮：默认认为是单品
+    var btns = "<div style='margin-top:-10px;'><span id='view"+item.itemkey+"' style='color:#006cfd;font-size:12px;' data-url='"+item.url+"'>查看内容</span>"+
+               "<span id='item"+item.itemkey+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>查看商品</span>"+ 
+               "<span id='copy"+item.itemkey+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>复制专属链接</span></div>"; 
+    if(item.type=='board'){
+        btns = "<div style='margin-top:-10px;'><span id='view"+item.itemkey+"' style='color:#006cfd;font-size:12px;' data-url='"+item.url+"'>查看内容</span>"+
+               "<span id='board"+item.itemkey+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>查看商品</span>"+ 
+               "<span id='copy"+item.itemkey+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>复制专属链接</span></div>";         
+    }
 
-    $("#waterfall").append("<li><div class='task' data='"+item.itemkey+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +highlights+profitTags+"</div></li>");
+    $("#waterfall").append("<li><div class='task' data='"+item.itemkey+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +highlights+profitTags+btns+"</div></li>");
     num++;
 
-    //注册事件
-    $("div[data='"+item.itemkey+"']").click(function(){
-        //跳转到物料页面。需要带上当前达人信息
-        var targetUrl = $(this).attr("data-url")+"?fromBroker="+broker.id+"&fromUser"+app.globalData.userInfo._key+"&fromUsername="+app.globalData.userInfo.nickname; 
+    //注册事件：点击查看图文内容
+    //跳转到物料页面。需要带上当前达人信息
+    $("#view"+item.itemkey).click(function(){
+        var targetUrl = $(this).attr("data-url")+"?fromBroker="+broker.id+"&fromUser"+app.globalData.userInfo._key+"&fromUsername="+app.globalData.userInfo.nickname;    
         console.log("Publisher::material now jump to article.",targetUrl);
         //window.location.href = "../index.html";   
         window.location.href = targetUrl;
     });
+    //复制链接
+    var targetUrl = item.url+"?fromBroker="+broker.id+"&fromUser"+app.globalData.userInfo._key+"&fromUsername="+app.globalData.userInfo.nickname;    
+    $('#copy'+item.itemkey).attr("data-clipboard-text",targetUrl);
+    var clipboard = new ClipboardJS('#copy'+item.itemkey);
+    clipboard.on('success', function(e) {
+        console.info('broker url is copied:', e.text);
+        siiimpleToast.message('专属链接已复制，请用浏览器打开~~',{
+              position: 'bottom|center'
+            });  
+        //e.clearSelection();            
+    });     
+    //跳转到单品或列表：
+    if(item.type=='board'){
+        $("#board"+item.itemkey).click(function(){
+            var targetUrl = "../board2-waterfall.html?id="+item.itemkey; 
+            console.log("Publisher::material now jump to board.",targetUrl);
+            //window.location.href = "../index.html";   
+            window.location.href = targetUrl;
+        });        
+    }else{
+        $("#item"+item.itemkey).click(function(){
+            var targetUrl = "../info2.html?id="+item.itemkey; 
+            console.log("Publisher::material now jump to item.",targetUrl);
+            //window.location.href = "../index.html";   
+            window.location.href = targetUrl;
+        });       
+    }
+
 
     // 表示加载结束
     loading = false;
