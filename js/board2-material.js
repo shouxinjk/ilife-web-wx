@@ -287,7 +287,7 @@ function insertArticleScheme(item){
     if(board.article && board.article[item.id]){
         btns = "<div style='margin-bottom:10px;'><span id='gen"+item.id+"' style='line-height:20px;color:#006cfd;font-size:12px;'>更新</span>"+
                "<span id='view"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'>查看</span>"+ 
-               "<span id='copy"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'>复制链接</span></div>";  
+               "<span id='copy"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'>复制专属链接</span></div>";  
     }
 
     /**
@@ -441,7 +441,7 @@ function publishArticle(templateId, postTitle, postContent){
                     window.location.href = targetUrl;
                 });     
                 //设置复制链接按钮属性，点击后复制专属URL
-                $("#copy"+templateId).html("复制链接");
+                $("#copy"+templateId).html("复制专属链接");
                 $("#copy"+templateId).css("color","#006cfd");                 
                 $('#copy'+templateId).attr("data-clipboard-text",targetUrl);
                 var clipboard = new ClipboardJS('#copy'+templateId);
@@ -486,7 +486,7 @@ function publishArticle(templateId, postTitle, postContent){
                     window.location.href = targetUrl;
                 });     
                 //设置复制链接按钮属性，点击后复制专属URL
-                $("#copy"+templateId).html("复制链接");
+                $("#copy"+templateId).html("复制专属链接");
                 $("#copy"+templateId).css("color","#006cfd"); 
                 $('#copy'+templateId).attr("data-clipboard-text",targetUrl);
                 var clipboard = new ClipboardJS('#copy'+templateId);
