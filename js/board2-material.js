@@ -414,6 +414,12 @@ function publishArticle(templateId, postTitle, postContent){
                 //提交文章到 索引
                 var doc = createArticleDoc(res.id,templateId,postTitle,postContent);
                 indexArticleDoc(doc);  
+                //显示查看按钮
+                $("#view"+templateId).html("查看");
+                $("#view"+templateId).css("color","#006cfd");  
+                $("#view"+templateId).click(function(){
+                    window.location.href=app.config.mp_api+"/archives/"+res.id;
+                });                              
             }
         }); 
     }else{//否则生成新的文章，并且更新board.article
