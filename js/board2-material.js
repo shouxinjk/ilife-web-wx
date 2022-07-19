@@ -474,7 +474,7 @@ function publishArticle(templateId, postTitle, postContent){
                 board.article[templateId]=res.id;
                 sendItemArticleToWebhook(res.id);//发送到企业微信群便于分享
                 //提交文章到 索引
-                var doc = createArticleDoc(res.id);
+                var doc = createArticleDoc(res.id,templateId,postTitle,postContent);
                 indexArticleDoc(doc);                       
                 //更新board
                 updateBoard();
