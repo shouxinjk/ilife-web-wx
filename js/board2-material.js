@@ -43,6 +43,8 @@ $(document).ready(function ()
 
     //加载内容
     loadBoard(id); //加载完成后将自动加载图文内容模板列表
+    //加载清单item列表
+    loadBoardItems(id);
 
     //加载导航和关注列表
     loadCategories(category);  
