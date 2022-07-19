@@ -282,10 +282,12 @@ function insertArticleScheme(item){
 
     //按钮
     var btns = "<div style='margin-bottom:10px;'><span id='gen"+item.id+"' style='line-height:20px;color:#006cfd;font-size:12px;'>生成</span>"+
-               "<span id='view"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'></span></div>"; 
+               "<span id='view"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'></span>"+ 
+               "<span id='copy"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'></span></div>"; 
     if(board.article && board.article[item.id]){
         btns = "<div style='margin-bottom:10px;'><span id='gen"+item.id+"' style='line-height:20px;color:#006cfd;font-size:12px;'>更新</span>"+
-               "<span id='view"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'>查看</span></div>";   
+               "<span id='view"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'>查看</span>"+ 
+               "<span id='copy"+item.id+"' style='line-height:20px;margin-left:10px;color:#006cfd;font-size:12px;'>复制链接</span></div>";  
     }
 
     /**
@@ -309,9 +311,20 @@ function insertArticleScheme(item){
         requestArticle($(this).attr("id").replace(/gen/,""));
     });
     if(board.article && board.article[item.id]){
+        var targetUrl=app.config.mp_api+"/archives/"+board.article[item.id]+"?fromBroker="+broker.id+"&fromUser"+app.globalData.userInfo._key+"&fromUsername="+app.globalData.userInfo.nickname; 
         $('#view'+item.id).click(function(){
-            window.location.href=app.config.mp_api+"/archives/"+board.article[item.id];
+            window.location.href=targetUrl; 
         });
+        //设置复制链接按钮属性，点击后复制专属URL
+        $('#copy'+item.id).attr("data-clipboard-text",targetUrl);
+        var clipboard = new ClipboardJS('#copy'+item.id);
+        clipboard.on('success', function(e) {
+            console.info('broker url is copied:', e.text);
+            siiimpleToast.message('专属链接已复制，请用浏览器打开~~',{
+                  position: 'bottom|center'
+                });  
+            //e.clearSelection();            
+        });                
     }
 
     num++;
@@ -403,7 +416,7 @@ function publishArticle(templateId, postTitle, postContent){
     if(isExists){//如果已经生成则直接更新，注意存储的是文章ID
         console.log("\n===try to update exists article. ===\n",board.article[templateId]);
         $.ajax({
-            url:"https://mp.biglistoflittlethings.com/wp-json/wp/v2/posts/"+board.article[templateId],
+            url:app.config.mp_api +"/wp-json/wp/v2/posts/"+board.article[templateId],
             type:"post",
             data:JSON.stringify({
                 title:postTitle,
@@ -421,17 +434,30 @@ function publishArticle(templateId, postTitle, postContent){
                 var doc = createArticleDoc(res.id,templateId,postTitle,postContent);
                 indexArticleDoc(doc);  
                 //显示查看按钮
+                var targetUrl = app.config.mp_api+"/archives/"+res.id+"?fromBroker="+broker.id+"&fromUser"+app.globalData.userInfo._key+"&fromUsername="+app.globalData.userInfo.nickname; 
                 $("#view"+templateId).html("查看");
                 $("#view"+templateId).css("color","#006cfd");  
                 $("#view"+templateId).click(function(){
-                    window.location.href=app.config.mp_api+"/archives/"+res.id;
-                });                              
+                    window.location.href = targetUrl;
+                });     
+                //设置复制链接按钮属性，点击后复制专属URL
+                $("#copy"+templateId).html("复制链接");
+                $("#copy"+templateId).css("color","#006cfd");                 
+                $('#copy'+templateId).attr("data-clipboard-text",targetUrl);
+                var clipboard = new ClipboardJS('#copy'+templateId);
+                clipboard.on('success', function(e) {
+                    console.info('broker url is copied:', e.text);
+                    siiimpleToast.message('专属链接已复制，请用浏览器打开~~',{
+                          position: 'bottom|center'
+                        });  
+                    //e.clearSelection();            
+                });                                          
             }
         }); 
     }else{//否则生成新的文章，并且更新board.article
         console.log("\n===try to publish new article. ===\n");
         $.ajax({
-            url:"https://mp.biglistoflittlethings.com/wp-json/wp/v2/posts",
+            url:app.config.mp_api + "/wp-json/wp/v2/posts",
             type:"post",
             data:JSON.stringify({
                 title:postTitle,
@@ -452,12 +478,25 @@ function publishArticle(templateId, postTitle, postContent){
                 indexArticleDoc(doc);                       
                 //更新board
                 updateBoard();
-                //显示查看按钮 
+                //显示查看按钮
+                var targetUrl = app.config.mp_api+"/archives/"+res.id+"?fromBroker="+broker.id+"&fromUser"+app.globalData.userInfo._key+"&fromUsername="+app.globalData.userInfo.nickname; 
                 $("#view"+templateId).html("查看");
-                $("#view"+templateId).css("color","#006cfd");
+                $("#view"+templateId).css("color","#006cfd");  
                 $("#view"+templateId).click(function(){
-                    window.location.href=app.config.mp_api+"/archives/"+res.id;
-                });
+                    window.location.href = targetUrl;
+                });     
+                //设置复制链接按钮属性，点击后复制专属URL
+                $("#copy"+templateId).html("复制链接");
+                $("#copy"+templateId).css("color","#006cfd"); 
+                $('#copy'+templateId).attr("data-clipboard-text",targetUrl);
+                var clipboard = new ClipboardJS('#copy'+templateId);
+                clipboard.on('success', function(e) {
+                    console.info('broker url is copied:', e.text);
+                    siiimpleToast.message('专属链接已复制，请用浏览器打开~~',{
+                          position: 'bottom|center'
+                        });  
+                    //e.clearSelection();            
+                });   
             }
         }); 
     }
@@ -600,7 +639,7 @@ function indexArticleDoc(doc){
         }]
     };
     $.ajax({
-        url:"http://kafka-rest.shouxinjk.net/topics/article",
+        url:app.config.message_api + "/topics/article",
         type:"post",
         data:JSON.stringify(data),//注意：不能使用JSON对象
         headers:{
@@ -608,7 +647,7 @@ function indexArticleDoc(doc){
             "Accept":"application/vnd.kafka.v2+json"
         },
         success:function(result){
-            siiimpleToast.message('图文索引已提交',{
+            siiimpleToast.message('图文内容已生成',{
                   position: 'bottom|center'
                 });
         }
