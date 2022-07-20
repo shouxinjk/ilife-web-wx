@@ -62,6 +62,8 @@ $(document).ready(function ()
         }
     });
 
+    //注册分享事件
+    registerShareHandler(); 
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -341,4 +343,95 @@ function createBoard(){
             window.location.href = "../index.html?boardId="+res.data.id;//不带关键字，不指定用户
         }
     }, "POST",data,header);
+}
+
+
+//注册分享事件
+function registerShareHandler(){
+    //准备分享url，需要增加分享的 fromUser、fromBroker信息
+    //var shareUrl = window.location.href.replace(/info2/g,"share");//需要使用中间页进行跳转
+    var shareUrl = window.location.href;//通过中间页直接跳转到第三方电商详情页面
+    console.log("target share url.",shareUrl);
+    ////多站点处理：start//////////////////////////////////
+    //由于不同平台通过不同站点，需要进行区分是shouxinjk.net还是biglistoflittlethings.com
+    /*
+    if(stuff&&stuff.source=="jd"){//如果是京东，则需要指明跳转到shouxinjk.net
+        shareUrl += "&toSite=shouxinjk"; 
+    }
+    //**/
+    ////多站点处理：end////////////////////////////////////
+
+    $.ajax({
+        url:app.config.auth_api+"/wechat/jssdk/ticket",
+        type:"get",
+        data:{url:window.location.href},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
+        //data:{url:shareUrl},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
+        success:function(json){
+            console.log("===got jssdk ticket===\n",json);
+            wx.config({
+                debug:false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: json.appId, // 必填，公众号的唯一标识
+                timestamp:json.timestamp , // 必填，生成签名的时间戳
+                nonceStr: json.nonceStr, // 必填，生成签名的随机串
+                signature: json.signature,// 必填，签名
+                jsApiList: [
+                   // 'onMenuShareTimeline', 'onMenuShareAppMessage','onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone',
+                  'updateAppMessageShareData',
+                  'updateTimelineShareData',
+                  'onMenuShareAppMessage',
+                  'onMenuShareTimeline',
+                  'chooseWXPay',
+                  'showOptionMenu',
+                  "hideMenuItems",
+                  "showMenuItems",
+                  "onMenuShareTimeline",
+                  'onMenuShareAppMessage'                   
+                ] // 必填，需要使用的JS接口列表
+            });
+            wx.ready(function() {
+                // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
+                // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                //准备分享的描述：优先采用推荐语、其次tagging、再次tags
+                var advice = "将多个商品放在一起，推荐效果更好。";      
+                var title = "小确幸商品清单";
+                console.log("share title.",title);         
+                //分享到朋友圈
+                wx.onMenuShareTimeline({
+                    title:title, // 分享标题
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl:"https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
+                    success: function () {
+                        // do nothing
+                    },
+                });
+                //分享给朋友
+                wx.onMenuShareAppMessage({
+                    title:title, // 分享标题
+                    desc:advice, // 分享描述
+                    //desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                    success: function () {
+                      // do nothing
+                    }
+                });  
+                //分享到微博
+                wx.onMenuShareWeibo({
+                    title:title, // 分享标题
+                    desc:advice, // 分享描述
+                    //desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
+                    success: function () {
+                      // do nothing
+                    }
+                });                             
+            });
+        }
+    })    
 }
