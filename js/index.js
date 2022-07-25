@@ -34,6 +34,10 @@ $(document).ready(function ()
     }else{//根据微信公众号登录流程获取达人信息，并加载关心的人
       //加载达人信息
       loadBrokerInfo();    
+      //同步用户信息，直接从首页进入后需要同步用户昵称及头像
+      if(app.globalData.userInfo&&app.globalData.userInfo._key){//如果本地已有用户则直接加载
+          loadPerson(app.globalData.userInfo._key);//加载用户
+      }      
       //加载关心的人
       loadPersons();
       //在加载达人后再加载数据，避免brokerInfo缺失
@@ -128,6 +132,39 @@ var filter = "";//通过filter区分好价、好物、附近等不同查询组�
 
 var categoryTagging = "";//记录目录切换标签，tagging = categoryTagging + currentPersonTagging
 
+
+//load person
+function loadPerson(personId) {
+    console.log("try to load person info.",personId);
+    util.AJAX(app.config.data_api+"/user/users/"+personId, function (res) {
+        console.log("load person info.",personId,res);
+        syncPerson(res);//提交用户昵称到后端
+        //loadBrokerByOpenid(res._key);//根据openid加载broker信息
+    });
+}
+//同步用户信息：将用户昵称及头像同步到后台
+function syncPerson(person){
+    //同时更新broker的nickname及avatarUrl：由于微信不能静默获取，导致broker内缺乏nickname及avatarUrl
+    console.log("try to sync broker info.",person);
+    $.ajax({
+        url:app.config.sx_api+"/mod/broker/rest/sync/"+person._key,
+        type:"post",
+        data:JSON.stringify({
+            nickname: person.nickName,
+            avatarUrl:person.avatarUrl
+        }),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },
+        success:function(res){
+            console.log("sync success.",res);
+        },
+        error:function(){
+            console.log("sync failed.",person);
+        }
+    });     
+}
 
 //直接读取用户信息:从企业微信或web进入时，默认需要携带fromUser信息 ，根据fromUser加载用户及达人数据
 function loadUserInfoByOpenid(openid){

@@ -41,7 +41,11 @@ $(document).ready(function ()
     //loadPersonas();//加载用户画像：假设用户是达人，直接尝试加载
     loadFeeds();
     //loadData();//加载数据：默认使用当前用户查询
-
+    
+    //同步用户信息，直接从首页进入后需要同步用户昵称及头像
+    if(app.globalData.userInfo&&app.globalData.userInfo._key){//如果本地已有用户则直接加载
+        loadPerson(app.globalData.userInfo._key);//加载用户
+    }
 });
 
 var columnWidth = 300;//默认宽度300px
@@ -82,6 +86,39 @@ var currentPersonType = "person";//当前选中的是用户还是画像，默认
 var personKeys = [];//标记已经加载的用户key，用于排重
 
 var inputPerson = null;//接收指定的personId或personaId
+
+//load person
+function loadPerson(personId) {
+    console.log("try to load person info.",personId);
+    util.AJAX(app.config.data_api+"/user/users/"+personId, function (res) {
+        console.log("load person info.",personId,res);
+        syncPerson(res);//提交用户昵称到后端
+        //loadBrokerByOpenid(res._key);//根据openid加载broker信息
+    });
+}
+//同步用户信息：将用户昵称及头像同步到后台
+function syncPerson(person){
+    //同时更新broker的nickname及avatarUrl：由于微信不能静默获取，导致broker内缺乏nickname及avatarUrl
+    console.log("try to sync broker info.",person);
+    $.ajax({
+        url:app.config.sx_api+"/mod/broker/rest/sync/"+person._key,
+        type:"post",
+        data:JSON.stringify({
+            nickname: person.nickName,
+            avatarUrl:person.avatarUrl
+        }),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },
+        success:function(res){
+            console.log("sync success.",res);
+        },
+        error:function(){
+            console.log("sync failed.",person);
+        }
+    });     
+}
 
 function loadFeeds(){
     setInterval(function ()
