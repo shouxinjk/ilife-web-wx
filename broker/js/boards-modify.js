@@ -267,6 +267,15 @@ function loadItem(item){//获取内容列表
         success:function(data){
             item.stuff = data;//装载stuff到boarditem   
             items.push(item); //装载到列表 
+            //检查board是否有logo，如果没有logo则进行设置
+            if(!board.logo || board.logo.indexOf("biglistoflittlethings")>0){ //不允许使用默认图片
+                if(data.logo){
+                    board.logo = data.logo;
+                }else{
+                    board.logo = data.images[0];
+                }
+                logo = board.logo;
+            }
             insertItem(); //显示到界面    
         }
     })            
