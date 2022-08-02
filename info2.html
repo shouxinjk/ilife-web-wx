@@ -6,13 +6,14 @@
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />   
     <link rel="stylesheet" type="text/css" href="ext/galleryview/css/galleryview.css">
     <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="ext/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="ext/star-rating-svg/star-rating-svg.css">
     <link rel="stylesheet" type="text/css" href="ext/cascade-select/cascader.css?v=0.7">   
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="css/common.css?v=2.3">
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css">     
-    <link rel="stylesheet" type="text/css" href="css/info2.css?v=2.76">
+    <link rel="stylesheet" type="text/css" href="css/info2.css?v=2.77">
 </head>
 <body>
 
@@ -47,7 +48,8 @@
         </div-->                 
         <div id="link">
             <div class="link" id="jumpLinkDiv">
-                <button id="jumpbtn" type="button" data-clipboard-text="only-for-token" class="buy-btn-hide">去 看 看 &gt;</button>
+                <button id="addSelectionBtn" type="button" class="buy-btn-show" style="width:35%;background-color:darkgreen;">加入选品库</button>
+                <button id="jumpbtn" type="button" data-clipboard-text="only-for-token" class="buy-btn-hide" style="width:60%">去 看 看 &gt;</button>
             </div>     
             <div id="qrcodeImgDiv">
                 <img id="qrcodeImg" src=""/>
@@ -128,11 +130,11 @@
 
         <!-- 分享按钮 -->
         <div id="share-box" class="share-box-hide">
-            <div class="share-tips">达人分享</div>
+            <div class="share-tips">立即分享</div>
             <div id="share-bonus" class="share-bonus"></div>
             <div class="share-btn">
                 <div>下单即得佣金</div>
-                <a id="share-link" href="#">&nbsp;&nbsp;立即分享&nbsp;&nbsp;</a>
+                <a id="share-link" href="#">&nbsp;&nbsp;生成海报&nbsp;&nbsp;</a>
             </div>
         </div>   
 
@@ -166,6 +168,8 @@
 <script type="text/javascript" src="ext/jquery-ui.min.js"></script>
 <script type="text/javascript" src="ext/star-rating-svg/jquery.star-rating-svg.min.js"></script>
 <script type="text/javascript" src="ext/cascade-select/cascader.js?v=1.8"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="ext/saveSvgAsPng.js"></script>
 <script type="text/javascript" src="ext/d3/d3.min.js"></script>
 <script type="text/javascript" src="ext/d3/radarchart.js?v=1.2"></script>
@@ -176,5 +180,6 @@
 <script type="text/javascript" src="js/util.js?v=7.56"></script>
 <script type="text/javascript" src="js/options.js?v=1.04"></script>
 <script type="text/javascript" src="js/helper.js?v=1.13"></script>
-<script type="text/javascript" src="js/info2.js?v=8.92"></script>
+<script type="text/javascript" src="js/common.js?v=1.0"></script>
+<script type="text/javascript" src="js/info2.js?v=8.93"></script>
 </html>

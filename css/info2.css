@@ -160,30 +160,30 @@ a{
 .buy-btn-show{
 	background-color: #f04848;
 	width:90%;
-    border: none;
-    border-radius: 5rem;
-    color: white;
-    margin: 2px;
-    padding:0 5px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 2rem;
-    line-height: 3.2rem;
+  border: none;
+  border-radius: 5rem;
+  color: white;
+  margin: 2px;
+  padding:0 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 1.4rem;
+  line-height: 3.2rem;
 }
 .buy-btn-hide{
 	background-color: #f04848;
 	width:90%;
-    border: none;
-    border-radius: 5rem;
-    color: white;
-    margin: 5px;
-    padding:0 5px;
-    text-align: center;
-    text-decoration: none;
-    display: none;
-    font-size: 2rem;
-    line-height: 3.2rem;
+  border: none;
+  border-radius: 5rem;
+  color: white;
+  margin: 5px;
+  padding:0 5px;
+  text-align: center;
+  text-decoration: none;
+  display: none;
+  font-size: 1.4rem;
+  line-height: 3.2rem;
 }
 
 #shopping-link{

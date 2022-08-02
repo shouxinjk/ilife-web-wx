@@ -65,6 +65,7 @@ var page = {//翻页控制
 var actionTypes = {
   view:"看了",
   share:"分享",
+  "selection":"选品推荐",
   "publish":"发布",
   "collect":"上架",  
   "share poster":"海报分享",

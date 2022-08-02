@@ -49,6 +49,28 @@ $(document).ready(function ()
 
     //显示tabs
     $( "#tabs" ).tabs();
+
+    //注册点击事件：加入选品库
+    $("#addSelectionBtn").click(function(){
+        //加入选品库：即记录选品事件，后续直接从log中查询
+        logstash(stuff,from,"selection",app.globalData.userInfo._key,broker.id,function(){
+            console.log("add item to my selection.");
+            siiimpleToast.message('已加入选品库',{
+              position: 'bottom|center'
+            }); 
+        });          
+        //推送到CK，同步发送到微信群
+        wxGroups.forEach(function(wxgroup){
+            if(wxgroup.name == 'sx临时群') //for test
+            saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "item", stuff._key, JSON.stringify(stuff), "pending");
+        });   
+        if(wxGroups.length>0){
+            console.log("wxgroups synchronized.");
+            siiimpleToast.message('推送已安排~~',{
+              position: 'bottom|center'
+            });             
+        }    
+    });     
     
 });
 
@@ -383,11 +405,45 @@ function showContent(item){
     $("#jumpbtn").removeClass("buy-btn-hide");
     $("#jumpbtn").addClass("buy-btn-show");
 
+    //显示加入选品按钮
+    //$("#addSelectionBtn").css("display","block");
+
     //广告
     //trace user action
     logstash(item,from,"view",fromUser,fromBroker,function(){
         //do nothing
     });      
+}
+
+
+//根据达人ID加载活跃微信群
+var wxGroups = [];//存储当前达人的微信群列表
+function loadWxGroups(brokerId){
+    console.log("try to load wx groups by brokerId.",brokerId);
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxGroup/rest/listByBrokerId?brokerId="+brokerId,
+        type:"get",        
+        success:function(ret){
+            console.log("===got wx groups===\n",ret);
+            wxGroups = ret;
+        }
+    }); 
+}
+//存储featured item到ck
+function saveFeaturedItem(eventId, brokerId, groupType, groupId, groupName,itemType, itemKey, jsonStr, status){
+  var q = "insert into ilife.features values ('"+eventId+"','"+brokerId+"','"+groupType+"','"+groupId+"','"+groupName+"','"+itemType+"','"+itemKey+"','"+jsonStr+"','"+status+"',now())";
+  console.log("try to save featured item.",q);
+  jQuery.ajax({
+    url:app.config.analyze_api+"?query="+encodeURIComponent(q),
+    type:"post",
+    //data:{},
+    headers:{
+      "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+    },         
+    success:function(json){
+      console.log("===featured item saved.===\n",json);
+    }
+  });    
 }
 
 //加载类目数据，加载完成后显示级联选择器
@@ -723,6 +779,7 @@ function loadBrokerByOpenid(openid) {
         //console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
+            loadWxGroups(broker.id);//加载该达人的微信群
             //显示评价图：
             if(stuff.meta && stuff.meta.category){
                 showRadar();//显示评价图
