@@ -59,7 +59,8 @@ $(document).ready(function ()
               position: 'bottom|center'
             }); 
         });          
-        //推送到CK，同步发送到微信群
+        //推送到CK，同步发送到微信群：当前禁用。需要进入选品库手动推送
+        /**
         wxGroups.forEach(function(wxgroup){
             if(wxgroup.name == 'sx临时群') //for test
             saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "item", stuff._key, JSON.stringify(stuff), "pending");
@@ -69,8 +70,13 @@ $(document).ready(function ()
             siiimpleToast.message('推送已安排~~',{
               position: 'bottom|center'
             });             
-        }    
-    });     
+        }  
+        //**/  
+    });    
+    //注册点击事件：查看选品库
+    $("#goSelectionBtn").click(function(){
+        window.location.href="broker/selection.html";           
+    });      
     
 });
 
@@ -405,14 +411,18 @@ function showContent(item){
     $("#jumpbtn").removeClass("buy-btn-hide");
     $("#jumpbtn").addClass("buy-btn-show");
 
-    //显示加入选品按钮
-    //$("#addSelectionBtn").css("display","block");
-
     //广告
     //trace user action
     logstash(item,from,"view",fromUser,fromBroker,function(){
         //do nothing
     });      
+}
+
+function showSelectionBtns(){
+    //显示加入选品按钮
+    $("#addSelectionBtn").css("display","inline");    
+    $("#goSelectionBtn").css("display","inline");
+    $("#jumpbtn").css("width","45%");
 }
 
 
@@ -780,6 +790,7 @@ function loadBrokerByOpenid(openid) {
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
             loadWxGroups(broker.id);//加载该达人的微信群
+            showSelectionBtns();//如果是达人则显示选品库按钮
             //显示评价图：
             if(stuff.meta && stuff.meta.category){
                 showRadar();//显示评价图
