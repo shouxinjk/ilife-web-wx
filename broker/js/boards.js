@@ -204,15 +204,15 @@ function insertItem(){
     var description = "<div class='description'>"+item.description+"</div>";
     var tags = "<div class='tags'>"+item.tags+"</div>";
     //var btns = "<div class='btns'><a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享文字列表</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享图片列表</a></div>";
-    var btns = "<div class='btns'><a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享海报</a>&nbsp;<a href='../board2-material.html?id="+item.id+"'>分享图文内容</a></div>";
+    var btns = "<div class='btns'><a href='#' style='font-size:12px;'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"' style='font-size:12px;'>分享海报</a>&nbsp;<a href='../board2-material.html?id="+item.id+"' style='font-size:12px;'>分享图文内容</a></div>";
     if(item.broker.id == currentBroker){
         //btns = "<div class='btns'><a href='../index.html?keyword="+item.keywords+"&boardId="+item.id+"'>添加商品</a>&nbsp;<a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享文字列表</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享图片列表</a></div>";
-        btns = "<div class='btns'><a href='../index.html?keyword="+item.keywords+"&boardId="+item.id+"'>添加商品</a>&nbsp;<a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享海报</a>&nbsp;<a href='../board2-material.html?id="+item.id+"'>分享图文内容</a></div>";
+        btns = "<div class='btns'><a href='../index.html?keyword="+item.keywords+"&boardId="+item.id+"' style='font-size:12px;'>添加商品</a>&nbsp;<a href='#' style='font-size:12px;'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"' style='font-size:12px;'>分享海报</a>&nbsp;<a href='../board2-material.html?id="+item.id+"' style='font-size:12px;'>分享图文内容</a>&nbsp;<span id='btnPush"+item.id+"' style='color:#E16531;font-size:12px;'>云推送</span></div>";
     }
     $("#waterfall").append("<li><div class='task' data='"+item.id+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title+ tags +description+btns+"</div></li>");
     num++;
 
-    //注册事件
+    //注册事件：进入board
     $("div[data='"+item.id+"']").click(function(){
         //判断当前达人是否是board创建达人
         if(item.broker.id == currentBroker){//如果是当前board创建达人，则直接跳转
@@ -227,9 +227,63 @@ function insertItem(){
         }
 
     });
+    //注册事件：云推送
+    $("#btnPush"+item.id).click(function(){
+        event.stopPropagation();//阻止触发跳转详情
+
+        //推送到CK，同步发送到微信群
+        wxGroups.forEach(function(wxgroup){
+            if(wxgroup.name == 'sx临时群') //for test
+            saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "board", item.id, JSON.stringify(item), "pending");
+        });   
+        if(wxGroups.length>0){
+            console.log("wxgroups synchronized.");
+            siiimpleToast.message('推送已安排~~',{
+              position: 'bottom|center'
+            });             
+        }else{
+            console.log("no wxGroups.");
+            siiimpleToast.message('推送列表为空，请联系客服~~',{
+              position: 'bottom|center'
+            });          
+        }
+
+    });
 
     // 表示加载结束
     loading = false;
+}
+
+
+
+//根据达人ID加载活跃微信群
+var wxGroups = [];//存储当前达人的微信群列表
+function loadWxGroups(brokerId){
+    console.log("try to load wx groups by brokerId.",brokerId);
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxGroup/rest/listByBrokerId?brokerId="+brokerId,
+        type:"get",        
+        success:function(ret){
+            console.log("===got wx groups===\n",ret);
+            wxGroups = ret;
+        }
+    }); 
+}
+//存储featured item到ck
+function saveFeaturedItem(eventId, brokerId, groupType, groupId, groupName,itemType, itemKey, jsonStr, status){
+  var q = "insert into ilife.features values ('"+eventId+"','"+brokerId+"','"+groupType+"','"+groupId+"','"+groupName+"','"+itemType+"','"+itemKey+"','"+jsonStr+"','"+status+"',now())";
+  console.log("try to save featured item.",q);
+  jQuery.ajax({
+    url:app.config.analyze_api+"?query="+encodeURIComponent(q),
+    type:"post",
+    //data:{},
+    headers:{
+      "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+    },         
+    success:function(json){
+      console.log("===featured item saved.===\n",json);
+    }
+  });    
 }
 
 //load person
@@ -260,6 +314,7 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {
             insertBroker(res.data);//显示达人信息
+            loadWxGroups(res.data.id);//加载该达人的微信群
             registerTimer(res.data.id);//加载该达人的board列表
         }
     });
