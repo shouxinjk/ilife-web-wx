@@ -154,7 +154,6 @@ function showContent(board){
         }else{
             //推送到CK，同步发送到微信群
             wxGroups.forEach(function(wxgroup){
-                if(wxgroup.name == 'sx临时群') //for test
                 saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "board", board.id, JSON.stringify(board), "pending");
             });   
             if(wxGroups.length>0){
