@@ -104,9 +104,11 @@ function showContent(board){
     //标题
     console.log("display edit button.[current broker id]"+broker.id+"[board broker id]"+board.broker.id);
     if(broker && broker.id == board.broker.id){//如果是当前达人则可以直接修改
-        $("#title").html(board.title+"&nbsp;&nbsp;<a class='board-modify-btn' style='color:#006cfd;' href='broker/boards-modify.html?id="+board.id+"'>修改</a>");
+        $("#title").html(board.title+"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;' href='broker/boards-modify.html?id="+board.id+"'>修改</a>"
+            +"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>");
     }else if(broker && broker.id){//如果不是编辑达人，则先克隆后再需改
-        $("#title").html(board.title+"&nbsp;&nbsp;<a id='cloneBoardBtn' class='board-modify-btn' style='color:#006cfd;'>克隆</a>");
+        $("#title").html(board.title+"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;'>克隆</a>"
+            +"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>");
         $("#cloneBoardBtn").click(function(){
             console.log("try to clone board.[boardId]"+board.id+"[brokerId]"+broker.id);
             util.AJAX(app.config.sx_api+"/mod/board/rest/board/clone/"+board.id+"/"+broker.id, function (res) {
@@ -138,6 +140,37 @@ function showContent(board){
     if(fromBroker && fromBroker.trim().length>0){//根据分享者加载对应达人
         loadBrokerById(fromBroker);
     }  
+
+    //注册事件：云推送
+    $("#btnPush").click(function(){
+        event.stopPropagation();//阻止触发跳转详情
+
+        //检查商品条目数量，少于3条不推送
+        if(items.length<3){
+            console.log("no enough board items. ignore.");
+            siiimpleToast.message('至少要有3个商品，请添加~~',{
+              position: 'bottom|center'
+            });             
+        }else{
+            //推送到CK，同步发送到微信群
+            wxGroups.forEach(function(wxgroup){
+                if(wxgroup.name == 'sx临时群') //for test
+                saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "board", board.id, JSON.stringify(board), "pending");
+            });   
+            if(wxGroups.length>0){
+                console.log("wxgroups synchronized.");
+                siiimpleToast.message('推送已安排~~',{
+                  position: 'bottom|center'
+                });             
+            }else{
+                console.log("no wxGroups.");
+                siiimpleToast.message('推送列表为空，请联系客服~~',{
+                  position: 'bottom|center'
+                });          
+            }
+        }
+
+    });
 
     //TODO:记录board浏览历史
     /*
@@ -188,6 +221,7 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
+            loadWxGroups(res.data.id);//加载该达人的微信群
             $("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board     
             $("#sharebox").css("display","block");      //仅对达人显示分享框
         }
@@ -195,6 +229,37 @@ function loadBrokerByOpenid(openid) {
         registerShareHandler();       
     });
 }
+
+//根据达人ID加载活跃微信群
+var wxGroups = [];//存储当前达人的微信群列表
+function loadWxGroups(brokerId){
+    console.log("try to load wx groups by brokerId.",brokerId);
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxGroup/rest/listByBrokerId?brokerId="+brokerId,
+        type:"get",        
+        success:function(ret){
+            console.log("===got wx groups===\n",ret);
+            wxGroups = ret;
+        }
+    }); 
+}
+//存储featured item到ck
+function saveFeaturedItem(eventId, brokerId, groupType, groupId, groupName,itemType, itemKey, jsonStr, status){
+  var q = "insert into ilife.features values ('"+eventId+"','"+brokerId+"','"+groupType+"','"+groupId+"','"+groupName+"','"+itemType+"','"+itemKey+"','"+jsonStr+"','"+status+"',now())";
+  console.log("try to save featured item.",q);
+  jQuery.ajax({
+    url:app.config.analyze_api+"?query="+encodeURIComponent(q),
+    type:"post",
+    //data:{},
+    headers:{
+      "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+    },         
+    success:function(json){
+      console.log("===featured item saved.===\n",json);
+    }
+  });    
+}
+
 
 //根据id查询加载broker
 function loadBrokerById(brokerId) {

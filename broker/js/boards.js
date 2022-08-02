@@ -215,6 +215,7 @@ function insertItem(){
     //注册事件：进入board
     $("div[data='"+item.id+"']").click(function(){
         //判断当前达人是否是board创建达人
+        /*
         if(item.broker.id == currentBroker){//如果是当前board创建达人，则直接跳转
             window.location.href = "boards-modify.html?id="+item.id;            
         }else{//否则，先克隆一个再编辑
@@ -225,7 +226,10 @@ function insertItem(){
                 window.location.href = "boards-modify.html?id="+res.data.id;    
             },"POST",null,{ "Content-Type":"application/json" });
         }
+        //**/
 
+        //直接跳转到详情界面
+        window.location.href = "../board2-waterfall.html?id="+item.id;  
     });
     //注册事件：云推送
     $("#btnPush"+item.id).click(function(){
@@ -253,8 +257,6 @@ function insertItem(){
     // 表示加载结束
     loading = false;
 }
-
-
 
 //根据达人ID加载活跃微信群
 var wxGroups = [];//存储当前达人的微信群列表
