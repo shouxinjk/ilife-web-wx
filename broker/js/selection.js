@@ -179,10 +179,10 @@ function loadData() {
             }
           ]
         }
-      },/**
+      },
       collapse: {
         field: "itemId"//根据itemId 折叠，即：一个item仅显示一次
-      },//**/
+      },
       sort: [
         //{ "weight": { order: "desc" } },//权重高的优先显示
         { "@timestamp": { order: "desc" } },//最近操作的优先显示
