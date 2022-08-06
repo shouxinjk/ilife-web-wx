@@ -8,7 +8,7 @@ function insertPerson(person){
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
     html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    html += '<div class="info-text info-blank" id="brokerLink"><a href="../user.html">返回用户后台</a>&nbsp;&nbsp;<a href="../broker/task.html">进入生活家后台</a></div>';
+    html += '<div class="info-text info-blank" id="brokerLink"><a href="../user.html">返回用户后台</a>&nbsp;&nbsp;<a href="../broker/selection.html">进入生活家后台</a></div>';
     html += '</div>';
     $("#user").append(html);
     //同时更新broker的nickname及avatarUrl：由于微信不能静默获取，导致broker内缺乏nickname及avatarUrl
