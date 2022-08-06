@@ -366,7 +366,7 @@ function insertItem(){
             });             
         }else{
             console.log("no wxGroups.");
-            siiimpleToast.message('推送列表为空，请联系客服~~',{
+            siiimpleToast.message('还未开通云助手，请联系客服~~',{
               position: 'bottom|center'
             });          
         }
