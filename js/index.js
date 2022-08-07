@@ -81,6 +81,11 @@ $(document).ready(function ()
         registerShareHandler();        
     }); 
 
+    //注册点击事件：查看选品库
+    $("#goSelectionBtn").click(function(){
+        window.location.href="broker/selection.html";           
+    });     
+
     //加载filter并高亮
     loadFilters(filter);
     //高亮显示当前选中的filter
@@ -895,7 +900,8 @@ function insertItem(){
         highlights += "<span class='couponTip'>券</span><span class='coupon' href='#'>"+item.price.coupon+"</span>";
     }    
     highlights += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name).replace("itemTag","itemTagDistributor");
-    highlights += '<span id="jumpbtn'+item._key+'" class="jumpbtn">&nbsp;&nbsp;立即前往&nbsp;&nbsp;</span>';
+    //highlights += '<span id="jumpbtn'+item._key+'" class="jumpbtn">&nbsp;&nbsp;立即前往&nbsp;&nbsp;</span>';
+    highlights += '<span id="addSelectionBtn'+item._key+'" class="jumpbtn">&nbsp;添加选品&nbsp;</span>';
     highlights += "</div>";
 
     var profitTags = "";
@@ -986,6 +992,7 @@ function insertItem(){
         //跳转到详情页
         window.location.href = "info2.html?category="+category+"&id="+item._key;
     });
+    //点击跳转详情
     $("#jumpbtn"+item._key).click(function(e){
         //需要禁止外部事件
         var e = window.event || e;
@@ -993,6 +1000,18 @@ function insertItem(){
         else e.cancelBubble = true;      
         //直接跳转到第三方页面
         window.location.href = "go.html?id="+item._key+"&fromBroker="+broker.id+"&fromUser="+app.globalData.userInfo._key+"&from=index";
+    });    
+    //注册点击事件：加入选品库
+    $("#addSelectionBtn"+item._key).click(function(){
+        //禁止事件向上传递
+        event.stopPropagation();//阻止触发跳转详情
+        //加入选品库：即记录选品事件，后续直接从log中查询
+        logstash(item,"wap","selection",app.globalData.userInfo._key,broker.id,function(){
+            console.log("add item to my selection.");
+            siiimpleToast.message('已加入选品库',{
+              position: 'bottom|center'
+            }); 
+        });          
     });    
 
     //如果有board则注册增加商品事件
