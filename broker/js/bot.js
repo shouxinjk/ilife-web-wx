@@ -120,10 +120,10 @@ function loadBot(broker) {
                 ` 
             html = html.replace(/__botlogo/,broker.avatarUrl);    //使用达人头像：如果是共享情况则显示共享达人的头像      
             $("#botDiv").html(html);
-            $("#botInfo").append("<div>激活码 "+bot.broker.token+"</div>");
-            $("#botInfo").append("<div>当前状态 "+(bot.status=="active"?"启用":"停用")+"</div>");
-            $("#botInfo").append("<div>开通时间 "+bot.effectFrom+"</div>");
-            $("#botInfo").append("<div>到期时间 "+(bot.expireOn?bot.expireOn:"")+"</div>");
+            //$("#botInfo").append("<div>激活码 "+bot.broker.token+"</div>");
+            $("#botInfo").append("<div style='line-height:18px;'>当前状态 "+(bot.status=="active"?"启用":"停用")+"</div>");
+            $("#botInfo").append("<div style='line-height:18px;'>开通时间 "+bot.effectFrom+"</div>");
+            $("#botInfo").append("<div style='line-height:18px;'>到期时间 "+(bot.expireOn?bot.expireOn:"")+"</div>");
             //加载托管微信群
             loadGroupTasks(broker);
         }else{//显示申请开通
@@ -133,7 +133,7 @@ function loadBot(broker) {
                             <img src='images/add-bot.png' width='50' height='50' class='persona-logo'/>
                         </div>
                         <div class='persona-info'>
-                            <div class='persona-title' style="line-height: 55px">申请开通（内测中，稍安勿躁）</div>
+                            <div class='persona-title' style="line-height: 55px">请添加微信 judyhappymore </div>
                         </div>
                         <div class='persona-action'></div>
                     </div>
@@ -173,7 +173,7 @@ function showGroupTask(item){
     if(item.status=="active")
         status = "<span style='border:1px solid darkgreen;border-radius:5px;color:darkgreen;padding:0 2px;margin-right:2px;'>启用</span>"
     var title = "<div class='persona-title'>"+status+item.wxgroup.name+"</div>"
-    var description = "<div class='persona-description'>"+item.typeDesc +" "+item.cronDesc +"</div>"    
+    var description = "<div class='persona-description'>"+item.typeDesc +" "+ (item.cronDesc?item.cronDesc:"") +"</div>"    
     $("#waterfall").append("<li><div class='persona' data='"+item.id+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +description+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
 
     num++;
