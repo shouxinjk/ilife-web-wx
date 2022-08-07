@@ -133,7 +133,7 @@ function loadBot(broker) {
                             <img src='images/add-bot.png' width='50' height='50' class='persona-logo'/>
                         </div>
                         <div class='persona-info'>
-                            <div class='persona-title' style="line-height: 55px">请添加微信 judyhappymore </div>
+                            <div class='persona-title' style="line-height: 55px">请添加微信 judyhappymore 联系开通</div>
                         </div>
                         <div class='persona-action'></div>
                     </div>
