@@ -104,11 +104,17 @@ function showContent(board){
     //标题
     console.log("display edit button.[current broker id]"+broker.id+"[board broker id]"+board.broker.id);
     if(broker && broker.id == board.broker.id){//如果是当前达人则可以直接修改
-        $("#title").html(board.title+"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;' href='broker/boards-modify.html?id="+board.id+"'>修改</a>"
-            +"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>");
+        $("#title").html(
+            board.title
+            +"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>"
+            +"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;' href='broker/boards-modify.html?id="+board.id+"'>修改</a>"
+            );
     }else if(broker && broker.id){//如果不是编辑达人，则先克隆后再需改
-        $("#title").html(board.title+"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;'>克隆</a>"
-            +"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>");
+        $("#title").html(
+            board.title
+            +"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>"
+            +"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;'>克隆</a>"
+            );
         $("#cloneBoardBtn").click(function(){
             console.log("try to clone board.[boardId]"+board.id+"[brokerId]"+broker.id);
             util.AJAX(app.config.sx_api+"/mod/board/rest/board/clone/"+board.id+"/"+broker.id, function (res) {
