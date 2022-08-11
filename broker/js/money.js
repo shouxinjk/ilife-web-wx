@@ -196,10 +196,10 @@ function getMoney(brokerId) {
         console.log("load broker money info.",brokerId,res);
         //if (res) {
             if(res.payableAmount<50 && broker && broker.id && (broker.openid == "o8HmJ1ItjXilTlFtJNO25-CAQbbg" || broker.openid == "o8HmJ1EdIUR8iZRwaq1T7D_nPIYc" || broker.openid == "o8HmJ1APyNtRkT1dIVXpBD-yN4Kc")){
-                res.totalAmount = 90000+Math.floor((Math.random()*60000));
-                res.payableAmount = 50000+Math.floor((Math.random()*40000));; //only for test
-                res.paidAmount = 10000+Math.floor((Math.random()*40000));; //only for test
-                res.lockedAmount = 50+Math.floor((Math.random()*6000));; //only for test
+                res.totalAmount = 90000+Math.floor((Math.random()*60000))+Math.random();
+                res.payableAmount = 50000+Math.floor((Math.random()*40000))+Math.random(); //only for test
+                res.paidAmount = 10000+Math.floor((Math.random()*40000))+Math.random(); //only for test
+                res.lockedAmount = 50+Math.floor((Math.random()*6000))+Math.random(); //only for test
             }
             showMoney(res);//显示收益明细
         //}
@@ -209,8 +209,8 @@ function getMoney(brokerId) {
 function showMoney(money){
     moneyInfo = money;
     $("#amountTotal").html("￥"+money.totalAmount.toFixed(2));
-    $("#amountSettlement").html("￥"+(money.lockedAmount+money.payableAmount).toFixed(2));
-    $("#amountPayable").html("可提现：￥"+(money.payableAmount-money.paidAmount).toFixed(2));
+    $("#amountSettlement").html("已结算：￥"+(money.lockedAmount+money.payableAmount).toFixed(2));
+    $("#amountPayable").html("￥"+(money.payableAmount-money.paidAmount).toFixed(2));
     $("#amountPayment").html("已提现：￥"+money.paidAmount.toFixed(2));
     $("#amountLocked").html("已锁定：￥"+money.lockedAmount.toFixed(2));
     $("#amountPending").html("￥"+(money.totalAmount-money.lockedAmount-money.payableAmount).toFixed(2));
