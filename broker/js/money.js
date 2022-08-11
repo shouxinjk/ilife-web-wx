@@ -18,6 +18,7 @@ $(document).ready(function ()
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
+    loadPlatforms();//加载电商平台列表
 
     $('#waterfall').NewWaterfall({
         width: columnWidth,
@@ -25,12 +26,25 @@ $(document).ready(function ()
     });     
 
     $("body").css("background-color","#fff");//更改body背景为白色
-    loadPlatforms();//加载电商平台列表
+
     loadPerson(currentPerson);//加载用户
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
         changeActionType(e);
+    });
+
+    //注册提现事件
+    $("#btnWithdraw").click(function(e){
+        if(moneyInfo && moneyInfo.payableAmount && moneyInfo.paidAmount && (moneyInfo.payableAmount-moneyInfo.paidAmount>=50)){
+            console.log("start withdraw process.");
+            showWithdrawForm();
+        }else{
+            console.log("amount is low than 50. ignore.");
+            siiimpleToast.message('加油，金额满50元就可以提现哦~~',{
+              position: 'bottom|center'
+            });             
+        }
     });
 
 });
@@ -55,6 +69,8 @@ var tagging = '';//操作对应的action 如buy view like 等
 
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;
 var userInfo=app.globalData.userInfo;//默认为当前用户
+
+var moneyInfo = {};//账户佣金信息
 
 var platforms = {
     taobao:"淘宝",
@@ -180,12 +196,19 @@ function getMoney(brokerId) {
 }
 
 function showMoney(money){
+    moneyInfo = money;
     $("#amountTotal").html("￥"+money.totalAmount.toFixed(2));
     $("#amountSettlement").html("￥"+(money.lockedAmount+money.payableAmount).toFixed(2));
     $("#amountPayable").html("可提现：￥"+(money.payableAmount-money.paidAmount).toFixed(2));
     $("#amountPayment").html("已提现：￥"+money.paidAmount.toFixed(2));
     $("#amountLocked").html("已锁定：￥"+money.lockedAmount.toFixed(2));
     $("#amountPending").html("￥"+(money.totalAmount-money.lockedAmount-money.payableAmount).toFixed(2));
+
+    //修改提现按钮
+    if(money.payableAmount-money.paidAmount>=50){
+        $("#btnWithdraw").removeClass("btn-withdraw-disable");
+        $("#btnWithdraw").addClass("btn-withdraw-enable");
+    }
 }
 
 //显示没有更多内容
@@ -210,20 +233,6 @@ function showloading(flag){
   }
 }
 
-//加载所有支持的电商平台
-function loadPlatforms(){
-    $.ajax({
-        url:"http://www.shouxinjk.net/ilife/a/mod/itemCategory/third-party-platforms",
-        type:"get",
-        success:function(msg){
-            console.log("got platforms.",msg);
-            for(var i = 0 ; i < msg.length ; i++){
-                platforms[msg[i].id]=msg[i].name;
-                $("#platformDiv").append("<div class='checkbox'><input type='checkbox' name='platform' id='platform-"+msg[i].id+"' value='"+msg[i].id+"'/><label for='platform-"+msg[i].id+"'>"+msg[i].name+"</label></div>");
-            }
-        }
-    })    
-}
 
 function changeActionType (e) {
     console.log("now try to change action type.",e);
@@ -245,5 +254,128 @@ function changeActionType (e) {
 
     //跳转到相应页面
     window.location.href = currentActionType+".html";
+}
+
+//获取所有电商平台
+function loadPlatforms(){
+    $.ajax({
+        url:app.config.sx_api+"/mod/itemCategory/third-party-platforms",
+        type:"get",
+        success:function(msg){
+            console.log("got platforms.",msg);
+            for(var i = 0 ; i < msg.length ; i++){
+                platforms[msg[i].id] = msg[i].name;
+            }
+        }
+    })    
+}
+
+//显示提现表单
+function showWithdrawForm(){
+    console.log("show withdraw form.");
+
+    //根据moneyInfo显示提示信息
+    $("#withdrawDesc").attr("placeholder","如有发票请备注，按照要求，如无发票将代扣个人所得税");
+    if(moneyInfo && moneyInfo.payableAmount && moneyInfo.paidAmount && (moneyInfo.payableAmount-moneyInfo.paidAmount>=50)){//提示最高金额
+        $("#withdrawAmount").attr("placeholder","请输入提现金额：50~"+(moneyInfo.payableAmount-moneyInfo.paidAmount).toFixed(0));
+    }else{
+        $("#withdrawAmount").attr("placeholder",defaultGroupingName);
+    }
+
+    //显示数据填报表单
+    $.blockUI({ message: $('#withdrawform'),
+        css:{ 
+            padding:        10, 
+            margin:         0, 
+            width:          '80%', 
+            top:            '30%', 
+            left:           '10%', 
+            textAlign:      'center', 
+            color:          '#000', 
+            border:         '1px solid silver', 
+            backgroundColor:'#fff', 
+            cursor:         'normal' 
+        },
+        overlayCSS:  { 
+            backgroundColor: '#000', 
+            opacity:         0.7, 
+            cursor:          'normal' 
+        }
+    }); 
+    $("#btnWithdrawNo").click(function(){
+        $("#withdrawAmount").val("");//清空原有数值，避免交叉 
+        $("#withdrawDesc").val("");//清空原有数值，避免交叉        
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnWithdrawYes").click(function(){//推送通知到webhook
+        var withdrawAmount = $("#withdrawAmount").val();
+        var withdrawDesc = $("#withdrawDesc").val();
+        if(!withdrawAmount||withdrawAmount.trim().length==0){
+            console.log("no input. ignore.");
+            siiimpleToast.message('提现金额不能为空~~',{
+              position: 'bottom|center'
+            });             
+        }else{
+            var withdrawAmountNum = Number(withdrawAmount.trim());
+            if(moneyInfo.payableAmount-moneyInfo.paidAmount<withdrawAmountNum){//金额不能超过当前可提现金额
+                console.log("amount cannot greate than available number. ignore.");
+                siiimpleToast.message('不能超过可提现金额~~',{
+                  position: 'bottom|center'
+                });                  
+            }else if( withdrawAmountNum < 50){//提现金额 需大于50
+                console.log("amount cannot less than 50. ignore.");
+                siiimpleToast.message('提现金额不能低于50~~',{
+                  position: 'bottom|center'
+                });    
+            }else{//提现金额 50-可提现金额才执行
+                //send web hook通知运营人员
+                sendToWebhook("新提现申请","达人："+broker.nickname+"\n 金额："+withdrawAmount+"\n备注："+withdrawDesc,"https://www.biglistoflittlethings.com/static/icon/withdraw.png",
+                    "https://www.biglistoflittlethings.com/static/icon/withdraw.png");
+                //关闭表单
+                $("#withdrawAmount").val("");//清空原有数值，避免交叉 
+                $("#withdrawDesc").val("");//清空原有数值，避免交叉                  
+                $.unblockUI(); 
+            }
+        } 
+              
+    });
+
+}
+
+
+//发送信息到运营群：运营团队收到新内容提示
+//发送卡片：其链接为图片地址
+function sendToWebhook(title,desc,url,imgUrl){
+    //推动图文内容到企业微信群，便于转发
+    var msg = {
+            "msgtype": "news",
+            "news": {
+               "articles" : [
+                   {
+                       "title" : title,
+                       "description" : desc,
+                       "url" : url,
+                       "picurl" : imgUrl
+                   }
+                ]
+            }
+        };
+
+    //推送到企业微信
+    console.log("\n===try to sent webhook msg. ===\n",msg);
+    $.ajax({
+        url:app.config.wechat_cp_api+"/wework/ilife/notify-cp-company-broker",
+        type:"post",
+        data:JSON.stringify(msg),
+        headers:{
+            "Content-Type":"application/json"
+        },        
+        success:function(res){
+            console.log("\n=== webhook message sent. ===\n",res);
+            siiimpleToast.message('申请已提交，将在1个工作日内处理',{
+                  position: 'bottom|center'
+                }); 
+        }
+    });     
 }
 

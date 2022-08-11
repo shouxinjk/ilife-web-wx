@@ -7,8 +7,9 @@
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
-    <link rel="stylesheet" type="text/css" href="css/broker.css">
+    <link rel="stylesheet" type="text/css" href="css/broker.css?v=0.1">
     <link rel="stylesheet" type="text/css" href="css/broker-money.css?v=1.7">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
@@ -75,6 +76,8 @@
             <div class="money-column-left">
                 <div class="money-settlement amount-larger" id="amountSettlement">￥0</div>
                 <div class="money-settlement-text">已结算金额</div>
+                <div class="btn-withdraw-disable" id="btnWithdraw">申请提现</div>
+                <div class="money-settlement-text">&gt;50元即可提现</div>
             </div>
             <div class="money-column-right">
                 <div class="money-cell" id="amountPayable">可提现：￥0</div>
@@ -129,6 +132,18 @@
     </a>        
   </div>
 
+    <!--提现表单：显示提现金额-->
+    <div id="withdrawform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">申请提现</div> 
+            <input type="number" id="withdrawAmount" placeholder="提现金额" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;" required/> 
+
+            <textarea type="text" id="withdrawDesc" rows="3" placeholder="附加描述" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;" required></textarea> 
+            <div>
+                <button type="submit" class="btnNo" id="btnWithdrawNo">取消</button>  
+                <button type="submit" class="btnYes" id="btnWithdrawYes">确定</button> 
+            </div>
+    </div> 
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
@@ -136,9 +151,12 @@
 <script type="text/javascript" src="../js/newWaterfall.js"></script>
 <script type="text/javascript" src="../js/swiper.min.js"></script>
 <script type="text/javascript" src="../js/jquery.cookie.js"></script>
+<script type="text/javascript" src="../ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="../ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.33"></script> 
-<script type="text/javascript" src="js/money.js?v=2.21"></script> 
+<script type="text/javascript" src="js/money.js?v=2.24"></script> 
 </html>
