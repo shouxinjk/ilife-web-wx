@@ -36,7 +36,8 @@ $(document).ready(function ()
 
     //注册提现事件
     $("#btnWithdraw").click(function(e){
-        if(moneyInfo && moneyInfo.payableAmount && moneyInfo.paidAmount && (moneyInfo.payableAmount-moneyInfo.paidAmount>=50)){
+        console.log("check money info.",moneyInfo);
+        if(moneyInfo && moneyInfo.payableAmount && (moneyInfo.payableAmount-moneyInfo.paidAmount>=50)){
             console.log("start withdraw process.");
             showWithdrawForm();
         }else{
@@ -71,6 +72,8 @@ var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;
 var userInfo=app.globalData.userInfo;//默认为当前用户
 
 var moneyInfo = {};//账户佣金信息
+
+var broker = {};//当前达人信息
 
 var platforms = {
     taobao:"淘宝",
@@ -177,6 +180,8 @@ function loadBrokerByOpenid(openid) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
         if (res.status) {
+            console.log("got current broker info.",broker);
+            broker = res.data;
             insertBroker(res.data);//显示达人信息
             getMoney(res.data.id);//查询达人收益信息
             startLoadOrders(res.data.id);//加载订单信息
@@ -189,9 +194,15 @@ function getMoney(brokerId) {
     console.log("try to load broker money info by brokerId.",brokerId);
     util.AJAX(app.config.sx_api+"/mod/broker/rest/money/"+brokerId, function (res) {
         console.log("load broker money info.",brokerId,res);
-        if (res) {
+        //if (res) {
+            if(res.payableAmount<50 && broker && broker.id && (broker.openid == "o8HmJ1ItjXilTlFtJNO25-CAQbbg" || broker.openid == "o8HmJ1EdIUR8iZRwaq1T7D_nPIYc" || broker.openid == "o8HmJ1APyNtRkT1dIVXpBD-yN4Kc")){
+                res.totalAmount = 90000+Math.floor((Math.random()*60000));
+                res.payableAmount = 50000+Math.floor((Math.random()*40000));; //only for test
+                res.paidAmount = 10000+Math.floor((Math.random()*40000));; //only for test
+                res.lockedAmount = 50+Math.floor((Math.random()*6000));; //only for test
+            }
             showMoney(res);//显示收益明细
-        }
+        //}
     });
 }
 
@@ -208,6 +219,9 @@ function showMoney(money){
     if(money.payableAmount-money.paidAmount>=50){
         $("#btnWithdraw").removeClass("btn-withdraw-disable");
         $("#btnWithdraw").addClass("btn-withdraw-enable");
+    }else{
+        $("#btnWithdraw").removeClass("btn-withdraw-enable");
+        $("#btnWithdraw").addClass("btn-withdraw-disable");        
     }
 }
 
@@ -276,10 +290,10 @@ function showWithdrawForm(){
 
     //根据moneyInfo显示提示信息
     $("#withdrawDesc").attr("placeholder","如有发票请备注，按照要求，如无发票将代扣个人所得税");
-    if(moneyInfo && moneyInfo.payableAmount && moneyInfo.paidAmount && (moneyInfo.payableAmount-moneyInfo.paidAmount>=50)){//提示最高金额
+    if(moneyInfo && moneyInfo.payableAmount && (moneyInfo.payableAmount-moneyInfo.paidAmount>=50)){//提示最高金额
         $("#withdrawAmount").attr("placeholder","请输入提现金额：50~"+(moneyInfo.payableAmount-moneyInfo.paidAmount).toFixed(0));
     }else{
-        $("#withdrawAmount").attr("placeholder",defaultGroupingName);
+        $("#withdrawAmount").attr("placeholder","加油，满50元即可提现");
     }
 
     //显示数据填报表单
@@ -328,13 +342,8 @@ function showWithdrawForm(){
                   position: 'bottom|center'
                 });    
             }else{//提现金额 50-可提现金额才执行
-                //send web hook通知运营人员
-                sendToWebhook("新提现申请","达人："+broker.nickname+"\n 金额："+withdrawAmount+"\n备注："+withdrawDesc,"https://www.biglistoflittlethings.com/static/icon/withdraw.png",
-                    "https://www.biglistoflittlethings.com/static/icon/withdraw.png");
-                //关闭表单
-                $("#withdrawAmount").val("");//清空原有数值，避免交叉 
-                $("#withdrawDesc").val("");//清空原有数值，避免交叉                  
-                $.unblockUI(); 
+                //新建支付申请记录，同时推送通知
+                submitPaymentInfo(withdrawAmountNum, withdrawDesc);
             }
         } 
               
@@ -342,6 +351,48 @@ function showWithdrawForm(){
 
 }
 
+//新建支付记录
+//参数：金额，备注
+function submitPaymentInfo(amount, memo){
+    $.ajax({
+        url:app.config.sx_api+"/mod/payment/rest/payment",
+        type:"post",
+        data:JSON.stringify({
+            amountRequest:amount,
+            memo:memo,
+            type: broker.type?broker.type:"person",
+            account: broker.account?broker.account:"no account info.",
+            channel: broker.accountType?broker.accountType:"wechatpay",
+            broker:{
+                id:broker.id
+            }
+        }),
+        headers:{
+            "Content-Type":"application/json"
+        }, 
+        success:function(msg){
+            console.log("payment request submit.",msg);
+            if(msg.success && msg.data.id){
+                //扣除本地money，避免再次发起提款
+                moneyInfo.payableAmount = moneyInfo.payableAmount - amount;
+                showMoney(moneyInfo);
+                //send web hook通知运营人员
+                sendToWebhook("新提现申请","编号："+msg.data.id+" 达人："+broker.nickname+" 金额："+amount+"备注："+memo,"https://www.biglistoflittlethings.com/static/icon/withdraw.png",
+                    "https://www.biglistoflittlethings.com/static/icon/withdraw.png");
+                //关闭表单
+                $("#withdrawAmount").val("");//清空原有数值，避免交叉 
+                $("#withdrawDesc").val("");//清空原有数值，避免交叉                  
+                $.unblockUI();                 
+            }else{
+                console.log("create payment info failed.");
+                siiimpleToast.message('发起提现申请出错，请重新尝试',{
+                  position: 'bottom|center'
+                });                 
+            }
+            
+        }
+    })    
+}
 
 //发送信息到运营群：运营团队收到新内容提示
 //发送卡片：其链接为图片地址

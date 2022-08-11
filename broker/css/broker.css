@@ -501,3 +501,25 @@
   color:darkgreen;
   font-weight:bold;
 }
+
+.btnYes{
+  border:1px solid green;
+  color: green;
+  background-color: #fff;
+  border-radius: 6px;
+  min-width: 60px;
+  font-size: 12px;
+  font-weight: bold;  
+  line-height: 24px;
+}
+
+.btnNo{
+  border:1px solid red;
+  color: red;
+  background-color: #fff;
+  border-radius: 6px;
+  min-width: 60px;
+  font-size: 12px;
+  font-weight: bold;  
+  line-height: 24px;
+}
