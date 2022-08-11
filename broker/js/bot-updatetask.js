@@ -24,7 +24,7 @@ $(document).ready(function ()
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
-    loadGroupTaskCrons();//加载cron字典定义
+    //loadGroupTaskCrons();//加载cron字典定义
     loadGroupTaskTypes();//加载type字典定义
     loadGroupTaskStatus();//加载type字典定义
     loadPerson(currentPerson);//加载用户
@@ -93,8 +93,8 @@ function loadGroupTask(taskId){
 //修改达人关注用户画像
 function updateGroupTask(){
     task.name = $("#name").val();
-    task.type = $("#type").val();
-    task.cron = $("#cron").val();
+    //task.type = $("#type").val();
+    //task.cron = $("#cron").val();
     task.tags = $("#tags").val();
     task.status = $("#status").val();
     console.log("try to update task.",task);
@@ -113,10 +113,18 @@ function loadGroupTaskCrons(){
     console.log("try to load group task cron.");
     util.AJAX(app.config.sx_api+"/sys/dict/rest/byType?type=wx_group_task_cron", function (res) {
         console.log("got group task cron.",res);
+        var labeledCrons = [];
         res.forEach(function(item){
-            $("#cron").append("<option value='"+item.value+"'>"+item.label+"</option>");
+            labeledCrons.push(item.value);
+            if(task.cron == item.value)
+                $("#cron").append("<option value='"+item.value+"' selected>"+item.label+"</option>");
+            else
+                $("#cron").append("<option value='"+item.value+"'>"+item.label+"</option>");
         });
-        if(task.cron)$("#cron").val(task.cron);
+        //如果没有友好显示，则显示原本内容
+        if(labeledCrons.indexOf(task.cron)<0){
+            $("#cron").append("<option value='"+task.cron+"' selected>"+task.cron+"</option>");
+        }
     });
 }
 //加载task type定义
@@ -125,9 +133,11 @@ function loadGroupTaskTypes(){
     util.AJAX(app.config.sx_api+"/sys/dict/rest/byType?type=wx_group_task_type", function (res) {
         console.log("got group task type.",res);
         res.forEach(function(item){
-            $("#type").append("<option value='"+item.value+"'>"+item.label+"</option>");
+            if(task.type == item.value)
+                $("#type").append("<option value='"+item.value+"' selected>"+item.label+"</option>");
+            else
+                $("#type").append("<option value='"+item.value+"'>"+item.label+"</option>");
         });
-        if(task.type)$("#type").val(task.type);
     });
 }
 //加载task status
@@ -136,9 +146,11 @@ function loadGroupTaskStatus(){
     util.AJAX(app.config.sx_api+"/sys/dict/rest/byType?type=active_inactive", function (res) {
         console.log("got group task type.",res);
         res.forEach(function(item){
-            $("#status").append("<option value='"+item.value+"'>"+item.label+"</option>");
+            if(task.type == item.value)
+                $("#status").append("<option value='"+item.value+"' selected>"+item.label+"</option>");
+            else
+                $("#status").append("<option value='"+item.value+"'>"+item.label+"</option>");
         });
-        if(task.type)$("#status").val(task.type);
     });
 }
 

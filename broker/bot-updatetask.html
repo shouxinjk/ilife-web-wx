@@ -72,7 +72,7 @@
     </div> 
 
     <div id="Center">
-        <div class="persona-form">
+        <div class="persona-form"  style="width:70%;padding-top: 20px;">
             <!--div class="form-group">
               <label for="personaName">名称:</label>
               <input type="text" class="form-control" id="personaName"/>
@@ -87,13 +87,14 @@
             </div>  
             <div class="form-group">
                 <label for="type">任务类型:</label>
-                <select class="form-control" id="type">
+                <select class="form-control" id="type" style="font-size:12px;" disabled>
                 </select>                  
             </div>  
             <div class="form-group">
                 <label for="cron">推送频率:</label>
-                <select class="form-control" id="cron">
-                </select>                
+                <!--select class="form-control" id="cron" style="font-size:12px;" disabled>
+                </select-->            
+                <input type="text" class="form-control" id="cron" disabled/>    
             </div>  
             <div class="form-group">
                 <label for="tags">关键字:</label>
@@ -105,7 +106,7 @@
             </div>  
            <div class="form-group">
                 <label for="status">状态:</label>
-                <select class="form-control" id="status">
+                <select class="form-control" style="font-size:12px;" id="status">
                 </select>
             </div> 
                           
@@ -155,5 +156,5 @@
 <script src="../ext/tag-it/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/bot-updatetask.js?v=0.17"></script> 
+<script type="text/javascript" src="js/bot-updatetask.js?v=0.2"></script> 
 </html>

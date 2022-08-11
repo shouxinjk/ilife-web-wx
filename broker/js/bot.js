@@ -104,26 +104,28 @@ function loadBot(broker) {
     console.log("try to load bot.[broker]",broker);
     util.AJAX(app.config.sx_api+"/wx/wxBot/rest/byBrokerId/"+broker.id, function (res) {
         console.log("got bot info.",res);
-        if (res.success) {//显示bot信息
-            //显示bot
-            var bot = res.data;
-            var html = `
-                    <div class='persona' id='add-persona-type'>
-                        <div class='persona-logo-wrapper'>
-                            <img src='__botlogo' width='50' height='50' class='persona-logo'/>
+        if (res.success && res.data && res.data.length>0) {//显示bot信息
+            //显示bot：可能有多个
+            for(var i=0;i<res.data.length;i++){
+                var bot = res.data[i];
+                var html = `
+                        <div class='persona'>
+                            <div class='persona-logo-wrapper'>
+                                <img src='__botlogo' width='50' height='50' class='persona-logo'/>
+                            </div>
+                            <div class='persona-info'>
+                                <div class='persona-title' id="botInfo__botId"></div>
+                            </div>
+                            <div class='persona-action'></div>
                         </div>
-                        <div class='persona-info'>
-                            <div class='persona-title' id="botInfo"></div>
-                        </div>
-                        <div class='persona-action'></div>
-                    </div>
-                ` 
-            html = html.replace(/__botlogo/,broker.avatarUrl);    //使用达人头像：如果是共享情况则显示共享达人的头像      
-            $("#botDiv").html(html);
-            //$("#botInfo").append("<div>激活码 "+bot.broker.token+"</div>");
-            $("#botInfo").append("<div style='line-height:18px;'>当前状态 "+(bot.status=="active"?"启用":"停用")+"</div>");
-            $("#botInfo").append("<div style='line-height:18px;'>开通时间 "+bot.effectFrom+"</div>");
-            $("#botInfo").append("<div style='line-height:18px;'>到期时间 "+(bot.expireOn?bot.expireOn:"")+"</div>");
+                    ` 
+                html = html.replace(/__botlogo/,bot.broker.avatarUrl).replace(/__botId/,bot.id); //使用bot对应的达人头像      
+                $("#botDiv").append(html);
+                //$("#botInfo").append("<div>激活码 "+bot.broker.token+"</div>");
+                $("#botInfo"+bot.id).append("<div style='line-height:18px;'>当前状态 "+(bot.status=="active"?"启用":"停用")+"</div>");
+                $("#botInfo"+bot.id).append("<div style='line-height:18px;'>开通时间 "+bot.effectFrom+"</div>");
+                $("#botInfo"+bot.id).append("<div style='line-height:18px;'>到期时间 "+(bot.expireOn?bot.expireOn:"")+"</div>");
+            }
             //加载托管微信群
             loadGroupTasks(broker);
         }else{//显示申请开通
