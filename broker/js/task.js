@@ -108,7 +108,7 @@ function loadItems(){
             for(var i = 0 ; i < hits.length ; i++){
                 items.push(hits[i]);
             }
-            jsonSort(items,"priority",false);//对priority进行排序
+            jsonSort(items,"priority",true);//对priority进行排序
             insertItem();
         }
     }, "PUT",query,header);
@@ -123,10 +123,10 @@ function insertItem(){
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
     var image = "<img src='images/tasks/"+item.type+".png' width='40' height='40'/>"
     var title = "<div class='title'>"+item.title+"</div>"
-    var description = "<div class='description'>"+item.description+"</div>"
+    var description = "<div class='description' style='line-height:18px;'>"+item.description+"</div>"
     var link = "";
     if(item.url&&item.url.trim().length>0){
-        link = "<div class='task-url'><a href='"+item.url+"'>点击查看详情</a></div>";
+        link = "<div class='task-url'><a href='"+item.url+"'>了解更多</a></div>";
     }
     $("#waterfall").append("<li><div class='task' data='"+item._key+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +description+ link+"</div></li>");
     num++;
