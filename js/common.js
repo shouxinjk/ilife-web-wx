@@ -9,6 +9,7 @@ function insertPerson(person){
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
     html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
     html += '<div class="info-text info-blank" id="brokerLink">让小确幸填满你的大生活</div>';
+    html += '<div style="position:absolute;right:5px;top:5px;"><a href="broker/task.html" style="color:silver;font-size:10px;">帮助</a></div>';
     html += '</div>';
     $("#user").append(html);
     //同时更新broker的nickname及avatarUrl：由于微信不能静默获取，导致broker内缺乏nickname及avatarUrl
@@ -35,7 +36,7 @@ function insertPerson(person){
 
 //更新达人信息：显示达人后台入口
 function insertBroker(broker){
-    $("#brokerLink").html('<a href="broker/selection.html">进入生活家后台</a>&nbsp;&nbsp;<a href="publisher/articles.html">进入流量主后台</a>');
+    $("#brokerLink").html('<a href="broker/selection.html" style="font-size:12px;">生活家后台</a>&nbsp;&nbsp;<a href="publisher/articles.html" style="font-size:12px;">流量主后台</a>');
     $("#brokerHint").html("达人级别："+broker.level);
 }
 

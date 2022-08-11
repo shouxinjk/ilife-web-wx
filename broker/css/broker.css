@@ -467,3 +467,15 @@
   padding:5px;
   text-align: center;
 }
+
+.btn-charge{
+  border:1px solid #e16531;
+  color: #e16531;
+  background-color: #fff;
+  border-radius: 16px;
+  min-width: 60px;
+  font-size: 12px;
+  font-weight: bold;  
+  line-height: 16px;
+  margin-left: 10px;
+}
