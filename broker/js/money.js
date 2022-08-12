@@ -210,9 +210,10 @@ function showMoney(money){
     moneyInfo = money;
     $("#amountTotal").html("￥"+money.totalAmount.toFixed(2));
     $("#amountSettlement").html("已结算：￥"+(money.lockedAmount+money.payableAmount).toFixed(2));
-    $("#amountPayable").html("￥"+(money.payableAmount-money.paidAmount).toFixed(2));
-    $("#amountPayment").html("已提现：￥"+money.paidAmount.toFixed(2));
-    $("#amountLocked").html("已锁定：￥"+money.lockedAmount.toFixed(2));
+    $("#amountPayable").html("￥"+(money.payableAmount-money.paidAmount-money.payingAmount).toFixed(2));
+    $("#amountPaid").html("已提现：￥"+money.paidAmount.toFixed(2));
+    $("#amountPaying").html("提现中：￥"+money.payingAmount.toFixed(2));
+    $("#amountLocked").html("锁定中：￥"+money.lockedAmount.toFixed(2));
     $("#amountPending").html("￥"+(money.totalAmount-money.lockedAmount-money.payableAmount).toFixed(2));
 
     //修改提现按钮
@@ -353,7 +354,17 @@ function showWithdrawForm(){
 
 //新建支付记录
 //参数：金额，备注
+var latestSubmitTimestamp = 0;//记录提交时间戳，避免快速重复提交。
+var submitDuration = 10*1000;//两次提交时间戳要超过10秒
 function submitPaymentInfo(amount, memo){
+    if(new Date().getTime() - latestSubmitTimestamp < submitDuration){
+        console.log("submit payment request too frequent. ignore.");
+        siiimpleToast.message('连续提交需要间隔10秒以上',{
+          position: 'bottom|center'
+        });          
+        return;
+    }
+    latestSubmitTimestamp = new Date().getTime();//记录提交时间戳，避免快速重复提交。
     $.ajax({
         url:app.config.sx_api+"/mod/payment/rest/payment",
         type:"post",
@@ -374,7 +385,7 @@ function submitPaymentInfo(amount, memo){
             console.log("payment request submit.",msg);
             if(msg.success && msg.data.id){
                 //扣除本地money，避免再次发起提款
-                moneyInfo.payableAmount = moneyInfo.payableAmount - amount;
+                moneyInfo.payingAmount = moneyInfo.payingAmount + amount;
                 showMoney(moneyInfo);
                 //send web hook通知运营人员
                 sendToWebhook("新提现申请","编号："+msg.data.id+" 达人："+broker.nickname+" 金额："+amount+"备注："+memo,"https://www.biglistoflittlethings.com/static/icon/withdraw.png",
