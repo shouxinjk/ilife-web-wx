@@ -197,8 +197,9 @@ function getMoney(brokerId) {
         //if (res) {
             if(res.payableAmount<50 && broker && broker.id && (broker.openid == "o8HmJ1ItjXilTlFtJNO25-CAQbbg" || broker.openid == "o8HmJ1EdIUR8iZRwaq1T7D_nPIYc" || broker.openid == "o8HmJ1APyNtRkT1dIVXpBD-yN4Kc")){
                 res.totalAmount = 90000+Math.floor((Math.random()*60000))+Math.random();
-                res.payableAmount = 50000+Math.floor((Math.random()*40000))+Math.random(); //only for test
-                res.paidAmount = 10000+Math.floor((Math.random()*40000))+Math.random(); //only for test
+                res.payableAmount = 60000+Math.floor((Math.random()*40000))+Math.random(); //only for test
+                res.paidAmount = 10000+Math.floor((Math.random()*20000))+Math.random(); //only for test
+                res.payingAmount = 10000+Math.floor((Math.random()*15))*1000; //only for test
                 res.lockedAmount = 50+Math.floor((Math.random()*6000))+Math.random(); //only for test
             }
             showMoney(res);//显示收益明细
