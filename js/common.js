@@ -36,7 +36,7 @@ function insertPerson(person){
 
 //更新达人信息：显示达人后台入口
 function insertBroker(broker){
-    $("#brokerLink").html('<a href="broker/selection.html" style="font-size:12px;">生活家后台</a>&nbsp;&nbsp;<a href="publisher/articles.html" style="font-size:12px;">流量主后台</a>');
+    $("#brokerLink").html('<a href="broker/selection.html">生活家后台</a>&nbsp;&nbsp;<a href="publisher/articles.html">流量主后台</a>');
     $("#brokerHint").html("达人级别："+broker.level);
 }
 
