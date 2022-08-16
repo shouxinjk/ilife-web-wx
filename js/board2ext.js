@@ -402,7 +402,16 @@ function showContent(board){
     //将描述作为推荐语
     //显示推荐语：
     if(board.description && board.description.trim().length>0){
-        $("#advicesDiv").append("<div style='line-height:18px;width:90%;border-top:1px solid silver;font-size:12px;padding-top:10px; padding-bottom:10px;'>"+board.description+"</div>");
+        $("#advicesDiv").append("<div id='adviceEntry' style='line-height:18px;width:90%;border-top:1px solid silver;font-size:12px;padding-top:10px; padding-bottom:10px;' data-clipboard-text='"+board.description+"'>"+board.description+"</div>");
+        var clipboard = new ClipboardJS('#adviceEntry');
+        clipboard.on('success', function(e) {
+            //$('#jumpbtn').attr('data-clipboard-text',item.link.token);
+            //console.info('Action:', e.action);
+            console.info('advice copied:', e.text);
+            siiimpleToast.message('推荐语已复制~~',{
+                  position: 'bottom|center'
+                }); 
+        });            
     }else{
         $("#advicesTitleDiv").css("display","none");
     }

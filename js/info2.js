@@ -847,12 +847,17 @@ function jump(item){//支持点击事件
                 //$('#jumpbtn').attr('data-clipboard-text',item.link.token);
                 //console.info('Action:', e.action);
                 console.info('platform default token is copied:', e.text);
+                siiimpleToast.message('口令已复制，请打开'+item.distributor.name,{
+                  position: 'bottom|center'
+                }); 
+                /**
                 $.toast({//浮框提示打开APP
                     heading: '需要在APP购买',
                     text: '口令已复制，打开'+item.distributor.name+'APP吧',
                     showHideTransition: 'fade',
                     icon: 'success'
-                });              
+                });    
+                //**/          
                 //e.clearSelection();
             });            
         }else if(item.link.cps && item.link.cps[benificiaryBrokerId] /* && item.link.cps[benificiaryBrokerId].wap*/){//能够直接获得达人链接则直接显示
