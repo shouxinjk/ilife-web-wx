@@ -645,6 +645,10 @@ function loadBrokerByOpenid(openid) {
             broker = res.data;
             $("#author").html(broker.name);    //如果当前用户是达人，则转为其个人board
             $("#broker-name").html(broker.name+ " 推荐");    //如果当前用户是达人，则显示当前用户
+            //所属机构：注意模板中必须包含 item-tip，否则无效
+            if(broker&&broker.orgnization&&broker.orgnization.name){
+                $("#item-tip").html("@"+broker.orgnization.name);
+            }              
             //生成达人推广二维码
             generateQrcode();
         }

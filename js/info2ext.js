@@ -834,6 +834,10 @@ function loadBrokerByOpenid(openid) {
             broker = res.data;    
             //填写清单信息
             $("#broker-name").html((broker.nickname?broker.nickname:app.globalData.userInfo.nickName)+ " 推荐");    //默认作者为当前broker ：注意模板中broker-name必须包含，否则此处无效
+            //所属机构：注意模板中必须包含 item-tip，否则无效
+            if(broker&&broker.orgnization&&broker.orgnization.name){
+                $("#item-tip").html("@"+broker.orgnization.name);
+            }            
             if(stuff&&stuff.link&&stuff.link.qrcode){//直接用原始二维码图片
                 show3rdPartyPost();
             }else{//生成达人专属二维码，并在二维创建后生成海报
