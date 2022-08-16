@@ -18,7 +18,7 @@ $(document).ready(function ()
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
-    loadPlatforms();//加载电商平台列表
+    //loadPlatforms();//加载电商平台列表
 
     $('#waterfall').NewWaterfall({
         width: columnWidth,
@@ -57,7 +57,100 @@ $(document).ready(function ()
     });
     $("#accountFilter").click(function(e){
         window.location.href = "money-account.html";
-    });
+    });   
+
+    //注册账户类型选择事件
+    $('input[type=radio][name=accountType]').change(function(e){
+        if(this.value == "person"){
+            broker.accountType = "person";
+            $("#companyform").css("display","none");
+            $("#personform").css("display","block");            
+        }else{
+            broker.accountType = "company";
+            $("#companyform").css("display","block");
+            $("#personform").css("display","none");            
+        }
+    });  
+
+    //注册账号信息提交事件
+    $("#submitBtn").click(function(){
+        //根据accountType检查表单
+        if(broker.accountType == "person"){//个人账户检查
+            if( $("#name").val().trim().length ==0 ){
+                $("#name").css("border","1px solid red");
+            }else{
+                $("#name").css("border","1px solid silver");
+            }
+            if( $("#phone").val().trim().length ==0 ){
+                $("#phone").css("border","1px solid red");
+            }else{
+                $("#phone").css("border","1px solid silver");
+            }
+            if( $("#securityNo").val().trim().length ==0 ){
+                $("#securityNo").css("border","1px solid red");
+            }else{
+                $("#securityNo").css("border","1px solid silver");
+            }    
+            if( $("#wechatId").val().trim().length ==0 ){
+                $("#wechatId").css("border","1px solid red");
+            }else{
+                $("#wechatId").css("border","1px solid silver");
+            }
+            if( $("#name").val().trim().length ==0 ||
+                $("#phone").val().trim().length ==0 ||
+                $("#securityNo").val().trim().length ==0 ||
+                $("#wechatId").val().trim().length ==0
+                ){
+                    console.log("all items are required in person form.");
+                    siiimpleToast.message('所有个人账户信息都必填~~',{
+                          position: 'bottom|center'
+                        });    
+                    return;            
+                }
+        }else if(broker.accountType == "company"){//公司账户检查
+            if( $("#companyName").val().trim().length ==0 ){
+                $("#companyName").css("border","1px solid red");
+            }else{
+                $("#companyName").css("border","1px solid silver");
+            }
+            if( $("#companyBank").val().trim().length ==0 ){
+                $("#companyBank").css("border","1px solid red");
+            }else{
+                $("#companyBank").css("border","1px solid silver");
+            }
+            if( $("#companyAccount").val().trim().length ==0 ){
+                $("#companyAccount").css("border","1px solid red");
+            }else{
+                $("#companyAccount").css("border","1px solid silver");
+            }
+            if( $("#companyContact").val().trim().length ==0 ){
+                $("#companyContact").css("border","1px solid red");
+            }else{
+                $("#companyContact").css("border","1px solid silver");
+            }
+            if( $("#companyTelephone").val().trim().length ==0 ){
+                $("#companyTelephone").css("border","1px solid red");
+            }else{
+                $("#companyTelephone").css("border","1px solid silver");
+            }
+            if( $("#companyName").val().trim().length ==0 ||
+                $("#companyBank").val().trim().length ==0 ||
+                $("#companyAccount").val().trim().length ==0 ||
+                $("#companyContact").val().trim().length ==0 ||
+                $("#companyTelephone").val().trim().length ==0
+                ){
+                    console.log("all items are required in company form.");
+                    siiimpleToast.message('所有公司账户信息都必填~~',{
+                          position: 'bottom|center'
+                        });    
+                    return;            
+                }
+        }else{
+            console.log("unknown error.");
+            return;
+        }
+        updateBroker();
+    });  
 
 });
 
@@ -98,37 +191,18 @@ var platforms = {
 
 var statusArr= {
     cleared:"已结算",
-    pending:"结算中",
+    pending:"处理中",
+    done:"已完成",
     locked:"当前锁定。待团队指标达成后解锁"
 };
 
 var currentBroker = null;
 
-function startLoadOrders(brokerId){
-    currentBroker = brokerId;
-    setInterval(function ()
-    {
-        if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
-        {
-            // 表示开始加载
-            loading = true;
-            showloading(true);
-
-            // 加载内容
-            if(items.length < num){//如果内容未获取到本地则继续获取
-                loadItems();
-            }else{//否则使用本地内容填充
-                insertItem();
-            }
-        }
-    }, 500);
-}
-
 //加载订单列表
 function loadItems(){
-    util.AJAX(app.config.sx_api+"/mod/clearing/rest/money/byOrder/"+currentBroker, function (res) {
+    util.AJAX(app.config.sx_api+"/mod/payment/rest/payments/byBroker/"+currentBroker, function (res) {
         showloading(false);
-        console.log("money::loadItems try to retrive orders by brokerId.", res)
+        console.log("money::loadItems try to retrive payments by brokerId.", res)
         if(res && res.length==0){//如果没有订单则提示，
             shownomore();
         }else{//否则显示到页面
@@ -149,11 +223,11 @@ function insertItem(){
     // 加载内容
     var item = items[num-1];
     var placeHolder = "<div class='placeholder'></div>";
-    var orderTime = "<div class='order-item'>时间："+item.orderTime.split(" ")[0]+"</div>";
-    var itemTitle = "<div class='order-item'>"+"商品：【"+(platforms[item.platform]?platforms[item.platform]:item.platform)+"】"+item.item+"</div>";
-    var profitAmount = "<div class='order-item'>佣金："+item.amountProfit+"</div>";
-    var profitStatus = "<div class='order-item'>状态："+statusArr[item.statusClear]+"</div>";
-    $("#waterfall").append("<li><div class='order-separator' style='border-radius:0'></div><div class='order-entry' data='"+item.id+"'>"+placeHolder+"<div class='order-box'>"+itemTitle +orderTime +profitAmount+profitStatus+"</div>"+placeHolder+ "</div></li>");
+    var orderTime = "<div class='order-item'>时间："+item.createDate.split(" ")+"</div>";
+    var itemTitle = "<div class='order-item'>"+"金额："+item.amountRequest+"</div>";
+    var profitStatus = "<div class='order-item'>状态："+statusArr[item.status]+"</div>";
+    var profitAmount = "<div class='order-item'>备注："+item.memo+"</div>";
+    $("#waterfall").append("<li><div class='order-separator' style='border-radius:0'></div><div class='order-entry' data='"+item.id+"'>"+placeHolder+"<div class='order-box'>"+itemTitle +orderTime+profitStatus +profitAmount+"</div>"+placeHolder+ "</div></li>");
 
     //注册事件
     $("div[data='"+item.id+"']").click(function(){
@@ -177,11 +251,58 @@ function loadPerson(personId) {
     });
 }
 
-//更新Broker
-function updateBroker(broker) {
+//加载Broker信息：
+function showBrokerInfo(){
+    console.log("show broker info.",broker);
+    if(broker.accountType=="company"){
+        broker.accountType = "company";
+        $("#accountTypeCompany").attr("checked","checked");
+    }else{
+        broker.accountType = "person";
+        $("#accountTypePerson").attr("checked","checked");
+    }
+    //公司账户
+    $("#companyName").val(broker.companyName);
+    $("#companyBank").val(broker.companyBank);
+    $("#companyAccount").val(broker.companyAccount);
+    $("#companyContact").val(broker.companyContact);     
+    $("#companyTelephone").val(broker.companyTelephone);    
+    //个人账户
+    $("#name").val(broker.name);
+    $("#securityNo").val(broker.securityNo);
+    $("#wechatId").val(broker.wechatId);
+    $("#phone").val(broker.phone);         
+}
+
+//更新Broker：提交账户信息。提交后状态变为审核中
+function updateBroker() {
+    //根据类型更新数据，避免在账户类型切换时导致数据丢失
+    if(broker.accountType == "person"){
+        //个人账户信息
+        broker.name = $("#name").val();
+        broker.securityNo = $("#securityNo").val();
+        broker.wechatId = $("#wechatId").val();
+        broker.phone = $("#phone").val();        
+    }else if(broker.accountType == "company"){
+        //公司账户信息
+        broker.companyName = $("#companyName").val();
+        broker.companyBank = $("#companyBank").val();
+        broker.companyAccount = $("#companyAccount").val();
+        broker.companyContact = $("#companyContact").val();    
+        broker.companyTelephone = $("#companyTelephone").val();          
+    }else{
+        //do nothing
+    }
+
+    //更改状态为待审批
+    broker.status = "pending" //需要审核后才能采用
+
     console.log("try to update broker.[broker]",broker);
     util.AJAX(app.config.sx_api+"/mod/broker/rest/"+broker.id, function (res) {
         console.log("update broker successfully.",res);
+        siiimpleToast.message('账户信息已提交审核',{
+              position: 'bottom|center'
+            });         
     },"PUT",broker,{ "Content-Type":"application/json" });
 }
 
@@ -191,11 +312,12 @@ function loadBrokerByOpenid(openid) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
         if (res.status) {
-            console.log("got current broker info.",broker);
+            console.log("got current broker info.",res.data);
             broker = res.data;
             insertBroker(res.data);//显示达人信息
+            showBrokerInfo();//显示账户恓
             getMoney(res.data.id);//查询达人收益信息
-            startLoadOrders(res.data.id);//加载订单信息
+            
         }
     });
 }

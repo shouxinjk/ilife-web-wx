@@ -160,7 +160,13 @@ function loadGroupTasks(broker) {
 
 //显示group task
 function showGroupTask(item){
-    var image = "<img src='images/"+item.type+".png' width='50' height='50' class='persona-logo'/>"
+    var image = "<img src='images/"+item.type+".png' width='50' height='50' class='persona-logo' id='persona-logo"+item.id+"'/>"
+    var persona = null;
+    if(item.wxgroup && item.wxgroup.persona && item.wxgroup.persona)//获取persona
+        persona = item.wxgroup.persona;
+    if(persona && persona.logo && persona.logo.trim().length > 0){
+        image = "<img src='"+persona.logo+"' width='50' height='50' class='persona-logo'/>"
+    }
     var tagTmpl = "<div class='persona-tag'>__TAG</div>";
     var tags = "<div class='persona-tags'>";
     var taggingList = item.tags.split(" ");
@@ -172,11 +178,17 @@ function showGroupTask(item){
     }
     tags += "</div>";
     var status = "<span style='border:1px solid silver;border-radius:5px;color:silver;padding:0 2px;margin-right:2px;'>停用</span>"
-    if(item.status=="active")
+    if(item.status=="active" && item.wxgroup && (item.wxgroup.status == "active" || item.wxgroup.status == "启用"))
         status = "<span style='border:1px solid darkgreen;border-radius:5px;color:darkgreen;padding:0 2px;margin-right:2px;'>启用</span>"
     var title = "<div class='persona-title'>"+status+item.wxgroup.name+"</div>"
-    var description = "<div class='persona-description'>"+item.typeDesc +" "+ (item.cronDesc?item.cronDesc:"") +"</div>"    
+    var description = "<div class='persona-description' id='task-desc"+item.id+"'>"+(persona&&persona.name?persona.name+" ":"")+item.typeDesc +" "+ (item.cronDesc?item.cronDesc:"") +"</div>"    
     $("#waterfall").append("<li><div class='persona' data='"+item.id+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +description+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
+
+    //如果persona是达人自己设置，需要从arangodb加载
+    if(persona && persona.id && !persona.name){//对于存储于arangodb的persona仅有id信息
+        console.log("load persona from nosql");
+        loadPersonaById(item.id, persona.id);
+    }
 
     num++;
 
@@ -185,6 +197,21 @@ function showGroupTask(item){
         //跳转到详情页
         window.location.href = "bot-updatetask.html?taskId="+item.id;
     });
+}
+
+//从arangodb加载persona并显示
+function loadPersonaById(taskId,personaId){
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    };                 
+    util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+personaId, function (res) {
+        console.log("got persona by id.", res)
+        if(res){
+            $("#persona-logo"+taskId).attr("src",res.image);
+            $("#task-desc"+taskId).html(res.name +" " + $("#task-desc"+taskId).text());
+        }
+    }, "GET",{},header);    
 }
 
 //显示正在加载提示

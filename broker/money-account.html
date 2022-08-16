@@ -8,8 +8,9 @@
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
-    <link rel="stylesheet" type="text/css" href="../css/common.css?v=0.2">
-    <link rel="stylesheet" type="text/css" href="css/broker.css?v=0.12">
+    <link rel="stylesheet" type="text/css" href="../css/common.css?v=0.1">
+    <link rel="stylesheet" type="text/css" href="css/broker.css?v=0.13">
+    <link rel="stylesheet" type="text/css" href="css/broker-my.css?v=0.1">
     <link rel="stylesheet" type="text/css" href="css/broker-money.css?v=1.7">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
@@ -103,18 +104,61 @@
         &nbsp;&nbsp;
     </div>    
     <div style="width:90%;text-align: center;margin-left:5%;display: flex;flex-direction: row;flex-wrap: nowrap;">
-        <div class='filter-selected' style="width:30%" id="orderFilter">订单列表</div>
-        <div class='filter' style="width:30%" id="paymentFilter">提现记录</div>
-        <div class='filter' style="width:30%" id="accountFilter">账户信息</div>
+        <div class='filter' style="width:33%" id="orderFilter">订单列表</div>
+        <div class='filter' style="width:33%" id="paymentFilter">提现记录</div>
+        <div class='filter-selected' style="width:33%" id="accountFilter">账户信息</div>
     </div>
-    <div id="CenterOrders">
-        <ul id="waterfall"></ul>
-    </div> 
+    <div id="CenterOrders" style="width:80%;margin-left:20%;font-size:12px;">
+        <div class="form-group" style="padding-top:10px;">
+            <span>账户类型:</span>
+            <input type="radio" id="accountTypePerson" name="accountType" value="person" checked/><label for="accountTypePerson">个人账户</label>
+            <input type="radio" id="accountTypeCompamy" name="accountType" value="company"/><label for="accountTypeCompamy">公司账户</label>
+        </div>         
+        <!--个人账户-->
+        <div class="persona-form" style="width:80%;margin-left:0;" id="personform"> 
+            <div class="form-group">
+                <label for="groupName">真实姓名*:</label>
+                <input type="text" class="form-control" id="name"/>
+            </div>  
+            <div class="form-group">
+                <label for="type">身份证号码*:</label>
+                <input type="text" class="form-control" id="securityNo"/>                
+            </div>  
+            <div class="form-group">
+                <label for="cron">微信号*:将直接通过微信转账</label>          
+                <input type="text" class="form-control" id="wechatId"/>    
+            </div>                
+            <div class="form-group">
+                <label for="name">联系电话*:</label>
+                <input type="text" class="form-control" id="phone"/>
+            </div>                           
+        </div>        
+        <!--公司账户-->
+        <div class="persona-form" style="width:80%;margin-left:0;display:none;" id="companyform"> 
+            <div class="form-group">
+                <label for="groupName">公司全称*:</label>
+                <input type="text" class="form-control" id="companyName"/>
+            </div>  
+            <div class="form-group">
+                <label for="type">开户行*:</label>
+                <input type="text" class="form-control" id="companyBank"/>                
+            </div>  
+            <div class="form-group">
+                <label for="cron">公司账户*:</label>          
+                <input type="text" class="form-control" id="companyAccount"/>    
+            </div>               
+            <div class="form-group">
+                <label for="tags">联系人*:</label>
+                <input type="text" class="form-control" id="companyContact"/>
+            </div>  
+            <div class="form-group">
+                <label for="name">联系电话*:</label>
+                <input type="text" class="form-control" id="companyTelephone"/>
+            </div>                         
+        </div>
+        <button type="submit" class="btn btn-default" id="submitBtn">提交</button>   
 
-    <!-- 加载进度与提示 -->
-    <div class="loading-hide" id="loading">
-        <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
-    </div>
+    </div> 
 
     <div id="footer" class="footer-hide">
 
@@ -163,5 +207,5 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.33"></script> 
-<script type="text/javascript" src="js/money.js?v=2.35"></script> 
+<script type="text/javascript" src="js/money-account.js?v=2.4"></script> 
 </html>

@@ -83,6 +83,37 @@ function loadGroupTask(taskId){
             $("#name").val(task.name);
             $("#status").val(task.status);
             $("#tags").val(task.tags);
+
+            //直接从任务获取persona
+            var persona = null;
+            if(task.wxgroup && task.wxgroup.persona && task.wxgroup.persona.id && task.wxgroup.persona.name){ //直接从mysql中获取persona。支持后台直接设置的persona
+                persona = task.wxgroup.persona;
+                $("#persona").html(persona.name);
+                $("#personaTags").val(persona.lambda?persona.lambda:"");
+                $("#btnChangePersona").html("修改");
+            }else if(task.wxgroup && task.wxgroup.persona && task.wxgroup.persona.id){ //直接从arangodb中获取persona。支持达人自定义画像
+                var header={
+                    "Content-Type":"application/json",
+                    Authorization:"Basic aWxpZmU6aWxpZmU="
+                };                 
+                util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+task.wxgroup.persona.id, function (res) {
+                    console.log("Broker::My Loaded persona by id.", res)
+                    if(res){
+                        $("#persona").html(res.name);
+                        $("#personaTags").val(res.tags.join(" "));
+                        $("#btnChangePersona").html("修改");
+                    }
+                }, "GET",{},header);
+            }else{
+                $("#btnChangePersona").html("设置");
+            }
+
+            //设置persona：注意，persona是设置在wxgroup上
+            $("#btnChangePersona").click(function(){
+                window.location.href = "bot-choosepersona.html?refer=group&referId="+task.wxgroup.id+"&groupTaskId="+task.id;
+            });
+
+
         }else{
             //do nothing 
             console.log("failed query task by id."+taskId);

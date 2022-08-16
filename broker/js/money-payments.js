@@ -57,7 +57,7 @@ $(document).ready(function ()
     });
     $("#accountFilter").click(function(e){
         window.location.href = "money-account.html";
-    });
+    });    
 
 });
 
@@ -98,7 +98,8 @@ var platforms = {
 
 var statusArr= {
     cleared:"已结算",
-    pending:"结算中",
+    pending:"处理中",
+    paid:"已完成",
     locked:"当前锁定。待团队指标达成后解锁"
 };
 
@@ -126,9 +127,9 @@ function startLoadOrders(brokerId){
 
 //加载订单列表
 function loadItems(){
-    util.AJAX(app.config.sx_api+"/mod/clearing/rest/money/byOrder/"+currentBroker, function (res) {
+    util.AJAX(app.config.sx_api+"/mod/payment/rest/payments/byBroker/"+currentBroker, function (res) {
         showloading(false);
-        console.log("money::loadItems try to retrive orders by brokerId.", res)
+        console.log("money::loadItems try to retrive payments by brokerId.", res)
         if(res && res.length==0){//如果没有订单则提示，
             shownomore();
         }else{//否则显示到页面
@@ -148,12 +149,13 @@ function loadItems(){
 function insertItem(){
     // 加载内容
     var item = items[num-1];
+    if(!item.status)item.status="done";
     var placeHolder = "<div class='placeholder'></div>";
-    var orderTime = "<div class='order-item'>时间："+item.orderTime.split(" ")[0]+"</div>";
-    var itemTitle = "<div class='order-item'>"+"商品：【"+(platforms[item.platform]?platforms[item.platform]:item.platform)+"】"+item.item+"</div>";
-    var profitAmount = "<div class='order-item'>佣金："+item.amountProfit+"</div>";
-    var profitStatus = "<div class='order-item'>状态："+statusArr[item.statusClear]+"</div>";
-    $("#waterfall").append("<li><div class='order-separator' style='border-radius:0'></div><div class='order-entry' data='"+item.id+"'>"+placeHolder+"<div class='order-box'>"+itemTitle +orderTime +profitAmount+profitStatus+"</div>"+placeHolder+ "</div></li>");
+    var orderTime = "<div class='order-item'>时间："+item.createDate+"</div>";
+    var itemTitle = "<div class='order-item'>"+"金额："+item.amountRequest+"</div>";
+    var profitStatus = "<div class='order-item'>状态："+(statusArr[item.status]?statusArr[item.status]:item.status)+"</div>";
+    var profitAmount = "<div class='order-item'>备注："+item.memo+"</div>";
+    $("#waterfall").append("<li><div class='order-separator' style='border-radius:0'></div><div class='order-entry' data='"+item.id+"'>"+placeHolder+"<div class='order-box'>"+itemTitle +orderTime+profitStatus +profitAmount+"</div>"+placeHolder+ "</div></li>");
 
     //注册事件
     $("div[data='"+item.id+"']").click(function(){

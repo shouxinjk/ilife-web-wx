@@ -7,9 +7,10 @@
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="../css/common.css">
-    <link rel="stylesheet" type="text/css" href="css/broker.css?v=0.2">
-    <link rel="stylesheet" type="text/css" href="css/broker-my.css?v=1.1">
+    <link rel="stylesheet" type="text/css" href="css/broker.css?v=0.12">
+    <link rel="stylesheet" type="text/css" href="css/broker-money.css?v=1.7">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -37,11 +38,11 @@
         <!--div class="order-cell" id="task" data-tagging="like view">
             <img class="order-cell-icon-small" src="images/task.png"/>
             <div class="actiontype">任务</div>
-        </div-->  
+        </div--> 
         <div class="order-cell" id="selection" data-tagging="like view">
             <img class="order-cell-icon-small" src="images/selection.png"/>
             <div class="actiontype">选品库</div>
-        </div>         
+        </div>           
         <div class="order-cell" id="boards" data-tagging="like view">
             <img class="order-cell-icon-small" src="images/boards.png"/>
             <div class="actiontype">清单</div>
@@ -51,30 +52,64 @@
             <div class="actiontype">团队</div>
         </div>   
         <div class="order-cell" id="my" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/my-selected.png"/>
-            <div class="actiontype-selected">客群</div>
-        </div>  
+            <img class="order-cell-icon-small" src="images/my.png"/>
+            <div class="actiontype">客群</div>
+        </div> 
         <!--div class="order-cell" id="bot" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/bot-selected.png"/>
-            <div class="actiontype-selected">云助理</div>
+            <img class="order-cell-icon-small" src="images/bot.png"/>
+            <div class="actiontype">云助理</div>
         </div-->          
         <div class="order-cell" id="money" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/money.png"/>
-            <div class="actiontype">收益</div>
+            <img class="order-cell-icon-small" src="images/money-selected.png"/>
+            <div class="actiontype-selected">收益</div>
         </div>                                   
     </view>
 
     <div class="tips">
-        云助手能自动分发消息到客群
+        &nbsp;&nbsp;
     </div> 
 
     <div id="Center">
-        <ul id="waterfall">
-            <li id="botDiv">
-
-            </li>              
-        </ul>
+        <div class="money-all" id="amountTotal">￥0</div>
+        <div class="money-all-text">我的总收益</div>        
+        <div class="money-table">
+            <div class="money-column-left">
+                <div class="money-settlement amount-larger" id="amountPayable">￥0</div>
+                <div class="money-settlement-text">可提现金额</div>
+                <div class="btn-withdraw-disable" id="btnWithdraw">申请提现</div>
+                <div class="money-settlement-text">&gt;50元即可提现</div>
+            </div>
+            <div class="money-column-right">
+                <div class="money-cell" id="amountSettlement">已结算：￥0</div>
+                <div class="money-cell" id="amountPaid">已提现：￥0</div>
+                <div class="money-cell" id="amountPaying">提现中：￥0</div>
+                <div class="money-cell" id="amountLocked">锁定中：￥0</div>
+            </div>
+        </div>
+        <div class="money-table-cont">
+            <div class="money-column-left">
+                <div class="money-clearing amount-larger" id="amountPending">￥0</div>
+                <div class="money-clearing-text">结算中金额</div>
+            </div>
+            <div class="money-column-right">
+                <div class="money-cell-tips">* 结算中：订单尚在结算</div>
+                <div class="money-cell-tips">* 锁定中：目标达成即可提现</div>
+            </div>
+        </div>        
     </div>
+
+    <!-- 订单列表 -->
+    <div class="tips">
+        &nbsp;&nbsp;
+    </div>    
+    <div style="width:90%;text-align: center;margin-left:5%;display: flex;flex-direction: row;flex-wrap: nowrap;">
+        <div class='filter' style="width:33%" id="orderFilter">订单列表</div>
+        <div class='filter-selected' style="width:33%" id="paymentFilter">提现记录</div>
+        <div class='filter' style="width:33%" id="accountFilter">账户信息</div>
+    </div>
+    <div id="CenterOrders">
+        <ul id="waterfall"></ul>
+    </div> 
 
     <!-- 加载进度与提示 -->
     <div class="loading-hide" id="loading">
@@ -82,10 +117,10 @@
     </div>
 
     <div id="footer" class="footer-hide">
-        没有更多推荐设置
+
     </div>  
 
-<div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
+    <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
 
   <div id="sx-menu">
     <a href="../index.html" class="menu-btn">
@@ -102,6 +137,18 @@
     </a>        
   </div>
 
+    <!--提现表单：显示提现金额-->
+    <div id="withdrawform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">申请提现</div> 
+            <input type="number" id="withdrawAmount" placeholder="提现金额" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;" required/> 
+
+            <textarea type="text" id="withdrawDesc" rows="3" placeholder="附加描述" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;" required></textarea> 
+            <div>
+                <button type="submit" class="btnNo" id="btnWithdrawNo">取消</button>  
+                <button type="submit" class="btnYes" id="btnWithdrawYes">确定</button> 
+            </div>
+    </div> 
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
@@ -109,9 +156,12 @@
 <script type="text/javascript" src="../js/newWaterfall.js"></script>
 <script type="text/javascript" src="../js/swiper.min.js"></script>
 <script type="text/javascript" src="../js/jquery.cookie.js"></script>
+<script type="text/javascript" src="../ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="../ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.33"></script> 
-<script type="text/javascript" src="js/bot.js?v=0.21"></script> 
+<script type="text/javascript" src="js/money-payments.js?v=2.36"></script> 
 </html>
