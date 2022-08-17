@@ -357,9 +357,29 @@ function showContent(item){
                 myAdvice = item.advice[key];
             }else if(item.advice[key].indexOf(":::")>0){//如果是达人推荐语，其结构为 达人昵称:::推荐语
                 var brokerAdvice = item.advice[key].split(":::");
-                $("#advice").append("<div class='prop-row'><div class='prop-key'>"+brokerAdvice[0]+"</div><div class='prop-value'>"+brokerAdvice[1]+"</div></div>");
+                
+                var adviceIdx = key;
+                var adviceTxt = brokerAdvice[1];
+                $("#advice").append("<div class='prop-row'><div class='prop-key'>"+brokerAdvice[0]+"</div><div class='prop-value' id='adviceEntry"+adviceIdx+"' data-clipboard-text='"+adviceTxt+"'>"+brokerAdvice[1]+"</div></div>");
+                var clipboard = new ClipboardJS('#adviceEntry'+adviceIdx);
+                clipboard.on('success', function(e) {
+                    console.info('advice copied:', e.text);
+                    siiimpleToast.message('推荐语已复制~~',{
+                          position: 'bottom|center'
+                        }); 
+                }); 
+
             }else{//否则显示只读
-                $("#advice").append("<div class='prop-row'><div class='prop-key'>"+(adviceSchemes[key]?adviceSchemes[key]:"生活家说")+"</div><div class='prop-value'>"+item.advice[key]+"</div></div>");
+                var adviceIdx = key;
+                var adviceTxt = item.advice[key];
+                $("#advice").append("<div class='prop-row'><div class='prop-key'>"+(adviceSchemes[key]?adviceSchemes[key]:"生活家说")+"</div><div class='prop-value' id='adviceEntry"+adviceIdx+"' data-clipboard-text='"+adviceTxt+"'>"+item.advice[key]+"</div></div>");
+                var clipboard = new ClipboardJS('#adviceEntry'+adviceIdx);
+                clipboard.on('success', function(e) {
+                    console.info('advice copied:', e.text);
+                    siiimpleToast.message('推荐语已复制~~',{
+                          position: 'bottom|center'
+                        }); 
+                });                 
             }
         }
     }  
@@ -513,12 +533,57 @@ function requestAdviceScheme(categoryId/*,isAnsync*/){
             //遍历并生成文案
             for(var i=0;i<schemes.length;i++){
                 adviceSchemes[schemes[i].id]=schemes[i].name;
+                requestAdvice(schemes[i]);
             }
             hasAdviceSchemes = true;//记录数据获取状态
             loadMeasureAndScore();//加载并显示
         }
     }); 
     //return  adviceSchemes;
+}
+
+
+//生成文案：根据文案模板直接生成。注意需要与已经存储在item上的推荐语排重
+function requestAdvice(scheme){
+    //判断海报模板是否匹配当前条目
+    var isOk = false;
+    if(scheme.condition && scheme.condition.length>0){//如果设置了适用条件则进行判断
+        try{
+            isOk = eval(scheme.condition);
+        }catch(err){
+            console.log("\n=== eval poster condition error===\n",err);
+        }
+    }else{//如果未设置条件则表示适用于所有商品
+        isOk = true;
+    }
+    if(!isOk){//如果不满足则直接跳过
+        console.log("condition not satisifed. ignore.");
+        return;       
+    }
+
+    //检查是否已经生成，如果已经生成则不在重新生成
+    if(stuff.advice && stuff.advice[scheme.id]){
+        console.log("\n=== advice exists. ignore.===\n");
+        return;
+    }
+
+    //生成文案
+    try{
+        eval(scheme.expression);//注意：脚本中必须使用 var xAdvice=**定义结果
+    }catch(err){
+        return;//这里出错了就别玩了
+    }
+    //将文案显示到界面
+    var adviceIdx = scheme.id;
+    var adviceTxt = xAdvice;
+    $("#advice").prepend("<div class='prop-row'><div class='prop-key'>确幸推荐</div><div class='prop-value' id='adviceEntry"+adviceIdx+"' data-clipboard-text='"+adviceTxt+"'>"+adviceTxt+"</div></div>");
+    var clipboard = new ClipboardJS('#adviceEntry'+adviceIdx);
+    clipboard.on('success', function(e) {
+        console.info('advice copied:', e.text);
+        siiimpleToast.message('推荐语已复制~~',{
+              position: 'bottom|center'
+            }); 
+    }); 
 }
 
 //注意：在cascade中引用Array.flat()方法，但微信浏览器未实现，需要补充
