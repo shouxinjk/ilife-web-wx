@@ -230,6 +230,22 @@ function loadBoard(boardId){
             console.log("Board::loadBoard now insert board info.", res)
             board = res.data;          
 
+            //将描述作为推荐语
+            //显示推荐语：
+            if(board.description && board.description.trim().length>0){
+                $("#advicesDiv").append("<div id='adviceEntry' style='line-height:18px;width:90%;border-top:1px solid silver;font-size:12px;padding-top:10px; padding-bottom:10px;' data-clipboard-text='"+board.description+"'>"+board.description+"</div>");
+                var clipboard = new ClipboardJS('#adviceEntry');
+                clipboard.on('success', function(e) {
+                    //$('#jumpbtn').attr('data-clipboard-text',item.link.token);
+                    //console.info('Action:', e.action);
+                    console.info('advice copied:', e.text);
+                    siiimpleToast.message('推荐语已复制~~',{
+                          position: 'bottom|center'
+                        }); 
+                });            
+            }else{
+                $("#advicesTitleDiv").css("display","none");
+            }
             //准备注册分享事件。需要等待内容加载完成后才注册
             //判断是否为已注册用户
             if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
