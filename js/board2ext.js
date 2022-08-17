@@ -652,8 +652,8 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
-            $("#author").html(broker.name);    //如果当前用户是达人，则转为其个人board
-            $("#broker-name").html(broker.name+ " 推荐");    //如果当前用户是达人，则显示当前用户
+            $("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board
+            $("#broker-name").html(broker.nickname+ " 推荐");    //如果当前用户是达人，则显示当前用户
             //所属机构：注意模板中必须包含 item-tip，否则无效
             if(broker&&broker.orgnization&&broker.orgnization.name){
                 $("#item-tip").html("@"+broker.orgnization.name);
