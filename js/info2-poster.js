@@ -238,6 +238,11 @@ function loadItem(key){//获取内容列表
             //显示内容：当前仅记录日志
             showContent(stuff);
 
+            //加载推荐语
+            if(stuff.meta && stuff.meta.category){
+                requestAdviceScheme();
+            }            
+
             //准备注册分享事件。需要等待内容加载完成后才注册
             //判断是否为已注册用户
             if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
@@ -485,6 +490,80 @@ function requestPoster(scheme,xBroker,xItem,xUser){
             }
         }
     });     
+}
+
+
+//生成文案列表：请求文案列表，请求后直接生成文案
+var advicesShowed = [];//已显示文案内容，由于需要根据scheme生成，同时融合item内已提交的advice，需要排重
+function requestAdviceScheme(){
+    //获取模板列表
+    $.ajax({
+        url:app.config.sx_api+"/mod/template/rest/item-templates",
+        type:"get",
+        data:{categoryId:stuff.meta.category},
+        success:function(schemes){
+            console.log("\n===got item advice schemes ===\n",schemes);
+            //遍历并生成文案
+            var total = 0;
+            for(var i=0;i<schemes.length;i++){
+                //将模板显示到界面，等待选择后生成
+                requestAdvice(schemes[i]);
+                total++;
+            }
+            if(total==0){
+                console.log("no advices available.");//提示缺少文案定义
+            }
+        }
+    });  
+}
+
+//生成文案
+function requestAdvice(scheme){
+    //判断海报模板是否匹配当前条目
+    var isOk = false;
+    if(scheme.condition && scheme.condition.length>0){//如果设置了适用条件则进行判断
+        try{
+            isOk = eval(scheme.condition);
+        }catch(err){
+            console.log("\n=== eval poster condition error===\n",err);
+        }
+    }else{//如果未设置条件则表示适用于所有商品
+        isOk = true;
+    }
+    if(!isOk){//如果不满足则直接跳过
+        console.log("condition not satisifed. ignore.");
+        return;       
+    }
+
+    //检查是否已经生成，如果已经生成则不在重新生成
+    /**
+    if(stuff.advice && stuff.advice[scheme.id]){
+        console.log("\n=== advice exists. ignore.===\n");
+        return;
+    }
+    //**/
+
+    //生成文案
+    try{
+        eval(scheme.expression);//注意：脚本中必须使用 var xAdvice=**定义结果
+    }catch(err){
+        return;//这里出错了就别玩了
+    }
+    //将文案显示到界面
+    var adviceIdx = scheme.id;
+    var adviceTxt = xAdvice;
+    if(advicesShowed.indexOf(adviceTxt)<0){
+        $("#advicesDiv").append("<div style='line-height:18px;line-height:18px;width:90%;border-top:1px solid silver;font-size:12px;padding-top:10px; padding-bottom:10px;' id='adviceEntry"+adviceIdx+"' data-clipboard-text='"+adviceTxt+"'>"+adviceTxt+"</div>");
+        var clipboard = new ClipboardJS('#adviceEntry'+adviceIdx);
+        clipboard.on('success', function(e) {
+            console.info('advice copied:', e.text);
+            siiimpleToast.message('推荐语已复制~~',{
+                  position: 'bottom|center'
+                }); 
+        }); 
+        advicesShowed.push(adviceTxt);
+        $("#advicesTitleDiv").css("display","block");
+    }
 }
 
 
