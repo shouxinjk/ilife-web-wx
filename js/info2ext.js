@@ -24,14 +24,15 @@ $(document).ready(function ()
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
 
+    //加载导航和关注列表
+    loadCategories(category);  
+
     //显示遮罩层
     showPostMask();
 
     //请求所有模板列表。请求完成后将触发生成
     requestViewTemplates();
         
-    //加载导航和关注列表
-    loadCategories(category);  
 });
 
 util.getUserInfo();//从本地加载cookie
