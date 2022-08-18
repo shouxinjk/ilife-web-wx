@@ -26,6 +26,13 @@ $(document).ready(function ()
     if(args["id"]){
         currentPerson = args["id"]; //如果传入参数则使用传入值
     }
+    
+    if(args["onlyActive"] && args["onlyActive"]=='true'){
+        onlyActive = true;
+        //如果仅显示激活任务，则更改提示语
+        $("#btnStatusFilter").html("显示全部");
+        $("#btnStatusFilter").attr("href","bot.html");
+    }
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
@@ -58,6 +65,8 @@ var page = {
     total:1,//总页数
     current:-1//当前翻页
 };
+
+var onlyActive = false; //是否仅显示激活的任务
 
 var currentActionType = '';//当前操作类型
 var tagging = '';//操作对应的action 如buy view like 等
@@ -152,7 +161,13 @@ function loadGroupTasks(broker) {
     util.AJAX(app.config.sx_api+"/wx/wxGroupTask/rest/byBrokerId/"+broker.id, function (res) {
         console.log("got group task info.",res);
         for(var i=0;i<res.length;i++){
-            showGroupTask(res[i]);
+            if(onlyActive){//如果仅显示活跃任务则需要逐条过滤
+                if(res[i].status == 'active' && (res[i].wxgroup.status == 'active' || res[i].wxgroup.status == '启用' ) ){
+                    showGroupTask(res[i]);
+                }
+            }else{//否则直接显示
+                showGroupTask(res[i]);
+            }
         }
         showloading(false);
     });

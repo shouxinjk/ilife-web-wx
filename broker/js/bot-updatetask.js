@@ -79,7 +79,7 @@ function loadGroupTask(taskId){
             console.log("got task.",task);
             $("#groupName").val(task.wxgroup.name);
             $("#type").val(task.type);
-            $("#cron").val(task.cron);
+            $("#cron").val(task.cronDesc);
             $("#name").val(task.name);
             $("#status").val(task.status);
             $("#tags").val(task.tags);
