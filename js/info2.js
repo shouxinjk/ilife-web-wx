@@ -205,6 +205,13 @@ function showContent(item){
         $("#gallery").append("<li><img src='" + item.images[i].replace(/\.avif/,'') + "' alt=''/></li>");//加载图片幻灯
         $("#content").append("<img src='" + item.images[i].replace(/\.avif/,'') + "' width='100%'/>");//正文图片
     }
+    //加入media图片
+    if(item.media && Object.keys(item.media) && Object.keys(item.media).length>0){
+        Object.keys(item.media).forEach(function(key){
+            $("#gallery").append("<li><img src='" + item.media[key]+ "' alt=''/></li>");//加载图片幻灯
+            $("#content").append("<img src='" + item.media[key]+ "' width='100%'/>");//正文图片            
+        });
+    }
 
     //初始化图片幻灯
     $('#gallery').galleryView({
