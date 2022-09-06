@@ -114,7 +114,7 @@ function showContent(board){
     }
 
     //作者与发布时间
-    $("#author").html(board.broker.name?board.broker.name:app.globalData.userInfo.nickName);    //默认作者为board创建者
+    $("#author").html(app.globalData.userInfo.nickName);    //默认作者为board创建者
     $("#publish-time").html(board.updateDate.split(" ")[0]);   
     //摘要
     $("#content").html(board.description);
@@ -172,7 +172,7 @@ function loadBrokerByOpenid(openid) {
         console.log("load broker info.",openid,res);
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
-            $("#author").html(broker.name);    //如果当前用户是达人，则转为其个人board
+            $("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board
             //显示分享卡片。此处仅改变显示状态即可
             $("#share-bonus").toggleClass("share-bonus",true);
             $("#share-bonus").toggleClass("share-bonus-hide",false); 
