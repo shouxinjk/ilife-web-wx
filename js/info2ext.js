@@ -369,7 +369,7 @@ function generateImage() {
        $("#share-img-tips").toggleClass("share-img-tips-hide",false);
        $("#share-img-tips").toggleClass("share-img-tips-show",true);
        //显示重新生成链接，可以重新刷新页面
-       $("#error-link").html("<a href='"+window.location.href+"'>重新生成海报</a>");
+       $("#error-link").html("<a href='"+window.location.href+"' style='font-size:12px;text-decoration:none;display:inline-block;'>重新生成海报</a>");
        $("#error-link").toggleClass("share-img-tips-hide",false);
        $("#error-link").toggleClass("share-img-tips-show",true);       
 
@@ -912,7 +912,7 @@ function loadCategories(currentCategory){
         success:function(msg){
             var navObj = $(".navUl");
             for(var i = 0 ; i < msg.length ; i++){
-                navObj.append("<li data='"+msg[i].id+"' style='line-height:40px;font-size:12px;font-weight:bold;'>"+msg[i].name+"</li>");
+                navObj.append("<li data='"+msg[i].id+"' style='line-height:40px;font-size:12px;font-weight:bold;margin-left:15px;'>"+msg[i].name+"</li>");
                 if(currentCategory == msg[i].id)//高亮显示当前选中的category
                     $(navObj.find("li")[i]).addClass("showNav");
             }
