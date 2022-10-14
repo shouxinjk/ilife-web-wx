@@ -758,7 +758,7 @@ function loadProps(categoryId){
     }
     //根据categoryId获取所有measure清单，字段包括name、property
     $.ajax({
-        url:"https://data.shouxinjk.net/ilife/a/mod/measure/measures?category="+categoryId,
+        url:"https://data.shouxinjk.net/ilife/a/mod/measure/measures?noPrefix=true&category="+categoryId,
         type:"get",
         data:{},
         success:function(items){
@@ -793,7 +793,7 @@ function loadProps(categoryId){
                         value = prop[_key];
                         props.splice(j, 1);//删除该元素
                         break;
-                    }else if(_key===name.replace(/๏/g, "").replace(/○/g, "")){//如果匹配上name 也进行同样的处理，由于兼容显示继承属性或直接属性，需要将兼容前缀处理
+                    }else if(_key===name){//如果匹配上name 也进行同样的处理
                         value = prop[_key];
                         props.splice(j, 1);//删除该元素
                         break;
