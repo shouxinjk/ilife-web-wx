@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+    <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">     
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">  
+    <link rel="stylesheet" type="text/css" href="css/common.css?v=1.6"> 
+    <link rel="stylesheet" type="text/css" href="css/feeds.css?v=3.8">       
+</head>
+
+<body>
+    <div class="header" style="background-color: green;">
+        <div class="search" style="text-align: center;background-color: green; ">
+            <span style="margin-left:-20px;background-color: green;">&nbsp;</span>
+            <input id="searchTxt" placeholder="🔍 输入商品名称或分类查看评价规则"><a id="findAll" class="searchBtn" style="color:#fff;">&nbsp;&nbsp;搜索</a> <a class="searchBtn" style="color:#fff;" href="measures.html">&nbsp;&nbsp;热门</a>     
+        </div>       
+    </div>
+
+    <!-- 导航菜单 -->
+    <!--div class="nav">
+        <ul class="navUl">
+        </ul>
+    </div-->   
+
+    <!-- 搜索得到的类目结果 -->
+    <div id="categoryDiv" style="display:flex;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin-top:10px;">
+
+    </div>
+
+    <!-- 评价图 -->
+    <!-- 
+    <div id="circlepackTip" style="width:100%;text-align: center;margin-top: 10px;display:none;font-size:10px;">
+        点击圆圈可以查看其详细评价
+    </div>
+    -->
+    <div id="circlepack" style="width:100%;text-align: center;margin-top: 10px;">
+
+    </div>
+
+    <!-- 图例：采用不同颜色标记不同维度 -->
+    <div id="legendDiv" style="display:flex;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin-top:10px;">
+
+    </div>    
+
+    <!-- 瀑布流：显示匹配的商品数据 -->
+    <div id="Center">
+        <ul id="waterfall"></ul>
+    </div>
+
+    <!-- 加载进度与提示 -->
+    <div class="loading-hide" id="loading">
+        <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
+    </div>
+
+    <div id="footer" class="footer">
+        <button class="btn btn-default findMoreBtn-hide" id="findMoreBtn">推荐更多</button>
+    </div> 
+
+    <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
+
+  <div id="sx-menu">
+    <a href="index.html" class="menu-btn">
+        <img src="images/smile-happy.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;推荐</div>
+    </a>
+    <a href="feeds.html" class="menu-btn">
+        <img src="images/biglist-selected.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt-selected">&nbsp;发现</div>
+    </a>
+    <a href="user.html" class="menu-btn">
+        <img src="images/my.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;我</div>
+    </a>        
+  </div>
+
+</body>
+
+<!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
+<script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="js/newWaterfall.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/swiper.min.js"></script>
+<script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
+<script type="text/javascript" src="ext/d3/d3.min.js"></script>
+<script type="text/javascript" src="ext/d3/zoomable-circle-packing.js?v=0.6"></script>
+<script type="text/javascript" src="js/util.js?v=3.2"></script>
+<script type="text/javascript" src="js/measures.js?v=0.28"></script> 
+</html>
