@@ -58,8 +58,9 @@
         <div id="share-bonus" class="share-bonus"></div>
         <div id="share-btn" class="share-btn">
             <div id="share-instruction">清单分享更高效</div>
-            <a id="share-link" href="#">&nbsp;&nbsp;立即分享&nbsp;&nbsp;</a>
-            <a id="goSelectionBtn" href="#" style="background-color: darkgreen;border-color: darkgreen;">我的选品</a>
+            <a id="share-link" href="#" style="background-color: #ff6347; border-color:#ff6347;">&nbsp;&nbsp;立即分享&nbsp;&nbsp;</a>
+            <a id="addNewItemBtn" href="#" style="background-color: #00bfff;border-color: #00bfff;">增加商品</a>
+            <a id="goSelectionBtn" href="#" style="background-color: #50c878;border-color: #50c878;">我的选品</a>
         </div>
     </div>  
 
@@ -77,6 +78,15 @@
         <div class="menu-btn-txt">&nbsp;我</div>
     </a>        
   </div>
+
+    <div id="itemform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">粘贴商品URL</div> 
+            <textarea type="url" id="itemUrl" rows="3" placeholder="请复制商品URL并粘贴，支持京东、拼多多、淘宝等主流电商平台" style="width:80%;border:1px solid silver;line-height: 18px;font-size:12px;margin:5px auto;" required></textarea> 
+            <div>
+                <button type="submit" class="btnNo" id="btnCancel">取消</button>  
+                <button type="submit" class="btnYes" id="btnPublish">确定</button> 
+            </div>
+    </div> 
       
 </body>
 
@@ -85,6 +95,7 @@
 <script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
 <script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="js/newWaterfall.js"></script>
+<script type="text/javascript" src="ext/jquery.blockUI.js"></script>
 <script type="text/javascript" src="js/swiper.min.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
@@ -92,5 +103,5 @@
 <script type="text/javascript" src="js/util.js?v=2.61"></script>
 <script type="text/javascript" src="js/options.js?v=1.03"></script>
 <script type="text/javascript" src="js/helper.js?v=1.11"></script>
-<script type="text/javascript" src="js/index.js?v=10.97"></script>
+<script type="text/javascript" src="js/index.js?v=10.99"></script>
 </html>

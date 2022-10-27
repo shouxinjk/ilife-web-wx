@@ -84,7 +84,12 @@ $(document).ready(function ()
     //注册点击事件：查看选品库
     $("#goSelectionBtn").click(function(){
         window.location.href="broker/selection.html";           
-    });     
+    });   
+
+    //注册点击事件：添加商品URL
+    $("#addNewItemBtn").click(function(){
+        showItemForm();        
+    });       
 
     //加载filter并高亮
     loadFilters(filter);
@@ -1668,7 +1673,7 @@ function showShareContent(){
         if(boardId && boardId.trim().length > 0){//如果已经有在编辑清单，则直接显示发布按钮
           //分享链接：默认用图片列表形式
           $("#share-instruction").html("选取商品并<br/>添加到清单");
-          $("#share-link").html("编辑&分享");
+          $("#share-link").html("分享清单");
           $("#share-link").attr("href","board2-waterfall.html?id="+boardId);
           //设置提示
           //$("#share-bonus").html("推广提示");       
@@ -1819,6 +1824,87 @@ function showMeasureScores(stuff,featuredDimension,itemScore){
     $("#measure-"+stuff._key).css("display","block");
 }
 
+//显示增加商品表单：粘贴URL即可
+function showItemForm(){
+    console.log("show item form.");  
+    //显示数据填报表单
+    $.blockUI({ message: $('#itemform'),
+        css:{ 
+            padding:        10, 
+            margin:         0, 
+            width:          '80%', 
+            top:            '30%', 
+            left:           '10%', 
+            textAlign:      'center', 
+            color:          '#000', 
+            border:         '1px solid silver', 
+            backgroundColor:'#fff', 
+            cursor:         'normal' 
+        },
+        overlayCSS:  { 
+            backgroundColor: '#000', 
+            opacity:         0.7, 
+            cursor:          'normal' 
+        }
+    }); 
+    $("#btnCancel").click(function(){
+        $("#itemUrl").css("border","1px solid silver");//恢复标准风格
+        $("#itemUrl").val("");//清空原有数值，避免交叉        
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnPublish").click(function(){//完成阅读后的奖励操作
+        //检查数字url，胡乱填写不可以
+        if( !isUrlValid($("#itemUrl").val()) ){
+            $("#itemUrl").css("border","1px solid red");
+            $("#itemUrl").val("");//清空原有数值，避免交叉
+            siiimpleToast.message('需要包含URL链接才可以哦~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to submit new item.");
+            submitNewItem();
+        }
+    });
+}
+
+//检查url是否符合要求：包含链接即可
+function isUrlValid(url) {
+    return /^https?:\/\//i.test(url);
+}
+
+//添加商品：提交URL后尝试自动采集入库
+function submitNewItem(){
+    var url = $("#itemUrl").val();
+    $("#itemUrl").css("border","1px solid silver");//恢复标准风格
+    $("#itemUrl").val("");//清空原有数值，避免交叉
+    $.ajax({
+        url:app.config.sx_api+"/rest/cps/enhouse",
+        type:"post",
+        data:JSON.stringify({
+            url:url,
+            openid:app.globalData.userInfo._key,
+        }),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },        
+        success:function(res){
+            console.log("item submit succeed.",res);
+            $.unblockUI(); //屏幕解锁
+            //直接跳转到详情页
+            if(res.success && res.data && res.data.itemKey && res.data.itemKey.trim().length>0){//表示已存在或采集成功
+              siiimpleToast.message('商品已上架，请查看详情~~',{
+                          position: 'bottom|center'
+                        }); 
+              window.location.href="info2.html?id="+res.data.itemKey;
+            }else{
+              siiimpleToast.message('URL已发送客服，完成上架后将推送通知消息，请稍后~~',{
+                      position: 'bottom|center'
+                    });               
+            }     
+        }
+    })     
+}
 
 //注册分享事件
 function registerShareHandler(){
