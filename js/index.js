@@ -1875,8 +1875,8 @@ function isUrlValid(url) {
 //添加商品：提交URL后尝试自动采集入库
 function submitNewItem(){
     var url = $("#itemUrl").val();
-    $("#itemUrl").css("border","1px solid silver");//恢复标准风格
-    $("#itemUrl").val("");//清空原有数值，避免交叉
+    $("#enhouseWaiting").css("display","block");
+    $("#enhouseTip").html("商品上架中，稍等一下下哦~~");
     $.ajax({
         url:app.config.sx_api+"/rest/cps/enhouse",
         type:"post",
@@ -1890,6 +1890,10 @@ function submitNewItem(){
         },        
         success:function(res){
             console.log("item submit succeed.",res);
+            $("#itemUrl").css("border","1px solid silver");//恢复标准风格
+            $("#itemUrl").val("");//清空原有数值，避免交叉   
+            $("#enhouseWaiting").css("display","none");
+            $("#enhouseTip").html("粘贴商品URL");                     
             $.unblockUI(); //屏幕解锁
             //直接跳转到详情页
             if(res.success && res.data && res.data.itemKey && res.data.itemKey.trim().length>0){//表示已存在或采集成功
@@ -1898,7 +1902,7 @@ function submitNewItem(){
                         }); 
               window.location.href="info2.html?id="+res.data.itemKey;
             }else{
-              siiimpleToast.message('URL已发送客服，完成上架后将推送通知消息，请稍后~~',{
+              siiimpleToast.message('已转发客服，稍后推送通知~~',{
                       position: 'bottom|center'
                     });               
             }     
