@@ -1906,7 +1906,19 @@ function submitNewItem(){
                       position: 'bottom|center'
                     });               
             }     
-        }
+        },
+        error:function(res){
+            console.log("item submit succeed.",res);
+            $("#itemUrl").css("border","1px solid silver");//恢复标准风格
+            $("#itemUrl").val("");//清空原有数值，避免交叉   
+            $("#enhouseWaiting").css("display","none");
+            $("#enhouseTip").html("粘贴商品URL");                     
+            $.unblockUI(); //屏幕解锁
+            siiimpleToast.message('啊哦，好像出错了~~',{
+                    position: 'bottom|center'
+                  });                   
+        }, 
+        timeout: 3000       
     })     
 }
 
