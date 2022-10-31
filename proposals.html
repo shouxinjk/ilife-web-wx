@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+    <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="ext/siiimple-toast-master/style.css?v=1.0">
+    <link rel="stylesheet" type="text/css" href="css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="broker/css/boards.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">     
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">  
+    <link rel="stylesheet" type="text/css" href="css/common.css?v=1.6"> 
+    <link rel="stylesheet" type="text/css" href="css/feeds.css?v=3.8">       
+</head>
+
+<body>
+    <div class="header" style="background-color: blue;">
+        <div class="search" style="text-align: center;background-color: blue; ">
+            <span style="margin-left:-20px;background-color: blue;">&nbsp;</span>
+            <input id="searchTxt" placeholder="🔍 输入关键字开始个性化定制"><a id="findAll" class="searchBtn" style="color:#fff;">&nbsp;&nbsp;搜索</a> <a class="searchBtn" style="color:#fff;" href="proposals.html">&nbsp;&nbsp;热门</a>     
+        </div>       
+    </div>
+
+    <!-- 导航菜单 -->
+    <!--div class="nav">
+        <ul class="navUl">
+        </ul>
+    </div-->   
+
+    <!-- 搜索得到的类目结果 -->
+    <div id="categoryDiv" style="display:flex;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin-top:10px;">
+
+    </div>
+
+    <!-- 新建方案 -->
+    <div class='add-new-wrapper' id='createProposalBtn' style="margin-top:10px;">
+        <div class='add-new-logo-wrapper'>+</div>
+        <div class='add-new-title' id="createProposalTip">开始个性化定制</div>
+    </div>
+
+    <!-- 瀑布流：显示匹配的商品数据 -->
+    <div id="Center">
+        <ul id="waterfall">
+            <li>
+            </li>              
+        </ul>
+    </div>
+
+    <!-- 加载进度与提示 -->
+    <div class="loading-hide" id="loading">
+        <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
+    </div>
+
+    <div id="footer" class="footer">
+        <button class="btn btn-default findMoreBtn-hide" id="findMoreBtn">推荐更多</button>
+    </div> 
+
+    <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
+
+  <div id="sx-menu">
+    <a href="index.html" class="menu-btn">
+        <img src="images/smile-happy.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;推荐</div>
+    </a>
+    <a href="feeds.html" class="menu-btn">
+        <img src="images/biglist-selected.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt-selected">&nbsp;发现</div>
+    </a>
+    <a href="user.html" class="menu-btn">
+        <img src="images/my.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;我</div>
+    </a>        
+  </div>
+
+
+    <div id="chooseSchemeForm" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">选择一个主题</div> 
+            <div id="proposalSchemesDiv"  style="display:flex;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin:10px auto;">
+                
+            </div>
+            <div>
+                <button type="submit" class="btnNo" id="btnCancel">取消</button>  
+                <button type="submit" class="btnYes" id="btnPublish">确定</button> 
+            </div>
+    </div> 
+
+</body>
+
+<!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
+<script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="js/newWaterfall.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/swiper.min.js"></script>
+<script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
+<script type="text/javascript" src="ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="ext/d3/d3.min.js"></script>
+<script type="text/javascript" src="ext/d3/zoomable-circle-packing.js?v=0.6"></script>
+<script type="text/javascript" src="js/util.js?v=3.2"></script>
+<script type="text/javascript" src="js/proposals.js?v=0.37"></script> 
+</html>
