@@ -106,14 +106,8 @@ function syncPerson(person){
 var sxInterval = null;
 function loadFeeds(){
     //先清空原来的
-    if(!sxInterval){
-      clearInterval(sxInterval);
-      sxInterval = null;
-    }
-    items = [];
-    page.current = -1;
-    loading = false;
-    num = 1;
+    resetItemsInterval(); //清空定时器及缓存的商品条目
+
     sxInterval = setInterval(function ()
     {
         //console.log("interval",$(window).scrollTop(),$(document).height(),$(window).height(),$(document).height() - $(window).height() - dist);
@@ -208,7 +202,7 @@ function searchCategory() {
                     //默认选中一个
                     if(i==0){
                       console.log("try load items by default. categoryId is ",hits[i]._source.meta.category);
-                      resetItemsInterval(); //清空定时器及缓存的商品条目
+                      //resetItemsInterval(); //清空定时器及缓存的商品条目
 
                       categoryId = hits[i]._source.meta.category;
                       categoryName = hits[i]._source.meta.categoryName;
@@ -742,13 +736,13 @@ function insertCategoryItem(measureItem){
     
     var measureTag = "<div id='metacat"+measureItem.category+"' data-id='"+measureItem.category+"' data-name='"+measureItem.categoryName+"' style='line-height:16px;font-size:12px;min-width:60px;font-weight:bold;padding:2px;border:1px solid silver;border-radius:10px;margin:2px;'>"+measureItem.categoryName+"</div>"
     $("#categoryDiv").append( measureTag );
-    num++;
+    //num++;
 
     //注册事件
     $("#metacat"+measureItem.category).click(function(){
         console.log("meta category changed. ",  $(this).data("id") );
         //清空商品及定时器
-        resetItemsInterval();
+        //resetItemsInterval();
 
         categoryId = $(this).data("id"); //设置全局变量，避免interval延迟调用问题
         categoryName = $(this).data("name"); //设置全局变量，避免interval延迟调用问题
@@ -766,7 +760,7 @@ function insertCategoryItem(measureItem){
     // 表示加载结束
     showloading(false);
     loading = false;    
-    num++;  
+    //num++;  
 }
 
 //更新item信息。只用于更新profit
