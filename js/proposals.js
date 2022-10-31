@@ -115,8 +115,8 @@ function createSolution(){
         url:app.config.sx_api+"/diy/solution/rest/blank/"+categoryId,
         type:"post",
         data:JSON.stringify({
-          forOpenid:null,
-          byOpenid:null
+          forOpenid:app.globalData.userInfo._key,
+          byOpenid:app.globalData.userInfo._key
         }),
         headers:{
             "Content-Type":"application/json",
