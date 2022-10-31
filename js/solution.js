@@ -184,10 +184,10 @@ function showContent(solution){
         $("#title").html(
             solution.name
             +"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>"
-            +"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;'>克隆</a>"
+            +"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;' id='cloneBoardBtn'>克隆</a>"
             );
         $("#cloneBoardBtn").click(function(){
-            console.log("try to clone board.[boardId]"+board.id+"[brokerId]"+broker.id);
+            console.log("try to clone board.[solution]"+solution.id+"[openid]"+app.globalData.userInfo._key);
             util.AJAX(app.config.sx_api+"/diy/solution/rest/clone/"+solution.id, function (res) {
                 console.log("clone broker successfully.",res);
                     if(res.success && res.solution && res.solution.id){
@@ -367,6 +367,9 @@ function loadSolution(solutionId){
             solution = res.data;
             showContent(res.data);
 
+            //加载推荐列表
+            loadMoreSolutions(solution.scheme.id);
+
             //注册事件：根据关键词搜索更多
             $("#jumpToSearch").click(function(){
                 window.location.href="index.html?keyword="+solution.name;
@@ -484,64 +487,74 @@ function insertStuffItem(solutionItemId, stuff){
     loading = false;
 }
 
-
-//加载客观评价指标
-function loadMeasureSchemes(stuff){
-    //获取类目下的特征维度列表
+//根据schemeId查找所有主题列表
+function loadMoreSolutions(schemeId){
+    var query = {
+          scheme:{id: schemeId}
+        }; 
     $.ajax({
-        url:app.config.sx_api+"/mod/itemDimension/rest/featured-dimension",
-        type:"get",
-        //async:false,//同步调用
-        data:{categoryId:stuff.meta.category},
-        success:function(featuredDimension){
-            console.log("===got featured dimension===\n",featuredDimension);
-            loadMeasureScores(stuff,featuredDimension);
-        }
-    });  
-}
-//加载指定item的评分
-function loadMeasureScores(stuff,featuredDimension){
-    var itemScore = {};
-    //根据itemKey获取评价结果
-    //feature = 1；dimensionType：0客观评价，1主观评价
-    //注意：由于clickhouse非严格唯一，需要取最后更新值
-    $.ajax({
-        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where feature=1 and dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
-        type:"get",
-        //async:false,//同步调用
-        //data:{},
+        url:app.config.sx_api+"/diy/solution/rest/search",
+        type:"post",
+        data:JSON.stringify(query),
         headers:{
-            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
-        },         
-        success:function(json){
-            console.log("===got item score===\n",json);
-            for(var i=0;i<json.rows;i++){
-                itemScore[json.data[i].dimensionId] = json.data[i].score;
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },
+        success:function(ret){
+            console.log("load solutions.",ret);
+            if(ret.success && ret.data.length>0){//逐条显示到更多区域
+                ret.data.forEach(function(item){
+                    insertMoreSolutionItem(item);
+                });
+            }else{//如果没有内容，则显示提示文字
+                //do nothing
             }
-            console.log("===assemble item score===\n",itemScore);
-            showMeasureScores(stuff,featuredDimension,itemScore);
         }
-    });   
+    });
 }
-//显示客观评价得分
-function showMeasureScores(stuff,featuredDimension,itemScore){
-    var colors = ['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#00ffff','#40e0d0','#9acd32','#32cd32','#228b22'];
-    //准备评分表格：根据评价维度逐行显示
-    featuredDimension.forEach(function(dimension){
-      var html  = '<div id="mscore-'+stuff._key+dimension.id+'" data-init="true"></div>';//以itemKey+dimensionId为唯一识别
-      var score = itemScore[dimension.id]?itemScore[dimension.id]*10:(Math.floor(Math.random() * 75)*0.1+2.5);//如果没有标注则随机展示
-      var colorIndex = Math.round(score);//四舍五入取整
-      if(colorIndex>9)colorIndex=9;
-      $("#measure-"+stuff._key).append(html);
-      $('#mscore-'+stuff._key+dimension.id).LineProgressbar({
-                percentage: score,
-                title:dimension.name,
-                unit:'/10',
-                fillBackgroundColor:colors[colorIndex],
-                //animation:false
-            });    
-    });   
-    $("#measure-"+stuff._key).css("display","block");
+
+//将item显示到页面
+//所属类型、名称、创建时间
+function insertMoreSolutionItem(item){
+    // 加载内容
+    if(!item){
+      return;
+    }
+
+    if(item.id==id){ //在列表里不显示同一个条目
+        return;
+    }
+    //排重
+    if($("#"+item.id).length>0)
+      return;
+
+    var imgWidth = 40;//固定为100
+    var imgHeight = 40;//随机指定初始值
+    //计算图片高度
+    var imgSrc = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
+    if(item.scheme && item.scheme.logo && item.scheme.logo.trim().length()>0)
+      imgSrc = item.scheme.logo;
+    var img = new Image();
+    img.src = imgSrc;
+    var orgWidth = img.width;
+    var orgHeight = img.height;
+    imgHeight = orgHeight/orgWidth*imgWidth;
+    //计算文字高度：按照1倍行距计算
+
+    var image = "<img src='"+imgSrc+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
+
+    var title = "<div class='title' style='font-size:12px;line-height: 12px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;'>"+item.name+"</div>"
+    $("#waterfall").append("<li><div id='"+item.id+"' style='width:95%;margin-top:10px;'>" 
+        + "<div style='width:100%;margin:auto 0px;font-size:12px;line-height:12px;'>"+title+ "</div>"
+        + "<div class='title' style='font-size:12px;margin-top:0px;margin-bottom:0px;line-height:14px;font-weight:normal;'>"+item.updateDate.split(" ")[0]+ "</div>"
+        + "<div class='title' style='font-size:12px;font-weight:normal;line-height:14px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;'>"+ item.description +"</div>"
+        //+ "<div class='board-item-tips-seperator' style='width:80%;margin:0px auto;'></div> "
+        + "</div></li>");
+
+    //注册事件：跳转到方案查看界面
+    $("#"+item.id).click(function(){
+        window.location.href = "solution.html?id="+item.id;
+    });
 }
 
 function loadCategories(currentCategory){
