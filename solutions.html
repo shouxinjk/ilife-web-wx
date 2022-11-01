@@ -2,19 +2,18 @@
 <html>
 
 <head>
-    <title>关心的人-小确幸大生活</title>
+    <title>定制方案 - 小确幸大生活</title>
     <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
     <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="css/common.css">
-    <link rel="stylesheet" type="text/css" href="css/connection.css">
+    <link rel="stylesheet" type="text/css" href="broker/css/boards.css">
+    <link rel="stylesheet" type="text/css" href="css/favorite.css?v=1.5">
     <link rel="stylesheet" type="text/css" href="css/waterfall.css">
-    <link rel="stylesheet" type="text/css" href="broker/css/broker.css">
-    <link rel="stylesheet" type="text/css" href="broker/css/broker-my.css?v=1.1">    
-    <link rel="stylesheet" type="text/css" href="css/swiper.min.css"> 
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">  
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">     
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">         
 </head>
 
 <body>
@@ -44,34 +43,32 @@
             <div class="actiontype">关注的物</div>
         </div>  
         <div class="order-cell" id="connection" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/connection-selected.png"/>
-            <div class="actiontype-selected">关心的人</div>
-        </div>   
+            <img class="order-cell-icon-small" src="images/connection.png"/>
+            <div class="actiontype">关心的人</div>
+        </div> 
         <div class="order-cell" id="solutions" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/solutions.png"/>
-            <div class="actiontype">我的定制</div>
-        </div>          
+            <img class="order-cell-icon-small" src="images/solutions-selected.png"/>
+            <div class="actiontype-selected">我的定制</div>
+        </div>            
         <div class="order-cell" id="user" data-tagging="share">
             <img class="order-cell-icon-small" src="images/user.png"/>
             <div class="actiontype">我的设置</div>
-        </div>                                     
+        </div>                            
     </view>
 
     <div class="tips">
-        也可以给关心的人如老爸老妈精准推荐哦~~
+        行程规划，体检方案，着装搭配，都可以自定义~~
     </div> 
-    <!-- 分享二维码邀请 -->
-    <div id="qrcode" align="center" style="display:none"></div>
-    
+
+    <!-- 新建方案 -->
+    <div class='add-new-wrapper' id='createSolutionBtn' style="margin-top:10px;">
+        <div class='add-new-logo-wrapper'>+</div>
+        <div class='add-new-title' id="createProposalTip">开始个性化定制</div>
+    </div>
+
+    <!-- 瀑布流 -->
     <div id="Center">
-        <ul id="waterfall">
-            <li><div class='persona' id='add-connection'>
-                    <div class='persona-logo-wrapper'><img src='images/add-person.png' width='50' height='50' class='persona-logo'/></div>
-                    <div class='persona-info'><div class='persona-title' style="line-height: 55px">添加关心的人</div>
-                </div>
-                <div class='persona-action'>+</div>
-            </li>
-        </ul>
+        <ul id="waterfall"></ul>
     </div>
 
     <!-- 加载进度与提示 -->
@@ -80,7 +77,7 @@
     </div>
 
     <div id="footer" class="footer-hide">
-        我是有底线的~~
+        没有更多了
     </div>  
 
   <div id="sx-menu">
@@ -98,6 +95,17 @@
     </a>        
   </div>
 
+    <div id="chooseSchemeForm" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">选择一个主题</div> 
+            <div id="proposalSchemesDiv"  style="display:flex;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin:10px auto;">
+                
+            </div>
+            <div>
+                <button type="submit" class="btnNo" id="btnCancel">取消</button>  
+                <button type="submit" class="btnYes" id="btnPublish">确定</button> 
+            </div>
+    </div> 
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
@@ -106,7 +114,10 @@
 <script type="text/javascript" src="js/swiper.min.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
-<script type="text/javascript" src="js/util.js?v=3.0"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
+<script type="text/javascript" src="ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="js/util.js?v=4.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.25"></script> 
-<script type="text/javascript" src="js/connection.js?v=5.7"></script> 
+<script type="text/javascript" src="js/solutions.js?v=0.1"></script> 
 </html>

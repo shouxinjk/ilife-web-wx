@@ -33,6 +33,10 @@
     <view class="info" id="user"></view>
     <!-- 按钮 --> 
     <view class="order" id="buttons">
+        <div class="order-cell" id="task" data-tagging="like view">
+            <img class="order-cell-icon-small" src="broker/images/task.png"/>
+            <div class="actiontype">生活家</div>
+        </div>        
         <div class="order-cell" id="favorite" data-tagging="like view favorite buy">
             <img class="order-cell-icon-small" src="images/favorite-selected.png"/>
             <div class="actiontype-selected">关注的物</div>
@@ -41,9 +45,13 @@
             <img class="order-cell-icon-small" src="images/connection.png"/>
             <div class="actiontype">关心的人</div>
         </div>   
+        <div class="order-cell" id="solutions" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/solutions.png"/>
+            <div class="actiontype">我的定制</div>
+        </div>          
         <div class="order-cell" id="user" data-tagging="share">
             <img class="order-cell-icon-small" src="images/user.png"/>
-            <div class="actiontype">个性设置</div>
+            <div class="actiontype">我的设置</div>
         </div>                            
     </view>
 
@@ -85,6 +93,6 @@
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="js/util.js?v=4.0"></script>
-<script type="text/javascript" src="js/common.js?v=1.24"></script> 
+<script type="text/javascript" src="js/common.js?v=1.25"></script> 
 <script type="text/javascript" src="js/favorite.js?v=1.81"></script> 
 </html>
