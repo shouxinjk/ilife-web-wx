@@ -18,6 +18,9 @@ $(document).ready(function ()
     fromUser = args["fromUser"]?args["fromUser"]:"o8HmJ1ItjXilTlFtJNO25-CAQbbg";//从连接中获取分享用户ID：默认设置为Judy
     fromBroker = args["fromBroker"]?args["fromBroker"]:"";//从连接中获取分享达人ID。重要：将依据此进行收益计算
 
+    solutionId = args["solutionId"]?args["solutionId"]:null;
+    solutionItemId = args["solutionItemId"]?args["solutionItemId"]:null;
+
     //检查设置首次触达达人
     if(fromBroker && fromBroker.trim().length>0){
         util.checkInitBroker(fromBroker);
@@ -126,6 +129,10 @@ var fromBroker = "";
 
 //加载board信息
 var boardId = null;
+
+//加载Solution信息
+var solutionId = null;
+var solutionItemId = null;
 
 var columnWidth = 300;//默认宽度300px
 var columnMargin = 5;//默认留白5px
@@ -976,6 +983,7 @@ function insertItem(){
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='title'>"+item.title+"</div>"
 
+    //添加清单按钮
     var boartBtns = "";
     if(boardId){//如果有board信息则显示添加到清单按钮
         boartBtns = "<div class='itemTags'>";
@@ -984,10 +992,19 @@ function insertItem(){
         boartBtns += "</div>";
     }
 
+    //添加定制方案按钮
+    var solutionBtns = "";
+    if(solutionId&&solutionItemId){//如果有solution信息则显示添加按钮
+        solutionBtns = "<div class='itemTags'>";
+        solutionBtns += "<a  id='btn-add-"+item._key+"-to-solution' data-solutionitemid='"+solutionItemId+"' data-item='"+item._key+"' class='boardOption' style='color:blue;'>加入方案</a>&nbsp;";
+        solutionBtns += "<a class='boardOption' href='solution-modify.html?id="+solutionId+"' style='color:blue;'>返回方案</a>";
+        solutionBtns += "</div>";
+    }
+
     //添加评价指标
     var measures = "<div id='measure-"+item._key+"' style='display:none'></div>";
 
-    $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights +title+ tags+boartBtns+measures+ "</div></li>");
+    $("#waterfall").append("<li><div data='"+item._key+"'>" + image+profitTags +highlights +title+ tags+boartBtns+solutionBtns+measures+ "</div></li>");
     num++;
 
     //如果是达人，则加载显示佣金信息
@@ -1027,6 +1044,15 @@ function insertItem(){
 
         event.stopPropagation(); //禁止冒泡
     });
+
+    //如果有solution则注册增加商品事件
+    $("#btn-add-"+item._key+"-to-solution").click(function(event){
+        event.stopPropagation(); //禁止冒泡
+        //添加item到board并浮框提示
+        var itemKey = $(this).data("item");
+        console.log("try add item to solutionItem.",solutionItemId,itemKey);
+        addItemToSolutionItem(itemKey);
+    });    
 
     //装载评价数据：查询后动态添加
     if(item.meta&&item.meta.category){
@@ -1078,14 +1104,39 @@ function addItemToBoard(item){
         console.log("Index::addItemToBoard item added successfully.", res)
         if(res.status){
             console.log("Index::addItemToBoard item added successfully", res)
-            $.toast({//浮框提示已添加成功
-                heading: '已添加到清单',
-                text: '可以继续添加商品或编辑清单',
-                showHideTransition: 'fade',
-                icon: 'success'
-            });            
+            siiimpleToast.message('已添加~~',{
+                  position: 'bottom|center'
+                });             
+        }else{
+            siiimpleToast.message('啊哦，出错了~~',{
+                  position: 'bottom|center'
+                });           
         }
     }, "POST",data,header);
+}
+
+
+//添加item到solution
+function addItemToSolutionItem(itemKey){
+    console.log("try to add item to solution.", itemKey)
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    };     
+    //提交到后端
+    util.AJAX(app.config.sx_api+"/diy/solution/rest/solutionItem/stuff/"+solutionItemId+"/"+itemKey, function (res) {
+        console.log("add item to solutionItem successfully.", res)
+        if(res.success){
+            console.log("item added successfully", res)
+            siiimpleToast.message('已添加~~',{
+                  position: 'bottom|center'
+                });             
+        }else{
+            siiimpleToast.message('啊哦，出错了~~',{
+                  position: 'bottom|center'
+                });           
+        }
+    }, "POST",{},header);
 }
 
 //查询佣金。2方分润。返回order/team/credit三个值
