@@ -471,9 +471,9 @@ function saveSolutionItemInfo(solutionItem){
 
 //构建方案条目html：根据类型显示具体内容。section类型仅显示分隔信息
 //显示左侧为圆形 type logo，右侧为名称、描述、tags列表。分行显示。并包含有商品条目div
-var btnStyle = "border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;margin:2px;width:32px;"
-var btnStyleS = "border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;margin:2px;width:24px;"
-var btnStyleL = "border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;margin:2px;width:48px;"
+var btnStyle = "border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;margin:2px;min-width:32px;text-align:center;"
+var btnStyleS = "border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;margin:2px;min-width:24px;text-align:center;"
+var btnStyleL = "border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;margin:2px;min-width:48px;text-align:center;"
 function buildSolutionItemHtml(item){
     //如果type为section则显示分隔符。仅显示标题和描述。
     if("section"==item.type){
