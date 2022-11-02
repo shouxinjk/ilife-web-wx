@@ -48,7 +48,7 @@
             <!--solution items-->
         </div>  
         <!-- 分享按钮 -->
-        <div class="share-box" id="sharebox" style="display:none;width:40px;height:40px;border-radius: 50%;border-color: darkgreen;background-color: darkgreen;">
+        <div class="share-box" id="sharebox" style="display:none;width:40px;height:40px;border-radius: 50%;border-color: darkgreen;background-color: #2a61f1;">
             <div id="goViewModeBtn" style="line-height: 14px;font-size: 12px;text-align: center;vertical-align: middle;width:30px;margin:6px auto;">完成编辑</div>
             <!--div class="share-tips">立即分享</div>
             <div id="share-bonus" class="share-bonus"></div>
@@ -72,24 +72,24 @@
     <!-- 修改solution名称及描述 -->
     <div id="solutionform" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">方案信息</div> 
-            <input type="text" id="solutionName2" placeholder="方案名称" style="width:80%;border:1px solid silver;line-height: 16px;font-size:12px;margin:5px auto;" required/>
-            <textarea type="url" id="solutionDesc2" rows="3" placeholder="方案简要描述" style="width:80%;border:1px solid silver;line-height: 16px;font-size:12px;margin:5px auto;" required></textarea> 
+            <input type="text" id="solutionName2" placeholder="方案名称" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;" required/>
+            <textarea type="url" id="solutionDesc2" rows="3" placeholder="方案简要描述" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;" required></textarea> 
             <div>
-                <button type="submit" class="btnNo" id="btnCancelSolution">取消</button>  
-                <button type="submit" class="btnYes" id="btnSaveSolution">确定</button> 
+                <button type="submit" class="btnNo" id="btnCancelSolution" style="font-size: 12px;padding:2px 5px;">取消</button>  
+                <button type="submit" class="btnYes" id="btnSaveSolution" style="font-size: 12px;padding:2px 5px;">确定</button> 
             </div>
     </div>
 
     <!-- 修改solutionItem详细 -->
     <div id="solutionitemform" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">方案条目信息</div> 
-            <input type="text" id="solutionItemType2" placeholder="选择类型" style="width:80%;border:1px solid silver;line-height: 16px;font-size:12px;margin:5px auto;" />
-            <input type="text" id="solutionItemName2" placeholder="名称" style="width:80%;border:1px solid silver;line-height: 16px;font-size:12px;margin:5px auto;" required/>
-            <input type="text" id="solutionItemTags2" placeholder="标签，空格分隔" style="width:80%;border:1px solid silver;line-height: 16px;font-size:12px;margin:5px auto;" />
-            <textarea type="url" id="solutionItemDesc2" rows="3" placeholder="条目概要描述" style="width:80%;border:1px solid silver;line-height: 16px;font-size:12px;margin:5px auto;" required></textarea> 
+            <input type="text" id="solutionItemType2" placeholder="选择类型" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;" />
+            <input type="text" id="solutionItemName2" placeholder="名称。必填。" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;" required/>
+            <input type="text" id="solutionItemTags2" placeholder="标签，空格分隔" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;" />
+            <textarea type="url" id="solutionItemDesc2" rows="3" placeholder="简要描述。必填。" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;" required></textarea> 
             <div>
-                <button type="submit" class="btnNo" id="btnCancelSolutionItem">取消</button>  
-                <button type="submit" class="btnYes" id="btnSaveSolutionItem">确定</button> 
+                <button type="submit" class="btnNo" id="btnCancelSolutionItem" style="font-size: 12px;padding:2px 5px;">取消</button>  
+                <button type="submit" class="btnYes" id="btnSaveSolutionItem" style="font-size: 12px;padding:2px 5px;">确定</button> 
             </div>
     </div>
 
