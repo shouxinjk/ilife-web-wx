@@ -235,7 +235,7 @@ function showContent(solution){
         //检查商品条目数量，少于3条不推送
         if(items.length<3){
             console.log("no enough board items. ignore.");
-            siiimpleToast.message('至少要有3个商品，请添加~~',{
+            siiimpleToast.message('至少要有3个条目，请添加~~',{
               position: 'bottom|center'
             });             
         }else{
@@ -666,7 +666,42 @@ function registerShareHandler(){
                         }); 
                         //**/
                     }
-                });            
+                });   
+                //分享到朋友圈
+                wx.updateTimelineShareData({
+                    title:solution&&solution.name?solution.name:"小确幸，大生活", // 分享标题
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl:solution.scheme.logo?solution.scheme.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    success: function () {
+                        // 用户点击了分享后执行的回调函数
+                        //TODO: solution分享当前不记录
+                        /*
+                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到朋友圈",res);
+                        }); 
+                        //**/
+                    },
+                });
+                //分享给朋友
+                wx.updateAppMessageShareData({
+                    title:solution&&solution.name?solution.name:"小确幸，大生活", // 分享标题
+                    desc:solution.description&&solution.description.trim().length>0?solution.description.replace(/<br\/>/g,""):"Live is all about having a good time.", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: solution.scheme.logo?solution.scheme.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                    success: function () {
+                      // 用户点击了分享后执行的回调函数
+                      //TODO:solution分享当前不记录
+                      /**
+                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到微信",res);
+                        }); 
+                        //**/
+                    }
+                });                          
             });
         }
     })    
