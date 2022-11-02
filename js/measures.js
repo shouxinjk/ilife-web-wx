@@ -170,7 +170,7 @@ function searchCategory() {
     };
 
     $.ajax({
-        url:"https://data.pcitech.cn/items_v6/_search", //TODO：当前直接采用索引名称，未用stuff别名，未来需要调整为别名
+        url:search_api+"/stuff/_search", 
         type:"post",
         data:JSON.stringify(esQuery),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
         headers:{
