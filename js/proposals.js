@@ -339,6 +339,52 @@ function insertItem(){
       return;
 
     var imgWidth = 48;//固定为100
+    var imgHeight = 48;//随机指定初始值
+    //计算图片高度
+    var imgSrc = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
+    if(item.scheme && item.scheme.logo && item.scheme.logo.trim().length()>0)
+      imgSrc = item.scheme.logo;
+    var img = new Image();
+    img.src = imgSrc;
+    var orgWidth = img.width;
+    var orgHeight = img.height;
+    imgHeight = orgHeight/orgWidth*imgWidth;
+    //计算文字高度：按照1倍行距计算
+
+    var image = "<img src='"+imgSrc+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
+
+    var title = "<div class='fav-item-title'>"+item.name+"</div>";
+    var description = "<div class='fav-item-title' style='width:92%;font-weight:normal;font-size:12px;line-height: 14px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 4;-webkit-box-orient: vertical;'>"+item.description+"</div>";
+    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' id='"+item.id+"'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags' style='vertical-align:middle;'>" +title + description+ "</div></li>");
+ 
+
+
+    num++;
+
+    //注册事件：跳转到方案查看界面
+    $("#"+item.id).click(function(){
+        window.location.href = "solution.html?id="+item.id;
+    });
+
+    // 表示加载结束
+    loading = false;
+}
+
+//将item显示到页面
+//所属类型、名称、创建时间
+function insertItemBak(){
+    // 加载内容
+    var item = items[num-1];
+    console.log("try insert item.",num,item,items);
+    if(!item){
+      shownomore(true);
+      return;
+    }
+    //排重
+    if($("#"+item.id).length>0)
+      return;
+
+    var imgWidth = 48;//固定为100
     var imgHeight = random(50, 300);//随机指定初始值
     //计算图片高度
     var imgSrc = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
@@ -569,13 +615,13 @@ function insertCategoryItem(proposalScheme){
         //高亮
         $("div[id^=metacat]").css("background-color","#fff");
         $("div[id^=metacat]").css("color","#000");          
-        $("#metacat"+categoryId).css("background-color","blue");
+        $("#metacat"+categoryId).css("background-color","#0f25e1");
         $("#metacat"+categoryId).css("color","#fff");        
     });
 
 
     //同步写入主题选择Div
-    var proposalTag = "<div id='proposal"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-name='"+proposalScheme.name+"' style='line-height:16px;font-size:12px;min-width:60px;font-weight:bold;padding:2px;border:1px solid silver;border-radius:10px;margin:2px;'>"+proposalScheme.name+"</div>"
+    var proposalTag = "<div id='proposal"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-name='"+proposalScheme.name+"' style='line-height:20px;font-size:12px;min-width:60px;font-weight:bold;padding:2px 10px;border:1px solid silver;border-radius:20px;margin:2px;'>"+proposalScheme.name+"</div>"
     $("#proposalSchemesDiv").append( proposalTag );//同步写入候选表单
     //注册事件
     $("#proposal"+proposalScheme.id).click(function(){
@@ -587,7 +633,7 @@ function insertCategoryItem(proposalScheme){
         //高亮
         $("div[id^=proposal]").css("background-color","#fff");
         $("div[id^=proposal]").css("color","#000");          
-        $("#proposal"+categoryId).css("background-color","blue");
+        $("#proposal"+categoryId).css("background-color","#0f25e1");
         $("#proposal"+categoryId).css("color","#fff");        
     });
 
