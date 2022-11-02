@@ -178,7 +178,8 @@ function showModifySolutionItemInfoForm(){
     getCurrentSolutionItem();
 
     //填写数据
-    $("#solutionItemType2").val(currentSolutionItem.type);
+    //$("#solutionItemType2").val(currentSolutionItem.type);
+    showSubtypeLogo(currentSolutionItem.type.id);//装载type logo
     $("#solutionItemName2").val(currentSolutionItem.name);
     $("#solutionItemDesc2").val(currentSolutionItem.description);
     $("#solutionItemTags2").val(currentSolutionItem.tags);
@@ -223,7 +224,7 @@ function showModifySolutionItemInfoForm(){
             currentSolutionItem.name = $("#solutionItemName2").val();
             currentSolutionItem.tags = $("#solutionItemTags2").val();
             currentSolutionItem.description = $("#solutionItemDesc2").val();
-            currentSolutionItem.type = $("#solutionItemType2").val()?$("#solutionItemType2").val():"section";
+            //currentSolutionItem.type = $("#solutionItemType2").val()?$("#solutionItemType2").val():"section";
             saveSolutionItemInfo(currentSolutionItem);
         }
     });
@@ -234,7 +235,8 @@ function showCreateSolutionItemInfoForm(){
     console.log("show blank solution item form.");  
 
     //填写数据
-    $("#solutionItemType2").val("section");
+    //$("#solutionItemType2").val("section");
+    showSubtypeLogo("section");//装载type logo，新建时默认选择为分隔符
     $("#solutionItemName2").val("");
     $("#solutionItemDesc2").val("");
     $("#solutionItemTags2").val("");        
@@ -281,7 +283,7 @@ function showCreateSolutionItemInfoForm(){
                 name: $("#solutionItemName2").val(),
                 tags: $("#solutionItemTags2").val(),
                 description: $("#solutionItemDesc2").val(),
-                type: $("#solutionItemType2").val()?$("#solutionItemType2").val():"section",
+                //type: $("#solutionItemType2").val()?$("#solutionItemType2").val():"section",
                 priority: getPriority()
             };
             console.log("try to save new item.", nSolutionItem);
@@ -467,6 +469,49 @@ function saveSolutionItemInfo(solutionItem){
             }
         }
     });
+}
+
+//加载选定主题下的type信息，用于选择区分
+var subtypes=[];//装载当前主题下的subtype
+function loadSubtypes(){
+    console.log("try to load solution subtype info.",solution.scheme.id);
+    $.ajax({
+        url:app.config.sx_api+"/diy/proposalSubtype/rest/subtypes/"+solution.scheme.id,
+        type:"get",
+        success:function(ret){
+            console.log("===got subtypes===\n",ret);
+            subtypes = ret;
+
+            //添加section作为第一个元素
+            subtypes.unshift({
+                id:"section",//固定为section，用于区分
+                name: "分隔符",
+                logo: "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png",
+                description: "条目分隔符"
+            });
+
+            //默认不装载，仅在选中条目时根据具体类型完成加载
+        }
+    });
+}
+//选中条目或新增条目时显示subtype logo
+function showSubtypeLogo(currentType){  
+    console.log("try show subtype logos.",currentType,subtypes);
+    $("#subtypeLogo").empty();//先清空之前的内容
+    //装载options：
+    subtypes.forEach(function(subtype){
+        var selected  = subtype.id==currentType?"selected":"";
+        $("#subtypeLogo").append('<option data-img-src="'+subtype.logo+'" data-img-alt="'+subtype.name+'" value="'+subtype.id+'" '+selected+'>  '+subtype.name+'  </option>');
+    });
+    //显示组件：
+    $("#subtypeLogo").imagepicker({
+          hide_select : true,
+          show_label  : true,
+          changed: function(select, newvalues, oldvalues, event){
+            console.log("item changed..newvalues.",newvalues);
+            currentSolutionItem.type.id = newvalues[0];//设置logo
+          }
+        });
 }
 
 //构建方案条目html：根据类型显示具体内容。section类型仅显示分隔信息
@@ -790,6 +835,8 @@ function loadSolution(solutionId){
             console.log("got solution info.", res)
             solution = res.data;
             showContent(res.data);
+
+            loadSubtypes();//加载子类型清单
 
             //注册事件：根据关键词搜索更多
             $("#jumpToSearch").click(function(){
