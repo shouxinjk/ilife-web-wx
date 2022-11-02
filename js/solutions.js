@@ -174,7 +174,7 @@ function loadProposalSchemes() {
                         //高亮
                         $("div[id^=proposal]").css("background-color","#fff");
                         $("div[id^=proposal]").css("color","#000");          
-                        $("#proposal"+proposalSchemeId).css("background-color","2a61f1");
+                        $("#proposal"+proposalSchemeId).css("background-color","#2a61f1");
                         $("#proposal"+proposalSchemeId).css("color","#fff");        
                     });                              
                 });
