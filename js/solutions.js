@@ -251,7 +251,7 @@ function insertItem(){
     var imgHeight = 48;//随机指定初始值
     //计算图片高度
     var imgSrc = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
-    if(item.scheme && item.scheme.logo && item.scheme.logo.trim().length()>0)
+    if(item.scheme && item.scheme.logo && item.scheme.logo.trim().length>0)
       imgSrc = item.scheme.logo;
     var img = new Image();
     img.src = imgSrc;

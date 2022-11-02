@@ -532,7 +532,7 @@ function insertMoreSolutionItem(item){
     var imgHeight = 40;//随机指定初始值
     //计算图片高度
     var imgSrc = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
-    if(item.scheme && item.scheme.logo && item.scheme.logo.trim().length()>0)
+    if(item.scheme && item.scheme.logo && item.scheme.logo.trim().length>0)
       imgSrc = item.scheme.logo;
     var img = new Image();
     img.src = imgSrc;
@@ -543,13 +543,10 @@ function insertMoreSolutionItem(item){
 
     var image = "<img src='"+imgSrc+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
 
-    var title = "<div class='title' style='font-size:12px;line-height: 12px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;'>"+item.name+"</div>"
-    $("#waterfall").append("<li><div id='"+item.id+"' style='width:95%;margin-top:10px;'>" 
-        + "<div style='width:100%;margin:auto 0px;font-size:12px;line-height:12px;'>"+title+ "</div>"
-        + "<div class='title' style='font-size:12px;margin-top:0px;margin-bottom:0px;line-height:14px;font-weight:normal;'>"+item.updateDate.split(" ")[0]+ "</div>"
-        + "<div class='title' style='font-size:12px;font-weight:normal;line-height:14px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;'>"+ item.description +"</div>"
-        //+ "<div class='board-item-tips-seperator' style='width:80%;margin:0px auto;'></div> "
-        + "</div></li>");
+    var title = "<div class='fav-item-title'>"+item.name+"</div>";
+    var description = "<div class='fav-item-title' style='width:92%;font-weight:normal;font-size:12px;line-height: 14px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 4;-webkit-box-orient: vertical;'>"+item.description+"</div>";
+    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' id='"+item.id+"'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags' style='vertical-align:middle;'>" +title + description+ "</div></li>");
+ 
 
     //注册事件：跳转到方案查看界面
     $("#"+item.id).click(function(){
