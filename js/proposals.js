@@ -615,7 +615,7 @@ function insertCategoryItem(proposalScheme){
         //高亮
         $("div[id^=metacat]").css("background-color","#fff");
         $("div[id^=metacat]").css("color","#000");          
-        $("#metacat"+categoryId).css("background-color","#0f25e1");
+        $("#metacat"+categoryId).css("background-color","#2a61f1");
         $("#metacat"+categoryId).css("color","#fff");        
     });
 
@@ -633,7 +633,7 @@ function insertCategoryItem(proposalScheme){
         //高亮
         $("div[id^=proposal]").css("background-color","#fff");
         $("div[id^=proposal]").css("color","#000");          
-        $("#proposal"+categoryId).css("background-color","#0f25e1");
+        $("#proposal"+categoryId).css("background-color","#2a61f1");
         $("#proposal"+categoryId).css("color","#fff");        
     });
 

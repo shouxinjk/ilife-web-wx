@@ -164,8 +164,8 @@ function loadProposalSchemes() {
                 data.forEach(function(proposalScheme){
                     console.log("got item. ",proposalScheme);
                     //同步写入主题选择Div
-                    var proposalTag = "<div id='proposal"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-name='"+proposalScheme.name+"' style='line-height:16px;font-size:12px;min-width:60px;font-weight:bold;padding:2px;border:1px solid silver;border-radius:10px;margin:2px;'>"+proposalScheme.name+"</div>"
-                    $("#proposalSchemesDiv").append( proposalTag );//同步写入候选表单    
+                    var proposalTag = "<div id='proposal"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-name='"+proposalScheme.name+"' style='line-height:20px;font-size:12px;min-width:60px;font-weight:bold;padding:2px 10px;border:1px solid silver;border-radius:20px;margin:2px;'>"+proposalScheme.name+"</div>"
+                    $("#proposalSchemesDiv").append( proposalTag );//同步写入候选表单  
                     //注册事件
                     $("#proposal"+proposalScheme.id).click(function(){
                         console.log("proposal scheme changed. ",  $(this).data("id") );
@@ -174,7 +174,7 @@ function loadProposalSchemes() {
                         //高亮
                         $("div[id^=proposal]").css("background-color","#fff");
                         $("div[id^=proposal]").css("color","#000");          
-                        $("#proposal"+proposalSchemeId).css("background-color","blue");
+                        $("#proposal"+proposalSchemeId).css("background-color","2a61f1");
                         $("#proposal"+proposalSchemeId).css("color","#fff");        
                     });                              
                 });
