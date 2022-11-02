@@ -35,6 +35,8 @@ $(document).ready(function ()
         state="board2-waterfall"+args;
     }else if(origin && origin =="board-all"){//显示所有清单。达人入口为模板消息
         state="broker/boards"+args;
+    }else if(origin && origin =="solution"){//显示所有清单。达人入口为模板消息
+        state="solution"+args;
     }
 
 

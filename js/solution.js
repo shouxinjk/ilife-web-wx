@@ -14,7 +14,7 @@ $(document).ready(function ()
     //处理参数
     var args = getQuery();
     var category = args["category"]; //当前目录
-    id = args["id"];//当前board id
+    id = args["id"];//当前solution id
 
     from = args["from"]?args["from"]:"mp";//可能为groupmessage,timeline等
     fromUser = args["fromUser"]?args["fromUser"]:"";//从连接中获取分享用户ID
@@ -60,7 +60,7 @@ $(document).ready(function ()
 
 util.getUserInfo();//从本地加载cookie
 
-//board id
+//solution id
 var id = "null";
 var bonusMin = 0;
 var bonusMax = 0;
@@ -68,7 +68,7 @@ var bonusMax = 0;
 //临时用户
 var tmpUser = "";
 
-var items = [];//board item 列表
+var items = [];//solution item 列表
 
 var columnWidth = 800;//默认宽度600px
 var columnMargin = 5;//默认留白5px
@@ -205,7 +205,7 @@ function showContent(solution){
             },{ "Content-Type":"application/json" });            
         });
     }else{//普通用户则只显示标题
-        $("#title").html(board.title);
+        $("#title").html(solution.name);
     }
     
     //作者与发布时间
@@ -593,7 +593,7 @@ function registerShareHandler(){
     }
 
     //准备分享url，需要增加分享的 fromUser、fromBroker信息
-    var shareUrl = window.location.href.replace(/board2-waterfall/g,"share");//需要使用中间页进行跳转
+    var shareUrl = window.location.href.replace(/solution/g,"share");//需要使用中间页进行跳转
     if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
         shareUrl += "&fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;
@@ -601,7 +601,7 @@ function registerShareHandler(){
         shareUrl += "?fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;        
     }
-    shareUrl += "&origin=board-waterfall";//添加源，表示是一个列表页分享
+    shareUrl += "&origin=solution";//添加源，表示是一个列表页分享
 
     $.ajax({
         url:app.config.auth_api+"/wechat/jssdk/ticket",
@@ -634,13 +634,13 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:board&&board.title?board.title:"小确幸，大生活", // 分享标题
+                    title:solution&&solution.name?solution.name:"小确幸，大生活", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:board.logo?board.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    imgUrl:solution.scheme.logo?solution.scheme.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
-                        //TODO: board分享当前不记录
+                        //TODO: solution分享当前不记录
                         /*
                         logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
                             console.log("分享到朋友圈",res);
@@ -650,16 +650,16 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:board&&board.title?board.title:"小确幸，大生活", // 分享标题
-                    desc:board.description&&board.description.trim().length>0?board.description.replace(/<br\/>/g,""):"Live is all about having a good time.", // 分享描述
+                    title:solution&&solution.name?solution.name:"小确幸，大生活", // 分享标题
+                    desc:solution.description&&solution.description.trim().length>0?solution.description.replace(/<br\/>/g,""):"Live is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: board.logo?board.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    imgUrl: solution.scheme.logo?solution.scheme.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
                       // 用户点击了分享后执行的回调函数
-                      //TODO:board分享当前不记录
+                      //TODO:solution分享当前不记录
                       /**
                         logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
                             console.log("分享到微信",res);
