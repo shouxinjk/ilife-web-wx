@@ -209,7 +209,7 @@ function showContent(item){
     if(item.media && Object.keys(item.media) && Object.keys(item.media).length>0){
         Object.keys(item.media).forEach(function(key){
             if(key!="measure2"){
-                $("#gallery").append("<li><img src='" + item.media[key]+ "' alt=''/></li>");//加载图片幻灯
+                //$("#gallery").append("<li><img src='" + item.media[key]+ "' alt=''/></li>");//加载图片幻灯
                 $("#content").append("<img src='" + item.media[key]+ "' width='100%'/>");//正文图片                   
             }
         });
@@ -327,17 +327,23 @@ function showContent(item){
 
     //卖家说：平台logo
     //$("#platform-logo").append("<img src='"+app.config.res_api+"/logo/distributor/"+item.source+".png' alt='"+item.distributor.name+"'/>");
+    var totalprops = 0;
     if(item.props && Array.isArray(item.props)){//兼容数组结构
         item.props.forEach(function(json){
             for (var key in json){
                 $("#props").append("<div class='prop-row'><div class='prop-key' style='text-align:right'>"+(categoryProps[key]?categoryProps[key]:key)+"</div><div class='prop-value' style='padding-left:5px;'>"+json[key]+"</div></div>");
+                totalprops ++;
             }            
         });
     }else{//键值对则直接遍历
         for (var key in item.props){
             if(item.props[key])
                 $("#props").append("<div class='prop-row'><div class='prop-key' style='text-align:right'>"+(categoryProps[key]?categoryProps[key]:key)+"</div><div class='prop-value' style='padding-left:5px;'>"+item.props[key]+"</div></div>");
+                totalprops++;
         } 
+    }
+    if(totalprops>0){
+        $("#propsTitle").css("display","block");  
     }
 
     //买家说：评价
@@ -397,7 +403,7 @@ function showContent(item){
     if((broker && broker.id)||(app.globalData.brokerInfo && app.globalData.brokerInfo.id)){
         console.log("show broker advice ...");
         var brokerAdvice = myAdvice.split(":::");
-        $("#advice").append("<div class='prop-row'><div class='prop-key'>我的推荐</div><div class='prop-value'><textarea id='myAdvice' rows='5' style='width:100%;border:1px solid silver;padding:2px; line-height:16px;'>"+brokerAdvice[brokerAdvice.length-1]+'</textarea><button type="submit" class="btn btn-default" id="submitBtn">提交我的推荐语</button> </div></div>');
+        $("#advice").append("<div class='prop-row'><div class='prop-key'>我的推荐</div><div class='prop-value'><textarea id='myAdvice' rows='5' style='width:100%;border:1px solid silver;padding:2px; line-height:16px;'>"+brokerAdvice[brokerAdvice.length-1]+'</textarea><button type="submit" class="btn btn-default" id="submitBtn" style="padding-left: 10px;padding-right:10px;">推荐</button> </div></div>');
         $("#submitBtn").click(function(){//提交修改
             var myAdvice = $("#myAdvice").val();
             if(myAdvice && myAdvice.trim().length>0){
@@ -1217,6 +1223,8 @@ function showDimensionMondrian(){
         buildMondrianDataset();
     }
     
+    /**
+    //由于数据为扁平结构，单个条目数据无法构建treemap
     //根据itemKey查询info
     $.ajax({
         url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
@@ -1230,7 +1238,8 @@ function showDimensionMondrian(){
             itemInfos = ret.data;
             buildMondrianDataset();
         }
-    });     
+    });   
+    //**/  
 }
 
 //构建蒙德里安格子画数据集
@@ -1312,7 +1321,8 @@ function showMondrian(data){
     var height = $(canvas).attr("height");
     var options = {
             encoderOptions:1,
-            scale:2,
+            //scale:2,
+            scale:1,
             //left:-1*Number(width)/2,
             //top:-1*Number(height)/2,
             left:0,
@@ -1362,6 +1372,7 @@ function showRadar(){
 
     //显示标题：
     $("#radarTitle").css("display","block");
+    $("#mscoreTitle").css("display","block");
 
     //根据itemKey获取评价结果
     //feature = 1；dimensionType：0客观评价，1主观评价
@@ -1445,7 +1456,8 @@ function showRadar(){
     var height = $(canvas).attr("height");
     var options = {
         encoderOptions:1,
-        scale:2,
+        //scale:2,
+        scale:1,
         left:0,
         top:0,
         width:Number(width),
@@ -1550,11 +1562,11 @@ function loadMeasureAndScore(){
     }
 
     //显示雷达图
-    if(!stuff.media || !stuff.media["measure"])//仅在第一次进入时才尝试自动生成
+    //if(!stuff.media || !stuff.media["measure"])//仅在第一次进入时才尝试自动生成
         showRadar();//显示评价图
 
     //显示蒙德里安格子图
-    if(!stuff.media || !stuff.media["mondrian"])//仅在第一次进入时才尝试自动生成
+    //if(!stuff.media || !stuff.media["mondrian"])//仅在第一次进入时才尝试自动生成
         showDimensionMondrian();//显示评价图
 
     //显示measureScore表格提供标注功能
@@ -1569,7 +1581,7 @@ function showMeasureScores(){
         var html = "";
         html += "<div style='display:flex;flex-direction:row;flex-wrap:nowrap;margin:10px 0;width:90%;font-size:12px;'>";
         html += "<div style='width:20%;line-height:24px;text-align:right;font-weight:bold;'>"+measureScores[i].name+"</div>";
-        html += "<div style='width:10%;text-align:center;line-height:24px;' id='mscore"+measureScores[i].id+"'>"+measureScores[i].score+"</div>";
+        html += "<div style='width:10%;text-align:center;line-height:24px;' id='mscore"+measureScores[i].id+"'>"+measureScores[i].score.toFixed(2)+"</div>";
         html += "<div style='width:70%' id='score"+measureScores[i].id+"'></div>";
         html += "</div>";
         $("#measuresList").append(html);//装载到界面
@@ -1799,17 +1811,11 @@ function showDimensionBurst(){
     //根据category获取客观评价数据
     var data={
         categoryId:stuff.meta.category
-        //categoryId:testData[testDataIndex].categoryId
-        //categoryId:"ff240a6e909e45c2ae0c8f77241cda25" //目的地
-        //categoryId:"7363d428d1f1449a904f5d34aaa8f1f7" //亲子
-        //categoryId:"91349a6a41ce415caf5b81084927857a" //酒店 categoryId
-        //,parentId:"d1668f8b3c9748cd806462a45651827b"
     };
     console.log("try to load dimension data.",data);
     util.AJAX(app.config.sx_api+"/mod/itemDimension/rest/dim-tree-by-category", function (res) {
         console.log("======\nload dimension.",data,res);
         if (res.length>0) {//显示图形
-            //showSunBurst({name:testData[testDataIndex].categoryName,children:res});
             showSunBurst({name:stuff.meta.categoryName?stuff.meta.categoryName:"评价规则",children:res});
         }else{//没有则啥也不干
             //do nothing
@@ -1841,7 +1847,8 @@ function showSunBurst(data){
     var height = $(canvas).attr("height");
     var options = {
             encoderOptions:1,
-            scale:2,
+            //scale:2,
+            scale:1,
             left:-1*Number(width)/2,
             top:-1*Number(height)/2,
             width:Number(width),
@@ -2094,7 +2101,7 @@ function loadProps(categoryId){
                 ]
             });   
             //显示属性列表
-            $("#propsDiv").css("display","block");         
+            $("#propsDiv").css("display","block");          
         }
     })     
 }

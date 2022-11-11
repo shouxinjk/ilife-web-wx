@@ -339,6 +339,87 @@ function buildTaggingQuery(keyword){
     return q;
 }
 
+//组建 boost加权条件 加入should查询
+//meta.category加权
+var boostMetaCategoryTpl = JSON.stringify({
+        "nested": {
+          "path": "meta",
+          "query": {
+            "term": {
+              "meta.categoryName":{
+                "value":"__keyword",
+                "boost": 1.1
+              }
+            }
+          }
+        }
+      });
+function buildMetaCategoryBoost(keyword){
+  var queryStr = boostMetaCategoryTpl.replace(/__keyword/g,tagging);
+  var queryJson = JSON.parse(queryStr);
+  return queryJson;
+}
+
+//title加权
+var boostTitleTpl = JSON.stringify({
+            "match": {
+              "title":{
+                "query": "__keyword",
+                "boost": 1.3
+              }
+            }
+      });
+function buildTitleBoost(keyword){
+  var queryStr = boostTitleTpl.replace(/__keyword/g,tagging);
+  var queryJson = JSON.parse(queryStr);
+  return queryJson;
+}
+
+//tagging手动标注加权
+var boostTaggingTpl = JSON.stringify({
+            "term": {
+              "tagging":{
+                "value":"__keyword",
+                "boost": 1.2
+              }
+            }
+      });
+function buildTaggingBoost(keyword){
+  var queryStr = boostTaggingTpl.replace(/__keyword/g,tagging);
+  var queryJson = JSON.parse(queryStr);
+  return queryJson;
+}
+
+//原始类目名称加权
+var boostCategoryTpl = JSON.stringify({
+            "term": {
+              "category": {
+                "value":"__keyword",
+                "boost": 1.2
+              }
+            }
+      });
+function buildCategoryBoost(keyword){
+  var queryStr = boostCategoryTpl.replace(/__keyword/g,tagging);
+  var queryJson = JSON.parse(queryStr);
+  return queryJson;
+}
+
+//摘要内容加权
+var boostSummaryTpl = JSON.stringify({
+            "match": {
+              "summary":{
+                "query": "__keyword",
+                "boost": 1.2
+              }
+            }
+      });
+function buildSummaryBoost(keyword){
+  var queryStr = boostSummaryTpl.replace(/__keyword/g,tagging);
+  var queryJson = JSON.parse(queryStr);
+  return queryJson;
+}
+
 
 var sortByScore = { "_score":   { "order": "desc" }};
 var sortByTimestamp = { "@timestamp":   { "order": "desc" }};
@@ -654,11 +735,19 @@ function assembleEsQuery(){
                             "default_field": "full_text"
                           }
                         });
+
     //设置用户输入文字查询
-    if(tagging && tagging.trim().length>0){
+    if(tagging && tagging.trim().length>0){ 
+        //在full_text中必须匹配
         var stringQueryJson = JSON.parse(stringTemplate);
         stringQueryJson.query_string.query = tagging;
-        complexQuery.query.bool.should.push(stringQueryJson);
+        complexQuery.query.bool.must.push(stringQueryJson);
+        //接下来处理加权
+        complexQuery.query.bool.should.push(buildMetaCategoryBoost(tagging)); 
+        complexQuery.query.bool.should.push(buildTitleBoost(tagging)); 
+        complexQuery.query.bool.should.push(buildTaggingBoost(tagging)); 
+        complexQuery.query.bool.should.push(buildCategoryBoost(tagging)); 
+        complexQuery.query.bool.should.push(buildSummaryBoost(tagging));  
     }
     //设置vals
     var valsJson = userInfo.performance;
@@ -721,6 +810,16 @@ function buildEsQuery(){
     if(categoryTagging && categoryTagging.trim().length > 0){//目录标注
         complexQuery.query.bool.must.push(buildTaggingQuery(categoryTagging));
     }    
+
+    //添加boost
+    if(tagging && tagging.trim().length > 0){//对关键字设置加权系数
+      complexQuery.query.bool.should.push(buildMetaCategoryBoost(tagging)); 
+      complexQuery.query.bool.should.push(buildTitleBoost(tagging)); 
+      complexQuery.query.bool.should.push(buildTaggingBoost(tagging)); 
+      complexQuery.query.bool.should.push(buildCategoryBoost(tagging)); 
+      complexQuery.query.bool.should.push(buildSummaryBoost(tagging)); 
+    }    
+       
     //TODO：添加must_not
     /*
     if(userInfo.tagging && userInfo.tagging.must_not){

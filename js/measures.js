@@ -170,7 +170,7 @@ function searchCategory() {
     };
 
     $.ajax({
-        url:search_api+"/stuff/_search", 
+        url:app.config.search_api+"/stuff/_search", 
         type:"post",
         data:JSON.stringify(esQuery),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
         headers:{
