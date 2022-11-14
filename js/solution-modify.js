@@ -545,7 +545,7 @@ var btnStyleS = "border:1px solid orange;padding:2px 5px;font-size:10px;border-r
 var btnStyleL = "border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;margin:2px;min-width:48px;text-align:center;"
 function buildSolutionItemHtml(item){
     //如果type为section则显示分隔符。仅显示标题和描述。
-    if("section"==item.type){
+    if(!item.type || "section"==item.type.id){
         var  html = '<div style="width:100%;">';
             html += '<div class="board-item-tips-seperator"></div> ';
             if(item.name && item.name.trim().length>0)
@@ -592,7 +592,7 @@ function buildSolutionItemHtml(item){
             btnHtml += '<div id="deleteItemBtn'+item.id+'"  data-solutionitemid="'+item.id+'" style="'+btnStyleS+'">删除</div>';
             btnHtml += '<div id="modifyItemBtn'+item.id+'"  data-solutionitemid="'+item.id+'" style="'+btnStyleS+'">修改</div>';
             btnHtml += '<div id="createItemBtn'+item.id+'"  data-solutionitemid="'+item.id+'" style="'+btnStyleL+'">增加条目</div>';
-            btnHtml += '<div id="addStuffBtn'+item.id+'"  data-solutionitemid="'+item.id+'" style="'+btnStyleL+'">关联商品</div>';
+            btnHtml += '<div id="addStuffBtn'+item.id+'"  data-solutionitemid="'+item.id+'" data-keyword="'+item.name+'" style="'+btnStyleL+'">关联商品</div>';
         btnHtml += '</div>';
 
     var html = "<div class='task' id='solutionItem"+item.id+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" + title + tags + description+btnHtml +stuffDiv+"</div>"
@@ -944,14 +944,14 @@ function loadSolutionItems(solutionId){
                 showCreateSolutionItemInfoForm(); 
             });                      
             $("#addStuffBtn"+hits[i].id).click(function(){
-                window.location.href="index.html?solutionId="+solution.id+"&solutionItemId="+ $(this).data("solutionitemid");
+                window.location.href="index.html?solutionId="+solution.id+"&solutionItemId="+ $(this).data("solutionitemid")+"&keyword="+ $(this).data("keyword");
             });  
             //装载关联的stuff条目
             loadStuffItem(hits[i]);//查询具体的item条目
             //如果第一个item为section类型则隐藏默认分隔条
-            if(i==0 && "section"==hits[i].type){
+            if(i==0 && (!hits[i].type || "section"==hits[i].type.id)){
                 $("#defaultSection").css("display","none");
-            }
+            }            
         }        
     }, "GET",{},header);
 }

@@ -419,9 +419,9 @@ function loadSolutionItems(solutionId){
             //装载关联的stuff条目
             loadStuffItem(hits[i]);//查询具体的item条目
             //如果第一个item为section类型则隐藏默认分隔条
-            if(i==0 && hits[i].type && "section"==hits[i].type.id){
+            if(i==0 && (!hits[i].type || "section"==hits[i].type.id)){
                 $("#defaultSection").css("display","none");
-            }
+            }  
         }        
     }, "GET",{},header);
 }
@@ -504,11 +504,13 @@ function loadMoreSolutions(schemeId){
         },
         success:function(ret){
             console.log("load solutions.",ret);
-            if(ret.success && ret.data.length>0){//逐条显示到更多区域
+            if(ret.success && ret.data.length>1){//逐条显示到更多区域
                 ret.data.forEach(function(item){
-                    insertMoreSolutionItem(item);
+                    if(item.id != id)
+                        insertMoreSolutionItem(item);
                 });
             }else{//如果没有内容，则显示提示文字
+                $("#more-solution").css("display","none");
                 //do nothing
             }
         }
