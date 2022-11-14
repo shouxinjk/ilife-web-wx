@@ -234,6 +234,21 @@ function showModifySolutionItemInfoForm(){
 function showCreateSolutionItemInfoForm(){
     console.log("show blank solution item form.");  
 
+    //设置一个空白solution
+    currentSolutionItem = {
+        solution:{
+            id: solution.id
+        },
+        type:{
+            id: "section"
+        },
+        name: "",
+        tags: "",
+        description: "",
+        //type: $("#solutionItemType2").val()?$("#solutionItemType2").val():"section",
+        priority: getPriority()
+    };    
+
     //填写数据
     //$("#solutionItemType2").val("section");
     showSubtypeLogo("section");//装载type logo，新建时默认选择为分隔符
@@ -276,6 +291,13 @@ function showCreateSolutionItemInfoForm(){
             });                 
         }else{
             //根据模式检查设置priority：对于新建模式需要手动设置
+            console.log("try to save item.");
+            currentSolutionItem.name = $("#solutionItemName2").val();
+            currentSolutionItem.tags = $("#solutionItemTags2").val();
+            currentSolutionItem.description = $("#solutionItemDesc2").val();
+            //currentSolutionItem.type = $("#solutionItemType2").val()?$("#solutionItemType2").val():"section";
+            saveSolutionItemInfo(currentSolutionItem);            
+            /**
             var nSolutionItem = {
                 solution:{
                     id: solution.id
@@ -288,6 +310,7 @@ function showCreateSolutionItemInfoForm(){
             };
             console.log("try to save new item.", nSolutionItem);
             saveSolutionItemInfo(nSolutionItem);
+            //**/
         }
     });
 }
@@ -509,7 +532,8 @@ function showSubtypeLogo(currentType){
           show_label  : true,
           changed: function(select, newvalues, oldvalues, event){
             console.log("item changed..newvalues.",newvalues);
-            currentSolutionItem.type.id = newvalues[0];//设置logo
+            if(!currentSolutionItem.type)currentSolutionItem.type={};
+            currentSolutionItem.type["id"] = newvalues[0];//设置logo
           }
         });
 }
@@ -656,7 +680,9 @@ function showContent(solution){
  
             },"POST",{
                 byOpenid:app.globalData.userInfo._key,
-                forOpenid:app.globalData.userInfo._key
+                forOpenid:app.globalData.userInfo._key,
+                byNickname:app.globalData.userInfo.nickname,
+                forNickname:app.globalData.userInfo.nickname                
             },{ "Content-Type":"application/json" });            
         });
     }else{//普通用户则只显示标题

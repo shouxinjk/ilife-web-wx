@@ -116,7 +116,9 @@ function createSolution(){
         type:"post",
         data:JSON.stringify({
           forOpenid:app.globalData.userInfo._key,
-          byOpenid:app.globalData.userInfo._key
+          byOpenid:app.globalData.userInfo._key,
+          byNickname:app.globalData.userInfo.nickname,
+          forNickname:app.globalData.userInfo.nickname 
         }),
         headers:{
             "Content-Type":"application/json",
@@ -338,8 +340,8 @@ function insertItem(){
     if($("#"+item.id).length>0)
       return;
 
-    var imgWidth = 48;//固定为100
-    var imgHeight = 48;//随机指定初始值
+    var imgWidth = 60;//固定为100
+    var imgHeight = 60;//随机指定初始值
     //计算图片高度
     var imgSrc = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
     if(item.scheme && item.scheme.logo && item.scheme.logo.trim().length>0)
@@ -354,8 +356,12 @@ function insertItem(){
     var image = "<img src='"+imgSrc+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
 
     var title = "<div class='fav-item-title'>"+item.name+"</div>";
+    var author = "";
+    if(item.byNickname){
+      author = "<div  class='author' style='font-size:12px;font-weight:bold;color:darkorange;margin:2px 0;'>"+item.byNickname+"</div>";
+    }
     var description = "<div class='fav-item-title' style='width:92%;font-weight:normal;font-size:12px;line-height: 14px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 4;-webkit-box-orient: vertical;'>"+item.description+"</div>";
-    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' id='"+item.id+"'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags' style='vertical-align:middle;'>" +title + description+ "</div></li>");
+    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' id='"+item.id+"'  style='margin:5px 0;'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags' style='vertical-align:middle;'>" +title + author + description+ "</div></li>");
  
 
 

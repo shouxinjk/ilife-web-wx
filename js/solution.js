@@ -94,12 +94,12 @@ function loadBrokerInfo(){
 //显示左侧为圆形 type logo，右侧为名称、描述、tags列表。分行显示。并包含有商品条目div
 function buildSolutionItemHtml(item){
     //如果type为section则显示分隔符。仅显示标题和描述。
-    if("section"==item.type){
+    if(!item.type || "section"==item.type.id ){ //如果未设置类型也认为是section
         var  html = '<div class="board-item-tips-seperator"></div> ';
         if(item.name && item.name.trim().length>0)
             html += '<div class="board-item-tips" style="font-size:14px;line-height:18px;">'+item.name+'</div> '
         if(item.description && item.description.trim().length>0)
-            html += '<div class="board-item-tips" style="line-height:14px;">'+item.description+'</div> '
+            html += '<div class="board-item-tips" style="line-height:14px;text-align:center;width:80%;margin:0px auto;">'+item.description+'</div> '
         html += '<div class="board-item-tips-seperator"></div> ';
         return html
     }
@@ -201,7 +201,9 @@ function showContent(solution){
  
             },"POST",{
                 byOpenid:app.globalData.userInfo._key,
-                forOpenid:app.globalData.userInfo._key
+                forOpenid:app.globalData.userInfo._key,
+                byNickname:app.globalData.userInfo.nickname,
+                forNickname:app.globalData.userInfo.nickname 
             },{ "Content-Type":"application/json" });            
         });
     }else{//普通用户则只显示标题
@@ -417,7 +419,7 @@ function loadSolutionItems(solutionId){
             //装载关联的stuff条目
             loadStuffItem(hits[i]);//查询具体的item条目
             //如果第一个item为section类型则隐藏默认分隔条
-            if(i==0 && "section"==hits[i].type){
+            if(i==0 && hits[i].type && "section"==hits[i].type.id){
                 $("#defaultSection").css("display","none");
             }
         }        
@@ -528,8 +530,8 @@ function insertMoreSolutionItem(item){
     if($("#"+item.id).length>0)
       return;
 
-    var imgWidth = 40;//固定为100
-    var imgHeight = 40;//随机指定初始值
+    var imgWidth = 60;//固定为100
+    var imgHeight = 60;//随机指定初始值
     //计算图片高度
     var imgSrc = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
     if(item.scheme && item.scheme.logo && item.scheme.logo.trim().length>0)
@@ -544,8 +546,12 @@ function insertMoreSolutionItem(item){
     var image = "<img src='"+imgSrc+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
 
     var title = "<div class='fav-item-title'>"+item.name+"</div>";
+    var author = "";
+    if(item.byNickname){
+      author = "<div  class='author' style='font-size:12px;font-weight:bold;color:darkorange;margin:2px 0;'>"+item.byNickname+"</div>";
+    }    
     var description = "<div class='fav-item-title' style='width:92%;font-weight:normal;font-size:12px;line-height: 14px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 4;-webkit-box-orient: vertical;'>"+item.description+"</div>";
-    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' id='"+item.id+"'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags' style='vertical-align:middle;'>" +title + description+ "</div></li>");
+    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' id='"+item.id+"' style='margin:5px 0;'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags' style='vertical-align:middle;'>" +title + author + description+ "</div></li>");
  
 
     //注册事件：跳转到方案查看界面
