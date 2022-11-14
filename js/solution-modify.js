@@ -131,7 +131,7 @@ function showSolutionInfoForm(){
             siiimpleToast.message('名称为必填~~',{
               position: 'bottom|center'
             });                 
-        }else if( !$("#solutionDesc2").val() || $("#solutionDecs2").val().trim().length ==0 ){
+        }else if( !$("#solutionDesc2").val() || $("#solutionDesc2").val().trim().length ==0 ){
             $("#solutionDesc2").val(solution.description);
             siiimpleToast.message('描述为必填~~',{
               position: 'bottom|center'
