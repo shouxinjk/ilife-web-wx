@@ -179,7 +179,7 @@ function showModifySolutionItemInfoForm(){
 
     //填写数据
     //$("#solutionItemType2").val(currentSolutionItem.type);
-    showSubtypeLogo(currentSolutionItem.type.id);//装载type logo
+    showSubtypeLogo(currentSolutionItem.type&&currentSolutionItem.type.id?currentSolutionItem.type.id:"section");//装载type logo
     $("#solutionItemName2").val(currentSolutionItem.name);
     $("#solutionItemDesc2").val(currentSolutionItem.description);
     $("#solutionItemTags2").val(currentSolutionItem.tags);
@@ -614,7 +614,7 @@ function buildStuffItemHtml(solutionItemId, item){
     var btnHtml = '<span id="deleteStuffBtn'+item._key+'" data-solutionitemid="'+solutionItemId+'"  data-itemkey="'+item._key+'" style="'+btnStyle+'">删除</span>';
 
     var highlight = "<div class='description'>"+(item.price.currency?item.price.currency:"￥")+item.price.sale+" "+item.distributor.name+btnHtml+"</div>";
-    var title = "<div class='description' style='line-height: 14px; overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;'>"+item.title+"</div>";
+    var title = "<div class='description' style='line-height: 14px; overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;'>"+item.title+"</div>";
     var image = "<img src='"+logo+"' style='width:32px;object-fit:cover;border-radius:5px;'/>";
 
     var html = "<div id='stuffItem"+item._key+"' class='task'><div class='task-logo' style='text-align:left;vertical-align:bottom;width:12%;'>" + image +"</div><div class='task-tags'>" +highlight+title+"</div>"
@@ -653,7 +653,7 @@ function showContent(solution){
         $("#title").html(
             '<div id="solutionName">'+solution.name+'</div>' 
             + '<div id="modifySolutionBtn" data-name="'+solution.name+'"  data-desc="'+solution.description+'" style="'+btnStyleS+'">修改</div>'
-            + '<div id="createSolutionItemBtn" style="'+btnStyleL+'">增加条目</div>'
+            //+ '<div id="createSolutionItemBtn" style="'+btnStyleL+'">增加条目</div>'
             //+"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>"
             //+"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;' href='solution-modify.html?id="+solution.id+"'>修改</a>"
             );
@@ -661,7 +661,7 @@ function showContent(solution){
         $("#title").html(
             '<div id="solutionName">'+solution.name+'</div>' 
             + '<div id="modifySolutionBtn" data-name="'+solution.name+'"  data-desc="'+solution.description+'" style="'+btnStyleS+'">修改</div>'
-            + '<div id="createSolutionItemBtn" style="'+btnStyleL+'">增加条目</div>'
+            //+ '<div id="createSolutionItemBtn" style="'+btnStyleL+'">增加条目</div>'
             //+"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>"
             //+"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;' id='cloneBoardBtn'>克隆</a>"
             );
@@ -689,7 +689,7 @@ function showContent(solution){
         $("#title").html(
             '<div id="solutionName">'+solution.name+'</div>' 
             + '<div id="modifySolutionBtn" data-name="'+solution.name+'"  data-desc="'+solution.description+'" style="'+btnStyleS+'">修改</div>'
-            + '<div id="createSolutionItemBtn" style="'+btnStyleL+'">增加条目</div>'
+            //+ '<div id="createSolutionItemBtn" style="'+btnStyleL+'">增加条目</div>'
             );
     }
 

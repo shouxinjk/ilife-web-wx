@@ -139,7 +139,7 @@ function buildStuffItemHtml(solutionItemId, item){
     }
 
     var highlight = "<div class='description'>"+(item.price.currency?item.price.currency:"￥")+item.price.sale+" "+item.distributor.name+"</div>";
-    var title = "<div class='description' style='line-height: 14px; overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 1;-webkit-box-orient: vertical;'>"+item.title+"</div>";
+    var title = "<div class='description' style='line-height: 14px; overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;'>"+item.title+"</div>";
     var image = "<img src='"+logo+"' style='width:32px;object-fit:cover;border-radius:5px;'/>";
 
     var html = "<div id='stuffItem"+item._key+"' class='task'><div class='task-logo' style='text-align:left;vertical-align:bottom;width:12%;'>" + image +"</div><div class='task-tags'>" +highlight+title+"</div>"
