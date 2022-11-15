@@ -573,7 +573,7 @@ function buildSolutionItemHtml(item){
         logo = item.type.logo;
     }
 
-    var image = "<img src='"+logo.replace(/\.avif/g,"")+"' style='width:60px;object-fit:cover;border-radius:50%;'/>";
+    var image = "<img src='"+logo.replace(/\.avif/g,"")+"' style='width:60px;object-fit:cover;/*border-radius:50%;*/'/>";
     var title = "<div class='title' style='margin-left:0;font-size:14px;'>"+item.name+"</div>";
     var tags = "<div>";
     if(item.tags && item.tags.trim().length>0 && item.tags.split(" ").length>0){//装载标签
