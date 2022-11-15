@@ -11,9 +11,10 @@
     <link rel="stylesheet" type="text/css" href="ext/star-rating-svg/star-rating-svg.css">
     <link rel="stylesheet" type="text/css" href="ext/cascade-select/cascader.css?v=0.7">   
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
-    <link rel="stylesheet" type="text/css" href="css/common.css?v=2.31">
-    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">     
-    <link rel="stylesheet" type="text/css" href="css/info2.css?v=2.77">
+    <link rel="stylesheet" type="text/css" href="css/common.css?v=2.35">
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">      
+    <link rel="stylesheet" type="text/css" href="css/info2.css?v=2.78">
+
 </head>
 <body>
 
@@ -74,14 +75,16 @@
           <div id="tabs-data">
             <!-- 雷达图：包含当前商品及品类平均值 -->
             <!--div id="radarTitle" class="prop-key" style="width:90%;display:none;text-align: center;">确幸生活评价得分</div-->  
-            <hr  id="mscoreTitle" class="hr-solid-content" data-content="确幸生活评价得分"  style="display:none;margin:20px 0;"/>           
+            <!--hr  id="mscoreTitle" class="hr-solid-content" data-content="确幸生活评价得分"  style="display:none;margin:20px 0;"/-->    
+            <div id="mscoreTitle" class="sx_seperator" style="display:none;margin:20px 0;"><span>确幸生活评价得分</span></div>       
             <!--客观评价结果：支持标达人手动录入-->
             <div id="measuresDiv" style="display:none">
                 <!--label class="formLabel" style="line-height: 30px;margin:5px 0; padding:5px 0;">客观评价结果</label-->
                 <div id="measuresList"></div>
             </div>    
             <!--客观评价雷达图-->   
-            <hr  id="radarTitle" class="hr-solid-content" data-content="得分及平均值对照"  style="display:none;margin-top:30px;"/>                    
+            <!--hr  id="radarTitle" class="hr-solid-content" data-content="得分及平均值对照"  style="display:none;margin-top:30px;"/-->   
+            <div id="radarTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>得分及平均值对照</span></div>                    
             <div id="radar">
             </div> 
             <div id="radarImg">
@@ -89,7 +92,8 @@
             </div>         
             <!-- Sunburst：显示当前类目评价规则 -->
             <!--div id="sunburstTitle" class="prop-key" style="width:90%;display:none;margin-bottom:5px;">评价规则构成</div--> 
-            <hr  id="sunburstTitle" class="hr-solid-content" data-content="评价规则构成"  style="display:none;margin-bottom: 30px;"/>   
+            <!--hr  id="sunburstTitle" class="hr-solid-content" data-content="评价规则构成"  style="display:none;margin-bottom: 30px;"/-->   
+            <div id="sunburstTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>评价规则构成</span></div>   
           <!-- 蒙德里安格子图 -->     
           <!--
           <div id="mondrianTitle" class="prop-key" style="width:90%;display:none;margin:10px 0;font-size:12px;">评价规则格子图</div>             
@@ -107,7 +111,8 @@
 
             <!-- 属性列表：显示所有属性值 -->
             <!--div id="propsTitle" class="prop-key" style="width:90%;display:none;margin-bottom:5px;">评价数据来源</div-->   
-            <hr  id="propsTitle" class="hr-solid-content" data-content="基础数据明细"  style="display:none;margin:30px 0;"/>             
+            <!--hr  id="propsTitle" class="hr-solid-content" data-content="基础数据明细"  style="display:none;margin:30px 0;"/-->   
+            <div id="propsTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>基础数据明细</span></div>             
             <!-- 商品属性表，可能为空-->
             <div id="props"></div>  
 
@@ -140,7 +145,7 @@
         </div>          
 
         <!-- 分享按钮 -->
-        <div id="share-box" class="share-box-hide">
+        <div id="share-box" class="share-box-hide" style="bottom:45px;">
             <div class="share-tips">立即分享</div>
             <div id="share-bonus" class="share-bonus"></div>
             <div class="share-btn">
@@ -150,7 +155,7 @@
         </div>   
 
         <!-- 标注按钮：用户能够自己点击进行标注 -->
-        <div id="useraction-labeling-box" class="user-tag-box" style="display:none">
+        <div id="useraction-labeling-box" class="user-tag-box" style="display:none;position: fixed;bottom:41px;">
 
         </div>      
         <div style="width:100%;height:50px;">&nbsp;&nbsp;</div>   
@@ -161,10 +166,30 @@
             </div>
         </div-->              
          
+        <div class="foot"></div>
+        <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
+
     </div>
 
-    <div class="foot"></div>
-    <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
+      <div id="sx-menu" style="width:100%;background-color: #fff;">
+        <a id="sx-menu-index" href="index.html" class="menu-btn">
+            <img src="images/smile-happy-selected.png" width="20px" height="20px"/>
+            <div class="menu-btn-txt-selected">&nbsp;推荐</div>
+        </a>
+        <a id="sx-menu-measures" href="measures.html" class="menu-btn">
+            <img src="images/measure.png" width="20px" height="20px"/>
+            <div class="menu-btn-txt">&nbsp;评价</div>
+        </a>
+        <a id="sx-menu-proposals" href="proposals.html" class="menu-btn">
+            <img src="images/proposal.png" width="20px" height="20px"/>
+            <div class="menu-btn-txt">&nbsp;定制</div>
+        </a>  
+        <a id="sx-menu-my" href="user.html" class="menu-btn">
+            <img src="images/my.png" width="20px" height="20px"/>
+            <div class="menu-btn-txt">&nbsp;我</div>
+        </a>        
+      </div>
+
 </div>
 
 </body>
@@ -193,5 +218,5 @@
 <script type="text/javascript" src="js/options.js?v=1.04"></script>
 <script type="text/javascript" src="js/helper.js?v=1.13"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script>
-<script type="text/javascript" src="js/info2.js?v=9.07"></script>
+<script type="text/javascript" src="js/info2.js?v=9.09"></script>
 </html>

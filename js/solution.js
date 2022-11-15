@@ -55,6 +55,9 @@ $(document).ready(function ()
 
     //加载导航和关注列表
     loadCategories(category);  
+
+    //判定显示底部菜单
+    showSxMenu();
  
 });
 
@@ -581,6 +584,28 @@ function loadCategories(currentCategory){
             })
         }
     })    
+}
+
+//装载菜单：如果为未关注用户则引导授权，否则直接跳转
+var sxMenu = { //4个底部菜单，key为菜单id，value为html名，和state一致
+    index:"index",
+    measures:"measures",
+    proposals:"proposals",
+    my:"user"
+    };
+var sxMenuWechatTpl = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxe12f24bb8146b774&redirect_uri=https://www.biglistoflittlethings.com/ilife-web-wx/dispatch.html&response_type=code&scope=snsapi_userinfo&state=__state__#wechat_redirect";
+function showSxMenu(){
+    if(app.globalData.userInfo && app.globalData.userInfo._key){ 
+        console.log("user has subscribed. use default menu.");
+    }else{
+        console.log("new user. build wechat menu.");
+        Object.keys(sxMenu).forEach(function(menu){
+            var href = sxMenuWechatTpl.replace(/__state__/g,sxMenu[menu]);
+            console.log("assemble menu href.",href);
+            $("#sx-menu-"+menu).attr("href",href);
+        });
+
+    }
 }
 
 function registerShareHandler(){

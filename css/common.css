@@ -555,13 +555,15 @@ input,img{border: none;}
   display:none;/*隐藏tagit搜索提示*/
 }
 
-/*分割线*/
+/*分割线：已废弃，影响宽度*/
 .hr-solid-content {
     color: #a2a9b6;
     border: 0;
     font-size: 12px;
     padding: 1em 0;
     position: relative;
+    clear: both;
+    width:100%;
 }
 .hr-solid-content::before {
     content: attr(data-content);
@@ -575,4 +577,17 @@ input,img{border: none;}
     white-space: nowrap;
     left: 50%;
     transform: translateX(-50%);
+}
+
+.sx_seperator{
+    height: 1px;
+    border-top: 1px solid #ddd;
+    text-align: center;
+}
+.sx_seperator span{
+  position: relative;
+  top: -8px;
+  background: #fff;
+  font-size:12px;
+  padding: 0 10px;
 }
