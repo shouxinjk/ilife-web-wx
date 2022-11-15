@@ -1582,10 +1582,10 @@ function showMeasureScores(){
     for(var i=0;i<measureScores.length;i++){
         tmpScores[measureScores[i].id] = measureScores[i];
         var html = "";
-        html += "<div style='display:flex;flex-direction:row;flex-wrap:nowrap;margin:10px 0;width:90%;font-size:12px;'>";
-        html += "<div style='width:20%;line-height:24px;text-align:right;font-weight:bold;'>"+measureScores[i].name+"</div>";
+        html += "<div style='display:flex;flex-direction:row;flex-wrap:nowrap;margin:10px 0;width:96%;font-size:12px;'>";
+        html += "<div style='width:30%;line-height:24px;text-align:right;font-weight:bold;'>"+measureScores[i].name+"</div>";
         html += "<div style='width:10%;text-align:center;line-height:24px;' id='mscore"+measureScores[i].id+"'>"+measureScores[i].score.toFixed(2)+"</div>";
-        html += "<div style='width:70%' id='score"+measureScores[i].id+"'></div>";
+        html += "<div style='width:60%' id='score"+measureScores[i].id+"'></div>";
         html += "</div>";
         $("#measuresList").append(html);//装载到界面
 
@@ -1873,6 +1873,7 @@ function submitItemForm(){
     if($.cookie("sxAuth") && $.cookie("sxAuth").trim().length>0){
         var sxAuth = JSON.parse($.cookie("sxAuth"));
         if(sxAuth.openid){
+            if(!currentItem.task)currentItem.task={};
             currentItem.task.user = sxAuth.openid;
         }
     }
@@ -1881,7 +1882,7 @@ function submitItemForm(){
     var changedItem = {
         _key:currentItem._key?currentItem._key:hex_md5(currentItem.url),
         task:{
-            user:currentItem.task.user
+            user:currentItem.task&&currentItem.task.user?currentItem.task.user:(app.globalData&&app.globalData.userInfo&&app.globalData.userInfo._key?app.globalData.userInfo._key:"dummy")
         },
         title:currentItem.title,
         summary:currentItem.summary
@@ -1899,7 +1900,8 @@ function submitItemForm(){
     if(_sxdebug)console.log("try to commit data.",currentItem/*,changedItem*/);
 
     //记录采集历史：重要，单个达人或机构能够根据历史获取其采集的历史列表 
-    logstash(currentItem,"mp","label",currentItem.task.user,broker.id,function(){
+    var curUser = currentItem.task&&currentItem.task.user?currentItem.task.user:(app.globalData&&app.globalData.userInfo&&app.globalData.userInfo._key?app.globalData.userInfo._key:"dummy");
+    logstash(currentItem,"mp","label",curUser,broker.id,function(){
       //do nothing
     }); 
 

@@ -2032,6 +2032,7 @@ function submitNewItem(){
         type:"post",
         data:JSON.stringify({
             url:url,
+            text:url,
             openid:app.globalData.userInfo._key,
         }),//注意：不能使用JSON对象
         headers:{
@@ -2052,7 +2053,7 @@ function submitNewItem(){
                           position: 'bottom|center'
                         }); 
               window.location.href="info2.html?id="+res.data.itemKey;
-            }else if(rest.type == "nocps"){
+            }else if(res.type == "nocps"){
               siiimpleToast.message('这个商品没在推广，看看别的吧~~',{
                       position: 'bottom|center'
                     });               
