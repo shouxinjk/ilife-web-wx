@@ -2027,54 +2027,74 @@ function submitNewItem(){
     var url = $("#itemUrl").val();
     $("#enhouseWaiting").css("display","block");
     $("#enhouseTip").html("商品上架中，稍等一下下哦~~");
-    $.ajax({
-        url:app.config.sx_api+"/rest/cps/enhouse",
+    $.ajax({ //先判断URL是否支持
+        url:app.config.sx_api+"/mod/linkTemplate/rest/convert",
         type:"post",
         data:JSON.stringify({
             url:url,
-            text:url,
-            openid:app.globalData.userInfo._key,
         }),//注意：不能使用JSON对象
         headers:{
             "Content-Type":"application/json",
             "Accept": "application/json"
         },        
         success:function(res){
-            console.log("item submit succeed.",res);
-            $.unblockUI(); //屏幕解锁
-            $("#itemUrl").css("border","1px solid silver");//恢复标准风格
-            $("#itemUrl").val("");//清空原有数值，避免交叉   
-            $("#enhouseWaiting").css("display","none");
-            $("#enhouseTip").html("粘贴商品URL");                     
-            
-            //直接跳转到详情页
-            if(res.success && res.data && res.data.itemKey && res.data.itemKey.trim().length>0){//表示已存在或采集成功
-              siiimpleToast.message('商品已上架，请查看详情~~',{
-                          position: 'bottom|center'
-                        }); 
-              window.location.href="info2.html?id="+res.data.itemKey;
-            }else if(res.type == "nocps"){
-              siiimpleToast.message('这个商品没在推广，看看别的吧~~',{
-                      position: 'bottom|center'
-                    });               
+            console.log("url convert succeed.",res);
+            if(res.success && res.url && res.url.trim().length>0){//是支持的URL
+                $.ajax({
+                    url:app.config.sx_api+"/rest/cps/enhouse",
+                    type:"post",
+                    data:JSON.stringify({
+                        url:res.url,
+                        text:$("#itemUrl").val(),
+                        openid:app.globalData.userInfo._key,
+                    }),//注意：不能使用JSON对象
+                    headers:{
+                        "Content-Type":"application/json",
+                        "Accept": "application/json"
+                    },        
+                    success:function(res){
+                        console.log("item submit succeed.",res);
+                        $.unblockUI(); //屏幕解锁
+                        $("#itemUrl").css("border","1px solid silver");//恢复标准风格
+                        $("#itemUrl").val("");//清空原有数值，避免交叉   
+                        $("#enhouseWaiting").css("display","none");
+                        $("#enhouseTip").html("粘贴商品URL");                     
+                        
+                        //直接跳转到详情页
+                        if(res.success && res.data && res.data.itemKey && res.data.itemKey.trim().length>0){//表示已存在或采集成功
+                          siiimpleToast.message('商品已上架，请查看详情~~',{
+                                      position: 'bottom|center'
+                                    }); 
+                          window.location.href="info2.html?id="+res.data.itemKey;
+                        }else if(res.type == "nocps"){
+                          siiimpleToast.message('这个商品没在推广，看看别的吧~~',{
+                                  position: 'bottom|center'
+                                });               
+                        }else{
+                          siiimpleToast.message('已转发客服，稍后推送通知~~',{
+                                  position: 'bottom|center'
+                                });               
+                        }     
+                    },
+                    error:function(res){
+                        console.log("item submit succeed.",res);
+                        $.unblockUI(); //屏幕解锁
+                        $("#itemUrl").css("border","1px solid silver");//恢复标准风格
+                        $("#itemUrl").val("");//清空原有数值，避免交叉   
+                        $("#enhouseWaiting").css("display","none");
+                        $("#enhouseTip").html("粘贴商品URL");                     
+                        siiimpleToast.message('啊哦，好像出错了~~',{
+                                position: 'bottom|center'
+                              });                   
+                    }, 
+                    timeout: 5000       
+                }); 
             }else{
-              siiimpleToast.message('已转发客服，稍后推送通知~~',{
+              siiimpleToast.message('还不支持这个平台哦~~',{
                       position: 'bottom|center'
                     });               
             }     
-        },
-        error:function(res){
-            console.log("item submit succeed.",res);
-            $.unblockUI(); //屏幕解锁
-            $("#itemUrl").css("border","1px solid silver");//恢复标准风格
-            $("#itemUrl").val("");//清空原有数值，避免交叉   
-            $("#enhouseWaiting").css("display","none");
-            $("#enhouseTip").html("粘贴商品URL");                     
-            siiimpleToast.message('啊哦，好像出错了~~',{
-                    position: 'bottom|center'
-                  });                   
-        }, 
-        timeout: 5000       
+        }      
     })     
 }
 
