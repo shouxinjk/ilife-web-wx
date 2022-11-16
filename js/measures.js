@@ -349,7 +349,7 @@ function showDimensionCirclePack(categoryName){
 }
 
 //显示条目评分图例颜色
-var  colors = ['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#00ffff','#40e0d0','#9acd32','#32cd32','#228b22'];
+var  colors = ['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#40e0d0','#0dbf8c','#9acd32','#32cd32','#228b22','#067633'];
 function showLegends(dimensions){
   $("#legendDiv").empty();
   var i=0;
@@ -523,6 +523,18 @@ function insertItem(){
     }
     itemTags += "</div>";
 
+    //价格
+    var priceStr = "";
+    if(item.price.bid){
+      priceStr += "<div style='text-decoration: line-through;color:grey;'>"+item.price.bid+"</div>";
+    }    
+    priceStr += "<div style='color:darkred;'>" + (item.price.currency?item.price.currency:"￥")+item.price.sale + "</div>";
+
+    /**
+    if(item.price.coupon){
+      priceStr += "<div style='text-decoration: color:orange;'>"+item.price.coupon+"</div>";
+    }
+    //**/
 
     var metaCategory = "";
     if(item.meta&&item.meta.categoryName){
@@ -532,7 +544,7 @@ function insertItem(){
     $("#waterfall").append("<li><div id='"+item._key+"' style='display:flex;flex-direct:row;width:96%;height:50px;'>" 
         + "<div style='width:15%;margin:auto;'>"+ image +"</div>"
         + "<div style='width:35%;margin:auto 0px;'>"+ title +"</div>"
-        + "<div style='width:20%;margin:auto 0px;font-size:12px;font-weight:bold;text-align:center;'>"+ item.price.sale +"</div>"
+        + "<div style='width:20%;margin:auto 0px;font-size:12px;font-weight:bold;text-align:center;'>"+ priceStr +"</div>"
         + "<div style='width:30%;margin:auto 0px;display:flex;flex-direct:row;justify-content:space-around;align-items:baseline;flex-wrap:nowrap;' id='measure-"+item._key+"'></div>"
         + "</div></li>");
     num++;
