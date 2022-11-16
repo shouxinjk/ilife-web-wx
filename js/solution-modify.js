@@ -549,7 +549,7 @@ function buildSolutionItemHtml(item){
         var  html = '<div style="width:100%;">';
             html += '<div class="board-item-tips-seperator"></div> ';
             if(item.name && item.name.trim().length>0)
-                html += '<div class="board-item-tips" style="font-size:14px;line-height:18px;">'+item.name+'</div> '
+                html += '<div class="board-item-tips" style="font-size:14px;line-height:18px;width:80%;">'+item.name+'</div> '
             if(item.description && item.description.trim().length>0)
                 html += '<div class="board-item-tips" style="line-height:14px;">'+item.description+'</div> '
             html += '<div style="width:100%;text-align:center;display:flex;flex-direction:row;justify-content: center;">';
@@ -615,9 +615,9 @@ function buildStuffItemHtml(solutionItemId, item){
 
     var highlight = "<div class='description'>"+(item.price.currency?item.price.currency:"￥")+item.price.sale+" "+item.distributor.name+btnHtml+"</div>";
     var title = "<div class='description' style='line-height: 14px; overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;'>"+item.title+"</div>";
-    var image = "<img src='"+logo+"' style='width:32px;object-fit:cover;border-radius:5px;'/>";
+    var image = "<img src='"+logo+"' style='width:32px;object-fit:cover;border-radius:5px;margin:5px auto;'/>";
 
-    var html = "<div id='stuffItem"+item._key+"' class='task'><div class='task-logo' style='text-align:left;vertical-align:bottom;width:12%;'>" + image +"</div><div class='task-tags'>" +highlight+title+"</div>"
+    var html = "<div id='stuffItem"+item._key+"' class='task'><div class='task-logo' style='text-align:left;/*vertical-align:bottom;*/width:12%;'>" + image +"</div><div class='task-tags'>" +highlight+title+"</div>"
     return html;   
 }
 
