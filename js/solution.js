@@ -306,7 +306,7 @@ function loadBrokerByOpenid(openid) {
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
             loadWxGroups(res.data.id);//加载该达人的微信群
-            $("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board     
+            //$("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board     
             $("#sharebox").css("display","block");      //仅对达人显示分享框
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
@@ -352,7 +352,7 @@ function loadBrokerById(brokerId) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerById/"+brokerId, function (res) {
         console.log("load broker info.",brokerId,res);
         if (res.status) {//将佣金信息显示到页面
-            $("#author").html(res.data.nickname);    //如果当前用户是达人，则转为其个人board           
+            //$("#author").html(res.data.nickname);    //如果当前用户是达人，则转为其个人board           
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
