@@ -704,7 +704,7 @@ function showContent(solution){
     });    
     
     //作者与发布时间
-    $("#author").html(app.globalData.userInfo.nickName);    //默认作者为board创建者
+    $("#author").html(solution.byNickname?solution.byNickname:"");    //默认作者为board创建者
     $("#publish-time").html(solution.updateDate.split(" ")[0]);   
 
     //摘要
