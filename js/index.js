@@ -348,7 +348,7 @@ var boostMetaCategoryTpl = JSON.stringify({
             "term": {
               "meta.categoryName":{
                 "value":"__keyword",
-                "boost": 1.1
+                "boost": 2.1
               }
             }
           }
@@ -395,7 +395,7 @@ var boostCategoryTpl = JSON.stringify({
             "term": {
               "category": {
                 "value":"__keyword",
-                "boost": 1.2
+                "boost": 1.7
               }
             }
       });
