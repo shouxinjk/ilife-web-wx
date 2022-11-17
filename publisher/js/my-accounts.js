@@ -275,7 +275,8 @@ function insertItem(){
     tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>置顶</span>";
     var advertise = "<img src='https://www.biglistoflittlethings.com/ilife-web-wx/images/rocket.png' width='16' height='16'/>&nbsp;";
 
-    var title = "<div class='title' id='title"+item.id+"'>"+item.name+(item.counts?"("+item.counts+"粉)":"")+"</div>";
+    //var title = "<div class='title' id='title"+item.id+"'>"+item.name+(item.counts?"("+item.counts+"粉)":"")+"</div>";
+    var title = "<div class='title' id='title"+item.id+"'>"+item.name+"</div>";
     //var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
     var imageBg = "<div id='qrcodeimg"+item.id+"' class='qrcodeimg'></div>";
     var description = item.description&&item.description.trim().length>0?"<div class='description'>"+item.description+"</div>":"";
@@ -299,7 +300,7 @@ function insertItem(){
     //开白明细：弹出显示开白明细列表
     btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';           
     //关注明细：能够查看关注历史
-    btns += '<button type="submit" class="action-tag-black" id="btnSubscribeHistory'+item.id+'">关注明细</button> ';     
+    //btns += '<button type="submit" class="action-tag-black" id="btnSubscribeHistory'+item.id+'">关注明细</button> ';     
     var btnsDiv = "<div class='btns' style='display:flex;flex-direction:row;flex-wrap:nowrap;margin-top:5px;'>"+btns+"</div>";    
 
     var seperator = "";
@@ -851,15 +852,15 @@ function countSubscribemeTotal(){
             if(res && res.rows==0){//无法回直接忽略
                 //do nothing
             }else{//如果大于0则更新到页面
-                //if(res.data[0].totalCount>0){
-                    var oldTxt = $("#myAccountFilter").text();
-                    totalSubscribeme = res.data[0].totalCount;
-                    if(totalAccounts>1){
-                        $("#myAccountFilter").text("公众号("+totalSubscribeme+"/"+totalAccounts+")");  
-                    }else if(totalAccounts>0){
-                        $("#myAccountFilter").text("公众号("+totalSubscribeme+")");  
-                    }   
-                //}
+                /**
+                var oldTxt = $("#myAccountFilter").text();
+                totalSubscribeme = res.data[0].totalCount;
+                if(totalAccounts>1){
+                    $("#myAccountFilter").text("公众号("+totalSubscribeme+"/"+totalAccounts+")");  
+                }else if(totalAccounts>0){
+                    $("#myAccountFilter").text("公众号("+totalSubscribeme+")");  
+                }   
+                //**/
             }
         }
     }); 
@@ -874,13 +875,15 @@ function countAccountTotal(){
         success:function(res){
             console.log("got account count.",res);
             if(res.status && res.count){//显示到界面
+                /**
                 var oldTxt = $("#myAccountFilter").text(); 
                 totalAccounts = res.count;
                 if(totalAccounts>1){
                     $("#myAccountFilter").text("公众号("+totalSubscribeme+"/"+totalAccounts+")");  
                 }else if(totalAccounts>0){
                     $("#myAccountFilter").text("公众号("+totalSubscribeme+")");  
-                }           
+                } 
+                //**/          
             }      
         }
     }) 

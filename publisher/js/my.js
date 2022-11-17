@@ -275,7 +275,8 @@ function insertItem(){
     tags += "<span style='margin-right:5px;padding:0 2px;border:1px solid red;color:red;border-radius:5px;font-size:12px;line-height:16px;'>置顶</span>";
     var advertise = "<img src='https://www.biglistoflittlethings.com/ilife-web-wx/images/rocket.png' width='16' height='16'/>&nbsp;";
 
-    var title = "<div class='title' id='title"+item.id+"' data-url='"+item.url+"'>"+item.title+(item.counts?"("+item.counts+"阅)":"")+"</div>";
+    //var title = "<div class='title' id='title"+item.id+"' data-url='"+item.url+"'>"+item.title+(item.counts?"("+item.counts+"阅)":"")+"</div>";
+    var title = "<div class='title' id='title"+item.id+"' data-url='"+item.url+"'>"+item.title+"</div>";
     var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
     var description = "<div class='description'>"+item.updateDate+"</div>";
 
@@ -297,7 +298,7 @@ function insertItem(){
     //开白明细：弹出显示开白明细列表
     btns += '<button type="submit" class="action-tag-black" id="btnForwardList'+item.id+'">开白明细</button> ';           
     //报数明细：能够查看报数历史
-    btns += '<button type="submit" class="action-tag-black" id="btnReadHistory'+item.id+'">报数明细</button> ';     
+    //btns += '<button type="submit" class="action-tag-black" id="btnReadHistory'+item.id+'">报数明细</button> ';     
     var btnsDiv = "<div class='btns' style='display:flex;flex-direction:row;flex-wrap:nowrap;margin-top:5px;'>"+btns+"</div>";    
 
     var seperator = "";
@@ -809,8 +810,7 @@ function countReadmeTotal(){
                     var oldTxt = $("#myArticleFilter").text();
                     totalReadme = res.data[0].totalCount;
                     if(totalArticles>0){//仅在有文章时才展示
-                        $("#myArticleFilter").text("文章("+totalReadme+"/"+totalArticles+")");   
-                        //$("#myArticleFilter").text("文章("+totalReadme+"阅)");
+                        //$("#myArticleFilter").text("文章("+totalReadme+"/"+totalArticles+")");   
                     }
                 //}
             }
@@ -830,8 +830,7 @@ function countArticleTotal(){
                 var oldTxt = $("#myArticleFilter").text(); 
                 totalArticles = res.count;
                 if(totalArticles>0){//仅在有文章时才展示
-                    $("#myArticleFilter").text("文章("+totalReadme+"/"+totalArticles+")");       
-                    //$("#myArticleFilter").text("文章("+totalReadme+"阅)"); 
+                    //$("#myArticleFilter").text("文章("+totalReadme+"/"+totalArticles+")");       
                 }  
             }      
         }

@@ -33,7 +33,11 @@
     <!-- 用户信息 --> 
     <view class="info" id="user"></view>
     <!-- 按钮 --> 
-    <view class="order" id="buttons">      
+    <view class="order" id="buttons">     
+        <div class="order-cell" id="task" data-tagging="like view">
+            <img class="order-cell-icon-small" src="../broker/images/task.png"/>
+            <div class="actiontype">生活家</div>
+        </div>        
         <div class="order-cell" id="articles" data-tagging="like view">
             <img class="order-cell-icon-small" src="images/articles.png"/>
             <div class="actiontype">文章</div>
@@ -46,10 +50,10 @@
             <img class="order-cell-icon-small" src="images/material.png"/>
             <div class="actiontype">带货</div>
         </div>  
-        <div class="order-cell" id="reads" data-tagging="buy">
+        <!--div class="order-cell" id="reads" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/reads.png"/>
             <div class="actiontype">数据</div>
-        </div>                  
+        </div-->                  
         <div class="order-cell" id="my" data-tagging="share">
             <img class="order-cell-icon-small" src="images/my.png"/>
             <div class="actiontype">我的</div>
@@ -57,7 +61,8 @@
     </view>
 
     <div class="tips" style="line-height: 16px;" id="tipsDiv">
-        关注确认后奖励阅豆，阅豆越多排名越靠前哦~~ <br/>还可以&nbsp;<a id="advertiseArticle" href="my-accounts.html" style="font-size: 12px;font-weight:bold;">置顶</a>&nbsp;或&nbsp;<a id="groupingAccountLink" href="#" style="font-size: 12px;font-weight:bold;">组队分享</a>&nbsp;到微信群
+        阅豆越多排名越靠前。还可以&nbsp;<a id="advertiseArticle" href="my-accounts.html" style="font-size: 12px;font-weight:bold;">置顶</a>
+        <!--&nbsp;或&nbsp;<a id="groupingAccountLink" href="#" style="font-size: 12px;font-weight:bold;">组队分享</a>&nbsp;到微信群-->
     </div>     
 
     <div id="Center">

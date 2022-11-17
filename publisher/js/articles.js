@@ -741,7 +741,7 @@ function resultCheck(){
         var article = JSON.parse(articleInfo);
         //检查时间是否已达到10秒
         var duration = new Date().getTime() - Number(article.startTime);
-        if( duration > 10000){
+        if( duration > 1000){ //当前调整为1秒钟即可
             //显示数据填报表单
             $.blockUI({ message: $('#checkform'),
                 css:{ 
@@ -764,7 +764,7 @@ function resultCheck(){
             }); 
             $("#btnNo").click(function(){
                 $.cookie('sxArticle', "", { path: '/' }); //清除cookie重新来过
-                $.unblockUI(); 
+                $.unblockUI();              
             });
             $("#btnYes").click(function(){//完成阅读后的奖励操作
                 //加入阅读列表：当前隐藏
@@ -779,11 +779,13 @@ function resultCheck(){
                     costPoints(article);
                 }
             });
-        }else{//提示超过10秒才可以
+        }else{//提示超过10秒才可以：当前不显示提示
             console.log("不到10秒，不能奖励",duration/1000);
+            /**
             siiimpleToast.message('亲，要超过10秒才能奖励阅豆哦~~',{
                   position: 'bottom|center'
                 });
+            //**/
             //清除cookie重新来过
             $.cookie('sxArticle', "", { path: '/' });  
         }

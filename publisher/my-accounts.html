@@ -35,7 +35,11 @@
     <!-- 用户信息 --> 
     <view class="info" id="user"></view>
     <!-- 按钮 --> 
-    <view class="order" id="buttons">      
+    <view class="order" id="buttons">  
+        <div class="order-cell" id="task" data-tagging="like view">
+            <img class="order-cell-icon-small" src="../broker/images/task.png"/>
+            <div class="actiontype">生活家</div>
+        </div>           
         <div class="order-cell" id="articles" data-tagging="like view">
             <img class="order-cell-icon-small" src="images/articles.png"/>
             <div class="actiontype">文章</div>
@@ -48,10 +52,10 @@
             <img class="order-cell-icon-small" src="images/material.png"/>
             <div class="actiontype">带货</div>
         </div>  
-        <div class="order-cell" id="reads" data-tagging="buy">
+        <!--div class="order-cell" id="reads" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/reads.png"/>
             <div class="actiontype">数据</div>
-        </div>                
+        </div-->                
         <div class="order-cell" id="my" data-tagging="share">
             <img class="order-cell-icon-small" src="images/my-selected.png"/>
             <div class="actiontype-selected">我的</div>
@@ -59,14 +63,14 @@
     </view>
 
     <div class="tips" style="line-height: 16px;">
-        阅豆越多排名越靠前，也可以置顶，让更多人看到。
+        选择公众号置顶，方便开白转载
     </div> 
 
     <div style="width:90%;text-align: center;margin:5px auto;display: flex;flex-direction: row;flex-wrap: nowrap;">
-        <div class='filter' style="width:25%" id="myArticleFilter">文章</div>
-        <div class='filter-selected' style="width:25%" id="myAccountFilter">公众号</div>
-        <div class='filter' style="width:25%" id="myTeamFilter">团队</div>
-        <div class='filter' style="width:25%" id="myMoneyFilter">收益</div>
+        <div class='filter' style="width:50%" id="myArticleFilter">文章</div>
+        <div class='filter-selected' style="width:50%" id="myAccountFilter">公众号</div>
+        <!--div class='filter' style="width:25%" id="myTeamFilter">团队</div>
+        <div class='filter' style="width:25%" id="myMoneyFilter">收益</div-->
     </div>
 
     <!--文章列表。提供上架、下架、顶一下、置顶功能-->
@@ -217,5 +221,5 @@
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript" src="js/common.js?v=1.61"></script> 
-<script type="text/javascript" src="js/my-accounts.js?v=1.31"></script> 
+<script type="text/javascript" src="js/my-accounts.js?v=1.32"></script> 
 </html>

@@ -34,7 +34,11 @@
     <!-- 用户信息 --> 
     <view class="info" id="user"></view>
     <!-- 按钮 --> 
-    <view class="order" id="buttons">      
+    <view class="order" id="buttons">     
+        <div class="order-cell" id="task" data-tagging="like view">
+            <img class="order-cell-icon-small" src="../broker/images/task.png"/>
+            <div class="actiontype">生活家</div>
+        </div>     
         <div class="order-cell" id="articles" data-tagging="like view">
             <img class="order-cell-icon-small" src="images/articles-selected.png"/>
             <div class="actiontype-selected">文章</div>
@@ -47,10 +51,10 @@
             <img class="order-cell-icon-small" src="images/material.png"/>
             <div class="actiontype">带货</div>
         </div>  
-        <div class="order-cell" id="reads" data-tagging="buy">
+        <!--div class="order-cell" id="reads" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/reads.png"/>
             <div class="actiontype">数据</div>
-        </div>                
+        </div-->                
         <div class="order-cell" id="my" data-tagging="share">
             <img class="order-cell-icon-small" src="images/my.png"/>
             <div class="actiontype">我的</div>
@@ -58,7 +62,8 @@
     </view>
 
     <div class="tips" style="line-height: 16px;" id="tipsDiv">
-        阅读需保持10秒，报数奖励阅豆，阅豆越多排名越靠前<br/>还可以&nbsp;<a id="advertiseArticle" href="my.html" style="font-size: 12px;font-weight:bold;">置顶</a>&nbsp;或&nbsp;<a id="groupingArticleLink" href="#" style="font-size: 12px;font-weight:bold;">组队分享</a>&nbsp;到微信群
+        阅豆越多排名越靠前，还可以&nbsp;<a id="advertiseArticle" href="my.html" style="font-size: 12px;font-weight:bold;">置顶</a>
+        <!--&nbsp;或&nbsp;<a id="groupingArticleLink" href="#" style="font-size: 12px;font-weight:bold;">组队分享</a>&nbsp;到微信群-->
     </div> 
 
     <div id="Center">
@@ -85,7 +90,7 @@
     </div> 
 
     <!-- 疲劳电量球 -->
-    <div id="energy-ball" class="energy-ball">
+    <!--div id="energy-ball" class="energy-ball">
         <div class="wave" id="wave">
             <div class="g-wave0"></div>
             <div class="g-wave0"></div>
@@ -96,7 +101,7 @@
             <div id="tired-hour"></div>
             <div id="tired-today"></div>
         </div>        
-    </div>  
+    </div-->  
 
   <div id="sx-menu">
     <a href="../index.html" class="menu-btn">
@@ -118,9 +123,9 @@
   </div>
 
 	<div id="checkform" style="display:none; cursor: default;"> 
-	        <div style="font-size:16px;font-weight:bold;line-height: 20px;">阅读报数</div> 
-	        <input type="number" id="viewNumbers" placeholder="请输入文章右下角阅读数" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;" required/> 
-            <div style="font-size:16px;font-weight:bold;line-height: 20px;margin-top: 10px;">申请转载</div> 
+	        <div style="font-size:16px;font-weight:bold;line-height: 20px;display:none;">阅读报数</div> 
+	        <input type="number" id="viewNumbers" value="1" placeholder="请输入文章右下角阅读数" style="width:80%;border:1px solid silver;line-height: 36px;font-size:16px;margin:5px auto;display:none;" required/> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;margin-top: 10px;">申请开白转载</div> 
             <div id="myaccountlist" style="line-height: 20px;margin-bottom: 10px;"><a href="my-accounts.html" style="vertical-align: middle;font-size:12px;">需要有公众号，点击发布</a></div> 
 	        <div>
 		        <button type="submit" class="btnNo" id="btnNo">取消</button>	
@@ -183,5 +188,5 @@
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript" src="js/common.js?v=1.64"></script> 
-<script type="text/javascript" src="js/articles.js?v=2.06"></script> 
+<script type="text/javascript" src="js/articles.js?v=2.08"></script> 
 </html>
