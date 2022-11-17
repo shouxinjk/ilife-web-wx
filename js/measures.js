@@ -310,7 +310,11 @@ function showMeasureScores(stuff,itemScore){
       featuredDimension.forEach(function(dimension){
         var score = itemScore[dimension.id]?itemScore[dimension.id]*scale:2;//如果没有则只显示底部边框
         if(colorIndex>colors.length-1)colorIndex=colors.length-1;
-        var html  = '<div id="mscore-'+stuff._key+dimension.id+'" style="width:10px;height:'+score+'px;background-color:'+colors[colorIndex]+'"></div>';//以itemKey+dimensionId为唯一识别
+        var html  = '<div id="mscore-'+stuff._key+dimension.id+'" style="width:10px;height:'+score+'px;background-color:'+colors[colorIndex]+';">'
+                  + '<div style="position:relative;width:10px;margin-top:2px;font-size:8px;vertical-align:top;color:#fff;transform:rotate(90deg);-ms-transform:rotate(90deg);-moz-transform:rotate(90deg);-webkit-transform:rotate(90deg); -o-transform:rotate(90deg);">'
+                  +(itemScore[dimension.id]*5).toFixed(1)
+                  +'</div>'
+                  +'</div>';//以itemKey+dimensionId为唯一识别
         $("#measure-"+stuff._key).append(html);
         colorIndex++; 
       });
@@ -355,6 +359,7 @@ function showLegends(dimensions){
   var i=0;
   dimensions.forEach(function(dimension){ //仅显示第一层
     $("#legendDiv").append("<div style='background-color:"+colors[i]+";color:#fff;font-size:10px;margin:1px;padding:2px;'>"+dimension.name+"</div>");
+    //$("#legendDiv").append("<div  class='pattern-checks-sm bg-mint white text-pattern' style='font-size:10px;margin:1px;padding:2px;'>"+dimension.name+"</div>");
     i++;
   });
 }
@@ -456,14 +461,15 @@ function insertItem(){
     var imgWidth = 48;//固定为100
     var imgHeight = random(50, 300);//随机指定初始值
     //计算图片高度
+    var imgSrc = item.logo?item.logo.replace(/\.avif/g,""):item.images[0].replace(/\.avif/g,"");
     var img = new Image();
-    img.src = item.images[0];
+    img.src = imgSrc;
     var orgWidth = img.width;
     var orgHeight = img.height;
     imgHeight = orgHeight/orgWidth*imgWidth;
     //计算文字高度：按照1倍行距计算
     //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.images[0]+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
+    var image = "<img src='"+imgSrc+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
     //var title = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     
     var tagTmpl = "<a class='itemTag' href='index-metrics.html?keyword=__TAGGING'>__TAG</a>";
@@ -545,7 +551,7 @@ function insertItem(){
         + "<div style='width:15%;margin:auto;'>"+ image +"</div>"
         + "<div style='width:35%;margin:auto 0px;'>"+ title +"</div>"
         + "<div style='width:20%;margin:auto 0px;font-size:12px;font-weight:bold;text-align:center;'>"+ priceStr +"</div>"
-        + "<div style='width:30%;margin:auto 0px;display:flex;flex-direct:row;justify-content:space-around;align-items:baseline;flex-wrap:nowrap;' id='measure-"+item._key+"'></div>"
+        + "<div style='width:30%;margin:auto 0px;display:flex;flex-direct:row;justify-content:space-around;align-items:flex-end;flex-wrap:nowrap;' id='measure-"+item._key+"'></div>"
         + "</div></li>");
     num++;
 
