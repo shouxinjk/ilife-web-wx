@@ -764,7 +764,11 @@ function resultCheck(){
             }); 
             $("#btnNo").click(function(){
                 $.cookie('sxArticle', "", { path: '/' }); //清除cookie重新来过
-                $.unblockUI();              
+                $.unblockUI();          
+
+                //临时调整：取消也需要计数
+                costPoints(article);    
+                //临时调整：结束
             });
             $("#btnYes").click(function(){//完成阅读后的奖励操作
                 //加入阅读列表：当前隐藏
@@ -822,7 +826,12 @@ function costPoints(article){
                 insertBroker(broker);
             }             
             //提示阅读已完成
+            /**
             siiimpleToast.message('已奖励'+res.points+'阅豆，读过的文章将不再显示哦~~',{
+                  position: 'bottom|center'
+                });  
+                //**/            
+            siiimpleToast.message('开白转载会让优质能容吸引更多粉丝~~',{
                   position: 'bottom|center'
                 });            
         }
@@ -835,7 +844,7 @@ function costPoints(article){
 function logPointCostEvent(article,publisher){
     var readCount = Number($("#viewNumbers").val());
     $("#viewNumbers").css("border","1px solid silver");//恢复标准风格
-    $("#viewNumbers").val("");//清空原有数值，避免交叉
+    $("#viewNumbers").val("1");//清空原有数值，避免交叉
     $.ajax({
         url:app.config.analyze_api+"?query=insert into ilife.reads values ('"+hex_md5(article.id+userInfo._key)+"','"+
             publisher.openid+"','"+
