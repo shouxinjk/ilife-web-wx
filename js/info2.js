@@ -1363,46 +1363,34 @@ function showMondrian(data){
 //step1: query link tree by meta.category
 //step2: query calculated full measure and info data by itemKey
 //step3: assemble single item dataset
-//step4: show sankey chart
+//step4: show sankey chart    
 var linkTree = [];
-var linkNodes = [];    
-var hasLinkTree = false;//标记是否已经加载评价树
-var hasLinkNodes = false;//标记是否已经加载节点
-var hasLinkNodeValues = false;//标记是否已经加载属性值，或者默认值
+var linkNodes = [];
 function showSankey(){
-    var margin = {top: 60, right: 60, bottom: 60, left: 60},
-        width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right,
-        height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
 
     //获取link tree，包含维度-维度，维度-属性
     $.ajax({
         url:app.config.sx_api+"/mod/itemDimension/rest/link-tree-by-category",
         type:"get",
-        async:false,//同步调用
+        //async:false,//同步调用
         data:{categoryId:stuff.meta.category},
         success:function(ret){
             console.log("===got link tree===\n",ret);
             linkTree = ret;
-            hasLinkTree = true;
+            //遍历得到nodes
+            linkTree.forEach(function(entry){//逐条解析，将不同节点放入nodes
+                //source节点
+                var idx = linkNodes.findIndex((node) => node.id==entry.source.id);
+                if(idx<0)
+                    linkNodes.push(entry.source);
+                //target节点
+                idx = linkNodes.findIndex((node) => node.id==entry.target.id);
+                if(idx<0)
+                    linkNodes.push(entry.target);
+            });
+            generateSankeyChart();//此处触发根据weight显示：因为尚未装载得分
         }
     });  
-    
-    //未能获取link tree列表则直接返回
-    if(!linkTree || linkTree.length ==0)
-        return;
-
-    //遍历得到nodes
-    linkTree.forEach(function(entry){//逐条解析，将不同节点放入nodes
-        //source节点
-        var idx = linkNodes.findIndex((node) => node.id==entry.source.id);
-        if(idx<0)
-            linkNodes.push(entry.source);
-        //target节点
-        idx = linkNodes.findIndex((node) => node.id==entry.target.id);
-        if(idx<0)
-            linkNodes.push(entry.target);
-    });
-    hasLinkNodes = true;
 
     //显示标题：
     $("#sankeyTitle").css("display","block");
@@ -1411,7 +1399,7 @@ function showSankey(){
     $.ajax({
         url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
         type:"get",
-        async:false,//同步调用
+        //async:false,//同步调用
         data:{},
         headers:{
             "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
@@ -1426,15 +1414,15 @@ function showSankey(){
                     linkTree.splice(idx,1,linkItem);//替换掉原来的条目，增加value
                 }
             }
+            generateSankeyChart();
         }
     });  
 
     //根据itemKey获取fact
-    var categoryScore = {};
     $.ajax({
         url:app.config.analyze_api+"?query=select propertyId,score,ovalue from ilife.fact where itemKey='"+stuff._key+"' order by ts format JSON",
         type:"get",
-        async:false,//同步调用
+        //async:false,//同步调用
         data:{},
         headers:{
             "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
@@ -1471,9 +1459,17 @@ function showSankey(){
                     linkNodes.splice(idx,1,linkNode);//替换掉原来的条目，增加value 
                 }
             }
+            generateSankeyChart();
         }
-    }); 
+    });      
+}
 
+//显示sankey图，需要在数据ready后开始
+function generateSankeyChart(){
+    if( linkTree.length==0 || linkNodes.length==0 ){
+        console.log("sankey chart not ready. ignore.");
+        return;
+    }
     //generate sankey chart.
     console.log("try render sankey chart.",linkNodes,linkTree);
     if(d3Sankey){
@@ -1515,39 +1511,68 @@ function showSankey(){
         //$("#radarImg").append('<img width="'+Number(width)+'" height="'+Number(height)+'" src="' + uri + '" alt="请长按保存"/>');
         //TODO： 将图片提交到服务器端。保存文件名为：itemKey-d.png
         uploadPngFile(uri, "measure-sankey.png", "sankey");//文件上传后将在stuff.media下增加{measure:imagepath}键值对
-    });        
-
+    });       
 }
 
 
-//generate and show radar chart
-//TODO: to query result for specified item
-//step1: query featured measures by meta.category
-//step2: query calculated featured measure data by itemKey
-//step3: assemble single item dataset
-//step 4-6 : query and assemble category average data set
-//step 7: show radar chart
+//加载类目维度、商品得分、类目得分，并显示雷达图
+//注意：此处存在重复加载：
+//对于已经有meta.category的条目，在loadMeasureAndScore内会加载当前条目的维度及得分，此处仅在用于显示
+//对于缺乏meta.category的条目，在重新选择meta.category后将加载默认值
 function showRadar(){
-    var margin = {top: 60, right: 60, bottom: 60, left: 60},
-        width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right,
-        height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
-            
-    //query item measure data
-    var data = [];
-
-    //获取类目下的特征维度列表：注意是同步调用
-    var featuredDimension = [];
     $.ajax({
         url:app.config.sx_api+"/mod/itemDimension/rest/featured-dimension",
         type:"get",
-        async:false,//同步调用
+        //async:false,//同步调用
         data:{categoryId:stuff.meta.category},
         success:function(json){
             console.log("===got featured dimension===\n",json);
             featuredDimension = json;
+            generateRadarChart();
         }
     });  
     
+
+    //根据itemKey获取评价结果
+    //feature = 1；dimensionType：0客观评价，1主观评价
+    //var itemScore = {};
+    $.ajax({
+        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where feature=1 and dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
+        type:"get",
+        //async:false,//同步调用
+        data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },  
+        success:function(json){
+            console.log("===got item score===\n",json);
+            for(var i=0;i<json.rows;i++){
+                itemScore[json.data[i].dimensionId] = json.data[i].score;//*10;
+            }
+            generateRadarChart();
+        }
+    });  
+
+    //根据categoryId获取评价结果
+    //feature = 1；dimensionType：0客观评价，1主观评价
+    //var categoryScore = {};
+    $.ajax({
+        url:app.config.analyze_api+"?query=select dimensionId,avg(score) as score from ilife.info where feature=1 and dimensionType=0 and categoryId='"+stuff.meta.category+"' group by dimensionId format JSON",
+        type:"get",
+        //async:false,//同步调用
+        data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },  
+        success:function(json){
+            console.log("===got category score===\n",json);
+            for(var i=0;i<json.rows;i++){
+                categoryScore[json.data[i].dimensionId] = json.data[i].score;//*10;
+            }
+            generateRadarChart();
+        }
+    });    
+
     //未能获取维度列表则直接返回
     if(!featuredDimension || featuredDimension.length ==0)
         return;
@@ -1556,44 +1581,21 @@ function showRadar(){
     $("#radarTitle").css("display","block");
     $("#mscoreTitle").css("display","block");
 
-    //根据itemKey获取评价结果
-    //feature = 1；dimensionType：0客观评价，1主观评价
-    var itemScore = {};
-    $.ajax({
-        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where feature=1 and dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
-        type:"get",
-        async:false,//同步调用
-        data:{},
-        headers:{
-            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
-        },  
-        success:function(json){
-            console.log("===got item score===\n",json);
-            for(var i=0;i<json.rows;i++){
-                itemScore[json.data[i].dimensionId] = json.data[i].score*10;
-            }
-        }
-    });  
+    //生成雷达图
+    generateRadarChart();
 
-    //根据categoryId获取评价结果
-    //feature = 1；dimensionType：0客观评价，1主观评价
-    var categoryScore = {};
-    $.ajax({
-        url:app.config.analyze_api+"?query=select dimensionId,avg(score) as score from ilife.info where feature=1 and dimensionType=0 and categoryId='"+stuff.meta.category+"' group by dimensionId format JSON",
-        type:"get",
-        async:false,//同步调用
-        data:{},
-        headers:{
-            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
-        },  
-        success:function(json){
-            console.log("===got category score===\n",json);
-            for(var i=0;i<json.rows;i++){
-                categoryScore[json.data[i].dimensionId] = json.data[i].score*10;
-            }
-        }
-    }); 
+}
 
+function generateRadarChart(){
+    if(featuredDimension.length==0 || Object.keys(itemScore).length==0 || Object.keys(categoryScore).length==0){
+        console.log("radar chart not ready. ignore.");
+        return;
+    }
+    var margin = {top: 60, right: 60, bottom: 60, left: 60},
+        width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right,
+        height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
+    //query item measure data
+    var data = [];
     //组装展示数据：根据维度遍历。
     var itemArray = [];
     var categoryArray = [];
@@ -1602,11 +1604,11 @@ function showRadar(){
         var dimName = featuredDimension[i].name;
         itemArray.push({
             axis:dimName,
-            value:itemScore[dimId]?itemScore[dimId]:0.5
+            value:itemScore[dimId]?itemScore[dimId]*10:5
         });
         categoryArray.push({
             axis:dimName,
-            value:categoryScore[dimId]?categoryScore[dimId]:0.75
+            value:categoryScore[dimId]?categoryScore[dimId]*10:7.5
         });       
     }
 
@@ -1650,7 +1652,7 @@ function showRadar(){
         //$("#radarImg").append('<img width="'+Number(width)+'" height="'+Number(height)+'" src="' + uri + '" alt="请长按保存"/>');
         //TODO： 将图片提交到服务器端。保存文件名为：itemKey-d.png
         uploadPngFile(uri, "measure-radra.png", "measure");//文件上传后将在stuff.media下增加{measure:imagepath}键值对
-    });        
+    });       
 }
 
 var featuredDimension = [];//客观评价维度列表
