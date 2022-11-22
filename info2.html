@@ -81,7 +81,11 @@
             <div id="measuresDiv" style="display:none">
                 <!--label class="formLabel" style="line-height: 30px;margin:5px 0; padding:5px 0;">客观评价结果</label-->
                 <div id="measuresList"></div>
-            </div>    
+            </div>   
+            <!--客观评价sankey图，显示从属性到得分的分布-->   
+            <div id="sankeyTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>评分及构成</span></div>                    
+            <div id="sankey">
+            </div>              
             <!--客观评价雷达图-->   
             <!--hr  id="radarTitle" class="hr-solid-content" data-content="得分及平均值对照"  style="display:none;margin-top:30px;"/-->   
             <div id="radarTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>得分及平均值对照</span></div>                    
@@ -212,11 +216,13 @@
 <script type="text/javascript" src="ext/d3/radarchart.js?v=1.2"></script>
 <script type="text/javascript" src="ext/d3/partition-sunburst.js?v=0.2"></script>
 <script type="text/javascript" src="ext/d3/mondrian.js?v=1.35"></script>
+<script type="text/javascript" src="ext/d3/sankey.js?v=0.12"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript" src="js/md5.js?v=2.5"></script>
 <script type="text/javascript" src="js/util.js?v=7.56"></script>
 <script type="text/javascript" src="js/options.js?v=1.04"></script>
 <script type="text/javascript" src="js/helper.js?v=1.13"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script>
-<script type="text/javascript" src="js/info2.js?v=9.15"></script>
+<script type="text/javascript" src="js/info2.js?v=9.28"></script>
+<script type="text/javascript" src="ext/require.min.js"></script>
 </html>

@@ -80,12 +80,28 @@ $(document).ready(function ()
 
     //判定显示底部菜单
     showSxMenu();    
-    
+
+    require.config({
+      baseUrl: 'ext/d3',
+      map: {
+        '*': {
+          'd3-path.js': 'd3-path',
+          'd3-array.js': 'd3-array',
+          'd3-shape.js': 'd3-shape',
+        }
+      }
+    });
+    require(['d3-path','d3-array','d3-shape','d3-sankey'], function (d3Path,d3Array,d3Shape,_d3Sankey) {
+        d3Sankey = _d3Sankey;
+        console.log("load module d3Sankey. ",d3Sankey);
+    });
+
 });
+
+var d3Sankey = null;
 
 util.getUserInfo();//从本地加载cookie
 util.getBrokerInfo();//从本地加载bookie
-
 
 var columnWidth = 300;//默认宽度300px
 var columnMargin = 5;//默认留白5px
@@ -639,6 +655,7 @@ function showCascader(categoryId){
             submitItemForm();
             //重新生成图表
             showRadar();
+            showSankey();
             showDimensionBurst();
             showDimensionMondrian();
             //隐藏级联选择组件
@@ -878,6 +895,7 @@ function loadBrokerByOpenid(openid) {
             //显示评价图：
             if(stuff.meta && stuff.meta.category){
                 showRadar();//显示评价图
+                showSankey();
                 if(!stuff.poster)
                     requestPosterScheme();//请求并生成海报：仅在没生成海报时才自动请求生成全部海报               
             }
@@ -1341,6 +1359,167 @@ function showMondrian(data){
 }
 
 
+//generate and show sankey chart
+//step1: query link tree by meta.category
+//step2: query calculated full measure and info data by itemKey
+//step3: assemble single item dataset
+//step4: show sankey chart
+var linkTree = [];
+var linkNodes = [];    
+var hasLinkTree = false;//标记是否已经加载评价树
+var hasLinkNodes = false;//标记是否已经加载节点
+var hasLinkNodeValues = false;//标记是否已经加载属性值，或者默认值
+function showSankey(){
+    var margin = {top: 60, right: 60, bottom: 60, left: 60},
+        width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right,
+        height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
+
+    //获取link tree，包含维度-维度，维度-属性
+    $.ajax({
+        url:app.config.sx_api+"/mod/itemDimension/rest/link-tree-by-category",
+        type:"get",
+        async:false,//同步调用
+        data:{categoryId:stuff.meta.category},
+        success:function(ret){
+            console.log("===got link tree===\n",ret);
+            linkTree = ret;
+            hasLinkTree = true;
+        }
+    });  
+    
+    //未能获取link tree列表则直接返回
+    if(!linkTree || linkTree.length ==0)
+        return;
+
+    //遍历得到nodes
+    linkTree.forEach(function(entry){//逐条解析，将不同节点放入nodes
+        //source节点
+        var idx = linkNodes.findIndex((node) => node.id==entry.source.id);
+        if(idx<0)
+            linkNodes.push(entry.source);
+        //target节点
+        idx = linkNodes.findIndex((node) => node.id==entry.target.id);
+        if(idx<0)
+            linkNodes.push(entry.target);
+    });
+    hasLinkNodes = true;
+
+    //显示标题：
+    $("#sankeyTitle").css("display","block");
+
+    //根据itemKey获取客观评价结果
+    $.ajax({
+        url:app.config.analyze_api+"?query=select dimensionId,score from ilife.info where dimensionType=0 and itemKey='"+stuff._key+"' order by ts format JSON",
+        type:"get",
+        async:false,//同步调用
+        data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },  
+        success:function(json){
+            console.log("===got info score===\n",json);
+            for(var i=0;i<json.rows;i++){
+                var idx = linkTree.findIndex((linkItem) => linkItem.source.id==json.data[i].dimensionId);
+                if(idx>-1){
+                    var linkItem = linkTree[idx];
+                    linkItem["value"] = json.data[i].score * linkItem.weight;
+                    linkTree.splice(idx,1,linkItem);//替换掉原来的条目，增加value
+                }
+            }
+        }
+    });  
+
+    //根据itemKey获取fact
+    var categoryScore = {};
+    $.ajax({
+        url:app.config.analyze_api+"?query=select propertyId,score,ovalue from ilife.fact where itemKey='"+stuff._key+"' order by ts format JSON",
+        type:"get",
+        async:false,//同步调用
+        data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },  
+        success:function(json){
+            console.log("===got fact score===\n",json);
+            for(var i=0;i<json.rows;i++){
+                //在linktree上增加value，用于计算宽度
+                var idx = linkTree.findIndex((linkItem) => linkItem.source.id==json.data[i].propertyId);
+                if(idx>-1){
+                    var linkItem = linkTree[idx];
+                    linkItem["value"] = json.data[i].score * linkItem.weight;      
+                    linkTree.splice(idx,1,linkItem);//替换掉原来的条目，增加value     
+                }    
+                //在linknodes上增加原始值，用于显示 
+                idx = linkNodes.findIndex((node) => node.id==json.data[i].propertyId);
+                if(idx>-1){
+                    var linkNode = linkNodes[idx];
+                    if(linkNode.name.indexOf(":")>0) //避免重复处理，CK内可能存在重复记录
+                        break;
+                    var ovalue = json.data[i].ovalue;
+                    if(!ovalue){ //如果没有则采用默认值
+                        ovalue = linkNode.defaultValue;
+                    }
+                    if(ovalue && ovalue.length>10){ //超长则截断
+                        ovalue = ovalue.substr(0,9);
+                    }
+
+                    if(ovalue){ //更换linknode的name
+                        linkNode.name = linkNode.name +":"+ovalue;
+                    }else{
+                        linkNode.name = linkNode.name +":未标注";
+                    }
+                    linkNodes.splice(idx,1,linkNode);//替换掉原来的条目，增加value 
+                }
+            }
+        }
+    }); 
+
+    //generate sankey chart.
+    console.log("try render sankey chart.",linkNodes,linkTree);
+    if(d3Sankey){
+        var sankeyChartOptions = {
+          height:600
+        };
+        //genrate sankey
+        SankeyChart("#sankey", {
+                    nodes:linkNodes,
+                    links: linkTree
+                }, {
+                  nodeGroup: d => d.id.split(/\W/)[0], // take first word for color
+                  nodeId: d => d.id,
+                  nodeLabel: d => d.name, //name显示包含属性名称，即属性原始值或默认值：需要在加载props时设置
+                  //format: (f => d => `${f(d)} TWh`)(d3.format(",.1~f")),
+                  linkSource: ({source}) => source.id,
+                  linkTarget: ({target}) => target.id,
+                  height: 600
+                });        
+    }
+
+    //将生成的sankey片提交到fdfs
+    var canvas = $("#sankey svg")[0];
+    console.log("got canvas sankey.",canvas);
+    //调用方法转换即可，转换结果就是uri,
+    var width = $(canvas).attr("width");
+    var height = $(canvas).attr("height");
+    var options = {
+        encoderOptions:1,
+        //scale:2,
+        scale:1,
+        left:0,
+        top:0,
+        width:Number(width),
+        height:Number(height)
+    };
+    svgAsPngUri(canvas, options, function(uri) {
+        console.log("image uri.",dataURLtoFile(uri,"sankey.png"));
+        //$("#radarImg").append('<img width="'+Number(width)+'" height="'+Number(height)+'" src="' + uri + '" alt="请长按保存"/>');
+        //TODO： 将图片提交到服务器端。保存文件名为：itemKey-d.png
+        uploadPngFile(uri, "measure-sankey.png", "sankey");//文件上传后将在stuff.media下增加{measure:imagepath}键值对
+    });        
+
+}
+
+
 //generate and show radar chart
 //TODO: to query result for specified item
 //step1: query featured measures by meta.category
@@ -1567,6 +1746,7 @@ function loadMeasureAndScore(){
     //显示雷达图
     //if(!stuff.media || !stuff.media["measure"])//仅在第一次进入时才尝试自动生成
         showRadar();//显示评价图
+        showSankey();
 
     //显示蒙德里安格子图
     //if(!stuff.media || !stuff.media["mondrian"])//仅在第一次进入时才尝试自动生成
@@ -1608,6 +1788,7 @@ function showMeasureScores(){
                     $("#mscore"+measureId).html(newScore.toFixed(2));
                     $("#radarImg").empty();//隐藏原有图片
                     showRadar();//重新生成雷达图
+                    showSankey();
 
                     //提交数据并更新
                     var priority = old.parentIds.length - old.parentIds.replace(/\,/g,"").length;
