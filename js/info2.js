@@ -1447,8 +1447,8 @@ function showSankey(){
                     if(!ovalue){ //如果没有则采用默认值
                         ovalue = linkNode.defaultValue;
                     }
-                    if(ovalue && ovalue.length>10){ //超长则截断
-                        ovalue = ovalue.substr(0,9);
+                    if(ovalue && ovalue.length>30){ //超长则截断
+                        ovalue = ovalue.substr(0,29);
                     }
 
                     if(ovalue){ //更换linknode的name
