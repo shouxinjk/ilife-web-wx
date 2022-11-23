@@ -6,9 +6,11 @@
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="../ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/image-picker/image-picker.css">
-    <link rel="stylesheet" type="text/css" href="../css/common.css">
+    <link rel="stylesheet" type="text/css" href="../css/common.css?v=1.01">
+    <link rel="stylesheet" type="text/css" href="../css/board2-waterfall.css?v=1.8">
     <link rel="stylesheet" type="text/css" href="css/broker.css">
     <link rel="stylesheet" type="text/css" href="css/boards.css?v=1.11">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
@@ -90,7 +92,12 @@
             <button type="submit" class="btn btn-default" id="deleteBtn">取消</button>   
             <button type="submit" class="btn btn-default" id="submitBtn">保存</button>   
             <!-- 商品列表 -->   
-            <div class="board-item-tips">包含商品列表&nbsp;&nbsp;<a href="../index.html">去添加</a></div> 
+            <div id="defaultSection">
+                <div class="board-item-tips-seperator"></div> 
+                <div class="board-item-tips" style="line-height: 18px;">包含商品列表&nbsp;&nbsp;<a href="../index.html" style="font-size:12px;font-weight: bold;color:orange;">去添加</a></div> 
+                <div class="board-item-tips-seperator"></div> 
+            </div>            
+            
             <div id="waterfall">
                 <!--board items-->
             </div>
@@ -103,9 +110,7 @@
         <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
     </div>
 
-    <div id="footer" class="footer-hide">
-
-    </div>  
+    <div class="foot" style="line-height: 60px;">&nbsp;&nbsp;</div>
 
   <div id="sx-menu">
     <a href="../index.html" class="menu-btn">
@@ -126,6 +131,21 @@
     </a>        
   </div>
 
+    <!-- 修改boardItem详细 -->
+    <div id="boarditemform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">商品条目信息</div> 
+            <div style="width:80%;margin:0 auto;">
+              <select id="subtypeLogo" class="image-picker show-html"></select>   
+            </div>         
+            <!--input type="text" id="solutionItemType2" placeholder="选择类型" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;margin-top:0;" /-->
+            <textarea type="text" id="boardItemName2" rows="3" placeholder="名称。必填。" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required></textarea>
+            <textarea type="text" id="boardItemDesc2" rows="3" placeholder="简要描述。必填。" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;padding:2px;" required></textarea> 
+            <div>
+                <button type="submit" class="btnNo" id="btnCancelBoardItem" style="font-size: 12px;padding:2px 5px;">取消</button>  
+                <button type="submit" class="btnYes" id="btnSaveBoardItem" style="font-size: 12px;padding:2px 5px;">确定</button> 
+            </div>
+    </div>
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
@@ -133,10 +153,12 @@
 <script type="text/javascript" src="../js/newWaterfall.js"></script>
 <script type="text/javascript" src="../js/swiper.min.js"></script>
 <script type="text/javascript" src="../js/jquery.cookie.js"></script>
-<script type="text/javascript" src="../ext/toast/jquery.toast.min.js"></script>
+<script type="text/javascript" src="../ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="../ext/image-picker/image-picker.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.03"></script> 
-<script type="text/javascript" src="js/boards-modify.js?v=2.13"></script> 
+<script type="text/javascript" src="js/boards-modify.js?v=2.18"></script> 
 </html>

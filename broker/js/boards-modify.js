@@ -59,7 +59,7 @@ var loading = false;
 var dist = 500;
 var num = 1;//需要加载的内容下标
 
-var items = [];//所有画像列表
+var items = [];//所有条目列表
 var page = {
     size:20,//每页条数
     total:1,//总页数
@@ -79,19 +79,14 @@ var currentBrokerId = null;
 var boardId = null;
 var board = {};//存储当前编辑board
 
-var boardItemFormTemplate = '<div class="board-item-form">'+
-            //*
-            '<div class="form-group">'+
-              '<label for="boardItemTitle">推荐标题:</label>'+
-              '<input type="text" class="form-control" id="boardItemTitle" placeholder="一句话推荐这个商品"/>'+
-            '</div>'+
-            //**/
-            '<div class="form-group board-item-form-group">'+
-              '<label for="boardItemDescription">推荐语:</label>'+
-              '<textarea class="form-control" rows="3" id="boardItemDescription" placeholder="描述一下为何值得推荐"></textarea>'+
-            '</div>'+    
-            '<button type="submit" class="btn btn-default board-item-btn-delete" id="boardItemDeleteBtn">删除</button>'+                          
-            '<button type="submit" class="btn btn-default board-item-btn-submit" id="boardItemSubmitBtn">保存</button>'+
+var btnStyle = "border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;margin:2px;min-width:32px;text-align:center;"
+var btnStyleS = "border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;margin:2px;min-width:24px;text-align:center;"
+var btnStyleL = "border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;margin:2px;min-width:48px;text-align:center;"
+
+var boardItemFormTemplate = 
+        '<div class="board-item-form" id="boardItemDiv__itemid" style="margin-top:5px;">'+ 
+            '<span id="deleteItemBtn__itemid"  data-boarditemid="__itemid" style="'+btnStyleL+'">删除</span>' +    
+            '<span id="modifyItemBtn__itemid"  data-boarditemid="__itemid" style="'+btnStyleL+'">修改</span>' +                   
         '</div>';
 
 //修改board：注意同时修改board信息以及board列表描述内容
@@ -148,7 +143,15 @@ function updateBoardItem(item){
         console.log("Broker::Board::UpdateBoardItem modify board item successfully.", res)
         if(res.status){
             console.log("Broker::Board::UpdateBoardItem now jump to board modify page for editing.", res)
-            window.location.href = "boards-modify.html?id="+res.data.board.id;//跳转到board查看界面
+            //更新当前页面数据即可
+            $("#itemTitleDiv"+item.id).html(item.title);
+            $("#itemDescDiv"+item.id).html(item.description);
+            //关闭浮框
+            $.unblockUI(); //直接取消即可
+            siiimpleToast.message('已修改~~',{
+                  position: 'bottom|center'
+                });              
+            //window.location.href = "boards-modify.html?id="+res.data.board.id;//跳转到board查看界面
         }
     }, "PUT",data,header);
 }
@@ -163,7 +166,13 @@ function deleteBoardItem(item){
         console.log("Broker::Board::UpdateBoardItem modify board item successfully.", res)
         if(res.status){
             console.log("Broker::Board::UpdateBoardItem now jump to board modify page for editing.", res)
-            window.location.href = "boards-modify.html?id="+item.board.id;//跳转到board查看界面
+            //window.location.href = "boards-modify.html?id="+item.board.id;//跳转到board查看界面
+            //删除后直接在页面隐藏元素即可
+            $("#boardItemLi"+item.id).empty();
+            siiimpleToast.message('已删除~~',{
+                  position: 'bottom|center'
+                });             
+
         }
     }, "PUT",{},{});
 }
@@ -297,20 +306,17 @@ function insertItem(){
 
     //显示所关联stuff内容
     var image = "<img src='"+logoImg+"' width='60' height='60'/>";
-    var title = "<div class='board-item-title'>"+item.stuff.distributor.name+" "+item.stuff.title+"</div>";
-    var tags = "";//"<div class='tags'>"+item.stuff.tags+"</div>";
+    var title = "<div class='board-item-title' id='itemTitleDiv"+item.id+"' style='font-weight:bold;line-height:16px;'>"+(item.title?item.title:item.stuff.title)+"</div>";
+    var description = "<div class='board-item-desc' id='itemDescDiv"+item.id+"' style='line-height:16px;'></div>";
 
-    //显示boarditem推荐标题及推荐描述
     var itemForm =  boardItemFormTemplate
-        .replace(/boardItemTitle/g,'boardItemTitle'+num)
-        .replace(/boardItemDescription/g,'boardItemDescription'+num)
-        .replace(/boardItemSubmitBtn/g,'boardItemSubmitBtn'+num)
-        .replace(/boardItemDeleteBtn/g,'boardItemDeleteBtn'+num);
+        .replace(/__itemid/g,item.id);        
 
-    $("#waterfall").append("<li><div class='board-item' data='"+item.id+"'><div class='board-item-logo'>" + image +"</div><div class='board-item-tags'>" +title+ tags +itemForm+"</div></li>");
+    $("#waterfall").append("<li id='boardItemLi"+item.id+"'><div class='board-item' data='"+item.id+"'><div class='board-item-logo'>" + image +"</div><div class='board-item-tags'>" +title+ description +itemForm+"</div></div></li>");
+    //$("#itemTitleDiv"+item.id).html(item.title?item.title:item.stuff.title);
 
     //使用已经有的数值填写表单
-    $('#boardItemTitle'+num).val(item.title?item.title:item.stuff.title);
+    //$('#boardItemTitle'+num).val(item.title?item.title:item.stuff.title);
     //默认推荐语优先次序：手动填写的推荐语>自动生成的推荐语>人工标注的tagging；其中自动生成的推荐语如多于一条则随机选择
     var advice = "";
     if(debug)console.log("==got stuff advice==",item.stuff.advice,item.stuff.advice?Object.keys(item.stuff.advice).length>0:false);
@@ -335,23 +341,105 @@ function insertItem(){
         //留空，等着填写
     }
     if(debug)console.log("==got advice==",advice);
-    $('#boardItemDescription'+num).val(advice);
-    //注册事件：能够单独修改
-    $('#boardItemSubmitBtn'+num).click(function(){
-        var eleId=$(this).attr("id");//必须通过源id获取指定下标
-        var itemNumber = eleId.match(/\d+/g)[0];
-        item.title = $('#boardItemTitle'+itemNumber).val();
-        item.description = $('#boardItemDescription'+itemNumber).val();
-        updateBoardItem(item);
+    $("#itemDescDiv"+item.id).html(advice);
+
+    //注册事件：显示浮框，修改单个条目
+    $('#modifyItemBtn'+item.id).click(function(){
+        event.stopPropagation();//阻止触发跳转详情
+        //先设置当前item条目
+        if($(this).data("boarditemid") && $(this).data("boarditemid").trim().length>0){
+            boardItemId = $(this).data("boarditemid")
+            console.log("try modify item. ", boardItemId);
+            showModifyBoardItemInfoForm(); 
+        }else{
+            console.log("error occured while click modify btn.");
+        }
     });
     //注册事件：能够单独删除
-    $('#boardItemDeleteBtn'+num).click(function(){
-        deleteBoardItem(item);
+    $('#deleteItemBtn'+item.id).click(function(){
+        event.stopPropagation();//阻止触发跳转详情
+        if($(this).data("boarditemid") && $(this).data("boarditemid").trim().length>0){
+            boardItemId = $(this).data("boarditemid")
+            console.log("try delete item. ", boardItemId);
+            //准备当前选中条目数据
+            getCurrentBoardItem();            
+            deleteBoardItem(item);
+        }else{
+            console.log("error occured while click delete btn.");
+        }        
     });
-
     num++;
     // 表示加载结束
     loading = false;
+}
+
+
+//显示编辑当前条目表单
+function showModifyBoardItemInfoForm(){
+    console.log("show modify board item form.");  
+
+    //准备当前选中条目数据
+    getCurrentBoardItem();
+
+    //填写数据
+    $("#boardItemName2").val(currentBoardItem.title);
+    $("#boardItemDesc2").val(currentBoardItem.description);
+
+    //显示数据填报表单
+    $.blockUI({ message: $('#boarditemform'),
+        css:{ 
+            padding:        10, 
+            margin:         0, 
+            width:          '80%', 
+            top:            '30%', 
+            left:           '10%', 
+            textAlign:      'center', 
+            color:          '#000', 
+            border:         '1px solid silver', 
+            backgroundColor:'#fff', 
+            cursor:         'normal' 
+        },
+        overlayCSS:  { 
+            backgroundColor: '#000', 
+            opacity:         0.7, 
+            cursor:          'normal' 
+        }
+    }); 
+    $("#btnCancelBoardItem").click(function(){      
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnSaveBoardItem").click(function(){//完成阅读后的奖励操作
+        //检查输入
+        if( !$("#boardItemName2").val() || $("#boardItemName2").val().trim().length ==0 ){
+            $("#boardItemName2").val(currentBoardItem.title);
+            siiimpleToast.message('名称为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#boardItemDesc2").val() || $("#boardItemDesc2").val().trim().length ==0 ){
+            $("#boardItemDesc2").val(currentBoardItem.description);
+            siiimpleToast.message('描述为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save item.");
+            currentBoardItem.title = $("#boardItemName2").val();
+            currentBoardItem.description = $("#boardItemDesc2").val();
+            updateBoardItem(currentBoardItem);
+        }
+    });
+}
+
+//重新设置当前BoardItem
+var boardItemId = null; //当前修改的条目ID
+var currentBoardItem = null; //当前修改的条目 obj
+function getCurrentBoardItem(){
+    console.log("try get boardItem.",boardItemId);
+    if(boardItemId){
+        currentBoardItem = items.find(item => item.id == boardItemId);
+    }else{
+        currentBoardItem = null;
+    }
+    console.log("try get boardItem.",boardItemId,currentBoardItem);
 }
 
 //load person
