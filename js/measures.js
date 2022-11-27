@@ -531,7 +531,7 @@ function insertItem(){
 
     //价格
     var priceStr = "";
-    if(item.price.bid){
+    if(item.price.bid && item.price.bid>item.price.sale){
       priceStr += "<div style='text-decoration: line-through;color:grey;'>"+item.price.bid+"</div>";
     }    
     priceStr += "<div style='color:darkred;'>" + (item.price.currency?item.price.currency:"￥")+item.price.sale + "</div>";
