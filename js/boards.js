@@ -37,6 +37,14 @@ $(document).ready(function ()
 
     loadPerson(currentPerson);//加载用户
 
+    //注册切换：清单、个性化定制
+    $("#mySolutionFilter").click(function(e){
+        window.location.href = "solutions.html";
+    });
+    $("#myBoardFilter").click(function(e){
+        window.location.href = "boards.html";
+    });
+
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
         changeActionType(e);
@@ -123,7 +131,8 @@ function registerTimer(brokerId){
                 if(filter=="all"){
                     loadAllItems();
                 }else{
-                    loadItemsByBroker();
+                    //loadItemsByBroker();
+                    loadItemsByOpenid();
                 }
 
                 //有用户操作则恢复计数器
@@ -147,6 +156,27 @@ function unregisterTimer(){
 }
 
 //加载特定于达人的任务列表
+function loadItemsByOpenid(){
+    util.AJAX(app.config.sx_api+"/mod/board/rest/byOpenid/"+app.globalData.userInfo._key, function (res) {
+        showloading(false);
+        console.log("Broker::Boards::loadItems try to retrive boards by broker id.", res)
+        if(res && res.count==0){//如果没有画像则提示，
+            shownomore();
+        }else{//否则显示到页面
+            //更新当前翻页
+            page.current = page.current + 1;
+            //装载具体条目
+            var hits = res;
+            for(var i = 0 ; i < hits.length ; i++){
+                items.push(hits[i]);
+            }
+            insertItem();
+        }
+    }, "GET",{offset:(page.current+1)*page.size,size:page.size},{});
+}
+
+//加载特定于达人的清单：已废弃。改为根据openid获取
+/**
 function loadItemsByBroker(){
     util.AJAX(app.config.sx_api+"/mod/board/rest/boards/"+currentBroker, function (res) {
         showloading(false);
@@ -165,6 +195,7 @@ function loadItemsByBroker(){
         }
     }, "GET",{offset:(page.current+1)*page.size,size:page.size},{});
 }
+//**/
 
 //加载所有清单：用于推荐时使用
 function loadAllItems(){
@@ -197,26 +228,29 @@ function insertItem(){
 
     if(item.logo)
         logo = item.logo;
-    console.log("add board item.[current broker]"+currentBroker+"[board broker]"+item.broker.id+"[operation]"+(item.broker.id == currentBroker?"编辑":"克隆"));
 
     var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
     var title = "<div class='title'>"+item.title+"</div>";
     var description = "<div class='description'>"+item.description+"</div>";
     var tags = "<div class='tags'>"+item.tags+"</div>";
-    //var btns = "<div class='btns'><a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享文字列表</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享图片列表</a></div>";
-    var btns = "<div class='btns'><a href='#' style='font-size:12px;'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"' style='font-size:12px;'>分享海报</a>&nbsp;<a href='../board2-material.html?id="+item.id+"' style='font-size:12px;'>分享图文内容</a></div>";
-    if(item.broker.id == currentBroker){
-        //btns = "<div class='btns'><a href='../index.html?keyword="+item.keywords+"&boardId="+item.id+"'>添加商品</a>&nbsp;<a href='#'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2.html?id="+item.id+"'>分享文字列表</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"'>分享图片列表</a></div>";
-        btns = "<div class='btns'><a href='../index.html?keyword="+item.keywords+"&boardId="+item.id+"' style='font-size:12px;'>添加商品</a>&nbsp;<a href='#' style='font-size:12px;'>"+(item.broker.id == currentBroker?"编辑":"克隆")+"</a>&nbsp;<a href='../board2-waterfall.html?id="+item.id+"' style='font-size:12px;'>分享海报</a>&nbsp;<a href='../board2-material.html?id="+item.id+"' style='font-size:12px;'>分享图文内容</a>&nbsp;<span id='btnPush"+item.id+"' style='color:#E16531;font-size:12px;'>云推送</span></div>";
+    var btns = "<div class='btns'><a href='#' style='font-size:12px;'>"+(item.byOpenid == userInfo._key?"编辑":"克隆")+"</a>&nbsp;<a href='board2-waterfall.html?id="+item.id+"' style='font-size:12px;'>分享海报</a>&nbsp;<a href='board2-material.html?id="+item.id+"' style='font-size:12px;'>分享图文内容</a></div>";
+    if(item.byOpenid == userInfo._key){
+        btns = "<div class='btns'><a href='index.html?keyword="+item.keywords+"&boardId="+item.id+"' style='font-size:12px;'>添加商品</a>&nbsp;<a href='#' style='font-size:12px;'>"+(item.byOpenid == userInfo._key?"编辑":"克隆")+"</a>&nbsp;<a href='board2-waterfall.html?id="+item.id+"' style='font-size:12px;'>分享海报</a>&nbsp;<a href='board2-material.html?id="+item.id+"' style='font-size:12px;'>分享图文内容</a>&nbsp;<span id='btnPush"+item.id+"' style='color:#E16531;font-size:12px;'>云推送</span></div>";
+    }
+    //仅在当前用户是达人时才显示按钮
+    if(currentBroker&&currentBroker.trim().length>0){
+        //显示按钮
+    }else{
+        btns = "";
     }
     $("#waterfall").append("<li><div class='task' data='"+item.id+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title+ tags +description+btns+"</div></li>");
     num++;
 
     //注册事件：进入board
     $("div[data='"+item.id+"']").click(function(){
-        //判断当前达人是否是board创建达人
+        //判断当前用户是否是board创建用户
         /*
-        if(item.broker.id == currentBroker){//如果是当前board创建达人，则直接跳转
+        if(item.byOpenid == userInfo._key){//如果是当前board创建用户，则直接跳转
             window.location.href = "boards-modify.html?id="+item.id;            
         }else{//否则，先克隆一个再编辑
             console.log("try to clone board.[boardId]"+item.id+"[brokerId]"+currentBroker);
@@ -229,7 +263,7 @@ function insertItem(){
         //**/
 
         //直接跳转到详情界面
-        window.location.href = "../board2-waterfall.html?id="+item.id;  
+        window.location.href = "board2-waterfall.html?id="+item.id;  
     });
     //注册事件：云推送
     $("#btnPush"+item.id).click(function(){
@@ -374,12 +408,12 @@ function createBoard(){
         Authorization:"Basic aWxpZmU6aWxpZmU="
     };     
     var authorName = app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName:null;
-    if(currentBroker&&currentBroker.name)
-        authorName = currentBroker.name;
     var data = {
         broker:{
-            id:currentBroker
+            id:currentBroker?currentBroker:"system"
         },
+        byOpenid: app.globalData.userInfo._key,
+        byNickname: app.globalData.userInfo.nickName,
         logo:"",
         poster:JSON.stringify({}),
         article:JSON.stringify({}),          
@@ -395,8 +429,14 @@ function createBoard(){
             var expDate = new Date();
             expDate.setTime(expDate.getTime() + (15 * 60 * 1000)); // 15分钟后自动失效：避免用户不主动修改            
             $.cookie('board', JSON.stringify(res.data), { expires: expDate, path: '/' });  //把编辑中的board写入cookie便于添加item
-            //跳转到首页添加item
-            window.location.href = "../index.html?boardId="+res.data.id;//不带关键字，不指定用户
+            //提示已创建
+            siiimpleToast.message('清单已创建，请添加明细条目~~',{
+                  position: 'bottom|center'
+                });    
+            //前往首页
+            setTimeout(function(){
+              window.location.href = "index.html?boardId="+res.data.id;
+            },1000);            
         }
     }, "POST",data,header);
 }
@@ -448,7 +488,7 @@ function registerShareHandler(){
                 // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //准备分享的描述：优先采用推荐语、其次tagging、再次tags
-                var advice = "将多个商品放在一起，推荐效果更好。";      
+                var advice = "将多个商品放在一起，可以快速建立主题清单。";      
                 var title = "小确幸商品清单";
                 console.log("share title.",title);         
                 //分享到朋友圈

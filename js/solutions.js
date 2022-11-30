@@ -24,6 +24,14 @@ $(document).ready(function ()
     loadPerson(currentPerson);//加载用户
     //loadData();//加载数据：默认使用当前用户查询
 
+    //注册切换：清单、个性化定制
+    $("#mySolutionFilter").click(function(e){
+        window.location.href = "solutions.html";
+    });
+    $("#myBoardFilter").click(function(e){
+        window.location.href = "boards.html";
+    });
+
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
         changeActionType(e);

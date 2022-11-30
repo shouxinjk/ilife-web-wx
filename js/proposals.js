@@ -167,7 +167,9 @@ function createBoard(){
         tags:boardkeywords,
         poster:JSON.stringify({}),
         article:JSON.stringify({}),
-        keywords:boardkeywords
+        keywords:boardkeywords,
+        byNickname: app.globalData.userInfo.nickname,
+        byOpenid: app.globalData.userInfo.openid
     };
     util.AJAX(app.config.sx_api+"/mod/board/rest/board", function (res) {
         console.log("Broker::Board::AddBoard create board successfully.", res)
@@ -194,7 +196,8 @@ var broker = {
   nickname:"小确幸大生活"
 }
 function loadBrokerInfo(){
-  broker = util.getBrokerInfo();
+  broker = util.getBrokerInfo();//先设置为本地信息
+  loadBrokerByOpenid(app.globalData.userInfo._key);//重新加载
 }
 //load person
 function loadPerson(personId) {
@@ -234,9 +237,6 @@ function loadBrokerByOpenid(openid) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;          
-        }else{//如果不是达人，则直接跳转到第三方商城，便于成单
-            var  directUrl = window.location.href.replace(/info2/,"go");
-            window.location.href=directUrl;
         }
     });
 }
@@ -292,7 +292,7 @@ function searchCategory() {
                 //先显示board
                 insertCategoryItem({
                   id:"board",
-                  name:"快速组合"
+                  name:"主题组合清单"
                 });  
                 //然后逐个显示
                 data.forEach(function(item){
@@ -494,9 +494,9 @@ function insertItem(){
     var title = "<div class='fav-item-title'>"+item.name+"</div>";
     var author = "<div  class='author' style='font-size:12px;font-weight:bold;color:darkorange;margin:2px 0;'>"+item.author+"</div>";
     var tags = "<div style='display:flex;'>";
-    //如果是board，默认第一个添加 快速组合标签
+    //如果是board，默认第一个添加 主题组合清单标签
     if(item.type=="board"){
-        tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>快速组合</span>";      
+        tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>主题组合清单</span>";      
     }
     if(item.tags && item.tags.length>0){//装载标签
         item.tags.forEach(function(tag){

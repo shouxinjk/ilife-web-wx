@@ -116,6 +116,13 @@ function updateBoard(personaId){
     data.description = $("#boardDescription").val();
     data.tags = $("#boardKeywords").val();//tags直接用keywords
     data.keywords = $("#boardKeywords").val();
+    data.byOpenid = app.globalData.userInfo._key;
+    data.byNickname = app.globalData.userInfo.nickname;
+    if(currentBrokerId && currentBrokerId.trim().length>0){
+        data.broker = {
+            id: currentBrokerId
+        }
+    }
 
     util.AJAX(app.config.sx_api+"/mod/board/rest/board/"+boardId, function (res) {
         console.log("Broker::Board::UpdateBoard modify board successfully.", res)
@@ -169,7 +176,7 @@ function indexBoardDoc(){
             console.log("Broker::Board::UpdateBoard now jump to home page for item adding.", res)
             $.cookie('board', null,{ path: '/' });  //保存后从cookie里删除修改状态的board：注意需要和创建时保持路径一致
             window.location.href = "boards.html";//跳转到boards列表
-            //window.location.href = "../board2.html?id="+boardId;//跳转到board查看界面
+            //window.location.href = "board2.html?id="+boardId;//跳转到board查看界面
         }
     })     
 }

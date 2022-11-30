@@ -94,7 +94,7 @@ function createBoard(personaId){
                 icon: 'success'
             });
             setTimeout(function (){
-                window.location.href = "../index.html?keywords="+data.keywords;//默认使用关键字搜索
+                window.location.href = "index.html?keywords="+data.keywords;//默认使用关键字搜索
             },500);
         }
     }, "POST",data,header);

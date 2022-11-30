@@ -106,13 +106,13 @@ var boardItemTemplate = '<div class="board-item-wrapper">'+
 function showContent(board){
     //标题
     console.log("display edit button.[current broker id]"+broker.id+"[board broker id]"+board.broker.id);
-    if(broker && broker.id == board.broker.id){//如果是当前达人则可以直接修改
+    if(broker && broker.id == board.broker.id){//如果是达人，且为当前达人则可以直接修改
         $("#title").html(
             board.title
             +"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>"
-            +"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;' href='broker/boards-modify.html?id="+board.id+"'>修改</a>"
+            +"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;' href='boards-modify.html?id="+board.id+"'>修改</a>"
             );
-    }else if(broker && broker.id){//如果不是编辑达人，则先克隆后再需改
+    }else if(broker && broker.id){//如果是达人，但不是创建者，则先克隆后再需改
         $("#title").html(
             board.title
             +"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>"
@@ -123,15 +123,20 @@ function showContent(board){
             util.AJAX(app.config.sx_api+"/mod/board/rest/board/clone/"+board.id+"/"+broker.id, function (res) {
                 console.log("clone broker successfully.",res);
                 //跳转到编辑界面
-                window.location.href = "broker/boards-modify.html?id="+res.data.id;    
+                window.location.href = "boards-modify.html?id="+res.data.id;    
             },"POST",null,{ "Content-Type":"application/json" });            
         });
+    }else if(board.byNickname && board.byNickname == app.globalData.userInfo._key){//不是达人，但是当前board创建用户，可以修改
+        $("#title").html(
+            board.title
+            +"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;' href='boards-modify.html?id="+board.id+"'>修改</a>"
+            );
     }else{//普通用户则只显示标题
         $("#title").html(board.title);
     }
     
     //作者与发布时间
-    $("#author").html(board.broker.name?board.broker.name:app.globalData.userInfo.nickName);    //默认作者为board创建者
+    $("#author").html(board.byNickname?board.byNickname:app.globalData.userInfo.nickName);    //默认作者为board创建者
     $("#publish-time").html(board.updateDate.split(" ")[0]);   
 
     //摘要
@@ -639,7 +644,7 @@ function registerShareHandler(){
                 //分享给朋友
                 wx.onMenuShareAppMessage({
                     title:board&&board.title?board.title:"小确幸，大生活", // 分享标题
-                    desc:board.description&&board.description.trim().length>0?board.description.replace(/<br\/>/g,""):"Live is all about having a good time.", // 分享描述
+                    desc:board.description&&board.description.trim().length>0?board.description.replace(/<[^>]+>/g,""):"Live is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: board.logo?board.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
@@ -674,7 +679,7 @@ function registerShareHandler(){
                 //分享给朋友
                 wx.updateAppMessageShareData({
                     title:board&&board.title?board.title:"小确幸，大生活", // 分享标题
-                    desc:board.description&&board.description.trim().length>0?board.description.replace(/<br\/>/g,""):"Live is all about having a good time.", // 分享描述
+                    desc:board.description&&board.description.trim().length>0?board.description.replace(/<[^>]+>/g,""):"Live is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: board.logo?board.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标

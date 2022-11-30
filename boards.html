@@ -2,19 +2,19 @@
 <html>
 
 <head>
-    <title>定制方案 - 小确幸大生活</title>
+    <title>生活家-小确幸大生活</title>
     <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
     <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
-    <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="css/common.css">
-    <link rel="stylesheet" type="text/css" href="broker/css/boards.css">
+    <link rel="stylesheet" type="text/css" href="broker/css/broker.css">
     <link rel="stylesheet" type="text/css" href="publisher/css/publisher.css?v=1.03">
-    <link rel="stylesheet" type="text/css" href="css/favorite.css?v=1.5">
+    <link rel="stylesheet" type="text/css" href="css/boards.css?v=1.4">
     <link rel="stylesheet" type="text/css" href="css/waterfall.css">
-    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">  
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">         
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
 </head>
 
 <body>
@@ -57,24 +57,24 @@
         </div>                            
     </view>
 
+
     <div class="tips">
-        行程规划，体检项目，定义你的专属个性化方案~~
+        快速组合，可以把一个主题聚集在一起。<a id="filterBoardBtn" href="#"  style="font-size:12px;font-weight:bold;" >查看清单</a><!--a id="createBoardBtn" href="#">新建清单</a-->
     </div> 
 
     <div style="width:90%;text-align: center;margin:5px auto;display: flex;flex-direction: row;flex-wrap: nowrap;">
-        <div class='filter-selected' style="width:50%" id="mySolutionFilter">个性化定制</div>
-        <div class='filter' style="width:50%" id="myBoardFilter">主题组合清单</div>
+        <div class='filter' style="width:50%" id="mySolutionFilter">个性化定制</div>
+        <div class='filter-selected' style="width:50%" id="myBoardFilter">主题组合清单</div>
     </div>
 
-    <!-- 新建方案 -->
-    <div class='add-new-wrapper' id='createSolutionBtn' style="margin-top:10px;">
-        <div class='add-new-logo-wrapper'>+</div>
-        <div class='add-new-title' id="createProposalTip">开始个性化定制</div>
-    </div>
-
-    <!-- 瀑布流 -->
     <div id="Center">
-        <ul id="waterfall"></ul>
+        <ul id="waterfall">
+            <li><div class='add-new-wrapper' id='createBoardBtn'>
+                    <div class='add-new-logo-wrapper'>+</div>
+                    <div class='add-new-title'>添加新的主题组合清单</div>
+                </div>
+            </li>            
+        </ul>
     </div>
 
     <!-- 加载进度与提示 -->
@@ -83,8 +83,10 @@
     </div>
 
     <div id="footer" class="footer-hide">
-        没有更多了
+        我是有底线的
     </div>  
+
+    <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
 
   <div id="sx-menu">
     <a href="index.html" class="menu-btn">
@@ -105,29 +107,17 @@
     </a>        
   </div>
 
-    <div id="chooseSchemeForm" style="display:none; cursor: default;"> 
-            <div style="font-size:16px;font-weight:bold;line-height: 20px;">选择一个主题</div> 
-            <div id="proposalSchemesDiv"  style="display:flex;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin:10px auto;">
-                
-            </div>
-            <div>
-                <button type="submit" class="btnNo" id="btnCancel" style="font-size: 12px;padding:2px 5px;">取消</button>  
-                <button type="submit" class="btnYes" id="btnPublish" style="font-size: 12px;padding:2px 5px;">确定</button> 
-            </div>
-    </div> 
-
 </body>
 
-<!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
 <script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script> 
 <script type="text/javascript" src="js/newWaterfall.js"></script>
 <script type="text/javascript" src="js/swiper.min.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
-<script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
 <script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
-<script type="text/javascript" src="ext/jquery.blockUI.js"></script>
-<script type="text/javascript" src="js/util.js?v=4.0"></script>
-<script type="text/javascript" src="js/common.js?v=1.25"></script> 
-<script type="text/javascript" src="js/solutions.js?v=0.72"></script> 
+<script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+<script type="text/javascript" src="js/util.js?v=3.0"></script>
+<script type="text/javascript" src="js/common.js?v=1.34"></script> 
+<script type="text/javascript" src="js/boards.js?v=3.72"></script> 
 </html>
