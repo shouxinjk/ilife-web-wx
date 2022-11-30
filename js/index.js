@@ -1040,7 +1040,7 @@ function insertItem(){
     }    
     highlights += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name).replace("itemTag","itemTagDistributor");
     //highlights += '<span id="jumpbtn'+item._key+'" class="jumpbtn">&nbsp;&nbsp;立即前往&nbsp;&nbsp;</span>';
-    highlights += '<span id="addSelectionBtn'+item._key+'" class="jumpbtn">&nbsp;添加选品&nbsp;</span>';
+    highlights += '<span id="addSelectionBtn'+item._key+'" class="jumpbtn">&nbsp;加入选品&nbsp;</span>';
     highlights += "</div>";
 
     var profitTags = "";
@@ -1110,12 +1110,12 @@ function insertItem(){
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='title'>"+item.title+"</div>"
 
-    //添加清单按钮
+    //添加清单按钮 margin:2px;min-width:48px;text-align:center;
     var boartBtns = "";
     if(boardId){//如果有board信息则显示添加到清单按钮
         boartBtns = "<div class='itemTags'>";
-        boartBtns += "<a  id='btn-add-"+item._key+"-to-board' data-board='"+boardId+"' data-item='"+item._key+"' class='boardOption'>加入清单</a>&nbsp;";
-        boartBtns += "<a class='boardOption' href='broker/boards-modify.html?id="+boardId+"'>编辑清单</a>";
+        boartBtns += "<a  id='btn-add-"+item._key+"-to-board' data-board='"+boardId+"' data-item='"+item._key+"' class='boardOption' style='border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;'>加入清单</a>&nbsp;";
+        boartBtns += "<a class='boardOption' href='broker/boards-modify.html?id="+boardId+"' style='border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;'>编辑清单</a>";
         boartBtns += "</div>";
     }
 
