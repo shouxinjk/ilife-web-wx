@@ -39,7 +39,8 @@ $(document).ready(function ()
     //注册事件：点击搜索后重新查询meta category
     $("#findAll").click(function(){//注册搜索事件：点击搜索全部
         $("#categoryDiv").empty();
-        searchCategory();     
+        searchCategory();  
+        loadFeeds();//重新查询方案   
     });  
 
     //注册事件：点击后开始创建新的solution
@@ -53,7 +54,11 @@ $(document).ready(function ()
 
     //注册事件：点击开始创建按钮
     $("#createProposalBtn").click(function(){
-      if(categoryId && categoryId.trim().length>0){//如果已经选中了主题则直接创建
+      if(categoryId == "board"){//如果是board则直接创建
+          siiimpleToast.message('已创建组合清单，请添加条目~~',{
+            position: 'bottom|center'
+          });        
+      }else if(categoryId && categoryId.trim().length>0){//如果已经选中了主题则直接创建
         createSolution();
       }else{//否则需要选择主题
         //显示数据填报表单
@@ -204,9 +209,9 @@ function loadFeeds(){
 
 
 //搜索得到metaCategory
+var keyword = "*";
 function searchCategory() {
     console.log("Measures::searchCategory",$("#searchTxt").val());
-    var keyword = "*";
     if($("#searchTxt").val() && $("#searchTxt").val().trim().length>0)
       keyword = $("#searchTxt").val().trim();
     //直接查询
@@ -222,11 +227,16 @@ function searchCategory() {
         success:function(data){
             console.log("Feed::loadData success.",data);
             if(data.length == 0){//如果没有内容，则显示提示文字
-                $("#categoryDiv").append("<div style='font-size:12px;'>没有匹配的定制方案，请重新尝试</div>");
+                //$("#categoryDiv").append("<div style='font-size:12px;'>没有匹配的定制方案，请重新尝试</div>");
                 shownomore(true);
                 showloading(false);
-            }else{
-                //显示到界面
+            }else{//显示到界面
+                //先显示board
+                insertCategoryItem({
+                  id:"board",
+                  name:"快速组合"
+                });  
+                //然后逐个显示
                 data.forEach(function(item){
                     console.log("got item. ",item);
                     insertCategoryItem(item);                  
@@ -266,9 +276,197 @@ function resetItemsInterval(){
         width: width-20,//1列
         //width: columnWidth,//动态列宽，当前为2列
         delay: 100,
-    });    
+    });  
 }
 
+
+//根据选定的定制主题查询所有方案
+var complexQueryTpl = JSON.stringify({//搜索控制
+  from: (page.current + 1) * page.size,
+  size: page.size,
+  query: {
+    bool: {
+      must: [],
+      should: []
+    }
+  },    
+  sort: [
+    { "timestamp": { order: "desc" } },//最近操作的优先显示
+    { "_score": { order: "desc" } }//匹配高的优先显示
+  ]
+});
+
+//设置query
+function loadData() {
+    console.log("Feed::loadData",categoryId);
+    //默认查询：查询所有
+    var esQuery={
+        from:(page.current + 1) * page.size,
+        size:page.size,
+        query: {
+            match_all: {}
+        },
+        sort: [
+            { "timestamp": { order: "desc" }},
+            { "_score":   { order: "desc" }}
+        ]
+    };
+
+    //复杂查询：根据类型及scheme查询
+    var complexQuery = {//搜索控制
+                          from: (page.current + 1) * page.size,
+                          size: page.size,
+                          query: {
+                            bool: {
+                              must: [],
+                              should: []
+                            }
+                          },    
+                          sort: [
+                            { "timestamp": { order: "desc" } },//最近操作的优先显示
+                            { "_score": { order: "desc" } }//匹配高的优先显示
+                          ]
+                        };
+    //如果有关键词则根据关键词过滤，否则匹配全部
+    if(keyword && keyword.trim().length>1 && keyword!="*"){
+      complexQuery.query.bool.should.push({
+          match:{
+            full_text:keyword
+          }
+        });        
+    }
+
+    //如果选定了类目则过滤
+    if(categoryId && categoryId.trim().length>0){
+      if(categoryId=="board"){
+        complexQuery.query.bool.must.push({ //查询所有清单
+            match:{
+              type:"board"
+            }
+          }); 
+      }else{
+        complexQuery.query.bool.must.push({ //类型指定为solution
+            match:{
+              type:"solution"
+            }
+          }); 
+        complexQuery.query.bool.must.push({ //且根据scheme过滤
+            match:{
+              scheme:categoryId
+            }
+          });         
+      } 
+    }
+
+    //设置请求头
+    var esHeader = {
+      "Content-Type": "application/json",
+      "Authorization": "Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
+    };
+    var q = JSON.stringify(categoryId||(keyword&&keyword.trim().length>1)?complexQuery:esQuery);
+    console.log("try search.",q);
+    $.ajax({
+        url:"https://data.pcitech.cn/proposal/_search",
+        type:"post",
+        data:q,//根据是否有输入选择查询
+        headers:esHeader,
+        crossDomain: true,
+        timeout:3000,//设置超时
+        success:function(data){
+            console.log("Feed::loadData success.",data);
+            if(data.hits.total == 0 || data.hits.hits.length==0){//如果没有内容，则显示提示文字
+                shownomore(true);
+                showloading(false);
+            }else{
+                //更新总页数
+                var total = data.hits.total;
+                page.total = (total + page.size - 1) / page.size;
+                //更新当前翻页
+                page.current = page.current + 1;
+                //装载具体条目
+                var hits = data.hits.hits;
+                for(var i = 0 ; i < hits.length ; i++){
+                    items.push(hits[i]._source);
+                }
+                insertItem();
+                showloading(false);
+            }
+        },
+        complete: function (XMLHttpRequest, textStatus) {//调用执行后调用的函数
+            if(textStatus == 'timeout'){//如果是超时，则显示更多按钮
+              console.log("ajax超时",textStatus);
+              shownomore(true);
+            }
+        },
+        error: function () {//调用出错执行的函数
+            //请求出错处理：超时则直接显示搜索更多按钮
+            shownomore(true);
+          }
+    });
+  }
+
+
+//将item显示到页面
+//所属类型、名称、创建时间
+function insertItem(){
+    // 加载内容
+    var item = items[num-1];
+    console.log("try insert item.",num,item,items);
+    if(!item){
+      shownomore(true);
+      return;
+    }
+    //排重
+    if($("#"+item.itemkey).length>0)
+      return;
+
+    var imgWidth = 60;//固定为100
+    var imgHeight = 60;//随机指定初始值
+    //计算图片高度
+    var imgSrc = item.logo.replace(/\.avif/g,"");
+    var img = new Image();
+    img.src = imgSrc;
+    var orgWidth = img.width;
+    var orgHeight = img.height;
+    imgHeight = orgHeight/orgWidth*imgWidth;
+    //计算文字高度：按照1倍行距计算
+
+    var image = "<img src='"+imgSrc+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
+
+    var title = "<div class='fav-item-title'>"+item.name+"</div>";
+    var author = "<div  class='author' style='font-size:12px;font-weight:bold;color:darkorange;margin:2px 0;'>"+item.author+"</div>";
+    var tags = "<div style='display:flex;'>";
+    if(item.tags && item.tags.length>0){//装载标签
+        item.tags.forEach(function(tag){
+            if(tag&&tag.trim().length>0)
+                tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>"+tag+"</span>";
+        });
+    }
+    tags += "</div>";    
+    var description = "<div class='fav-item-title' style='width:92%;margin-top:2px;font-weight:normal;font-size:12px;line-height: 14px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 4;-webkit-box-orient: vertical;'>"+item.description+"</div>";
+    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' id='"+item.itemkey+"' data-type='"+item.type+"' style='margin:5px 0;'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags' style='vertical-align:middle;'>" +title + author +tags+ description+ "</div></li>");
+
+    num++;
+
+    //注册事件：跳转到方案查看界面
+    $("#"+item.itemkey).click(function(){
+        var type = $(this).data("type");
+        if(type=="solution"){
+          window.location.href = "solution.html?id="+item.itemkey;
+        }else if(type=="board"){
+          window.location.href = "board2-warterfall.html?id="+item.itemkey;
+        }else{
+          console.log("unknown type.",type);
+        }
+        
+    });
+
+    // 表示加载结束
+    loading = false;
+}
+
+/**
+//已废弃：直接从数据库加载定制方案。已调整为从索引获取
 //根据选定的定制主题查询所有方案
 function loadData() {
     console.log("Feed::loadData",categoryId);
@@ -375,53 +573,7 @@ function insertItem(){
     // 表示加载结束
     loading = false;
 }
-
-//将item显示到页面
-//所属类型、名称、创建时间
-function insertItemBak(){
-    // 加载内容
-    var item = items[num-1];
-    console.log("try insert item.",num,item,items);
-    if(!item){
-      shownomore(true);
-      return;
-    }
-    //排重
-    if($("#"+item.id).length>0)
-      return;
-
-    var imgWidth = 48;//固定为100
-    var imgHeight = random(50, 300);//随机指定初始值
-    //计算图片高度
-    var imgSrc = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
-    if(item.scheme && item.scheme.logo && item.scheme.logo.trim().length()>0)
-      imgSrc = item.scheme.logo;
-    var img = new Image();
-    img.src = imgSrc;
-    var orgWidth = img.width;
-    var orgHeight = img.height;
-    imgHeight = orgHeight/orgWidth*imgWidth;
-    //计算文字高度：按照1倍行距计算
-
-    var image = "<img src='"+imgSrc+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
-
-    var title = "<div class='title' style='font-size:12px;line-height: 14px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 4;-webkit-box-orient: vertical;'>"+item.name+"</div>"
-    $("#waterfall").append("<li><div id='"+item.id+"' style='display:flex;flex-direct:row;width:96%;height:50px;'>" 
-        + "<div style='width:15%;margin:auto;'>"+ image +"</div>"
-        + "<div style='width:25%;margin:auto 0px;font-size:12px;'>"+title+ "</div>"
-        + "<div style='width:60%;margin:auto 0px;font-size:12px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 4;-webkit-box-orient: vertical;'>"+ item.description +"</div>"
-        + "</div></li>");
-    num++;
-
-    //注册事件：跳转到方案查看界面
-    $("#"+item.id).click(function(){
-        window.location.href = "solution.html?id="+item.id;
-    });
-
-    // 表示加载结束
-    loading = false;
-}
-
+//**/
 
 //load predefined personas
 function loadPersonas() {

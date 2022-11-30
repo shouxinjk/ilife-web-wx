@@ -157,7 +157,10 @@ function saveSolutionInfo(solution){
         },  
         success:function(ret){
             console.log("===save solution done===\n",ret);
-            if(ret.success){ //取消浮框，并更新界面
+            if(ret.success){ 
+                //提交索引
+                indexSolutionDoc(solution);
+                //取消浮框，并更新界面
                 $("#solutionName").html(ret.data.name);
                 $("#content").html(ret.data.description);
                 $.unblockUI(); //直接取消即可
@@ -168,6 +171,49 @@ function saveSolutionInfo(solution){
             }
         }
     });
+}
+
+//提交索引。将整个文档提交ES建立所以，便于检索
+function indexSolutionDoc(solution){
+    var tags = [];
+    if(solution.scheme.type=="guide"){
+        tags.push("专家指南");
+    }else if(solution.scheme.type=="free"){
+        tags.push("个性化定制");
+    }
+    var logo = "http://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
+    if(solution.scheme && solution.scheme.logo && solution.scheme.logo.trim().length>0)
+      logo = solution.scheme.logo;
+    var doc = {
+        type: "solution", //固定为solution
+        scheme: solution.scheme.id,
+        itemkey: solution.id,   
+        name: solution.name,
+        description: solution.description, 
+        tags: tags,              
+        logo: logo,
+        author: solution.byNickname,
+        timestamp: new Date()
+    }    
+    console.log("try to index proposal doc.",doc,JSON.stringify(doc));
+    var data = {
+        records:[{
+            value:doc
+        }]
+    };
+    $.ajax({
+        url: app.config.message_api+"/topics/proposal",
+        type:"post",
+        data:JSON.stringify(data),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/vnd.kafka.json.v2+json",
+            "Accept":"application/vnd.kafka.v2+json"
+        },
+        success:function(result){
+            console.log("solution indexed.");
+            //window.location.href="index.html";
+        }
+    })     
 }
 
 //显示编辑当前条目表单
