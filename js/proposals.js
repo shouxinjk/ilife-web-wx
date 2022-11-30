@@ -32,6 +32,7 @@ $(document).ready(function ()
     $("body").css("background-color","#fff");//更改body背景为白色
 
     util.getUserInfo();//从本地加载cookie
+    loadBrokerInfo(); //从本地加载达人信息
     
     searchCategory();//默认发起类目检索
     loadFeeds();//默认查询所有方案
@@ -55,9 +56,8 @@ $(document).ready(function ()
     //注册事件：点击开始创建按钮
     $("#createProposalBtn").click(function(){
       if(categoryId == "board"){//如果是board则直接创建
-          siiimpleToast.message('已创建组合清单，请添加条目~~',{
-            position: 'bottom|center'
-          });        
+          console.log("try create board");
+          createBoard();       
       }else if(categoryId && categoryId.trim().length>0){//如果已经选中了主题则直接创建
         createSolution();
       }else{//否则需要选择主题
@@ -150,6 +150,52 @@ function createSolution(){
     });  
 }
 
+//创建一个空白board并等待添加内容
+function createBoard(){
+    var header={
+        "Content-Type":"application/json"
+    };     
+    var boardkeywords = "";
+    var data = {
+        broker:{
+            id:broker&&broker.id?broker.id:"system"
+        },
+        logo:"",
+        title:app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName+" 的推荐清单":"新的推荐清单",
+        //title:broker&&broker.name?broker.name+" 的推荐清单":"新的推荐清单",
+        description:"商品组合，能够按主题把商品聚集在一起",
+        tags:boardkeywords,
+        poster:JSON.stringify({}),
+        article:JSON.stringify({}),
+        keywords:boardkeywords
+    };
+    util.AJAX(app.config.sx_api+"/mod/board/rest/board", function (res) {
+        console.log("Broker::Board::AddBoard create board successfully.", res)
+        if(res.status){
+            console.log("Broker::Board::AddBoard now jump to home page for item adding.", res)
+            var expDate = new Date();
+            expDate.setTime(expDate.getTime() + (15 * 60 * 1000)); // 15分钟后自动失效：避免用户不主动修改
+            $.cookie('board', JSON.stringify(res.data), { expires: expDate, path: '/' });  //把编辑中的board写入cookie便于添加item
+            //显示提示浮框
+            siiimpleToast.message('清单已创建，请添加明细条目~~',{
+                  position: 'bottom|center'
+                });    
+            //前往首页
+            setTimeout(function(){
+              window.location.href = "index.html?boardId="+res.id;
+            },1000);                  
+        }
+    }, "POST",data,header);
+}
+
+//优先从cookie加载达人信息
+var broker = {
+  id:"77276df7ae5c4058b3dfee29f43a3d3b",//默认设为Judy达人
+  nickname:"小确幸大生活"
+}
+function loadBrokerInfo(){
+  broker = util.getBrokerInfo();
+}
 //load person
 function loadPerson(personId) {
     console.log("try to load person info.",personId);
@@ -181,6 +227,18 @@ function syncPerson(person){
             console.log("sync failed.",person);
         }
     });     
+}
+
+//根据openid查询加载broker
+function loadBrokerByOpenid(openid) {
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
+        if (res.status) {//将佣金信息显示到页面
+            broker = res.data;          
+        }else{//如果不是达人，则直接跳转到第三方商城，便于成单
+            var  directUrl = window.location.href.replace(/info2/,"go");
+            window.location.href=directUrl;
+        }
+    });
 }
 
 var sxInterval = null;
@@ -436,6 +494,10 @@ function insertItem(){
     var title = "<div class='fav-item-title'>"+item.name+"</div>";
     var author = "<div  class='author' style='font-size:12px;font-weight:bold;color:darkorange;margin:2px 0;'>"+item.author+"</div>";
     var tags = "<div style='display:flex;'>";
+    //如果是board，默认第一个添加 快速组合标签
+    if(item.type=="board"){
+        tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>快速组合</span>";      
+    }
     if(item.tags && item.tags.length>0){//装载标签
         item.tags.forEach(function(tag){
             if(tag&&tag.trim().length>0)
@@ -454,7 +516,7 @@ function insertItem(){
         if(type=="solution"){
           window.location.href = "solution.html?id="+item.itemkey;
         }else if(type=="board"){
-          window.location.href = "board2-warterfall.html?id="+item.itemkey;
+          window.location.href = "board2-waterfall.html?id="+item.itemkey;
         }else{
           console.log("unknown type.",type);
         }

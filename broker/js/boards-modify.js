@@ -120,13 +120,60 @@ function updateBoard(personaId){
     util.AJAX(app.config.sx_api+"/mod/board/rest/board/"+boardId, function (res) {
         console.log("Broker::Board::UpdateBoard modify board successfully.", res)
         if(res.status){
+            console.log("try index board.");
+            indexBoardDoc();
+        }
+    }, "PUT",data,header);
+}
+
+
+//提交索引。将整个文档提交ES建立所以，便于检索
+function indexBoardDoc(){
+    var tags = [];
+    if(board.tags && board.tags.trim().length>0){
+        board.tags.split(" ").forEach(function(tag){
+            if(tag&&tag.trim().length>0)
+                tags.push(tag.trim());
+        });
+    }
+    var logo = "http://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
+    if(board.logo && board.logo.trim().length>0)
+      logo = board.logo;
+    var doc = {
+        type: "board", //固定为board
+        scheme: "board",//直接以board类型填充
+        itemkey: board.id,   
+        name: board.title,
+        description: board.description, 
+        tags: tags,              
+        logo: logo,
+        //author: broker?broker.nickname:app.globalData.userInfo.nickname,
+        author: app.globalData.userInfo.nickname,
+        timestamp: new Date()
+    }    
+    console.log("try to index board doc.",doc,JSON.stringify(doc));
+    var data = {
+        records:[{
+            value:doc
+        }]
+    };
+    $.ajax({
+        url: app.config.message_api+"/topics/proposal",
+        type:"post",
+        data:JSON.stringify(data),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/vnd.kafka.json.v2+json",
+            "Accept":"application/vnd.kafka.v2+json"
+        },
+        success:function(res){
             console.log("Broker::Board::UpdateBoard now jump to home page for item adding.", res)
             $.cookie('board', null,{ path: '/' });  //保存后从cookie里删除修改状态的board：注意需要和创建时保持路径一致
             window.location.href = "boards.html";//跳转到boards列表
             //window.location.href = "../board2.html?id="+boardId;//跳转到board查看界面
         }
-    }, "PUT",data,header);
+    })     
 }
+
 
 //修改boardItem
 function updateBoardItem(item){

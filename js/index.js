@@ -892,6 +892,8 @@ function getBoard(){
         console.log("get board info from cookie.",boardInfo);
         var board = JSON.parse(boardInfo);
         boardId = board?board.id:null;
+        //显示清单操作提示条
+        $("#board-actions").css("display","block");
     }else{
       console.log("no board from cookie.",boardInfo);
     }
