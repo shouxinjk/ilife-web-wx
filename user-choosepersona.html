@@ -34,6 +34,10 @@
     <view class="info" id="user"></view>
     <!-- 按钮 --> 
     <view class="order" id="buttons">
+        <div class="order-cell" id="task" data-tagging="like view">
+            <img class="order-cell-icon-small" src="broker/images/task.png"/>
+            <div class="actiontype">生活家</div>
+        </div>          
         <div class="order-cell" id="favorite" data-tagging="like view favorite buy">
             <img class="order-cell-icon-small" src="images/favorite.png"/>
             <div class="actiontype">关注的物</div>
@@ -42,9 +46,13 @@
             <img class="order-cell-icon-small" src="images/connection.png"/>
             <div class="actiontype">关心的人</div>
         </div>   
+        <div class="order-cell" id="solutions" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/solutions.png"/>
+            <div class="actiontype">我的定制</div>
+        </div>          
         <div class="order-cell" id="user" data-tagging="share">
             <img class="order-cell-icon-small" src="images/user-selected.png"/>
-            <div class="actiontype-selected">个性设置</div>
+            <div class="actiontype-selected">我的设置</div>
         </div>                                     
     </view>
 
@@ -61,8 +69,8 @@
         <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
     </div>
 
-    <div id="footer" class="footer-hide">
-        我是有底线的
+    <div style="height:60px;">
+        &nbsp;&nbsp;
     </div>  
 
   <div id="sx-menu">
@@ -70,11 +78,15 @@
         <img src="images/smile-happy.png" width="20px" height="20px"/>
         <div class="menu-btn-txt">&nbsp;推荐</div>
     </a>
-    <a href="feeds.html" class="menu-btn">
-        <img src="images/biglist.png" width="20px" height="20px"/>
-        <div class="menu-btn-txt">&nbsp;发现</div>
+    <a href="measures.html" class="menu-btn">
+        <img src="images/measure.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;评价</div>
     </a>
-    <a href="user.html" class="menu-btn">
+    <a href="proposals.html" class="menu-btn">
+        <img src="images/proposal.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;定制</div>
+    </a>  
+    <a href="#" class="menu-btn">
         <img src="images/my-selected.png" width="20px" height="20px"/>
         <div class="menu-btn-txt-selected">&nbsp;我</div>
     </a>        
