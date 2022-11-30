@@ -230,9 +230,18 @@ function insertItem(){
         logo = item.logo;
 
     var image = "<img src='"+logo+"' style='width:60px;object-fit:cover;'/>";
-    var title = "<div class='title'>"+item.title+"</div>";
-    var description = "<div class='description'>"+item.description+"</div>";
-    var tags = "<div class='tags'>"+item.tags+"</div>";
+    var title = "<div class='title' style='margin-bottom:5px;'>"+item.title+"</div>";
+    var description = "<div class='description' style='margin-top:5px;'>"+item.description+"</div>";
+    //tag区分是自由定制还是专家指南 
+    var tags = "<div style='display:flex;'>";
+    if(item.tags && item.tags.trim().length>0){
+        item.tags.split(" ").forEach(function(tag){
+            if(tag&&tag.trim().length>0)
+                tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>"+tag+"</span>"; 
+        });
+    }
+    tags += "</div>"; 
+
     var btns = "<div class='btns'><a href='#' style='font-size:12px;'>"+(item.byOpenid == userInfo._key?"编辑":"克隆")+"</a>&nbsp;<a href='board2-waterfall.html?id="+item.id+"' style='font-size:12px;'>分享海报</a>&nbsp;<a href='board2-material.html?id="+item.id+"' style='font-size:12px;'>分享图文内容</a></div>";
     if(item.byOpenid == userInfo._key){
         btns = "<div class='btns'><a href='index.html?keyword="+item.keywords+"&boardId="+item.id+"' style='font-size:12px;'>添加商品</a>&nbsp;<a href='#' style='font-size:12px;'>"+(item.byOpenid == userInfo._key?"编辑":"克隆")+"</a>&nbsp;<a href='board2-waterfall.html?id="+item.id+"' style='font-size:12px;'>分享海报</a>&nbsp;<a href='board2-material.html?id="+item.id+"' style='font-size:12px;'>分享图文内容</a>&nbsp;<span id='btnPush"+item.id+"' style='color:#E16531;font-size:12px;'>云推送</span></div>";

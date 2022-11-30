@@ -273,12 +273,20 @@ function insertItem(){
     var image = "<img src='"+imgSrc+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
 
     var title = "<div class='fav-item-title'>"+item.name+"</div>";
-    var author = "";
-    if(item.byNickname){
-      author = "<div  class='author' style='font-size:12px;font-weight:bold;color:darkorange;margin:2px 0;'>"+item.byNickname+"</div>";
-    }      
+    var author = "<div  class='author' style='font-size:12px;font-weight:bold;color:darkorange;margin:2px 0;'>"+(item.byNickname?item.byNickname:"小确幸")+"</div>";
+    
+    //tag区分是自由定制还是专家指南 
+    var tags = "<div style='display:flex;'>";
+    if(item.scheme&&item.scheme.type=="guide"){
+        tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>专家指南</span>";      
+    }else if(item.scheme&&item.scheme.type=="free"){
+        tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>个性定制</span>";      
+    }else{
+        //do nothing
+    }
+    tags += "</div>";       
     var description = "<div class='fav-item-title' style='width:92%;font-weight:normal;font-size:12px;line-height: 14px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 4;-webkit-box-orient: vertical;'>"+item.description+"</div>";
-    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' id='"+item.id+"'  style='margin:5px 0;'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags' style='vertical-align:middle;'>" +title + author  + description+ "</div></li>");
+    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' id='"+item.id+"'  style='margin:5px 0;'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags' style='vertical-align:middle;'>" +title + author +tags + description+ "</div></li>");
  
 
 
