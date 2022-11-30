@@ -29,6 +29,18 @@ $(document).ready(function ()
     $("body").css("background-color","#fff");//更改body背景为白色
 
     util.getUserInfo();//从本地加载cookie
+    //加载达人信息
+    loadBrokerInfo();
+
+    loadPerson(currentPerson);//加载用户
+
+    //注册事件：切换操作类型
+    $(".order-cell").click(function(e){
+        changeActionType(e);
+    });
+
+
+
     //设置浏览用户
     /*
     if(app.globalData.userInfo){
@@ -43,9 +55,11 @@ $(document).ready(function ()
     //loadData();//加载数据：默认使用当前用户查询
     
     //同步用户信息，直接从首页进入后需要同步用户昵称及头像
+    /**
     if(app.globalData.userInfo&&app.globalData.userInfo._key){//如果本地已有用户则直接加载
         loadPerson(app.globalData.userInfo._key);//加载用户
     }
+    //**/
 });
 
 var columnWidth = 300;//默认宽度300px
@@ -88,6 +102,13 @@ var personKeys = [];//标记已经加载的用户key，用于排重
 
 var inputPerson = null;//接收指定的personId或personaId
 
+//优先从cookie加载达人信息
+function loadBrokerInfo(){
+  broker = util.getBrokerInfo();
+  currentBroker = broker.id;
+}
+
+/**
 //load person
 function loadPerson(personId) {
     console.log("try to load person info.",personId);
@@ -97,6 +118,32 @@ function loadPerson(personId) {
         //loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
 }
+//**/
+
+//load person
+function loadPerson(personId) {
+    console.log("try to load person info.",personId);
+    util.AJAX(app.config.data_api+"/user/users/"+personId, function (res) {
+        console.log("load person info.",personId,res);
+        syncPerson(res);//提交用户昵称到后端
+        //loadBrokerByOpenid(res._key);//根据openid加载broker信息
+        insertPerson(res);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
+        //loadData();
+        loadBrokerByOpenid(res._key);//根据openid加载broker信息        
+    });
+}
+
+//根据openid查询加载broker
+function loadBrokerByOpenid(openid) {
+    console.log("try to load broker info by openid.[openid]",openid);
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
+        console.log("load broker info.",openid,res);
+        if (res.status) {
+            insertBroker(res.data);//显示达人信息
+        }
+    });
+}
+
 //同步用户信息：将用户昵称及头像同步到后台
 function syncPerson(person){
     //同时更新broker的nickname及avatarUrl：由于微信不能静默获取，导致broker内缺乏nickname及avatarUrl
@@ -321,19 +368,21 @@ function loadPersons() {
 function showSwiper(){
     //将用户装载到页面
     for (var i = 0; i < persons.length; i++) {
-      insertPerson(persons[i]);
+      insertPersonItem(persons[i]);
     }    
     //显示滑动条
     var mySwiper = new Swiper ('.swiper-container', {
         slidesPerView: 7,
     });  
     //调整swiper 风格，使之悬浮显示
+    /**
     $(".swiper-container").css("position","fixed");
     $(".swiper-container").css("left","0");
     $(".swiper-container").css("top","0");
     $(".swiper-container").css("z-index","999");
     $(".swiper-container").css("background-color","#fff");
     //$(".swiper-container").css("margin-bottom","3px");
+    //**/
   
     //将当前用户设为高亮  
     if(inputPerson && personKeys.indexOf(inputPerson)>-1 && persons[personKeys.indexOf(inputPerson)]){//有输入用户信息则优先使用
@@ -355,7 +404,7 @@ function showSwiper(){
 </view>
 */
 
-function insertPerson(person){
+function insertPersonItem(person){
     // 显示HTML
     var html = '';
     html += '<div class="swiper-slide">';
@@ -383,6 +432,29 @@ function insertPerson(person){
           changePerson(e.currentTarget.dataset.type,e.currentTarget.id,e.currentTarget.dataset.tagging);
       });
     }
+}
+
+var currentActionType = '';//当前操作类型
+function changeActionType (e) {
+    console.log("now try to change action type.",e);
+    //首先清除原来高亮状态
+    if(currentActionType.trim().length>0){
+        $("#"+currentActionType+" img").attr("src","images/"+currentActionType+".png"); 
+        $("#"+currentActionType+" div").removeClass("actiontype-selected");
+        $("#"+currentActionType+" div").addClass("actiontype");  
+    }  
+    //更改并高亮显示
+    currentActionType = e.currentTarget.id;
+    tagging = e.currentTarget.dataset.tagging;
+    if (app.globalData.isDebug) console.log("User::ChangeActionType change action type.",currentActionType,tagging);
+    if(currentActionType.trim().length>0){
+        $("#"+currentActionType+" img").attr("src","images/"+currentActionType+"-selected.png"); 
+        $("#"+currentActionType+" div").removeClass("actiontype");
+        $("#"+currentActionType+" div").addClass("actiontype-selected");  
+    } 
+
+    //跳转到相应页面
+    window.location.href = currentActionType+".html";
 }
 
 //显示没有更多内容
