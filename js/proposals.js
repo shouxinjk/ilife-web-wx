@@ -182,9 +182,11 @@ function createBoard(){
         console.log("Broker::Board::AddBoard create board successfully.", res)
         if(res.status){
             console.log("Broker::Board::AddBoard now jump to home page for item adding.", res)
+            /**
             var expDate = new Date();
             expDate.setTime(expDate.getTime() + (15 * 60 * 1000)); // 15分钟后自动失效：避免用户不主动修改            
             $.cookie('board', JSON.stringify(res.data), { expires: expDate, path: '/' });  //把编辑中的board写入cookie便于添加item
+            //**/
             //提示已创建
             siiimpleToast.message('清单已创建，请添加条目~~',{
                   position: 'bottom|center'
