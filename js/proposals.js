@@ -46,7 +46,15 @@ $(document).ready(function ()
 
     //注册事件：点击后开始创建新的solution
     $("#btnPublish").click(function(){
-      createSolution();
+      //createSolution();
+      if(categoryId == "board"){//如果是board则直接创建
+          console.log("try create board");
+          createBoard();       
+      }else if(categoryId && categoryId.trim().length>0){//如果已经选中了主题则直接创建
+        createSolution();
+      }else{
+        console.log("unkonw type. ignore.");
+      }      
     }) 
     //取消充值
     $("#btnCancel").click(function(e){
@@ -150,42 +158,41 @@ function createSolution(){
     });  
 }
 
-//创建一个空白board并等待添加内容
+//创建一个空白board并且跳转到首页，等待添加内容
 function createBoard(){
     var header={
         "Content-Type":"application/json"
     };     
-    var boardkeywords = "";
+    var authorName = app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName:"小确幸";
     var data = {
         broker:{
             id:broker&&broker.id?broker.id:"system"
         },
-        logo:"",
-        title:app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName+" 的推荐清单":"新的推荐清单",
-        //title:broker&&broker.name?broker.name+" 的推荐清单":"新的推荐清单",
-        description:"商品组合，能够按主题把商品聚集在一起",
-        tags:boardkeywords,
+        byOpenid: app.globalData.userInfo._key,
+        byNickname: app.globalData.userInfo.nickName,
+        logo:"https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png",
         poster:JSON.stringify({}),
-        article:JSON.stringify({}),
-        keywords:boardkeywords,
-        byNickname: app.globalData.userInfo.nickname,
-        byOpenid: app.globalData.userInfo.openid
+        article:JSON.stringify({}),          
+        title:authorName?authorName+" 的推荐清单":"新推荐清单",
+        description:"根据你的需求，我们精心挑选了以下清单，请查收",
+        tags:"",
+        keywords:""
     };
     util.AJAX(app.config.sx_api+"/mod/board/rest/board", function (res) {
         console.log("Broker::Board::AddBoard create board successfully.", res)
         if(res.status){
             console.log("Broker::Board::AddBoard now jump to home page for item adding.", res)
             var expDate = new Date();
-            expDate.setTime(expDate.getTime() + (15 * 60 * 1000)); // 15分钟后自动失效：避免用户不主动修改
+            expDate.setTime(expDate.getTime() + (15 * 60 * 1000)); // 15分钟后自动失效：避免用户不主动修改            
             $.cookie('board', JSON.stringify(res.data), { expires: expDate, path: '/' });  //把编辑中的board写入cookie便于添加item
-            //显示提示浮框
-            siiimpleToast.message('清单已创建，请添加明细条目~~',{
+            //提示已创建
+            siiimpleToast.message('清单已创建，请添加条目~~',{
                   position: 'bottom|center'
                 });    
             //前往首页
             setTimeout(function(){
-              window.location.href = "index.html?boardId="+res.id;
-            },1000);                  
+              window.location.href = "index.html?boardId="+res.data.id;
+            },1000);            
         }
     }, "POST",data,header);
 }

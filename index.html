@@ -16,6 +16,7 @@
 </head>
 
 <body>
+    <div id="action-place-holder" style="line-height: 24px;display:none;width:100%;font-size:12px;">正在编辑清单，请选择商品加入</div>
     <div class="header">
         <div class="search">
             <span style="margin-left:-10px">&nbsp;</span>
@@ -42,9 +43,9 @@
 
     <div id="no-results-tip" class="no-result-tip-hide">没找到符合条件的内容，请重新搜索</div>
 
-    <div id="board-actions" class="no-persona-tip-hide">
-        <span>正在编辑清单，请选择商品加入</span>
-        <a id="share-link" href="#" style="background-color: #ff6347; border-color:#ff6347;line-height: 28px;">&nbsp;&nbsp;立即分享&nbsp;&nbsp;</a>
+    <div id="board-actions" class="share-btn" style="background-color: #f6d0ca;border:0;display:none;text-align: center;font-size: 12px;position:fixed;z-index: 9;top:0;width:100%;line-height:18px;">
+        <div style="display:inline;color:grey;font-size: 12px;">正在编辑清单，请选择商品加入</div>
+        <a id="share-link" href="#" style="background-color: #ff6347; border-color:#ff6347;line-height: 28px;">&nbsp;&nbsp;完成编辑&nbsp;&nbsp;</a>
     </div>
 
     <div id="Center">
@@ -61,9 +62,9 @@
     <div id="share-box" class="share-box-hide">
         <div id="share-tips" class="share-tips">立即分享</div>
         <div id="share-bonus" class="share-bonus"></div>
-        <div id="share-btn" class="share-btn">
+        <div id="share-btn" class="share-btn" style="margin-top:5px;">
             <!--div id="share-instruction">清单分享更高效</div-->
-            <a id="addNewItemBtn" href="#" style="background-color: #00bfff;border-color: #00bfff;line-height: 24px;">增加商品</a>
+            <a id="addNewItemBtn" href="#" style="background-color: #00bfff;border-color: #00bfff;line-height: 24px;">发布商品</a>
             <a id="goSelectionBtn" href="#" style="background-color: #50c878;border-color: #50c878;line-height: 28px;">我的选品</a>
         </div>
     </div>  
@@ -112,5 +113,5 @@
 <script type="text/javascript" src="js/util.js?v=2.61"></script>
 <script type="text/javascript" src="js/options.js?v=1.03"></script>
 <script type="text/javascript" src="js/helper.js?v=1.11"></script>
-<script type="text/javascript" src="js/index.js?v=11.16"></script>
+<script type="text/javascript" src="js/index.js?v=11.18"></script>
 </html>

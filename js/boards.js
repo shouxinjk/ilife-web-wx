@@ -407,14 +407,14 @@ function createBoard(){
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     };     
-    var authorName = app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName:null;
+    var authorName = app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName:"小确幸";
     var data = {
         broker:{
             id:currentBroker?currentBroker:"system"
         },
         byOpenid: app.globalData.userInfo._key,
         byNickname: app.globalData.userInfo.nickName,
-        logo:"",
+        logo:"https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png",
         poster:JSON.stringify({}),
         article:JSON.stringify({}),          
         title:authorName?authorName+" 的推荐清单":"新推荐清单",
@@ -430,7 +430,7 @@ function createBoard(){
             expDate.setTime(expDate.getTime() + (15 * 60 * 1000)); // 15分钟后自动失效：避免用户不主动修改            
             $.cookie('board', JSON.stringify(res.data), { expires: expDate, path: '/' });  //把编辑中的board写入cookie便于添加item
             //提示已创建
-            siiimpleToast.message('清单已创建，请添加明细条目~~',{
+            siiimpleToast.message('清单已创建，请添加条目~~',{
                   position: 'bottom|center'
                 });    
             //前往首页

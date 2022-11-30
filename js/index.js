@@ -55,6 +55,7 @@ $(document).ready(function ()
             id:boardId
         };
         $.cookie('board', JSON.stringify(board), { expires: 3650, path: '/' });  //把编辑中的board写入cookie。能够跳转到其他页面继续添加
+        showBoardActions();//顶部显示清单操作按钮
     }
     getBoard();//从cookie内加载
 
@@ -149,6 +150,33 @@ var filter = "";//通过filter区分好价、好物、附近等不同查询组�
 
 var categoryTagging = "";//记录目录切换标签，tagging = categoryTagging + currentPersonTagging
 
+
+//显示board操作提示
+function showBoardActions(){
+    if(boardId && boardId.trim().length > 0){//如果已经有在编辑清单，则直接显示发布按钮
+      //显示清单操作提示条
+      $("#board-actions").css("display","block");
+      $("#action-place-holder").css("display","block");//同时显示占位符，避免遮挡搜索框      
+      //分享链接：默认用图片列表形式
+      $("#share-instruction").html("选取商品并<br/>添加到清单");
+      $("#share-link").html("完成编辑");
+      $("#share-link").attr("href","board2-waterfall.html?id="+boardId);
+      //设置提示
+      //$("#share-bonus").html("推广提示");       
+    }else{//否则显示创建按钮
+      //分享链接：默认用图片列表形式
+      $("#share-instruction").html("清单能够将多个商品<br/>一起打包推送");
+      $("#share-link").html("创建清单");
+      $("#share-link").click(function(event){//注册点击事件
+          if(broker.id){
+            createBoard();//直接建立一个清单
+          }else{
+            console.log("fatal error. there is no broker info. please check.......");
+          }
+          
+      });   
+    }  
+}
 
 //load person
 function loadPerson(personId) {
@@ -892,8 +920,6 @@ function getBoard(){
         console.log("get board info from cookie.",boardInfo);
         var board = JSON.parse(boardInfo);
         boardId = board?board.id:null;
-        //显示清单操作提示条
-        $("#board-actions").css("display","block");
     }else{
       console.log("no board from cookie.",boardInfo);
     }
@@ -1822,28 +1848,6 @@ function showShareContent(){
         //显示浮框  
         $("#share-box").toggleClass("share-box",true);
         $("#share-box").toggleClass("share-box-hide",false);   
-        if(boardId && boardId.trim().length > 0){//如果已经有在编辑清单，则直接显示发布按钮
-          //分享链接：默认用图片列表形式
-          $("#share-instruction").html("选取商品并<br/>添加到清单");
-          $("#share-link").html("分享清单");
-          $("#share-link").attr("href","board2-waterfall.html?id="+boardId);
-          //设置提示
-          //$("#share-bonus").html("推广提示");       
-        }else{//否则显示创建按钮
-          //分享链接：默认用图片列表形式
-          $("#share-instruction").html("清单能够将多个商品<br/>一起打包推送");
-          $("#share-link").html("创建清单");
-          $("#share-link").click(function(event){//注册点击事件
-              if(broker.id){
-                createBoard();//直接建立一个清单
-              }else{
-                console.log("fatal error. there is no broker info. please check.......");
-              }
-              
-          });
-          //设置提示
-          //$("#share-bonus").html("推广提示");     
-        }
     }else{
         $("#share-bonus").toggleClass("share-bonus",false);
         $("#share-bonus").toggleClass("share-bonus-hide",true);
