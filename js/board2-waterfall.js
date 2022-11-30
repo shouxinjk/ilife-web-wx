@@ -116,9 +116,9 @@ function showContent(board){
         $("#title").html(
             board.title
             +"&nbsp;<a style='color:#E16531;display:inline;font-size:12px;' href='#' id='btnPush'>云推送</a>"
-            +"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;'>克隆</a>"
+            +"&nbsp;<a style='color:#006cfd;display:inline;font-size:12px;' id='cloneBoardBtn'>克隆</a>"
             );
-        $("#cloneBoardBtn").click(function(){
+        $("#cloneBoardBtn").click(function(){ //注意：当前仅支持达人克隆，不支持用户直接克隆
             console.log("try to clone board.[boardId]"+board.id+"[brokerId]"+broker.id);
             util.AJAX(app.config.sx_api+"/mod/board/rest/board/clone/"+board.id+"/"+broker.id, function (res) {
                 console.log("clone broker successfully.",res);
@@ -136,7 +136,7 @@ function showContent(board){
     }
     
     //作者与发布时间
-    $("#author").html(board.byNickname?board.byNickname:app.globalData.userInfo.nickName);    //默认作者为board创建者
+    $("#author").html(board.byNickname?board.byNickname:"小确幸");    //默认作者为board创建者
     $("#publish-time").html(board.updateDate.split(" ")[0]);   
 
     //摘要
@@ -235,7 +235,7 @@ function loadBrokerByOpenid(openid) {
         if (res.status) {//将佣金信息显示到页面
             broker = res.data;
             loadWxGroups(res.data.id);//加载该达人的微信群
-            $("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board     
+            //$("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board     
             $("#sharebox").css("display","block");      //仅对达人显示分享框
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
@@ -281,7 +281,7 @@ function loadBrokerById(brokerId) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerById/"+brokerId, function (res) {
         console.log("load broker info.",brokerId,res);
         if (res.status) {//将佣金信息显示到页面
-            $("#author").html(res.data.nickname);    //如果当前用户是达人，则转为其个人board           
+            //$("#author").html(res.data.nickname);    //如果当前用户是达人，则转为其个人board           
         }
         //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
         registerShareHandler();
