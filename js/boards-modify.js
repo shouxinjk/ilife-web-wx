@@ -131,14 +131,14 @@ function updateBoard(personaId){
         console.log("Broker::Board::UpdateBoard modify board successfully.", res)
         if(res.status){
             console.log("try index board.");
-            indexBoardDoc();
+            indexBoardDoc(data);//需要使用当前board传递
         }
     }, "PUT",data,header);
 }
 
 
 //提交索引。将整个文档提交ES建立所以，便于检索
-function indexBoardDoc(){
+function indexBoardDoc(board){
     var tags = [];
     if(board.tags && board.tags.trim().length>0){
         board.tags.split(" ").forEach(function(tag){
