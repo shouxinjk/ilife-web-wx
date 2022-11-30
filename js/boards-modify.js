@@ -41,7 +41,10 @@ $(document).ready(function ()
     });
     $("#deleteBtn").click(function(){//取消则返回board列表界面
         window.location.href="boards.html";
-    });      
+    });   
+    $("#addMoreItemBtn").click(function(){
+        window.location.href="index.html?boardId="+boardId;
+    });   
 
 });
 
