@@ -957,7 +957,7 @@ function registerShareHandler(){
                 //分享给朋友
                 wx.onMenuShareAppMessage({
                     title:(categoryName&&categoryName.trim().length>0?categoryName:"小确幸大生活")+"排行榜", // 分享标题
-                    desc:"客观的排行榜，不仅有完整的评价体系，也有全面的数据，提供更多更真实的信息", // 分享描述
+                    desc:"完整的评价体系，全面的数据，发现更多更真实的信息", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
@@ -992,7 +992,7 @@ function registerShareHandler(){
                 //分享给朋友
                 wx.updateAppMessageShareData({
                     title:(categoryName&&categoryName.trim().length>0?categoryName:"小确幸大生活")+"排行榜", // 分享标题
-                    desc:"客观的排行榜，不仅有完整的评价体系，也有全面的数据，提供更多更真实的信息", // 分享描述
+                    desc:"完整的评价体系，全面的数据，发现更多更真实的信息", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
