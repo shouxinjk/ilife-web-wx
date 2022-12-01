@@ -40,6 +40,11 @@ $(document).ready(function ()
         $("#categoryDiv").empty();
         searchCategory();     
     });     
+
+    //加载broker信息
+    loadBrokerInfo();
+    //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
+    registerShareHandler();  
 });
 
 var width = 600;
@@ -69,6 +74,16 @@ var currentPersonType = "person";//当前选中的是用户还是画像，默认
 var personKeys = [];//标记已经加载的用户key，用于排重
 
 var inputPerson = null;//接收指定的personId或personaId
+
+//临时用户
+var tmpUser = "";
+//优先从cookie加载达人信息
+var broker = {
+  id:"system"
+};//当前达人
+function loadBrokerInfo(){
+  broker = util.getBrokerInfo();
+}
 
 //load person
 function loadPerson(personId) {
@@ -861,3 +876,139 @@ function getDateDiff(dateTimeStamp) {
     return result;
 }
 
+
+function registerShareHandler(){
+    //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system
+    var shareBrokerId = "system";//默认为平台直接分享
+    if(broker&&broker.id){//如果当前分享用户本身是达人，则直接引用其自身ID
+        shareBrokerId=broker.id;
+    }else if(fromBroker && fromBroker.trim().length>0){//如果当前用户不是达人，但页面带有前述达人，则使用前述达人ID
+        shareBrokerId=fromBroker;
+    }
+    //计算分享用户：如果是注册用户则使用当前用户，否则默认为平台用户
+    var shareUserId = "system";//默认为平台直接分享
+    if(tmpUser&&tmpUser.trim().length>0){//如果是临时用户进行记录。注意有时序关系，需要放在用户信息检查之前。
+        shareUserId = tmpUser;
+    }
+    if(app.globalData.userInfo && app.globalData.userInfo._key){//如果为注册用户，则使用当前用户
+        shareUserId = app.globalData.userInfo._key;
+    }
+
+    //准备分享url，需要增加分享的 fromUser、fromBroker信息
+    var shareUrl = window.location.href.replace(/measures/g,"share");//需要使用中间页进行跳转
+    if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
+        shareUrl += "&fromUser="+shareUserId;
+        shareUrl += "&fromBroker="+shareBrokerId;
+    }else{//否则作为第一个参数增加
+        shareUrl += "?fromUser="+shareUserId;
+        shareUrl += "&fromBroker="+shareBrokerId;        
+    }
+    //添加categoryId
+    if(categoryId && categoryId.trim().length>0){
+      shareUrl += "&categoryId="+categoryId;
+    }
+    shareUrl += "&origin=measures";//添加源，表示是一个列表页分享
+
+    $.ajax({
+        url:app.config.auth_api+"/wechat/jssdk/ticket",
+        type:"get",
+        data:{url:window.location.href},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
+        success:function(json){
+            console.log("===got jssdk ticket===\n",json);
+            wx.config({
+                debug:false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: json.appId, // 必填，公众号的唯一标识
+                timestamp:json.timestamp , // 必填，生成签名的时间戳
+                nonceStr: json.nonceStr, // 必填，生成签名的随机串
+                signature: json.signature,// 必填，签名
+                jsApiList: [
+                   // 'onMenuShareTimeline', 'onMenuShareAppMessage','onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone',
+                  'updateAppMessageShareData',
+                  'updateTimelineShareData',
+                  'onMenuShareAppMessage',
+                  'onMenuShareTimeline',
+                  'chooseWXPay',
+                  'showOptionMenu',
+                  "hideMenuItems",
+                  "showMenuItems",
+                  "onMenuShareTimeline",
+                  'onMenuShareAppMessage'                   
+                ] // 必填，需要使用的JS接口列表
+            });
+            wx.ready(function() {
+                // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
+                // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                //分享到朋友圈
+                wx.onMenuShareTimeline({
+                    title:(categoryName&&categoryName.trim().length>0?categoryName:"小确幸大生活")+"排行榜", // 分享标题
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    success: function () {
+                        // 用户点击了分享后执行的回调函数
+                        //TODO: solution分享当前不记录
+                        /*
+                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到朋友圈",res);
+                        }); 
+                        //**/
+                    },
+                });
+                //分享给朋友
+                wx.onMenuShareAppMessage({
+                    title:(categoryName&&categoryName.trim().length>0?categoryName:"小确幸大生活")+"排行榜", // 分享标题
+                    desc:"客观的排行榜，不仅有完整的评价体系，也有全面的数据，提供更多更真实的信息", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: "http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                    success: function () {
+                      // 用户点击了分享后执行的回调函数
+                      //TODO:solution分享当前不记录
+                      /**
+                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到微信",res);
+                        }); 
+                        //**/
+                    }
+                });   
+                //分享到朋友圈
+                wx.updateTimelineShareData({
+                    title:(categoryName&&categoryName.trim().length>0?categoryName:"小确幸大生活")+"排行榜", // 分享标题
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    success: function () {
+                        // 用户点击了分享后执行的回调函数
+                        //TODO: solution分享当前不记录
+                        /*
+                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到朋友圈",res);
+                        }); 
+                        //**/
+                    },
+                });
+                //分享给朋友
+                wx.updateAppMessageShareData({
+                    title:(categoryName&&categoryName.trim().length>0?categoryName:"小确幸大生活")+"排行榜", // 分享标题
+                    desc:"客观的排行榜，不仅有完整的评价体系，也有全面的数据，提供更多更真实的信息", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: "http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                    success: function () {
+                      // 用户点击了分享后执行的回调函数
+                      //TODO:solution分享当前不记录
+                      /**
+                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到微信",res);
+                        }); 
+                        //**/
+                    }
+                });                          
+            });
+        }
+    })    
+}

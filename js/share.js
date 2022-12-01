@@ -37,6 +37,8 @@ $(document).ready(function ()
         state="broker/boards"+args;
     }else if(origin && origin =="solution"){//显示所有清单。达人入口为模板消息
         state="solution"+args;
+    }else if(origin && origin =="measures"){//进入measure排行榜清单
+        state="measures"+args;
     }
 
 
