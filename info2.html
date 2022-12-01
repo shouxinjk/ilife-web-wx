@@ -26,11 +26,12 @@
         </div>
     </div-->
 
-
+<section style="position:sticky;z-index: 9;top:0;background-color: #fff;">
     <div class="nav">
         <ul class="navUl">
         </ul>
     </div>
+</section>
 
     <div id="body">
         <div class="imageslide">
@@ -39,9 +40,11 @@
 
         <div id="title" class="title side"></div>
         <!--price&coupon-->
-        <div id="itemTagging-summary" class="itemTagging-summary"></div>
-        <div id="profit" class="side profit-hide"></div>
-        <div id="tags" class="side"></div>
+        <div style="display:flex;flex-direction: row;">
+            <div id="itemTagging-summary" class="itemTagging-summary" style="width:65%"></div>
+            <div id="profit" class="side profit-hide" style="display: table-cell;width:35%;text-align: right;padding-right: 10px;"></div>
+        </div>
+        <div id="tags" class="side" style="margin-top:0;"></div>
         <!--div id="score">
             <div class="comment"></div>
             <div class="price"></div>
@@ -60,6 +63,7 @@
 
 
         <div id="tabs" style="margin-top:5px">
+<section style="position:sticky;z-index: 8;top:45px;background-color: #fff;">            
           <ul>
             <li><a href="#tabs-data">数说</a></li>
             <li><a href="#tabs-images">图说</a></li>
@@ -67,6 +71,7 @@
             <!--li><a href="#tabs-seller">卖家说</a></li-->
             
           </ul>  
+</section>          
           <!-- 图说：图片列表 -->
           <div id="tabs-images">
             <div id="content"></div> 
@@ -223,6 +228,6 @@
 <script type="text/javascript" src="js/options.js?v=1.04"></script>
 <script type="text/javascript" src="js/helper.js?v=1.13"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script>
-<script type="text/javascript" src="js/info2.js?v=9.33"></script>
+<script type="text/javascript" src="js/info2.js?v=9.34"></script>
 <script type="text/javascript" src="ext/require.min.js"></script>
 </html>

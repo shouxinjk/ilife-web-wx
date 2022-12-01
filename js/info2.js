@@ -858,9 +858,44 @@ function updateItem(item) {
     util.AJAX(url, function (res) {
       if (app.globalData.isDebug) console.log("Info2::updateItem update item finished.", res);
       //需要重新提交索引， 否则首页无法显示
-      index(item);
+      //index(item);
+      commitData(item, function(){
+        console.log("stuff item updated.");
+      });
     }, "PATCH", item, header);
 }
+
+
+//设置一个定时器延缓提交：默认3秒自动提交一次，避免频繁提交导致大量请求
+//commitTimer
+var _sxTimer = null;
+var _sxDataReceived = null;//milliseconds while receiving data
+var _sxDuration = 3000;//milliseconds from data received to commit
+function commitData(data, callback){
+    //set initially received time 
+    if(!_sxDataReceived){
+        _sxDataReceived = new Date().getTime();
+    }    
+    //check duration and clear timer
+    if(_sxTimer && new Date().getTime()-_sxDataReceived < _sxDuration){
+        console.log("try to clear timer for too frequent data commit.");
+        clearTimeout(_sxTimer);   
+        _sxTimer = null;
+    }
+    //(re)start a new timer to commit data
+    _sxTimer = setTimeout(function(){
+        console.log("commit data timer start.",data);
+        //发起数据提交
+        index(data);
+        if(callback && typeof callback === "function"){
+            callback();
+        }        
+    },_sxDuration);    
+    //设置数据接收时间
+    _sxDataReceived = new Date().getTime();
+
+}
+
 
 //提交索引
 function index(item){//记录日志
