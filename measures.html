@@ -9,11 +9,13 @@
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css">     
+    <link rel="stylesheet" type="text/css" href="ext/siiimple-toast-master/style.css?v=1.0">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">  
     <link rel="stylesheet" type="text/css" href="css/common.css?v=1.6"> 
     <link rel="stylesheet" type="text/css" href="css/pattern.min.css">   
-    <link rel="stylesheet" type="text/css" href="broker/css/feeds.css?v=3.8">       
+    <link rel="stylesheet" type="text/css" href="broker/css/feeds.css?v=3.8">   
+    <link rel="stylesheet" type="text/css" href="publisher/css/publisher.css?v=3.8">      
 </head>
 
 <body>
@@ -21,7 +23,9 @@
     <div class="header" style="background-color: green;">
         <div class="search" style="text-align: center;background-color: green; ">
             <span style="margin-left:-20px;background-color: green;">&nbsp;</span>
-            <input id="searchTxt" placeholder="🔍 输入商品名称或分类查看评价规则"><a id="findAll" class="searchBtn" style="color:#fff;">&nbsp;&nbsp;搜索</a> <a class="searchBtn" style="color:#fff;" href="measures.html">&nbsp;&nbsp;热门</a>     
+            <input id="searchTxt" placeholder="🔍 搜索评价规则及排行"/><a id="findAll" class="searchBtn" style="color:#fff;">&nbsp;&nbsp;搜索</a> 
+            <!--a class="searchBtn" style="color:#fff;" href="measures.html">&nbsp;&nbsp;热门</a-->   
+            <a id="addNewItemBtn" href="#" style="font-size: 12px;font-weight:bold;color:#fff;">&nbsp;&nbsp;加入商品</a>
         </div>       
     </div>
 
@@ -74,6 +78,20 @@
         <button class="btn btn-default findMoreBtn-hide" id="findMoreBtn">推荐更多</button>
     </div> 
 
+    <!-- 支持用户自己提交商品链接发起评价 -->
+    <!--div class="share-box" id="sharebox" style="bottom:45px;border-color: green;">
+        <div class="share-tips" style="background-color: green;border-color: green;">立即评价</div>
+        <div id="share-bonus" class="share-bonus" style="border-bottom: 0;"></div>
+        <div class="share-btn">
+            <div>添加商品URL就<br/>可以立即评价</div>
+            <a id="addNewItemBtn" href="#" style="background-color: #ff6347;border-color: #ff6347;line-height: 24px;">添加商品</a><br/>
+        </div>
+    </div-->  
+
+    <!--div class="share-box" id="sharebox" style="width:48px;height:48px;border-radius: 50%;bottom:45px;border-color: green;background-color: green;">
+        <div id="addNewItemBtn" style="line-height: 16px;font-size: 12px;text-align: center;vertical-align: middle;width:30px;margin:6px auto;font-weight: bold;">添加商品</div>
+    </div-->
+
     <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
 
   <div id="sx-menu">
@@ -95,13 +113,26 @@
     </a>        
   </div>
 
+    <div id="itemform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">粘贴商品URL</div> 
+            <div style="width:100%;line-height: 16px;display:none;" id="enhouseWaiting"><image src="images/loading.gif" style="margin:5px auto;"/></div> 
+            <textarea type="url" id="itemUrl" rows="5" placeholder="请复制商品URL并粘贴，支持京东、拼多多、唯品会、淘宝等主流电商平台" style="width:80%;border:1px solid silver;line-height: 18px;font-size:12px;margin:5px auto;" required></textarea> 
+            <div>
+                <button type="submit" class="btnNo" id="btnCancel">取消</button>  
+                <button type="submit" class="btnYes" id="btnPublish">确定</button> 
+            </div>
+    </div> 
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
 <script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
 <script type="text/javascript" src="js/newWaterfall.js"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="ext/jquery.blockUI.js"></script>
 <script type="text/javascript" src="js/swiper.min.js"></script>
 <script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="ext/d3/d3.min.js"></script>
@@ -110,5 +141,5 @@
 <script type="text/javascript" src="ext/d3/sankey.js?v=0.12"></script>
 <script type="text/javascript" src="ext/require.min.js"></script>
 <script type="text/javascript" src="js/util.js?v=3.2"></script>
-<script type="text/javascript" src="js/measures.js?v=0.64"></script> 
+<script type="text/javascript" src="js/measures.js?v=0.68"></script> 
 </html>
