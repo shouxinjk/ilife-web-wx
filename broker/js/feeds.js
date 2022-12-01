@@ -83,11 +83,11 @@ var actionTypes = {
   "publish":"发布",
   "collect":"上架",  
   "share poster":"海报分享",
-  "share board poster":"清单海报分享",
+  "share board poster":"海报分享",
   "share appmsg":"微信分享",
   "share timeline":"朋友圈分享",
   "buy step1":"很感兴趣",
-  "buy step2":"准备剁手",
+  "buy step2":"剁手",
   buy:"拔草",
   label:"标注",
   favorite:"种草",
@@ -420,11 +420,11 @@ function insertPersonItem(person){
     //通过jquery事件注入
     if(person._key=="btn-add-related-person"){//新增关心的人，直接跳转
       $("#"+person._key).click(function(e){
-          window.location.href="user-choosepersona.html?from=feeds";
+          window.location.href="../user-choosepersona.html?from=feeds";
       });
     }else if(person._key=="btn-add-persona"){//新增客群，直接跳转
       $("#"+person._key).click(function(e){
-          window.location.href="broker/my-addpersona.html?from=feeds";
+          window.location.href="my-addpersona.html?from=feeds";
       });
     }else{//切换数据列表
       $("#"+person._key).click(function(e){
