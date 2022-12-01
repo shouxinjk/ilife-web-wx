@@ -42,9 +42,18 @@
         点击圆圈可以查看其详细评价
     </div>
     -->
-    <div id="circlepack" style="width:100%;text-align: center;margin-top: 10px;">
+    <div id="circlepack" style="width:100%;text-align: center;margin-top: 10px;display:none;">
 
     </div>
+
+    <!--客观评价sankey图，显示从属性到得分的分布-->   
+    <div id="sankey" style="width:90%;text-align: center;margin:2px auto;margin-top: 10px;display:none;">
+    </div> 
+
+    <!--客观评价sunburst图，显示层级及构成-->   
+    <div id="sunburst" style="width:80%;text-align: center;margin:2px auto;margin-top: 10px;display:none;">
+    </div> 
+
 <section style="position:sticky;z-index: 8;top:102px;background-color: #fff;">
     <!-- 图例：采用不同颜色标记不同维度 -->
     <div id="legendDiv" style="display:flex;flex-direction: row; flex-wrap: nowrap;text-align: center; justify-content: center; align-items: center;margin-top:10px;">
@@ -97,6 +106,9 @@
 <script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="ext/d3/d3.min.js"></script>
 <script type="text/javascript" src="ext/d3/zoomable-circle-packing.js?v=0.6"></script>
+<script type="text/javascript" src="ext/d3/partition-sunburst.js?v=0.2"></script>
+<script type="text/javascript" src="ext/d3/sankey.js?v=0.12"></script>
+<script type="text/javascript" src="ext/require.min.js"></script>
 <script type="text/javascript" src="js/util.js?v=3.2"></script>
-<script type="text/javascript" src="js/measures.js?v=0.62"></script> 
+<script type="text/javascript" src="js/measures.js?v=0.64"></script> 
 </html>

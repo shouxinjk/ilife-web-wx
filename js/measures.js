@@ -42,6 +42,22 @@ $(document).ready(function ()
         searchCategory();     
     });     
 
+    //装载sankey图必要组件
+    require.config({
+      baseUrl: 'ext/d3',
+      map: {
+        '*': {
+          'd3-path.js': 'd3-path',
+          'd3-array.js': 'd3-array',
+          'd3-shape.js': 'd3-shape',
+        }
+      }
+    });
+    require(['d3-path','d3-array','d3-shape','d3-sankey'], function (d3Path,d3Array,d3Shape,_d3Sankey) {
+        d3Sankey = _d3Sankey;
+        console.log("load module d3Sankey. ",d3Sankey);
+    });
+
     //加载broker信息
     loadBrokerInfo();
     //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
@@ -217,15 +233,27 @@ function searchCategory() {
                     }
                     //默认选按照已经传递的categoryId设置当前类目
                     if(categoryId&&categoryId.trim().length>0){//补充categoryName
-                      if(categoryId == hits[i]._source.meta.category){
+                      if(categoryId == ""+hits[i]._source.meta.category){
                         categoryName = hits[i]._source.meta.categoryName;
+                        //showDimensionCirclePack( hits[i]._source.meta.categoryName );//加载并显示图表
+                        showMeasureCharts( hits[i]._source.meta.categoryName );//加载并显示图表
+
+                        loadFeaturedDimensions( );// $(this).data("id") );//加载featured维度及商品数据
+                        loadFeeds();//加载商品数据 
+                        
+                        //高亮
+                        $("#metacat"+categoryId).css("background-color","green");
+                        $("#metacat"+categoryId).css("color","#fff");
+
                       }
                     }else if(i==0){ //没有指定则选择第一个
                       console.log("try load items by default. categoryId is ",hits[i]._source.meta.category);
 
                       categoryId = hits[i]._source.meta.category;
                       categoryName = hits[i]._source.meta.categoryName;
-                      showDimensionCirclePack( hits[i]._source.meta.categoryName );//, $(this).data("id") );//加载并显示图表
+                      //showDimensionCirclePack( hits[i]._source.meta.categoryName );//, $(this).data("id") );//加载并显示图表
+                      showMeasureCharts( hits[i]._source.meta.categoryName );//加载并显示图表
+
                       loadFeaturedDimensions( );// $(this).data("id") );//加载featured维度及商品数据
                       loadFeeds();//加载商品数据 
                       
@@ -341,6 +369,28 @@ function showMeasureScores(stuff,itemScore){
     }   
 }
 
+//显示评价体系图表：sankey、circlepack、sunburst
+//随机显示一张图表
+function showMeasureCharts(categoryName){
+  $("#sankey").css("display","none");
+  $("#circlepack").css("display","none");
+  $("#sunburst").css("display","none");
+  var idx = new Date().getTime()%3;
+  if(idx==0){
+    $("#sankey").css("display","block");
+    linkTree = [];
+    linkNodes = [];  
+    showSankey();    
+  }else if(idx==1){
+    $("#circlepack").css("display","block");
+    showDimensionCirclePack(categoryName);
+  }else{
+    $("#sunburst").css("display","block");
+    showSunburst();
+  }
+ 
+}
+
 
 //图形化显示客观评价树
 function showDimensionCirclePack(categoryName){
@@ -371,6 +421,107 @@ function showDimensionCirclePack(categoryName){
         }
     },"GET",data);    
 }
+
+//generate and show sankey chart
+//step1: query link tree by meta.category
+//step2: query calculated full measure and info data by itemKey
+//step3: assemble single item dataset
+//step4: show sankey chart    
+var d3Sankey = null;
+var linkTree = [];
+var linkNodes = [];
+function showSankey(){
+    //获取link tree，包含维度-维度，维度-属性
+    $.ajax({
+        url:app.config.sx_api+"/mod/itemDimension/rest/link-tree-by-category",
+        type:"get",
+        //async:false,//同步调用
+        data:{categoryId:categoryId},
+        success:function(ret){
+            console.log("===got link tree===\n",ret);
+            linkTree = ret;
+            //遍历得到nodes
+            linkTree.forEach(function(entry){//逐条解析，将不同节点放入nodes
+                //source节点
+                var idx = linkNodes.findIndex((node) => node.id==entry.source.id);
+                if(idx<0)
+                    linkNodes.push(entry.source);
+                //target节点
+                idx = linkNodes.findIndex((node) => node.id==entry.target.id);
+                if(idx<0)
+                    linkNodes.push(entry.target);
+            });
+            generateSankeyChart();//此处触发根据weight显示：因为尚未装载得分
+        }
+    });  
+
+    //显示标题：
+    $("#sankeyTitle").css("display","block");    
+}
+
+//显示sankey图，需要在数据ready后开始
+function generateSankeyChart(){
+    if( linkTree.length==0 || linkNodes.length==0 ){
+        console.log("sankey chart not ready. ignore.");
+        return;
+    }
+    //generate sankey chart.
+    console.log("try render sankey chart.",linkNodes,linkTree);
+    if(d3Sankey){
+        var sankeyChartOptions = {
+          height:600
+        };
+        //genrate sankey
+        SankeyChart("#sankey", {
+                    nodes:linkNodes,
+                    links: linkTree
+                }, {
+                  nodeGroup: d => d.id.split(/\W/)[0], // take first word for color
+                  nodeId: d => d.id,
+                  nodeLabel: d => d.name, //name显示包含属性名称，即属性原始值或默认值：需要在加载props时设置
+                  //format: (f => d => `${f(d)} TWh`)(d3.format(",.1~f")),
+                  linkSource: ({source}) => source.id,
+                  linkTarget: ({target}) => target.id,
+                  height: 600
+                });        
+    }     
+}
+
+
+//显示放射树
+function showSunburst(categoryName){
+    //根据category获取客观评价数据
+    var data={
+        categoryId:categoryId
+    };
+    console.log("try to load dimension data.",data);
+    util.AJAX(app.config.sx_api+"/mod/itemDimension/rest/dim-tree-by-category", function (res) {
+        console.log("======\nload dimension.",data,res);
+        if (res.length>0) {//显示图形
+            sunburstNodes = res;
+            showSunBurst({name:categoryName&&categoryName.trim().length>0?categoryName:"评价规则",children:res});
+        }else{//没有则啥也不干
+            //do nothing
+            console.log("failed load dimension tree.",data);
+        }
+    },"GET",data);    
+}
+
+function showSunBurst(data){
+    //显示sunburst图表    
+    Sunburst("#sunburst",data, {
+      value: d => d.weight, // weight 
+      label: d => d.name, // name
+      title: (d, n) => `${n.ancestors().reverse().map(d => d.data.name).join(".")}\n${n.value.toLocaleString("en")}`, // hover text
+//      link: (d, n) => n.children
+//        ? `https://github.com/prefuse/Flare/tree/master/flare/src/${n.ancestors().reverse().map(d => d.data.name).join("/")}`
+//        : `https://github.com/prefuse/Flare/blob/master/flare/src/${n.ancestors().reverse().map(d => d.data.name).join("/")}.as`,
+      width: 400,
+      height: 400
+    });
+}
+
+
 
 //显示条目评分图例颜色
 var  colors = ['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#40e0d0','#0dbf8c','#9acd32','#32cd32','#228b22','#067633'];
@@ -778,13 +929,15 @@ function insertCategoryItem(measureItem){
     $("#metacat"+measureItem.category).click(function(){
         console.log("meta category changed. ",  $(this).data("id") );
 
-        categoryId = $(this).data("id"); //设置全局变量，避免interval延迟调用问题
+        categoryId = ""+$(this).data("id"); //设置全局变量，避免interval延迟调用问题
         categoryName = $(this).data("name"); //设置全局变量，避免interval延迟调用问题
 
         //修改类目后重新注册分享事件
         registerShareHandler(); 
 
-        showDimensionCirclePack( $(this).data("name"));//, $(this).data("id") );//加载并显示图表
+        //showDimensionCirclePack( $(this).data("name"));//, $(this).data("id") );//加载并显示图表
+        showMeasureCharts($(this).data("name"));
+
         loadFeaturedDimensions( );// $(this).data("id") );//加载featured维度及商品数据
         loadFeeds();//加载商品数据 
 
