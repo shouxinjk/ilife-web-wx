@@ -20,6 +20,7 @@ $(document).ready(function ()
     var args = getQuery();//获取参数
     //category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     if(args["id"])inputPerson=args["id"];//从请求中获取需要展示的person或personaId
+    if(args["categoryId"])categoryId=args["categoryId"];//从获取指定的类目
 /**
     $('#waterfall').NewWaterfall({
         width: width-20,//1列
@@ -214,8 +215,12 @@ function searchCategory() {
                       console.log("got item. ",hits[i]._source.meta);
                       insertCategoryItem(hits[i]._source.meta);
                     }
-                    //默认选中一个
-                    if(i==0){
+                    //默认选按照已经传递的categoryId设置当前类目
+                    if(categoryId&&categoryId.trim().length>0){//补充categoryName
+                      if(categoryId == hits[i]._source.meta.category){
+                        categoryName = hits[i]._source.meta.categoryName;
+                      }
+                    }else if(i==0){ //没有指定则选择第一个
                       console.log("try load items by default. categoryId is ",hits[i]._source.meta.category);
 
                       categoryId = hits[i]._source.meta.category;
@@ -775,6 +780,10 @@ function insertCategoryItem(measureItem){
 
         categoryId = $(this).data("id"); //设置全局变量，避免interval延迟调用问题
         categoryName = $(this).data("name"); //设置全局变量，避免interval延迟调用问题
+
+        //修改类目后重新注册分享事件
+        registerShareHandler(); 
+
         showDimensionCirclePack( $(this).data("name"));//, $(this).data("id") );//加载并显示图表
         loadFeaturedDimensions( );// $(this).data("id") );//加载featured维度及商品数据
         loadFeeds();//加载商品数据 
