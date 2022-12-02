@@ -95,6 +95,11 @@ $(document).ready(function ()
         showItemForm();        
     });       
 
+    //注册点击事件：关于
+    $("#findHelp").click(function(){
+        window.location.href="task.html";        
+    }); 
+
     //加载filter并高亮
     loadFilters(filter);
     //高亮显示当前选中的filter
@@ -1045,7 +1050,7 @@ function insertItem(){
 
     var profitTags = "";
     if(util.hasBrokerInfo()){//如果是推广达人则显示佣金
-        showHighProfitLink();//显示高佣链接入口
+        showHighProfitLink(true);//显示高佣链接入口
         if(item.profit&&item.profit.type=="3-party"){//如果已经存在则直接加载
           if(item.profit&&item.profit.order){
               profitTags += "<span class='profitTipOrder'>店返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.profit.order*10)/10).toFixed(1)))+"</span>";
@@ -1060,6 +1065,8 @@ function insertItem(){
             profitTags = "<div id='profit"+item._key+"' class='itemTags profit-hide'></div>";
             getItemProfit(item);
         }
+    }else{
+      showHighProfitLink(false);//隐藏高佣链接，显示关于按钮
     }
     if(profitTags.trim().length>0){
         profitTags = "<div id='profit"+item._key+"' class='itemTags profit-show'>"+profitTags+"</div>";
@@ -1382,9 +1389,15 @@ function shownomore(flag){
 }
 
 //如果是达人则显示高佣入口
-function showHighProfitLink(){
-    $("#findByProfit").toggleClass("searchBtn-hide",false);
-    $("#findByProfit").toggleClass("searchBtn",true);
+function showHighProfitLink(showProfit=false){
+    if(showProfit){
+      $("#findByProfit").toggleClass("searchBtn-hide",false);
+      $("#findByProfit").toggleClass("searchBtn",true);            
+    }else{
+      $("#findHelp").toggleClass("searchBtn-hide",false);
+      $("#findHelp").toggleClass("searchBtn",true);      
+    }
+
 }
 
 // 自动加载更多：此处用于测试，动态调整图片高度
