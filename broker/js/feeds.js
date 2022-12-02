@@ -541,7 +541,7 @@ function insertItem(){
     //注册事件
     $("div[data='"+item._key+"']").click(function(){
         //跳转到详情页面
-        window.location.href = "info2.html?id="+item._key;
+        window.location.href = "../info2.html?id="+item._key;
     });
 
     // 表示加载结束
@@ -562,105 +562,6 @@ function htmlActionSummary(actionItem){
   html += "</div>";
   return html;
 }
-
-//将item显示到页面
-/**
-function insertItemOld(){
-    var item = items[num-1];//从本地取一条item
-    console.log("Feed::insertItem add item to html.",num,item);
-    if(item == null)return;
-    var html = '';
-    html += '<li><div class="WxMasonry">';
-    html += '<div id="item'+item._key+'">';
-    html += htmlItemImage(item);
-    html += htmlItemProfitTags(item);
-    html += htmlItemHighlights(item);
-    html += htmlItemSummary(item);
-    html += htmlItemTags(item);
-    html += '</div>';
-    html += '</div></li>';
-    $("#waterfall").append(html);
-
-    //注册事件
-    $("#item"+item._key).click(function(){
-        //跳转到详情页
-        window.location.href = "info2.html?id="+item._key;
-    });
-    // 表示加载结束
-    showloading(false);
-    loading = false;
-    num++;
-}
-
-function htmlItemImage(item){
-    var imgWidth = columnWidth-2*columnMargin;//注意：改尺寸需要根据宽度及留白计算，例如宽度为360，左右留白5，故宽度为350
-    var imgHeight = random(50, 300);//随机指定初始值
-    //计算图片高度
-    var img = new Image();
-    img.src = item.images?item.images[0]:"https://www.biglistoflittlethings.com/list/images/logo00.jpeg";
-    var orgWidth = img.width;
-    var orgHeight = img.height;
-    imgHeight = orgHeight/orgWidth*imgWidth;
-
-    var html = '';
-    html += '<div class="mainbody">';
-    html += '<img class="WxMasonryImage" id="'+item._key+'" src="'+item.images[0]+'" width="'+imgWidth+'" height="'+imgHeight+'" />';
-    //html += '<img class="WxMasonryImage" id="'+item._key+'" src="'+item.images[0]+'" width="100%" height="200px" />';
-    html += '</div>';
-    return html;
-}
-
-function htmlItemSummary(item){
-    var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING' nowrap>__TAG</a>";
-    var tags = "<div class='itemTags'>";
-    //tags += "<a class='itemTag' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
-    //tags += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name);
-    var taggingList = item.tagging?item.tagging.split(" "):[];
-    for(var t in taggingList){
-        var txt = taggingList[t];
-        if(txt.trim().length>1 && txt.trim().length<6){
-            tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
-        }
-    }
-    if(item.categoryId && item.categoryId.trim().length>1){
-        tags += tagTmpl.replace("__TAGGING",item.category).replace("__TAG",item.category);
-    }
-    tags += "</div>";
-    return tags;  
-}
-
-function htmlItemTags(item){
-    var html = '';
-    html += '<div class="list-box">';
-    html += '<div class="main-item">';
-    html += '<div class="list-box-title">'+item.title+'</div>';
-    if(item.tags.length>0){
-        html += '<div class="tags">';
-        for(var i=0;i<item.tags.length;i++){
-            if(item.tags[i].trim().length>0){
-                html += '<div class="tag-text">#'+item.tags[i]+'</div>';
-            }
-        }
-        html += '</div>';
-    }
-    html += '</div>';
-    html += '</div>';
-    return html;
-}
-
-function htmlItemHighlights(item){
-    var tagTmpl = "<a class='itemTag' href='index.html?keyword=__TAGGING'>__TAG</a>";
-    var highlights = "<div class='itemTags'>";
-    highlights += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+item.price.sale+"</a>";
-    if(item.price.coupon>0){
-        highlights += "<span class='couponTip'>券</span><span class='coupon' href='#'>"+item.price.coupon+"</span>";
-    }    
-    highlights += tagTmpl.replace("__TAGGING",item.distributor.name).replace("__TAG",item.distributor.name).replace("itemTag","itemTagDistributor");    
-    highlights += "</div>";
-
-    return highlights; 
-}
-//**/
 
 function htmlItemProfitTags(item){ 
     var profitTags = "";

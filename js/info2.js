@@ -1799,10 +1799,10 @@ function showMeasureScores(){
     for(var i=0;i<measureScores.length;i++){
         tmpScores[measureScores[i].id] = measureScores[i];
         var html = "";
-        html += "<div style='display:flex;flex-direction:row;flex-wrap:nowrap;margin:10px 0;width:96%;font-size:12px;'>";
-        html += "<div style='width:30%;line-height:24px;text-align:right;font-weight:bold;'>"+measureScores[i].name+"</div>";
-        html += "<div style='width:10%;text-align:center;line-height:24px;' id='mscore"+measureScores[i].id+"'>"+(measureScores[i].score*10).toFixed(1)+"</div>";
-        html += "<div style='width:60%' id='score"+measureScores[i].id+"'></div>";
+        html += "<div style='display:flex;flex-direction:row;flex-wrap:nowrap;margin:10px 0;width:100%;font-size:12px;'>";
+        html += "<div style='width:32%;line-height:24px;text-align:right;font-weight:bold;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;'>"+measureScores[i].name+"</div>";
+        html += "<div style='width:5%;text-align:center;line-height:24px;' id='mscore"+measureScores[i].id+"'>"+(measureScores[i].score*10).toFixed(1)+"</div>";
+        html += "<div style='width:63%' id='score"+measureScores[i].id+"'></div>";
         html += "</div>";
         $("#measuresList").append(html);//装载到界面
 
