@@ -1238,6 +1238,7 @@ function loadCategories(currentCategory){
                 if(currentCategory == msg[i].id)//高亮显示当前选中的category
                     $(navObj.find("li")[i]).addClass("showNav");
             }
+            //showCategorySwiper();//显示为滑动条:采用ul li元素，当前不能工作
             //注册点击事件
             navObj.find("li").click(function(){
                 var key = $(this).attr("data");
@@ -1248,6 +1249,24 @@ function loadCategories(currentCategory){
     })    
 }
 
+
+//将顶部类目显示为滑动条
+function showCategorySwiper(){ 
+    //显示滑动条
+    var mySwiper = new Swiper ('.swiper-container', {
+        slidesPerView: 8,
+    });  
+    /*
+    //调整swiper 风格，使之悬浮显示
+    $(".swiper-container").css("position","relative");
+    $(".swiper-container").css("left","0");
+    $(".swiper-container").css("top","40");
+    $(".swiper-container").css("z-index","999");
+    $(".swiper-container").css("background-color","red");
+    //$(".swiper-container").css("margin-bottom","3px");
+    //**/
+     
+}
 
 
 //生成客观评价蒙德里安格子图。每一个单品都值得拥有
