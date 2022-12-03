@@ -1126,32 +1126,20 @@ function showHosts(hosts){
     }
 }
 
+//优先从ES获取数据，仅在无法获取时尝试从Arango获取
 function loadItem(key){//获取内容列表
     $.ajax({
-        url:"https://data.shouxinjk.net/_db/sea/my/stuff/"+key,
+        url:app.config.search_api+"/stuff/doc/"+key,
         type:"get",
         data:{},
         success:function(data){
-            stuff = data;//本地保存，用于分享等后续操作
-            showContent(data);
+            stuff = data._source;//本地保存，用于分享等后续操作
+            showContent(data._source);
 
             //显示评价树
             if(stuff.meta && stuff.meta.category){
                 showDimensionBurst();
             }
-
-            ////多站点处理：start//////////////////////////////////
-            //由于当前shouxinjk.net 和 biglistoflittlethings.com 两个网站分别到不同电商平台，需要进行分隔处理
-            /**
-            if(stuff.source == "jd"){//如果是京东则跳转到shouxinjk
-                if(window.location.href.indexOf("shouxinjk.net")<0){//如果不是shouxinjk.net则跳转
-                    var sxUrl = window.location.href.replace(/www\.biglistoflittlethings\.com/g,"www.shouxinjk.net");
-                    sxUrl = sxUrl.replace(/https/g,"http");//注意：当前 www.shouxinjk.net仅支持 http。必须使用 http://www.shouxinjk.net作为地址，否则会导致导购信息丢失
-                    window.location.href = sxUrl;
-                }
-            }
-            //**/
-            ////多站点处理：end////////////////////////////////////
 
             //准备注册分享事件。需要等待内容加载完成后才注册
             //判断是否为已注册用户
@@ -1175,6 +1163,46 @@ function loadItem(key){//获取内容列表
         }
     })            
 }
+
+//废弃：禁止直接从arangodb获取数据，直接从ES获取
+/**
+function loadItem(key){//获取内容列表
+    $.ajax({
+        url:"https://data.shouxinjk.net/_db/sea/my/stuff/"+key,
+        type:"get",
+        data:{},
+        success:function(data){
+            stuff = data;//本地保存，用于分享等后续操作
+            showContent(data);
+
+            //显示评价树
+            if(stuff.meta && stuff.meta.category){
+                showDimensionBurst();
+            }
+
+            //准备注册分享事件。需要等待内容加载完成后才注册
+            //判断是否为已注册用户
+            if(app.globalData.userInfo&&app.globalData.userInfo._key){//表示是已注册用户
+                loadBrokerByOpenid(app.globalData.userInfo._key);
+                //注意：在加载完成后会注册分享事件，并用相应的broker进行填充
+            }else{//直接注册分享分享事件，默认broker为system，默认fromUser为system
+                console.log("cannot get user info. assume he is a new one.");
+                //TODO:是不是要生成一个特定的编号用于识别当前用户？在注册后可以与openid对应上
+                //检查cookie是否有标记，否则生成标记
+                tmpUser = $.cookie('tmpUserId');
+                if(tmpUser && tmpUser.trim().length>0){
+                    console.log("there already has a temp code for this user.", tmpUser);
+                }else{
+                    tmpUser = "tmp-"+gethashcode();
+                    console.log("there is no temp code for this user, generate one.", tmpUser);
+                    $.cookie('tmpUserId', tmpUser, { expires: 3650, path: '/' });  
+                }
+                registerShareHandler();
+            }            
+        }
+    })            
+}
+//**/
 
 //加载预定义用户标签：仅加载用户行为标签，补充用户行为数据
 var userTags = {};
