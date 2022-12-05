@@ -923,6 +923,11 @@ function insertCategoryItem(measureItem){
       shownomore(true);
       return;
     }
+    //限制显示条数，仅显示8个
+    if($("div[id^=metacat]").length>7){
+      console.log("too many meta categories. ignore.");
+      return;
+    }
     //隐藏no-more-tips
     $("#no-results-tip").toggleClass("no-result-tip-hide",true);
     $("#no-results-tip").toggleClass("no-result-tip-show",false); 
