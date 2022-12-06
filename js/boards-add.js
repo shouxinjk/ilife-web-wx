@@ -86,15 +86,12 @@ function createBoard(personaId){
         console.log("Broker::Board::AddBoard create board successfully.", res)
         if(res.status){
             console.log("Broker::Board::AddBoard now jump to home page for item adding.", res)
-            $.cookie('board', JSON.stringify(res.data), { expires: 3650, path: '/' });  //把编辑中的board写入cookie便于添加item
-            $.toast({//浮框提示已创建成功，然后跳转到首页添加item
-                heading: '创建成功',
-                text: '可以开始添加商品到列表',
-                showHideTransition: 'fade',
-                icon: 'success'
-            });
+            //$.cookie('board', JSON.stringify(res.data), { expires: 3650, path: '/' });  //把编辑中的board写入cookie便于添加item
+            siiimpleToast.message('清单已创建，前往添加条目~~',{
+                  position: 'bottom|center'
+                });             
             setTimeout(function (){
-                window.location.href = "index.html?keywords="+data.keywords;//默认使用关键字搜索
+                window.location.href = "index.html?boardId="+res.data.id+"&keywords="+data.keywords;//默认使用关键字搜索
             },500);
         }
     }, "POST",data,header);
