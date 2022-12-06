@@ -98,7 +98,7 @@ function showContent(board){
     //标题
     console.log("display edit button.[current broker id]"+broker.id+"[board broker id]"+board.broker.id);
     if(broker && broker.id == board.broker.id){//如果是当前达人则可以直接修改
-        $("#title").html(board.title+"&nbsp;&nbsp;<a class='board-modify-btn' style='color:#006cfd;' href='broker/boards-modify.html?id="+board.id+"'>修改</a>");
+        $("#title").html(board.title+"&nbsp;&nbsp;<a class='board-modify-btn' style='color:#006cfd;' href='boards-modify.html?id="+board.id+"'>修改</a>");
     }else if(broker && broker.id){//如果不是编辑达人，则先克隆后再需改
         $("#title").html(board.title+"&nbsp;&nbsp;<a id='cloneBoardBtn' class='board-modify-btn' style='color:#006cfd;'>克隆</a>");
         $("#cloneBoardBtn").click(function(){
@@ -106,7 +106,7 @@ function showContent(board){
             util.AJAX(app.config.sx_api+"/mod/board/rest/board/clone/"+board.id+"/"+broker.id, function (res) {
                 console.log("clone broker successfully.",res);
                 //跳转到编辑界面
-                window.location.href = "broker/boards-modify.html?id="+res.data.id;    
+                window.location.href = "boards-modify.html?id="+res.data.id;    
             },"POST",null,{ "Content-Type":"application/json" });            
         });
     }else{//普通用户则只显示标题
