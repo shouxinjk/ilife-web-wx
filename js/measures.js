@@ -935,6 +935,12 @@ function insertCategoryItem(measureItem){
     var measureTag = "<div id='metacat"+measureItem.category+"' data-id='"+measureItem.category+"' data-name='"+measureItem.categoryName+"' style='line-height:16px;font-size:12px;min-width:60px;font-weight:bold;padding:2px;border:1px solid silver;border-radius:10px;margin:2px;'>"+measureItem.categoryName+"</div>"
     $("#categoryDiv").append( measureTag );
 
+    //调整sticky高度
+    //console.log("change legned div stikcy height.",$("#categoryDiv").css("height"));
+    var stickyTop = 54+Number($("#categoryDiv").css("height").replace(/px/,""));
+    $("#legendDivSticky").css("top",stickyTop+"px");
+
+
     //注册事件
     $("#metacat"+measureItem.category).click(function(){
         console.log("meta category changed. ",  $(this).data("id") );
