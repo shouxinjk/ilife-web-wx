@@ -20,7 +20,8 @@ $(document).ready(function ()
     var args = getQuery();//获取参数
     //category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     if(args["id"])inputPerson=args["id"];//从请求中获取需要展示的person或personaId
-    if(args["categoryId"])categoryId=args["categoryId"];//从获取指定的类目
+    if(args["categoryId"])categoryId=args["categoryId"];//从获取指定的类目ID
+    if(args["categoryName"])categoryName=args["categoryName"];//从获取指定的类目名称
 /**
     $('#waterfall').NewWaterfall({
         width: width-20,//1列
@@ -33,12 +34,15 @@ $(document).ready(function ()
     $("body").css("background-color","#fff");//更改body背景为白色
 
     util.getUserInfo();//从本地加载cookie
+
+    insertDefaultCategory();//如果参数中带有categoryId和categoryName则直接显示到第一个
     
     searchCategory();//默认发起类目检索
 
     //注册事件：点击搜索后重新查询meta category
     $("#findAll").click(function(){//注册搜索事件：点击搜索全部
         $("#categoryDiv").empty();
+        //categoryId = null;
         searchCategory();     
     });   
 
@@ -138,6 +142,23 @@ function syncPerson(person){
             console.log("sync failed.",person);
         }
     });     
+}
+
+//根据传入的categoryId和CategoryName显示评价图表
+function insertDefaultCategory(){
+  if(categoryId){
+    //显示类目
+    insertCategoryItem({category:categoryId,categoryName:categoryName});
+
+    //显示图表
+    showMeasureCharts( categoryName );//加载并显示图表
+    loadFeaturedDimensions( );// $(this).data("id") );//加载featured维度及商品数据
+    loadFeeds();//加载商品数据 
+    
+    //高亮
+    $("#metacat"+categoryId).css("background-color","green");
+    $("#metacat"+categoryId).css("color","#fff");    
+  }
 }
 
 var sxInterval = null;
