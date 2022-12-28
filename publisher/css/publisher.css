@@ -355,6 +355,17 @@
 }
 
 .btnNo{
+  border:1px solid darkgrey;
+  color: darkgrey;
+  background-color: #fff;
+  border-radius: 6px;
+  min-width: 60px;
+  font-size: 12px;
+  font-weight: bold;  
+  line-height: 24px;
+}
+
+.btnDelete{
   border:1px solid red;
   color: red;
   background-color: #fff;

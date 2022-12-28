@@ -1122,7 +1122,7 @@ function insertItem(){
     if(boardId){//如果有board信息则显示添加到清单按钮
         boartBtns = "<div class='itemTags'>";
         boartBtns += "<a  id='btn-add-"+item._key+"-to-board' data-board='"+boardId+"' data-item='"+item._key+"' class='boardOption' style='border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;'>加入清单</a>&nbsp;";
-        boartBtns += "<a class='boardOption' href='broker/boards-modify.html?id="+boardId+"' style='border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;'>编辑清单</a>";
+        boartBtns += "<a class='boardOption' href='boards-modify.html?id="+boardId+"' style='border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;'>编辑清单</a>";
         boartBtns += "</div>";
     }
 

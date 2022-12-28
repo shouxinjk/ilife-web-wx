@@ -1,0 +1,56 @@
+
+/*指标tag*/
+.dimensionTag{
+  display: table-cell;
+  margin:2px;
+  min-width:40px;
+  padding:5px 10px;
+  text-align: center;
+  border-radius: 12px;
+  border: 1px solid darkgreen;
+  color: darkgreen;  
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/*属性tag*/
+.measureTag{
+  display: table-cell;
+  margin:2px;
+  min-width:40px;
+  padding:5px 10px;
+  text-align: center;
+  border-radius: 12px;
+  border: 1px solid #2a61f1;
+  color: #2a61f1;  
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/*新增按钮显示橙色*/
+.sxTagNew{
+  display: table-cell;
+  margin:2px;
+  min-width:40px;
+  padding:5px 10px;
+  text-align: center;
+  border-radius: 12px;
+  border: 1px solid #e0620d;
+  color: #e0620d;  
+  font-size: 12px;
+  font-weight: bold; 
+}
+
+/*权重低的维度直接显示灰色*/
+.sxTag0{
+  display: table-cell;
+  margin:2px;
+  min-width:40px;
+  padding:5px 10px;
+  text-align: center;
+  border-radius: 12px;
+  border: 1px solid grey;
+  color: grey;  
+  font-size: 12px;
+  font-weight: bold; 
+}
