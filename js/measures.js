@@ -401,13 +401,16 @@ function showMeasureCharts(categoryName){
   $("#sankey").css("display","none");
   $("#circlepack").css("display","none");
   $("#sunburst").css("display","none");
-  var idx = new Date().getTime()%3;
+  var idx = new Date().getTime()%4;
   if(idx==0){
     $("#sankey").css("display","block");
     linkTree = [];
     linkNodes = [];  
     showSankey();    
   }else if(idx==1){
+    $("#treemap").css("display","block");
+    showTreemap();
+  }else if(idx==2){
     $("#circlepack").css("display","block");
     showDimensionCirclePack(categoryName);
   }else{
@@ -512,6 +515,79 @@ function generateSankeyChart(){
                 });        
     }     
 }
+
+
+function showTreemap(){
+    var data = { categoryId: categoryId, parentId: categoryId };
+    console.log("try to load dimension data.",data);
+    util.AJAX(app.config.sx_api+"/mod/itemDimension/rest/dim-tree", function (res) {
+        console.log("======\nload dimension.",data,res);
+        var nodes = [];
+        if(res){//合并子级指标
+            res.forEach(function(node){
+                prepareTreemapData(nodes, null, node);
+            });
+        }           
+        generateTreemap( nodes );
+    },"GET",data);      
+}
+
+//递归将所有指标及属性节点组合为一个列表
+function prepareTreemapData(nodes, prefix, node){
+    nodes.push({
+        name: prefix?prefix+"."+node.name : node.name,
+        categoryId: categoryId,
+        weight: node.weight
+    });
+    if(node.children){
+        node.children.forEach(function(child){
+            prepareTreemapData(nodes, prefix?prefix+"."+node.name:node.name, child);
+        });        
+    }    
+}
+
+//显示treemap图
+function generateTreemap(dimtree){
+    console.log("start show treemap.",dimtree);
+    //显示treemap图表    
+    Treemap("#treemap", dimtree, {
+      path: d => d.name.replace(/\./g, "/"), // e.g., "flare/animate/Easing"
+      value: d => d?d.weight:1, //d?.weight, // size of each node (file); null for internal nodes (folders)
+      group: d => d.name.split(".")[0], // e.g., "animate" in "flare.animate.Easing"; for color
+      label: (d, n) => [...d.name.split(".").pop().split(/(?=[A-Z][a-z])/g), n.value.toLocaleString("en")].join("\n"),
+      title: (d, n) => `${d.name}\n${n.value.toLocaleString("en")}`, // text to show on hover
+      link: (d, n) => `${d.href}`,//`https://www.biglistoflittlethings.com/ilife-web-wx/expert/dimension.html?categoryId=${d.categoryId}&id=${d.id}`,
+      padding: 2,
+      //tile, // e.g., d3.treemapBinary; set by input above
+      //width: 600,
+      height: 480
+    })
+
+    //TODO：当前未生成图片
+    /**
+    //将生成的客观评价图片提交到fdfs
+    var canvas = $("#sunburst svg")[0];
+    console.log("got canvas.",canvas);
+    //调用方法转换即可，转换结果就是uri,
+    var width = $(canvas).attr("width");
+    var height = $(canvas).attr("height");
+    var options = {
+            encoderOptions:1,
+            //scale:2,
+            scale:1,
+            left:-1*Number(width)/2,
+            top:-1*Number(height)/2,
+            width:Number(width),
+            height:Number(height)
+        };
+    svgAsPngUri(canvas, options, function(uri) {
+        //console.log("image uri.",dataURLtoFile(uri,"dimension.png"));
+        //将图片提交到服务器端。保存文件文件key为：measure-scheme
+        uploadPngFile(uri, "treemap.png", "measure-scheme");//文件上传后将在stuff.media下增加{measure-scheme:imagepath}键值对
+    }); 
+    //**/ 
+}
+
 
 
 //显示放射树
