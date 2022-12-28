@@ -110,10 +110,13 @@ function loadDimensionInfo(){
                 $("#treemapTitle").empty();
                 ret.forEach(function(node){
                     if(node.id.length>1){
-                        $("#treemapTitle").prepend("<span style='padding:0 2px;color:#007bff;' id='fullpath"+node.id+"' data-id='"+node.id+"'>"+node.name+"</span>");
+                        $("#treemapTitle").prepend("<span style='padding:0 2px;/*color:#007bff;*/' id='fullpath"+node.id+"' data-id='"+node.id+"'>"+node.name+"</span>");
                         $("#fullpath"+node.id).click(function(){//点击切换
-                            window.location.href = "dimension.html?categoryId="+categoryId+"&id="+$(this).data("id");
+                            //window.location.href = "dimension.html?categoryId="+categoryId+"&id="+$(this).data("id");
+                            dimensionId = node.id;
+                            loadDimensionInfo();
                         });
+                        categoryName = node.name; //设置类目名称，将自动追溯到根节点
                     }
                 })
                 
