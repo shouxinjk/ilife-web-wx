@@ -76,7 +76,28 @@ $(document).ready(function ()
     //注册点击事件：查看选品库
     $("#goSelectionBtn").click(function(){
         window.location.href="broker/selection.html";           
-    });      
+    });   
+
+    //注册点击事件：赞同评价规则
+    $(".likeDimensionBtn").click(function(){
+        //记录赞同事件
+        logstash(stuff,from,"like",app.globalData.userInfo._key,broker.id,function(){
+            console.log("like measure.");
+            siiimpleToast.message('已提交',{
+              position: 'bottom|center'
+            }); 
+        });           
+    });        
+    //注册点击事件：不赞同评价规则
+    $(".unlikeDimensionBtn").click(function(){
+        //记录赞同事件
+        logstash(stuff,from,"unlike",app.globalData.userInfo._key,broker.id,function(){
+            console.log("like measure.");
+            siiimpleToast.message('已提交',{
+              position: 'bottom|center'
+            }); 
+        });           
+    });
 
     //判定显示底部菜单
     showSxMenu();    
@@ -315,6 +336,7 @@ function showContent(item){
         //加载客观评价
         loadMeasureAndScore();//加载客观评价
         //**/        
+        loadProps(item.meta.category);//加载属性列表，并支持补充及修订
         loadCategoryProperties(item.meta.category);//异步调用
         requestAdviceScheme(item.meta.category);//异步调用
     }else if((broker && broker.id)||(app.globalData.brokerInfo && app.globalData.brokerInfo.id)){//对于broker开放修改category
@@ -650,7 +672,7 @@ function showCascader(categoryId){
             //更新类目映射：修改后直接提交修改
             changeCategoryMapping();  
             //加载属性值列表
-            //loadProps(selectedCategory.id[0]);
+            loadProps(selectedCategory.id[0]);
             //提交类目
             submitItemForm();
             //重新生成图表
@@ -2095,6 +2117,8 @@ function showDimensionBurst(){
 function showSunBurst(data){
     //显示标题：
     $("#sunburstTitle").css("display","block");
+    //显示赞同或不赞同评价规则：
+    $("#sunburstReview").css("display","flex");    
     //显示sunburst图表    
     Sunburst("#sunburst",data, {
       value: d => d.weight, // weight 
@@ -2225,6 +2249,432 @@ function submitItemForm(){
 
 }
 
+//解析json得到key value对
+var docKeyValues = {};
+function parseJsonKeyValues(json,prefix){
+    Object.keys(json).forEach(function(key){
+        //处理数值，或者递归到下一级
+        if(json[key]){
+            if( $.type(json[key])=== "object"){ //如果是对象则递归
+                console.log("got plain object.",json[key]);
+                parseJsonKeyValues(json[key],prefix+key+".");                
+            }else if( $.type(json[key])=== "string"){ //如果是字符串值
+                console.log("got string.",json[key]);
+                docKeyValues[prefix+key] = json[key];//直接写入           
+            }else if( $.type(json[key])=== "number"){ //如果是数值
+                console.log("got number.",json[key]);
+                docKeyValues[prefix+key] = json[key];//直接写入           
+            }else if( $.type(json[key])=== "array"){ //如果是数组：当前不支持。已经在系统界面上单独提供
+                console.log("got array.ignore.",json[key]);
+                //docKeyValues[prefix+key] = json[key];//直接写入           
+            }else{
+                //ignore
+                console.log("unknown object type.ignore.",json[key]);
+            }
+        }
+    });
+}
+
+//根据ItemCategory类别，获取对应的属性配置，并与数据值融合显示
+//1，根据key进行合并显示，以itemCategory下的属性为主，能够对应上的key显示绿色，否则显示红色
+//2，数据显示，有对应于key的数值则直接显示，否则留空等待填写
+function loadProps(categoryId){
+    //根据categoryId获取所有measure清单，字段包括name、property
+    $.ajax({
+        url:"https://data.shouxinjk.net/ilife/a/mod/measure/measures?cascade=true&noPrefix=true&category="+categoryId, //仅取当前类目下的直接属性
+        type:"get",
+        data:{},
+        success:function(items){
+            console.log("got measures.",items);
+            //在回调内：1，根据返回结果组装待展示数据，字段包括：name、property、value、flag(如果在则为0，不在为1)
+            //var props = stuff.props?stuff.props:[];//临时记录当前stuff的属性列表
+            var props = [];
+            console.log("props:"+JSON.stringify(stuff.props),stuff.props);
+            if(Array.isArray(stuff.props)){//兼容以数组形式存储的props：来源于客户端爬虫
+                props = stuff.props;//临时记录当前stuff的属性列表
+            }else{//兼容{key:value,key:value}对象：来源于服务器端API采集数据
+                for(var key in stuff.props){
+                    console.log(key+":"+stuff.props[key]);//json对象中属性的名字：对象中属性的值
+                    var prop = {};
+                    prop[key]=stuff.props[key];
+                    props.push(prop);
+                }
+            }
+
+            //加载json文档内的非props属性，用于自动填写。
+            //解析后得到扁平键值对： key:value 。其中key为 xxx.xxx形式，value为单一值
+            //由于需要修改，采用复制对象处理
+            var nstuff = JSON.parse(JSON.stringify(stuff));
+            delete nstuff.props;
+            delete nstuff.status;
+            delete nstuff.timestamp;
+            delete nstuff.profit;
+            delete nstuff.advice;
+            delete nstuff.media;
+            delete nstuff.link;
+            delete nstuff.images;
+            delete nstuff.task;
+            delete nstuff.tags;
+            delete nstuff.tagging;
+            //delete nstuff.source;
+            //delete nstuff.seller;
+            //delete nstuff.distributor;
+            parseJsonKeyValues(nstuff,"");//解析得到doc内的数值，得到键值对
+            console.log("got doc key value pairs.",docKeyValues);
+            //**/
+
+            //逐条装载属性记录。采用自动补全方式便于快速标注。每个属性显示一行。
+            //装载时需要进行区分：
+            //如果属性是商品的props属性则直接修改props.xxx数值；如果属性是json文本上的属性则直接修改json文档，如price.bid
+            //同时需要根据商品属性映射增加自动提示：包括手动标注、字典标注、引用标注，需要分别获取数值，对于自动标注则开放填写，不提供自动补全
+            var propHtmlTpl = `
+            <div style="display:flex;flex-direction:row;flex-wrap:nowrap;width:100%;margin:1px auto;">
+                <div class="prop-key" style="text-align:right;">__propName__propType</div>
+                <div class="prop-value" style="vertical-align:middle;">
+                    <input type="__type" value="__orgValue" id="__inputId" data-property="__property" data-targetproperty="__targetProperty" data-propname="__propName" data-ovalue="__orgValue" data-labeltype="__labelType" data-referdict="__referDict" data-refercategory="__referCategory" data-measureid="__measureId" placeholder="__placeholder" style="width:85%;line-height:18px;margin:2px 5px;padding:2px;border:1px solid silver;"/>
+                </div>
+            </div>
+            `;                
+
+              nodes = [];
+              //先根据标准类目的属性组装，包含继承属性。
+              //检查props内是否匹配，如果匹配则更新props下的属性，否则更新原始文档上的属性
+              for( k in items ){
+                /**
+                if(Object.keys(docKeyValues).indexOf(k.property)>-1) //如果属性名和json自身的key值相同则忽略，表示已经在json文本内，不需要再次显示到props列表
+                    continue;
+                //**/
+
+                var item = items[k];
+                if(_sxdebug)console.log("measure:"+JSON.stringify(item) );
+                if(item.isModifiable === "0") {//如果属性禁止手动修改则不显示
+                    console.log("ignore not modifiable item.",item);
+                    continue;
+                }
+                var name=item.name;
+                var property = item.property;
+                var value = props[property]?props[property]:"";
+                //遍历props查找是否匹配，匹配包括两种情况，1键值匹配，包括带有props.的键值匹配，2键名匹配，包括带有props.前缀的键名匹配
+                for(j in props){
+                    var prop = props[j];
+                    var _key = Object.keys(prop)[0];//得到当前prop的key值。注意没有props.前缀
+                    if(_key===property || ("props."+_key)===property){//如果存在对应property：这是理想情况，多数情况下都只能通过name匹配
+                        value = prop[_key];
+                        props.splice(j, 1);//删除该元素，已经匹配上了，后续就不需要重复处理
+                        break;
+                    }else if(_key===name || ("props."+_key)===name){//如果匹配上name 也进行同样的处理
+                        value = prop[_key];
+                        props.splice(j, 1);//删除该元素，已经匹配上了，后续就不需要重复处理
+                        break;
+                    }
+                }
+                //根据是否有映射分别显示：已经匹配的则更新props.xxxx，否则更新关键属性上的xxx.xxxx
+                var targetPropKey = property;//默认为采用标准属性上定义的propKey。注意：在建立标准属性时需要明确是文档属性，还是props.xxx扩展属性
+                /**
+                if(docKeys.indexOf(property)>0){ //检查property是否在json 的文档属性内，如果在则使用文档属性，否则认为是props下的扩展属性
+                    targetPropKey = property; //使用原本的属性键值
+                }
+                //**/
+
+                //检查默认值：对于数据值为空的情况优先设置默认值。禁用。当前defaultScore为单一数值，无法直接使用
+                //注意：分别检查props.xxx 以及 非props.xxx
+                if( /^props\./g.test(property) ){ //检查props.xxx
+                    if( (!value || value.trim().length==0) && item.defaultValue && item.defaultValue.trim().length>0 ){ //数值为空，且有默认值
+                        //先检查props.xxx 如果缺乏数值，则直接采用默认值填写
+                        console.log("try set default value",value,item.defaultValue);
+                        value = item.defaultValue; 
+                        savePropValue(property, item.defaultValue, name);//同步提交保存
+                    }
+                }else{//检查非props.xxxx
+                    if(Object.keys(docKeyValues).indexOf(property)>-1 && docKeyValues[property] && (""+docKeyValues[property]).trim().length > 0 ){ //优先从json的key-value pair中查询原来的数值
+                        value = docKeyValues[property];
+                        //已经是原来的值，不需要保存
+                    }else if(item.defaultValue && item.defaultValue.trim().length>0 ){//如果kv键值对中没有，则检查是否有默认值，如果有则设置为默认值
+                        value = item.defaultValue; 
+                        savePropValue(property, item.defaultValue, name);//同步提交保存
+                    }                    
+                }
+
+                //添加带自动补全功能HTML
+                var propHtml = propHtmlTpl;
+                var inputId = "propinput_"+targetPropKey.replace(/\./g,"_");
+                if(item.labelType==="auto"){
+                    propHtml = propHtml.replace(/__type/g,"number");//自动标注只能输入数字
+                }else{
+                    propHtml = propHtml.replace(/__type/g,"text");//否则自由输入
+                }
+                propHtml = propHtml.replace(/__propType/g,item.type=="self"?"๏":"○");
+                propHtml = propHtml.replace(/__propName/g,name);
+                propHtml = propHtml.replace(/__orgValue/g,value);
+                if(item.tags&&item.tags.trim().length>0){ //优先显示数据提示
+                    propHtml = propHtml.replace(/__placeholder/g,item.tags);
+                }else if(item.description&&item.description.trim().length>0){ //其次显示属性描述
+                    propHtml = propHtml.replace(/__placeholder/g,item.description);
+                }else{
+                    propHtml = propHtml.replace(/__placeholder/g,"还没有数据，等你补充哦~~");
+                }
+                propHtml = propHtml.replace(/__property/g,property);
+                propHtml = propHtml.replace(/__targetProperty/g,targetPropKey);
+                propHtml = propHtml.replace(/__inputId/g,inputId);
+                propHtml = propHtml.replace(/__labelType/g,item.labelType);
+                propHtml = propHtml.replace(/__referDict/g,item.referDict);
+                propHtml = propHtml.replace(/__referCategory/g,item.referCategory);
+                propHtml = propHtml.replace(/__measureId/g,item.id);
+                propHtml = propHtml.replace(/__style/g,"");
+                $("#props").append(propHtml);
+                //增加自动补全功能，需要根据标准属性定义进行区分：字典标注、引用标注、手动标注。对于自动标注或设置缺失的则不提供自动补全
+                if(item.labelType === "dict" && item.referDict && item.referDict.trim().length>0){ //字典标注
+                    console.log("enable dict autocomplete", name, property, item.referDict, stuff.meta.category, item);
+                    $("#"+inputId).autocomplete({
+                        source: function (request, response) {
+                            console.log("dict autocomplete",$(this)[0].element.data("propname"),$(this)[0].element.data("referdict"));
+                            //查询字典值作为自动补全:注意要采用已经写入的值
+                            $.ajax({
+                                url:app.config.sx_api+"/mod/dictValue/rest/search/"+$(this)[0].element.data("referdict"),
+                                type:"post",
+                                data:JSON.stringify({
+                                    categoryId:stuff.meta.category, //注意要使用stuff的标注类目，而不是标注属性上的类目，因为有继承属性
+                                    q: request.term,
+                                    size: 10 //默认提示10条
+                                }),
+                                headers:{
+                                    "Content-Type":"application/json"
+                                },        
+                                success:function(res){
+                                    console.log("\n===got dict value suggestions ===\n",res);
+                                    response(res.data);
+                                }
+                            });
+                        },
+                        change: function( evt, ui ) { //修改后更新数值并自动提交
+                            //console.log("try save",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,evt.currentTarget.dataset.ovalue,$("#"+evt.currentTarget.id).val());
+                            var oValue = evt.currentTarget.dataset.ovalue;
+                            var nValue = $("#"+evt.currentTarget.id).val();
+                            var pName = evt.currentTarget.dataset.propname;
+                            if(ui.item && ui.item.value && ui.item.value.trim().length>0){ //从推荐列表中选择：实际上这里不会被触发
+                                console.log("try save dict measure with suggestion",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,ui.item.value,$("#"+evt.currentTarget.id).val(),pName);
+                                savePropValue(evt.currentTarget.dataset.targetproperty, ui.item.value, pName);//使用选择的数值
+                            }else if(nValue != oValue){ //判断数值是否被修改：检测是否和原始值不同，如果不同则认为被修改
+                                console.log("try save dict measure value",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,oValue, nValue, pName);
+                                savePropValue(evt.currentTarget.dataset.targetproperty, nValue, pName);//使用手动输入的数值
+                            }else{
+                                console.log("no changes. ignore.");
+                            }
+                        },                        
+                        minLength: 0 //不输入任何值也能自动提示
+                    });
+                }else if(item.labelType === "manual"){ //手动标注
+                    console.log("enable performance autocomplete", name, property, stuff.meta.category, item);
+                    $("#"+inputId).autocomplete({
+                        source: function (request, response) {
+                            console.log("performance autocomplete",$(this)[0].element.data("propname"),$(this)[0].element.data("measureid"));
+                            //查询用户标注值作为自动补全
+                            $.ajax({
+                                url:app.config.sx_api+"/ope/performance/rest/search/"+$(this)[0].element.data("measureid"),
+                                type:"post",
+                                data:JSON.stringify({
+                                    categoryId:stuff.meta.category, //注意要使用stuff的标注类目，而不是标注属性上的类目，因为有继承属性
+                                    q: request.term,
+                                    size: 10 //默认提示10条
+                                }),
+                                headers:{
+                                    "Content-Type":"application/json"
+                                },        
+                                success:function(res){
+                                    console.log("\n===got performance value suggestions ===\n",res);
+                                    response(res.data);
+                                }
+                            });
+                        },
+                        change: function( evt, ui ) { //修改后更新数值并自动提交
+                            //console.log("try save",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,evt.currentTarget.dataset.ovalue,$("#"+evt.currentTarget.id).val());
+                            var oValue = evt.currentTarget.dataset.ovalue;
+                            var nValue = $("#"+evt.currentTarget.id).val();
+                            var pName = evt.currentTarget.dataset.propname;
+                            if(ui.item && ui.item.value && ui.item.value.trim().length>0){ //从推荐列表中选择：实际上这里不会被触发
+                                console.log("try save dict measure with suggestion",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,ui.item.value,$("#"+evt.currentTarget.id).val(), pName);
+                                savePropValue(evt.currentTarget.dataset.targetproperty, ui.item.value, pName);//使用选择的数值
+                            }else if(nValue != oValue){ //判断数值是否被修改：检测是否和原始值不同，如果不同则认为被修改
+                                console.log("try save dict measure value",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,oValue, nValue, pName);
+                                savePropValue(evt.currentTarget.dataset.targetproperty, nValue, pName);//使用手动输入的数值
+                            }else{
+                                console.log("no changes. ignore.");
+                            }
+                        },                        
+                        minLength: 0 //不输入任何值也能自动提示
+                    });
+                }else if(item.labelType === "refer" && item.referCategory && item.referCategory.trim().length>0){ //引用标注
+                    console.log("enable refer autocomplete", name, property, item.referCategory, stuff.meta.category, item);
+                    $("#"+inputId).autocomplete({
+                        source: function (request, response) {
+                            console.log("refer autocomplete",$(this)[0].element.data("propname"),$(this)[0].element.data("refercategory"));
+                            //查询引用值作为自动补全
+                            $.ajax({
+                                url:app.config.data_api + "/_api/cursor",
+                                type:"post",
+                                data:JSON.stringify({
+                                    query: 'For doc in my_stuff filter doc.meta.category=="'+$(this)[0].element.data("refercategory")+'"  and doc.title like "%'+request.term+'%" limit 10 return doc.title',
+                                    count: false
+                                }),//注意：不能使用JSON对象
+                                headers:{
+                                    "Content-Type":"application/json",
+                                    "Accept":"application/json",
+                                    Authorization:"Basic aWxpZmU6aWxpZmU="
+                                },        
+                                success:function(res){ //直接返回title列表
+                                    console.log("\n===got dict value suggestions ===\n",res);
+                                    response(res);
+                                }
+                            });
+                        },
+                        change: function( evt, ui ) { //修改后更新数值并自动提交
+                            //console.log("try save",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,evt.currentTarget.dataset.ovalue,$("#"+evt.currentTarget.id).val());
+                            var oValue = evt.currentTarget.dataset.ovalue;
+                            var nValue = $("#"+evt.currentTarget.id).val();
+                            var pName = evt.currentTarget.dataset.propname;
+                            if(ui.item && ui.item.value && ui.item.value.trim().length>0){ //从推荐列表中选择：实际上这里不会被触发
+                                console.log("try save dict measure with suggestion",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,ui.item.value,$("#"+evt.currentTarget.id).val(), pName);
+                                savePropValue(evt.currentTarget.dataset.targetproperty, ui.item.value, pName);//使用选择的数值
+                            }else if(nValue != oValue){ //判断数值是否被修改：检测是否和原始值不同，如果不同则认为被修改
+                                console.log("try save dict measure value",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,oValue, nValue, pName);
+                                savePropValue(evt.currentTarget.dataset.targetproperty, nValue, pName);//使用手动输入的数值
+                            }else{
+                                console.log("no changes. ignore.");
+                            }
+                        },                        
+                        minLength: 0 //不输入任何值也能自动提示
+                    });
+                }else{//设置存在缺失，如设置为字典标注，但未设置字典。或者 自动标注，不提供自动补全功能
+                    console.log("no autocomplete", name, property, item.labelType, stuff.meta.category, item);
+                    $("#"+inputId).autocomplete({
+                        source: [""],
+                        change: function( evt, ui ) { //修改后更新数值并自动提交
+                            //console.log("try save",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,evt.currentTarget.dataset.ovalue,$("#"+evt.currentTarget.id).val());
+                            var oValue = evt.currentTarget.dataset.ovalue;
+                            var nValue = $("#"+evt.currentTarget.id).val();
+                            var pName = evt.currentTarget.dataset.propname;
+                            if(ui.item && ui.item.value && ui.item.value.trim().length>0){ //从推荐列表中选择：实际上这里不会被触发
+                                console.log("try save measure with suggestion",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,ui.item.value,$("#"+evt.currentTarget.id).val(),nValue, pName);
+                                savePropValue(evt.currentTarget.dataset.targetproperty, ui.item.value, pName);//使用选择的数值
+                            }else if(nValue != oValue){ //判断数值是否被修改：检测是否和原始值不同，如果不同则认为被修改
+                                console.log("try save measure value",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,oValue, nValue, pName);
+                                savePropValue(evt.currentTarget.dataset.targetproperty, nValue, pName);//使用手动输入的数值
+                            }else{
+                                console.log("no changes. ignore.");
+                            }
+                        },                          
+                        minLength: 20 //不提供自动提示
+                    });
+                }
+              }
+              //添加未出现在标准类目映射中的property，即当前商品props中独有的属性。不提供自动补全。修改直接针对 props.xxx 进行
+                for(j in props){
+                    var prop = props[j];
+                    if(_sxdebug)console.log("un matched prop:"+JSON.stringify(prop));
+                    var property = Object.keys(prop)[0];
+                    var value = prop[property];
+                    var name = property ;//默认属性名称和属性的key一致
+
+                    //可以严格控制不允许文本属性出现：如 price.currency 应该出现在采集文本内，而不是props属性下。否则会被分析系统认为是新的待标注属性
+                    /**
+                    if(docKeys.indexOf(property)>-1) //可以严格控制不允许文本属性出现：当前忽略
+                        continue;       
+                    //**/
+
+                    var targetPropKey = "props."+property;//尚未在标准属性中定义的都认为是props.xxx扩展属性
+                    
+                    //添加带自动补全功能HTML
+                    var propHtml = propHtmlTpl;
+                    var inputId = "propinput_"+targetPropKey.replace(/\./g,"_");
+                    propHtml = propHtml.replace(/__type/g,"text");//否则自由输入
+                    propHtml = propHtml.replace(/__propType/g,"&nbsp");//无显示前缀
+                    propHtml = propHtml.replace(/__propName/g,name);
+                    propHtml = propHtml.replace(/__orgValue/g,value);
+                    propHtml = propHtml.replace(/__property/g,property);
+                    propHtml = propHtml.replace(/__targetProperty/g,targetPropKey);
+                    propHtml = propHtml.replace(/__inputId/g,inputId);
+                    propHtml = propHtml.replace(/__labelType/g,"");
+                    propHtml = propHtml.replace(/__referDict/g,"");
+                    propHtml = propHtml.replace(/__referCategory/g,"");
+                    propHtml = propHtml.replace(/__measureId/g,"");
+                    propHtml = propHtml.replace(/__style/g,"border-color:red;");
+                    $("#propsList").append(propHtml);
+
+                    console.log("ext prop item.", name, property, targetPropKey);
+                    $("#"+inputId).autocomplete({
+                        source: [""],
+                        change: function( evt, ui ) { //修改后更新数值并自动提交
+                            //console.log("try save",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,evt.currentTarget.dataset.ovalue,$("#"+evt.currentTarget.id).val());
+                            var oValue = evt.currentTarget.dataset.ovalue;
+                            var nValue = $("#"+evt.currentTarget.id).val();
+                            var pName = evt.currentTarget.dataset.propname;
+                            if(ui.item && ui.item.value && ui.item.value.trim().length>0){ //从推荐列表中选择：实际上这里不会被触发
+                                console.log("try save ext prop value with suggestion",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,ui.item.value,$("#"+evt.currentTarget.id).val(),nValue,pName);
+                                savePropValue(evt.currentTarget.dataset.targetproperty, ui.item.value, pName);//使用选择的数值
+                            }else if(nValue != oValue){ //判断数值是否被修改：检测是否和原始值不同，如果不同则认为被修改
+                                console.log("try save ext prop value",evt.currentTarget.id,evt.currentTarget.dataset.targetproperty,oValue, nValue, pName);
+                                savePropValue(evt.currentTarget.dataset.targetproperty, nValue, pName);//使用手动输入的数值
+                            }else{
+                                console.log("no changes. ignore.");
+                            }
+                        },                          
+                        minLength: 20 //不提供自动提示
+                    });
+                }
+              if(_sxdebug)console.log("prop Nodes:"+JSON.stringify(nodes));  
+
+            //显示属性列表
+            $("#propsDiv").css("display","block");    
+
+        }
+    })     
+}
+
+//保存属性值：直接更新stuff对象。对于props对象更新时，需要同步清理doc属性，对于doc属性，需要同步删除props属性
+function savePropValue(fullProperty, nValue, pName){
+    console.log("try update stuff.",fullProperty,nValue,pName,JSON.parse(JSON.stringify(stuff)));
+    var propChain = fullProperty.split(".");
+    console.log("got parsed property", propChain, nValue, pName);
+    var pattern = /props\./g;
+    if(pattern.test(fullProperty)){ //是props下的扩展属性，更新props，并同步清理文档上的同key或同name属性
+        if(!stuff.props)
+            stuff.props = {};
+        stuff.props[propChain[propChain.length-1]] = nValue;
+        delete stuff[propChain[propChain.length-1]];
+        delete stuff[pName];
+    }else{//是文档上的非props属性。需要更新，并且清理props下的属性。注意可能有多层，需要遍历
+        if(propChain.length ==1){
+            stuff[propChain[0]] = nValue;
+        }else if(propChain.length ==2){
+            if(!stuff[propChain[0]])
+                stuff[propChain[0]] = {};
+            stuff[propChain[0]][propChain[1]] = nValue;
+        }else if(propChain.length ==3){
+            if(!stuff[propChain[0]])
+                stuff[propChain[0]] = {};
+            if(!stuff[propChain[0]][propChain[1]])
+                stuff[propChain[0]][propChain[1]] = {};
+            stuff[propChain[0]][propChain[1]][propChain[2]] = nValue;
+        }else{
+            console.log("property hierarchy must be 1-3.");
+        }
+        //删除props内的同名属性，只考虑一级
+        if(stuff.props){
+            delete stuff.props[fullProperty];
+            delete stuff.props[pName];
+        }
+        
+    }
+
+    //提交保存：有延后，避免频繁提交
+    commitData(stuff, false,function(){
+        console.log("data saved.");
+    });
+    console.log("stuff propvalue updated.",stuff);
+}
+
+/**
+//@deprecated 原始版本
 //根据ItemCategory类别，获取对应的属性配置，并与数据值融合显示
 //0，获取property mapping，采用同步方式。获取后作为属性比对。根据name或者props.name对照
 //1，根据key进行合并显示，以itemCategory下的属性为主，能够对应上的key显示绿色，否则显示红色
@@ -2375,6 +2825,7 @@ function loadProps(categoryId){
         }
     })     
 }
+//**/
 
 //加载用户行为，作为买家说行为记录：
 //统计指定行为数量：

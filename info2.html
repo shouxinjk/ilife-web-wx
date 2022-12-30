@@ -88,12 +88,18 @@
                 <div id="measuresList" style="width:99%;"></div>
             </div>   
             <!--客观评价sankey图，显示从属性到得分的分布-->   
-            <div id="sankeyTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>评分构成</span></div>                    
+            <div id="sankeyTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>评分明细</span></div>    
+            <div id="sunburstReview" style="width:80%;padding-left:10%;display:none;flex-direction: row;align-items: center;justify-content: center;margin-bottom: 10px;margin-top:-10px;">
+                <div id="likeDimensionBtn" class="likeDimensionBtn"><img src="images/like.png" style="width:16px;height:16px;"/></div>
+                <div id="likeDimensionCount" class="likeDimensionBtn" style="font-size:12px;">赞同评价</div>
+                <div id="unlikeDimensionBtn" class="unlikeDimensionBtn" style="margin-left:10px;"><img src="images/unlike.png" style="width:16px;height:16px;"/></div>
+                <div id="unlikeDimensionCount" class="unlikeDimensionBtn" style="font-size:12px;">不赞同评价</div>
+            </div>                             
             <div id="sankey">
             </div>              
             <!--客观评价雷达图-->   
             <!--hr  id="radarTitle" class="hr-solid-content" data-content="得分及平均值对照"  style="display:none;margin-top:30px;"/-->   
-            <div id="radarTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>同类目评分对照</span></div>                    
+            <div id="radarTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>类目评分对照</span></div>                    
             <div id="radar">
             </div> 
             <div id="radarImg">
@@ -102,7 +108,13 @@
             <!-- Sunburst：显示当前类目评价规则 -->
             <!--div id="sunburstTitle" class="prop-key" style="width:90%;display:none;margin-bottom:5px;">评价规则构成</div--> 
             <!--hr  id="sunburstTitle" class="hr-solid-content" data-content="评价规则构成"  style="display:none;margin-bottom: 30px;"/-->   
-            <div id="sunburstTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>评分规则构成</span></div>   
+            <div id="sunburstTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>评分规则</span></div>               
+            <div id="sunburst" style="width:80%;padding-left:10%;">
+            </div> 
+            <div id="sunburstImg">
+                <button id="saveSunburst" style="display:none">生成物体系海报</button>
+            </div>  
+
           <!-- 蒙德里安格子图 -->     
           <!--
           <div id="mondrianTitle" class="prop-key" style="width:90%;display:none;margin:10px 0;font-size:12px;">评价规则格子图</div>             
@@ -111,19 +123,14 @@
           <div id="mondrianImg">
               <button id="saveMondrian" class="taggingBtn" style="display:none;">生成带有上图的物体系海报</button>
           </div>    
-          -->                     
-            <div id="sunburst" style="width:80%;padding-left:10%;">
-            </div> 
-            <div id="sunburstImg">
-                <button id="saveSunburst" style="display:none">生成物体系海报</button>
-            </div>   
+          -->                      
 
             <!-- 属性列表：显示所有属性值 -->
             <!--div id="propsTitle" class="prop-key" style="width:90%;display:none;margin-bottom:5px;">评价数据来源</div-->   
             <!--hr  id="propsTitle" class="hr-solid-content" data-content="基础数据明细"  style="display:none;margin:30px 0;"/-->   
             <div id="propsTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>商品数据明细</span></div>             
             <!-- 商品属性表，可能为空-->
-            <div id="props"></div>  
+            <div id="props"></div> 
 
             <!-- Posters: 海报列表，便于下载分享 -->
             <div id="posterTitle" class="prop-key" style="width:90%;display:none;margin-bottom:5px;">因此，我们也有不一样的视角看商品。</div> 
@@ -228,6 +235,6 @@
 <script type="text/javascript" src="js/options.js?v=1.04"></script>
 <script type="text/javascript" src="js/helper.js?v=1.13"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script>
-<script type="text/javascript" src="js/info2.js?v=9.38"></script>
+<script type="text/javascript" src="js/info2.js?v=9.41"></script>
 <script type="text/javascript" src="ext/require.min.js"></script>
 </html>
