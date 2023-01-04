@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>数据标注-小确幸大生活</title>
+    <title>定制指南-小确幸大生活</title>
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
@@ -42,16 +42,16 @@
             <div class="actiontype">评价规则</div>
         </div>          
         <div class="order-cell" id="proposal-schemes" data-tagging="like view favorite buy">
-            <img class="order-cell-icon-small" src="images/proposal-schemes.png"/>
-            <div class="actiontype">定制指南</div>
-        </div>          
+            <img class="order-cell-icon-small" src="images/proposal-schemes-selected.png"/>
+            <div class="actiontype-selected">定制指南</div>
+        </div>         
         <div class="order-cell" id="needs" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/needs.png"/>
             <div class="actiontype">需要模型</div>
         </div>     
         <div class="order-cell" id="data" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/data-selected.png"/>
-            <div class="actiontype-selected">数据标注</div>
+            <img class="order-cell-icon-small" src="images/data.png"/>
+            <div class="actiontype">数据标注</div>
         </div>                 
         <div class="order-cell" id="texts" data-tagging="share">
             <img class="order-cell-icon-small" src="images/texts.png"/>
@@ -60,12 +60,31 @@
     </view>
 
     <div class="tips">
-        请对以下数据评价打分 <a href="#" id="vailidateBtn" style="font-size: 12px;font-weight:bold;">筛选类目</a>
+        查看定制主题及指南
     </div> 
 
     <div id="Center">
-        <ul id="waterfall">           
-        </ul>
+        <!-- 基本信息 -->                     
+        <div id="base">
+        </div> 
+
+        <!-- 关联指南列表 -->   
+        <div id="guideTitle" class="sx_seperator" style="display:none;margin:20px 0;"><span>引用指南</span></div>                    
+        <div id="guide">
+        </div>
+
+        <!-- 章节列表 -->   
+        <div id="sectionTitle" class="sx_seperator" style="margin:30px 0;width:90%;margin-left:5%;"><span>包含章节</span></div>                    
+        <div id="section">
+            <div style="text-align: center;line-height: 20px;font-size: 12px;color:darkred;display:none;" id="sctionTips">未建立任何章节，请进入PC端补充设置</div>
+        </div>
+
+        <!-- 子类型列表 -->   
+        <div id="subtypeTitle" class="sx_seperator" style="margin:30px 0;width:90%;margin-left:5%;"><span>包含类型</span></div>                    
+        <div id="subtype">
+            <div style="text-align: center;line-height: 20px;font-size: 12px;color:darkred;display:none;" id="subtypeTips">未建立任何类型，请进入PC端补充设置</div>
+        </div>        
+
     </div>
 
     <!-- 加载进度与提示 -->
@@ -118,6 +137,6 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/data-by-dict.js?v=0.03"></script> 
+<script type="text/javascript" src="js/proposal-scheme.js?v=0.04"></script> 
 <script type="text/javascript" src="../ext/short-md5.js"></script>
 </html>
