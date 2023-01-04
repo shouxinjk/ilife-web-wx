@@ -48,6 +48,11 @@ $(document).ready(function ()
     //加载列表
     loadItem();
 
+    //注册事件：查看方案列表
+    $("#findMoreBtn").click(function(){
+        window.location.href = "../proposals.html?schemeId="+schemeId;
+    });
+
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -173,7 +178,8 @@ function insertItem(item, guides, sections, subtypes){
     if(item.parent && item.parent.name){
         parentTitle = item.parent.name +" · ";
     }
-    var title = "<div class='persona-title'>"+parentTitle+item.name+"</div>"
+    var goSolutions = "&nbsp;<a href='../proposals.html?schemeId="+schemeId+"' style='font-size:12px;font-weight:bold;'>方案列表</a>";
+    var title = "<div class='persona-title'>"+parentTitle+item.name+goSolutions+"</div>"
     var description = "<div class='persona-description'>"+item.description+"</div>"   
 
     $("#base").append("<div class='persona' id='"+item._key+"' style='border:0;'><div class='persona-logo-wrapper' style='width:25%;'>" + image +"</div><div class='persona-info' style='width:75%;'>" +title +highlights+description+ tags+ "</div>");

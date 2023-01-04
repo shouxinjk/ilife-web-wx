@@ -19,6 +19,7 @@ $(document).ready(function ()
     //处理参数
     var args = getQuery();//获取参数
     //category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
+    if(args["schemeId"])categoryId=args["schemeId"];//从请求中获取schemeId
     if(args["id"])inputPerson=args["id"];//从请求中获取需要展示的person或personaId
 /**
     $('#waterfall').NewWaterfall({
