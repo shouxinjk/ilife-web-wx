@@ -180,9 +180,13 @@ function insertItem(item, guides, sections, subtypes){
     
     //指南列表
     if(guides && guides.length>0){
+        var index = 0;
         $("#guideTitle").css("display","block");
         guides.forEach(function(guide){
+            if(index>0)
+                $("#guide").append("<div class='sx_seperator' style='margin:5px 0;width:80%;margin-left:10%;'></div>");
             insertGuideItem(guide);
+            index ++;
         });
     }
 
@@ -235,20 +239,22 @@ function insertGuideItem(item){
 
     //显示高亮标签，包括类型、来源、版本、状态。采用固定样式结构
     //var highlightTagTpl = "<span class='profitTipCredit' style='background-color:__bgcolor;color:__color;'>__type</span><span class='itemTagProfitCredit' style='background-color:__bgcolor;color:__color;'>__tag</span>";
-    var highlightTagTpl = "<span class='profitTipCredit'>__type</span><span class='itemTagProfitCredit'>__tag</span>&nbsp;";
+    var highlightTagTpl = "<span class='profitTipTeam'>__type</span><span class='itemTagProfitTeam'>__tag</span>&nbsp;";
     var highlights = "<div style='margin:5px 0;'>";
     //指南类型：
     highlights += highlightTagTpl.replace(/__bgcolor/g,"darkgreen").replace(/__bgcolor/g,"#fff").replace(/__type/g,"类型").replace(/__tag/g,guideTypes[item.type]);
     //指南来源：
     highlights += highlightTagTpl.replace(/__bgcolor/g,"#000").replace(/__bgcolor/g,"#fff").replace(/__type/g,"来源").replace(/__tag/g,item.origin);
     //指南版本：
-    highlights += highlightTagTpl.replace(/__bgcolor/g,"#000").replace(/__bgcolor/g,"#fff").replace(/__type/g,"版本").replace(/__tag/g,item.revision);
+    //highlights += highlightTagTpl.replace(/__bgcolor/g,"#000").replace(/__bgcolor/g,"#fff").replace(/__type/g,"版本").replace(/__tag/g,item.revision);
     //指南状态：
+    /**
     if(item.status==0){
         highlights += highlightTagTpl.replace(/__bgcolor/g,"darkred").replace(/__bgcolor/g,"#fff").replace(/__type/g,"状态").replace(/__tag/g,"未启用");
     }else{
         highlights += highlightTagTpl.replace(/__bgcolor/g,"darkgreen").replace(/__bgcolor/g,"#fff").replace(/__type/g,"状态").replace(/__tag/g,"已启用");
     }
+    //**/
 
     highlights += "</div>";
 
@@ -256,10 +262,18 @@ function insertGuideItem(item){
     if(item.alias && item.alias.trim().length>0){
         alias = "("+item.alias.trim()+")";
     }
-    var title = "<div class='persona-title'>"+item.name+alias+"</div>"
+    var revision = "";
+    if(item.revision && item.revision.trim().length>0){
+        revision = " 版本:"+item.revision;
+    }
+    var url = "";
+    if(item.url && item.url.indexOf("http")==0){
+        url = "&nbsp;<a href='"+item.url+"' style='font-size:12px;font-weight:bold;'>查看</a>";
+    }
+    var title = "<div class='persona-title'>"+item.name+alias+revision+url+"</div>"
     var description = "<div class='persona-description'>"+item.description+"</div>"   
 
-    $("#guide").append("<div class='persona' id='"+item.id+"' style='border:0;'><div class='persona-info' style='width:100%;'>" +title+ highlights +description+ tags+ "</div></div>");
+    $("#guide").append("<div class='persona' id='"+item.id+"' style='border:0;width:80%;min-height:40px;'><div class='persona-info' style='width:100%;'>" +title+ highlights +description+ tags+ "</div></div>");
 
 }
 
