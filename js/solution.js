@@ -47,6 +47,8 @@ $(document).ready(function ()
 
     //加载达人信息
     //loadBrokerInfo();
+    //加载指南类型字典
+    loadGuideTypes();    
 
     //加载内容
     loadSolution(id); //加载完成后将立即开始加载推荐列表
@@ -91,6 +93,23 @@ var posterId = null;//海报模板ID
 //优先从cookie加载达人信息
 function loadBrokerInfo(){
   broker = util.getBrokerInfo();
+}
+
+var guideTypes = {};//指南类型键值对
+function loadGuideTypes(){
+    util.AJAX(app.config.sx_api+"/sys/dict/rest/byType", function (res) {
+        console.log("loadItems try to retrive pending items.", res)
+        if (res && res.length>0) {//加载类型列表
+            res.forEach(function(item){
+                guideTypes[item.value]=item.label;
+            });         
+        }else{//如果没有则提示，
+            console.log("cannot load ditc by type: guide_type ");           
+        }
+    }, 
+    "GET",
+    {type:"guide_type"},
+    {});
 }
 
 //构建方案条目html：根据类型显示具体内容。section类型仅显示分隔信息
@@ -372,8 +391,8 @@ function loadSolution(solutionId){
             solution = res.data;
             showContent(res.data);
 
-            //加载推荐列表
-            loadMoreSolutions(solution.scheme.id);
+            //根据proposalScheme类型加载更多推荐或参考指南列表
+            loadProposalScheme(solution.scheme.id);
 
             //注册事件：根据关键词搜索更多
             $("#jumpToSearch").click(function(){
@@ -492,6 +511,92 @@ function insertStuffItem(solutionItemId, stuff){
     loading = false;
 }
 
+//根据schemeId加载scheme详情，包括指南列表
+function loadProposalScheme(schemeId){
+    util.AJAX(app.config.sx_api+"/diy/proposalScheme/rest/scheme/"+schemeId, function (res) {
+        console.log("loadItems try to retrive pending items.", res)
+        if (res.scheme) {//有数值时才显示
+            if(res.scheme.type=="guide"){
+                //指南列表
+                var guides = res.guideBooks;
+                if(guides && guides.length>0){
+                    var index = 0;
+                    $("#moreInfo").html("参考指南");
+                    guides.forEach(function(guide){
+                        if(index>0)
+                            $("#guide").append("<div class='sx_seperator' style='margin:5px 0;width:80%;margin-left:10%;'></div>");
+                        insertGuideItem(guide);
+                        index ++;
+                    });
+                }
+            }else{
+                //显示相关方案
+                loadMoreSolutions(schemeId);
+            }       
+        }else{//如果没有则提示，
+            console.log("cannot find scheme by id. ", schemeId);           
+        }
+    }, 
+    "GET",
+    {},
+    {});
+}
+
+//显示指南列表
+
+function insertGuideItem(item){
+    // 基本信息
+    var tagTmpl = "<div class='persona-tag' style='background-color:__bgcolor;border-color:__bgcolor;'>__TAG</div>";
+    var tags = "<div class='persona-tags'>";
+
+    //显示标签
+    if(item.tags && item.tags.trim().length>0){
+        item.tags.split(" ").forEach(function(tag){
+            tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,tag.trim());
+        });
+    }
+    tags += "</div>";
+
+    //显示高亮标签，包括类型、来源、版本、状态。采用固定样式结构
+    //var highlightTagTpl = "<span class='profitTipCredit' style='background-color:__bgcolor;color:__color;'>__type</span><span class='itemTagProfitCredit' style='background-color:__bgcolor;color:__color;'>__tag</span>";
+    var highlightTagTpl = "<span class='profitTipTeam'>__type</span><span class='itemTagProfitTeam'>__tag</span>&nbsp;";
+    var highlights = "<div style='margin:5px 0;'>";
+    //指南类型：
+    highlights += highlightTagTpl.replace(/__bgcolor/g,"darkgreen").replace(/__bgcolor/g,"#fff").replace(/__type/g,"类型").replace(/__tag/g,guideTypes[item.type]?guideTypes[item.type]:"");
+    //指南来源：
+    highlights += highlightTagTpl.replace(/__bgcolor/g,"#000").replace(/__bgcolor/g,"#fff").replace(/__type/g,"来源").replace(/__tag/g,item.origin);
+    //指南版本：
+    //highlights += highlightTagTpl.replace(/__bgcolor/g,"#000").replace(/__bgcolor/g,"#fff").replace(/__type/g,"版本").replace(/__tag/g,item.revision);
+    //指南状态：
+    /**
+    if(item.status==0){
+        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkred").replace(/__bgcolor/g,"#fff").replace(/__type/g,"状态").replace(/__tag/g,"未启用");
+    }else{
+        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkgreen").replace(/__bgcolor/g,"#fff").replace(/__type/g,"状态").replace(/__tag/g,"已启用");
+    }
+    //**/
+
+    highlights += "</div>";
+
+    var alias = "";
+    if(item.alias && item.alias.trim().length>0){
+        alias = "("+item.alias.trim()+")";
+    }
+    var revision = "";
+    if(item.revision && item.revision.trim().length>0){
+        revision = " 版本:"+item.revision;
+    }
+    var url = "";
+    if(item.url && item.url.indexOf("http")==0){
+        url = "&nbsp;<a href='"+item.url+"' style='font-size:12px;font-weight:bold;'>查看</a>";
+    }
+    var title = "<div class='persona-title'>"+item.name+alias+revision+url+"</div>"
+    var description = "<div class='persona-description'>"+item.description+"</div>"   
+
+    $("#guide").append("<div class='persona' id='"+item.id+"' style='border:0;width:80%;min-height:40px;'><div class='persona-info' style='width:100%;'>" +title+ highlights +description+ tags+ "</div></div>");
+}
+
+
 //根据schemeId查找所有主题列表
 function loadMoreSolutions(schemeId){
     var query = {
@@ -508,6 +613,7 @@ function loadMoreSolutions(schemeId){
         success:function(ret){
             console.log("load solutions.",ret);
             if(ret.success && ret.data.length>1){//逐条显示到更多区域
+                $("#moreInfo").html("更多相似定制方案");
                 ret.data.forEach(function(item){
                     if(item.id != id)
                         insertMoreSolutionItem(item);

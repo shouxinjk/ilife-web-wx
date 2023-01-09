@@ -595,7 +595,7 @@ function buildSolutionItemHtml(item){
         var  html = '<div style="width:100%;">';
             html += '<div class="board-item-tips-seperator"></div> ';
             if(item.name && item.name.trim().length>0)
-                html += '<div class="board-item-tips" style="font-size:14px;line-height:18px;width:80%;">'+item.name+'</div> '
+                html += '<div class="board-item-tips" style="font-size:14px;line-height:18px;width:100%;">'+item.name+'</div> '
             if(item.description && item.description.trim().length>0)
                 html += '<div class="board-item-tips" style="line-height:14px;">'+item.description+'</div> '
             html += '<div style="width:100%;text-align:center;display:flex;flex-direction:row;justify-content: center;">';

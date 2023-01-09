@@ -11,9 +11,15 @@
     <link rel="stylesheet" type="text/css" href="css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="css/boards.css">
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css">     
+
+    <link rel="stylesheet" type="text/css" href="ext/jsonform/bootstrap.css?v=0.02" />
+    <link rel="stylesheet" type="text/css" href="ext/jsonform/bootstrap-wysihtml5.css" />
+    <!--link rel="stylesheet" type="text/css" href="ext/jsonform/spectrum.css" /-->  
+    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">  
-    <link rel="stylesheet" type="text/css" href="css/common.css?v=1.6"> 
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">     
+    <link rel="stylesheet" type="text/css" href="css/common.css?v=1.6">     
+
     <link rel="stylesheet" type="text/css" href="css/favorite.css?v=1.5">
     <link rel="stylesheet" type="text/css" href="broker/css/feeds.css?v=3.8">    
     <link rel="stylesheet" type="text/css" href="publisher/css/publisher.css?v=3.8">    
@@ -84,6 +90,9 @@
     </a>        
   </div>
 
+    <div id="jsonformDiv" style="display:none; cursor: default;">
+        <form id="jsonform"></form>
+    </div> 
 
     <div id="chooseSchemeForm" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;">选择一个主题</div> 
@@ -107,8 +116,11 @@
 <script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
 <script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="ext/jsonform/underscore.js"></script>
+<script type="text/javascript" src="ext/jsonform/jsv.js"></script>
+<script type="text/javascript" src="ext/jsonform/jsonform.js?v=1.0"></script>
 <script type="text/javascript" src="ext/d3/d3.min.js"></script>
 <script type="text/javascript" src="ext/d3/zoomable-circle-packing.js?v=0.6"></script>
 <script type="text/javascript" src="js/util.js?v=3.2"></script>
-<script type="text/javascript" src="js/proposals.js?v=0.84"></script> 
+<script type="text/javascript" src="js/proposals.js?v=0.9"></script> 
 </html>

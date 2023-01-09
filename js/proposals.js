@@ -34,6 +34,7 @@ $(document).ready(function ()
 
     util.getUserInfo();//从本地加载cookie
     loadBrokerInfo(); //从本地加载达人信息
+    loadUserProps(); //加载用户属性定义列表，用于提供动态表单
     
     searchCategory();//默认发起类目检索
     loadFeeds();//默认查询所有方案
@@ -47,12 +48,36 @@ $(document).ready(function ()
 
     //注册事件：点击后开始创建新的solution
     $("#btnPublish").click(function(){
-      //createSolution();
       if(categoryId == "board"){//如果是board则直接创建
           console.log("try create board");
           createBoard();       
       }else if(categoryId && categoryId.trim().length>0){//如果已经选中了主题则直接创建
-        createSolution();
+            if("guide"==categoryType){//如果是指南类型则显示表单
+                //显示数据填报表单
+                $.blockUI({ message: $('#jsonformDiv'),
+                    css:{ 
+                        padding:        10, 
+                        margin:         0, 
+                        width:          '60%', 
+                        top:            '20%', 
+                        left:           '20%', 
+                        textAlign:      'center', 
+                        color:          '#000', 
+                        border:         '1px solid silver', 
+                        backgroundColor:'#fff', 
+                        cursor:         'normal' 
+                    },
+                    overlayCSS:  { 
+                        backgroundColor: '#000', 
+                        opacity:         0.7, 
+                        cursor:          'normal' 
+                    }
+                }); 
+                //生成并显示表单
+                generateJsonForm();
+            }else{
+                createSolution();
+            }
       }else{
         console.log("unkonw type. ignore.");
       }      
@@ -68,7 +93,32 @@ $(document).ready(function ()
           console.log("try create board");
           createBoard();       
       }else if(categoryId && categoryId.trim().length>0){//如果已经选中了主题则直接创建
-        createSolution();
+            if("guide"==categoryType){//如果是指南类型则显示表单
+                //显示数据填报表单
+                $.blockUI({ message: $('#jsonformDiv'),
+                    css:{ 
+                        padding:        10, 
+                        margin:         0, 
+                        width:          '89%', 
+                        top:            '20%', 
+                        left:           '5%', 
+                        textAlign:      'center', 
+                        color:          '#000', 
+                        border:         '1px solid silver', 
+                        backgroundColor:'#fff', 
+                        cursor:         'normal' 
+                    },
+                    overlayCSS:  { 
+                        backgroundColor: '#000', 
+                        opacity:         0.7, 
+                        cursor:          'normal' 
+                    }
+                }); 
+                //生成并显示表单                
+                generateJsonForm();
+            }else{
+                createSolution();
+            }
       }else{//否则需要选择主题
         //显示数据填报表单
         $.blockUI({ message: $('#chooseSchemeForm'),
@@ -98,8 +148,10 @@ $(document).ready(function ()
 var width = 600;
 var clientWidth = 600;
 
+//以下记录proposalScheme。由于与board混合，采用类目进行识别
 var categoryId = null; //记录当前切换的metaCategory。由于启用定时器，切换时有延迟，导致加载的是上一个category商品的情况
 var categoryName = ""; //作为推荐搜索关键字，切换类目后用类目名称填写
+var categoryType = ""; //记录scheme类型，guide 或 free
 
 var columnWidth = 300;//默认宽度300px
 var columnMargin = 5;//默认留白5px
@@ -123,6 +175,247 @@ var personKeys = [];//标记已经加载的用户key，用于排重
 
 var inputPerson = null;//接收指定的personId或personaId
 
+//对于guide类型方案，需要根据用户属性显示表单
+var props = [];
+function loadUserProps(){
+    //获取所有用户属性
+    $.ajax({
+        url: app.config.sx_api+"/mod/userMeasure/rest/measures",
+        type:"get",
+        data:{},
+        success:function(res){
+            console.log("\n===got user measures ===\n",res);
+            //遍历模板
+            props = res;
+            if(scripts && scripts.trim().length>0){
+                checkScriptFields();
+            }
+        }
+    });             
+}
+
+//生成用户动态表单
+var formSchemeTpl = {
+        schema:{},
+        form:[],
+        value:{}//默认value为空
+};
+var formTabTpl = { //构建tab
+        "title":"",
+        "type":"tab",
+        "items":[]
+      };
+var formScheme = {};
+var formValues = {};//表单值，默认采用默认值填写
+var formFields = {};//记录动态表单的属性列表，kv对，key为属性property，v为组织后的的字段条目
+var formTabs = {};//记录动态表单的tab下属性列表,每一个tab一个kv对。key为tab名称，及属性类目名称，value为其下包含的filed列表
+function generateJsonForm(){
+    formFields = {};//清空字段
+    formValues = {};//清空表单值
+    formTabs = {};//清空tabs
+    formScheme = JSON.parse(JSON.stringify(formSchemeTpl));
+    
+    checkScriptFields();//先检查脚本中引用的字段
+    
+    //遍历属性组织formScheme
+    var enumTypes = ["string","array"];//支持预先生成候选项
+    props.forEach(function(prop){
+        if(scriptFields==null || scriptFields.length==0 || scriptFields.indexOf(prop.property)>-1){//有引用时加入
+            //表单字段
+            var formItem ={
+                    type: prop.type,
+                    title: prop.name
+                };
+            if(prop.tags && prop.tags.trim().length>0 && enumTypes.indexOf(prop.type)>-1){ //仅对字符类提供选项
+                formItem["enum"] = prop.tags.split(" ");
+            }
+            //array列表装载:当前默认为string类型多选
+            if("array"==prop.type){
+                formItem.type = "string";//默认为string类型
+                formItem = { //增加array结构
+                    type: prop.type, //直接为array
+                    title: prop.name,
+                    items : formItem
+                };
+            }            
+            formFields[prop.property]=formItem;
+            //value项
+            if(prop.defaultValue && prop.defaultValue.trim().length>0){
+                formValues[prop.property]=prop.defaultValue;
+            }
+            //tab项
+            if(!formTabs[prop.category.name]){
+                formTabs[prop.category.name] = [];
+            }            
+            formTabs[prop.category.name].push({
+                key: prop.property,
+                type: prop.field,
+                activeClass: "btn-success"//default
+            });             
+
+        }else{//否则不加入
+            //do nothing
+        }
+    });
+    
+    //组织得到formScheme
+    formScheme.schema = formFields;
+    
+    //组织tabs
+    var tabItems = [];
+    Object.keys(formTabs).forEach(function(tabTitle){
+        var tabItem = JSON.parse(JSON.stringify(formTabTpl));
+        tabItem.title = tabTitle;
+        tabItem.items = formTabs[tabTitle];
+        tabItems.push(tabItem);
+    });
+    
+    var tabScheme = {
+            "type": "fieldset",
+            "title": "为更好生成方案，请补充以下内容",
+            "items": [{
+                "type": "tabs",
+                "id": "navtabs",
+                "items": tabItems
+            }]
+        };
+    formScheme.form.push(tabScheme);
+    
+    //组织提交按钮
+    var btnScheme = {
+            "type": "actions",
+            "items": [{
+                "type": "submit",
+                "value": "生成个性化方案"
+            }]
+        };
+    formScheme.form.push(btnScheme);
+
+    //合并默认值及userInfo，以userInfo为主
+    formValues = { ...formValues, ...app.globalData.userInfo };
+    
+    //将值设置进入form scheme
+    formScheme.value = formValues;   //默认值        
+    
+    //设置提交事件
+    formScheme.onSubmit = function (errors, values) {//jsonform 提交函数
+                      values = {...app.globalData.userInfo, ...values};//合并userInfo一并提交
+                      console.log("try submit json form.",errors,values);
+                        //清空结果显示
+                      if (errors) {
+                        console.log("got erros.",errors);
+                        siiimpleToast.message('提交表单出错',{
+                            position: 'bottom|center'
+                          }); 
+                      }else {
+                        var data = {
+                              forOpenid:app.globalData.userInfo._key,
+                              byOpenid:app.globalData.userInfo._key,
+                              byNickname:app.globalData.userInfo.nickname,
+                              forNickname:app.globalData.userInfo.nickname,
+                              userInfo: values
+                            }
+                        console.log("try to submit data.",data);
+                        //TODO 需要同步提交到arangodb保存最新用户数据
+                        //根据表单数据生成个性化方案
+                        $.ajax({
+                            url: app.config.sx_api+"/diy/solution/rest/blank/"+categoryId,
+                            type:"post",
+                            data:JSON.stringify(data),
+                            headers:{
+                                "Content-Type":"application/json"
+                            },  
+                            timeout:5000,//设置超时                
+                            success:function(ret){
+                                console.log("create guide solution success.",ret);
+                                if(!ret.success ){//创建失败
+                                  siiimpleToast.message('糟糕，出错了~~',{
+                                    position: 'bottom|center'
+                                  }); 
+                                }else{
+                                    //直接跳转到编辑页面等待完善
+                                    window.location.href="solution.html?id="+ret.solution.id;
+                                }
+                                
+                            },
+                            error: function () {//调用出错执行的函数
+                                //请求出错处理：超时则直接显示搜索更多按钮
+                                  siiimpleToast.message('糟糕，出错了~~',{
+                                    position: 'bottom|center'
+                                  }); 
+                              }
+                        });                         
+                        //////表单提交结束
+                      }
+                    };
+
+    console.log("form scheme.\n",JSON.stringify(formScheme),"\n",formScheme);
+    
+    //可以显示表单了
+    $("#jsonform").empty();//清空原来的表单
+    $("#jsonform").jsonForm(formScheme);
+
+    //修正css风格
+    $("div[id^=navtabs-]").css("text-align","left");
+    $("#jsonform>div>fieldset").css("margin-top","0");
+    $("#jsonform>div>fieldset>legend").css({
+        "font-size":"14px",
+        "padding-bottom":"5px"
+    });
+    $("li>a[href^='#navtabs-']").css({"font-size":"12px"}); //tab文字大小
+    $("#jsonform>div>fieldset>div").css({//字段标题
+        "font-size":"12px"
+    });    
+    $("#jsonform>div>fieldset>div .form-control").css({ 
+        "font-size":"12px"
+    });   
+    $("#jsonform>div>fieldset>div label.btn>span").css({ //按钮形式数值文字大小
+        "font-size":"12px"
+    }); 
+    $("#jsonform>div>fieldset>div .btn-default").css({ //按钮形式边框颜色
+        "border-color":"#ccc"
+    });            
+    $("#jsonform>div>div").prepend('<span type="submit" class="btnNo" id="btnCancelJsonForm" style="font-size: 12px;padding:2px 5px;">取消</span>');
+    $("#btnCancelJsonForm").click(function(e){ //绑定事件
+        $.unblockUI(); 
+    }); 
+    //修改提交按钮风格
+    $("#jsonform>div>div>input").addClass("btnYes").css({
+        "margin-left":"5px",
+        "font-size":"12px",
+        "padding":"2px 5px",
+        "margin-top":"-3px"
+    });
+
+
+}
+
+//根据schemeId获取所有脚本，便于过滤需要显示的条目
+//根据openid查询加载broker
+var scripts = "";
+function getSchemeScripts(schemeId) {
+    util.AJAX(app.config.sx_api+"/diy/proposalScheme/rest/script/"+schemeId, function (res) {
+        scripts = res.scripts;
+        if(props&&props.length>0){
+            checkScriptFields();
+        }
+    });
+}
+
+//检查脚本内容中是否包含有属性字段，如果没有属性字段则显示完整表单，否则显示包含的指定字段集
+var scriptFields = [];//脚本中包含的字段列表，记录property值
+function checkScriptFields(){
+    scriptFields = [];//清空先
+    console.log("try check scripts.",scripts);
+    props.forEach(function(prop){
+        const re = new RegExp(prop.property, 'g');
+        if(scripts.match(re) && scriptFields.indexOf(prop.property)<0){ //仅放入一次
+            scriptFields.push(prop.property);
+        }
+    });     
+    console.log("fields in script.",scriptFields);
+}
+
 //根据当前选中schemeId创建一个空白solution并且跳转到编辑界面，等待完善
 function createSolution(){
     $.ajax({
@@ -138,7 +431,7 @@ function createSolution(){
             "Content-Type":"application/json",
             "Accept": "application/json"
         },
-        timeout:3000,//设置超时
+        timeout:5000,//设置超时
         success:function(ret){
             console.log("create blank solution success.",ret);
             if(!ret.success ){//创建失败
@@ -291,7 +584,7 @@ function searchCategory() {
             "Content-Type":"application/json",
             "Accept": "application/json"
         },
-        timeout:3000,//设置超时
+        timeout:5000,//设置超时
         success:function(data){
             console.log("Feed::loadData success.",data);
             if(data.length == 0){//如果没有内容，则显示提示文字
@@ -439,7 +732,7 @@ function loadData() {
         data:q,//根据是否有输入选择查询
         headers:esHeader,
         crossDomain: true,
-        timeout:3000,//设置超时
+        timeout:5000,//设置超时
         success:function(data){
             console.log("Feed::loadData success.",data);
             if(data.hits.total == 0 || data.hits.hits.length==0){//如果没有内容，则显示提示文字
@@ -827,7 +1120,7 @@ function insertCategoryItem(proposalScheme){
     $("#no-results-tip").toggleClass("no-result-tip-hide",true);
     $("#no-results-tip").toggleClass("no-result-tip-show",false); 
     
-    var measureTag = "<div id='metacat"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-name='"+proposalScheme.name+"' style='line-height:16px;font-size:12px;min-width:60px;font-weight:bold;padding:2px;border:1px solid silver;border-radius:10px;margin:2px;'>"+proposalScheme.name+"</div>"
+    var measureTag = "<div id='metacat"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-type='"+proposalScheme.type+"' data-name='"+proposalScheme.name+"' style='line-height:16px;font-size:12px;min-width:60px;font-weight:bold;padding:2px;border:1px solid silver;border-radius:10px;margin:2px;'>"+proposalScheme.name+"</div>"
     $("#categoryDiv").append( measureTag );
 
     //注册事件
@@ -836,9 +1129,15 @@ function insertCategoryItem(proposalScheme){
 
         categoryId = $(this).data("id"); //设置全局变量，避免interval延迟调用问题
         categoryName = $(this).data("name"); //设置全局变量，避免interval延迟调用问题
+        categoryType = $(this).data("type"); //设置全局变量，避免interval延迟调用问题
 
         //修改新建标题
         $("#createProposalTip").html("定制我的 "+categoryName);
+
+        //如果是个性化指南guide则加载scripts
+        if("guide"==categoryType){
+            getSchemeScripts(categoryId);
+        }
 
         loadFeeds();//加载该主题下的具体方案列表
 
@@ -851,7 +1150,7 @@ function insertCategoryItem(proposalScheme){
 
 
     //同步写入主题选择Div
-    var proposalTag = "<div id='proposal"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-name='"+proposalScheme.name+"' style='line-height:20px;font-size:12px;min-width:60px;font-weight:bold;padding:2px 10px;border:1px solid silver;border-radius:20px;margin:2px;'>"+proposalScheme.name+"</div>"
+    var proposalTag = "<div id='proposal"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-type='"+proposalScheme.type+"' data-name='"+proposalScheme.name+"' style='line-height:20px;font-size:12px;min-width:60px;font-weight:bold;padding:2px 10px;border:1px solid silver;border-radius:20px;margin:2px;'>"+proposalScheme.name+"</div>"
     $("#proposalSchemesDiv").append( proposalTag );//同步写入候选表单
     //注册事件
     $("#proposal"+proposalScheme.id).click(function(){
@@ -859,6 +1158,12 @@ function insertCategoryItem(proposalScheme){
 
         categoryId = $(this).data("id"); //设置全局变量，避免interval延迟调用问题
         categoryName = $(this).data("name"); //设置全局变量，避免interval延迟调用问题
+        categoryType = $(this).data("type"); //设置全局变量，避免interval延迟调用问题
+
+        //如果是个性化指南guide则加载scripts
+        if("guide"==categoryType){
+            getSchemeScripts(categoryId);
+        }
 
         //高亮
         $("div[id^=proposal]").css("background-color","#fff");
