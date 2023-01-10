@@ -42,8 +42,8 @@ $(document).ready(function ()
         window.location.href = "../broker/my-addpersona.html";//跳转到海报生成界面
     });    
 
-    //注册切换：文章/公众号
-    $("#personaNeedsFilterFilter").click(function(e){
+    //注册事件：切换菜单
+    $("#personaNeedsFilter").click(function(e){
         window.location.href = "needs.html";
     });
     $("#phaseNeedsFilter").click(function(e){

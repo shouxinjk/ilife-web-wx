@@ -46,6 +46,16 @@ $(document).ready(function ()
     //加载维度定义数据
     loadPersonaNeeds();
 
+    //注册事件：切换菜单
+    $("#personaNeedsFilter").click(function(e){
+        window.location.href = "needs.html";
+    });
+    $("#phaseNeedsFilter").click(function(e){
+        window.location.href = "needs-phase.html";
+    });
+    $("#categoryNeedsFilter").click(function(e){
+        window.location.href = "categories.html?target=need";
+    }); 
 
 });
 
