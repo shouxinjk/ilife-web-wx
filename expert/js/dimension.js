@@ -42,7 +42,12 @@ $(document).ready(function ()
     });
 
     //加载维度定义数据
-    loadDimensionInfo();
+    if(categoryId&&dimensionId){
+        loadDimensionInfo();
+    }else{
+        window.location.href = "categories.html?target=dimension";
+    }
+
 
 });
 
