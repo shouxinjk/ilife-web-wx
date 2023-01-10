@@ -19,12 +19,12 @@ $(document).ready(function ()
         from = args["from"]; //需要修改的用户ID
     }    
    
-    if(args["personaId"]){
-        personaId = args["personaId"]; 
+    if(args["categoryId"]){
+        categoryId = args["categoryId"]; 
     }
-    if(args["personaName"]){
-        personaName = args["personaName"]; 
-        $("#treemapTitle").prepend("<span style='padding:0 2px;/*color:#007bff;*/'>"+personaName+"</span>");
+    if(args["categoryName"]){
+        categoryName = args["categoryName"]; 
+        $("#treemapTitle").prepend("<span style='padding:0 2px;/*color:#007bff;*/'>"+categoryName+"</span>");
     }    
 
     $("body").css("background-color","#fff");//更改body背景为白色
@@ -37,14 +37,14 @@ $(document).ready(function ()
 
     //注册事件：直接进入首页，通过切换画像得到
     $("#vailidateBtn").click(function(e){
-        window.location.href="../index.html?personaId="+personaId;
+        window.location.href="../index.html?categoryId="+categoryId;
     });
 
     //加载需要类型
     loadNeedTypes();
 
     //加载维度定义数据
-    loadPersonaNeeds();
+    loadCategoryNeeds();
 
     //注册事件：切换菜单
     $("#personaNeedsFilter").click(function(e){
@@ -87,9 +87,9 @@ var currentPersona = {};
 var currentConnection = null;
 var currentPerson = {};//默认当前修改用户为空
 
-var personaId = null;
-var personaName = null;
-var personaNeeds = [];//关联的need列表
+var categoryId = null;
+var categoryName = null;
+var categoryNeeds = [];//关联的need列表
 var needTypes = {};//需要类型
 var needType = null;//当前选中的needType
 var needTypeColor = { //颜色表
@@ -108,7 +108,7 @@ var needTypeWeightSum={
 }; //按需要类型统计占比，用于计算legend宽度
 
 var need = {};//记录当前操作的need
-var personaNeed = {};//记录当前操作的personaNeed，注意新增need是直接完成
+var categoryNeed = {};//记录当前操作的categoryNeed，注意新增need是直接完成
 
 //装载需要类型
 function loadNeedTypes(){
@@ -154,18 +154,18 @@ function loadNeedTypes(){
     {});
 }
 
-//装载PersonaNeed数据
-function loadPersonaNeeds(){
-    if(!personaId){
-        console.log("personaId cannot be null.");
+//装载CategoryNeed数据
+function loadCategoryNeeds(){
+    if(!categoryId){
+        console.log("categoryId cannot be null.");
         return;
     }
-    //根据personaId获取所有需要列表
-    console.log("try to load needs.",personaId);
+    //根据categoryId获取所有需要列表
+    console.log("try to load needs.",categoryId);
     $.ajax({
-        url:app.config.sx_api+"/mod/personaNeed/rest/needs/"+personaId,
+        url:app.config.sx_api+"/mod/categoryNeed/rest/needs/"+categoryId,
         type:"get",
-        //data:JSON.stringify(personaId),//注意：不能使用JSON对象
+        //data:JSON.stringify(categoryId),//注意：不能使用JSON对象
         headers:{
             "Content-Type":"application/json",
             "Accept": "application/json"
@@ -173,10 +173,10 @@ function loadPersonaNeeds(){
         success:function(ret){
             console.log("===got needs===\n",ret);
             if(ret && ret.length>0){
-                personaNeeds = ret;
+                categoryNeeds = ret;
                 var nodes = [];
-                if(personaNeeds && personaNeeds.length>0){//合并子级指标
-                    personaNeeds.forEach(function(node){
+                if(categoryNeeds && categoryNeeds.length>0){//合并子级指标
+                    categoryNeeds.forEach(function(node){
                         nodes.push({
                             name: node.need.name,
                             id: node.need.id,
@@ -184,24 +184,24 @@ function loadPersonaNeeds(){
                         });
                     });
                 }    
-                showPersonaNeeds();//显示属性列表供操作       
+                showCategoryNeeds();//显示属性列表供操作       
                 showTreemap( nodes );                
             }else{
-                showPersonaNeeds();//显示属性列表供操作：需要显示待添加列表
+                showCategoryNeeds();//显示属性列表供操作：需要显示待添加列表
             }
         }
     });  
 }
 
 //显示属性列表：能够直接发起增、删、改操作。显示时需要结合所有可选属性，以及已添加属性进行。
-function showPersonaNeeds(){
+function showCategoryNeeds(){
     //先清空
-    $("#personaNeedsDiv").empty();
+    $("#categoryNeedsDiv").empty();
     $("#legendDiv").empty();
 
     //逐条显示已经添加的属性节点
-    if(personaNeeds && personaNeeds.length>0){
-        personaNeeds.forEach(function(node){
+    if(categoryNeeds && categoryNeeds.length>0){
+        categoryNeeds.forEach(function(node){
             //按类型汇总needType权重
             if(!needTypeWeightSum[node.need.type]){
                 needTypeWeightSum[node.need.type] = 0;
@@ -210,19 +210,19 @@ function showPersonaNeeds(){
             //显示到界面
             var tagclass = node.weight<0.1?"sxTag0":"measureTag"; //权重较低则灰色显示
             var needtypeColor = "color:#fff;background-color:"+needTypeColor[node.need.type]+";border:1px solid "+needTypeColor[node.need.type];
-            var html = '<div class="'+tagclass+'" id="personaneed'+node.id+'" data-id="'+node.id+'" style="'+needtypeColor+'">';
+            var html = '<div class="'+tagclass+'" id="categoryneed'+node.id+'" data-id="'+node.id+'" style="'+needtypeColor+'">';
             html += node.need.name + " "+ node.weight+"%";
             html += '</div>';
-            $("#personaNeedsDiv").append(html);
+            $("#categoryNeedsDiv").append(html);
             //注册点击事件：点击后弹出浮框完成修改或删除
-            $("#personaneed"+node.id).click(function(){ 
-                //从列表里取出当前操作的personaNeed
-                var currentPersonaNeedId = $(this).data("id");
-                personaNeed = personaNeeds.find(item => item.id == currentPersonaNeedId);
-                if(personaNeed){
-                    showPersonaNeedInfoForm();
+            $("#categoryneed"+node.id).click(function(){ 
+                //从列表里取出当前操作的categoryNeed
+                var currentCategoryNeedId = $(this).data("id");
+                categoryNeed = categoryNeeds.find(item => item.id == currentCategoryNeedId);
+                if(categoryNeed){
+                    showCategoryNeedInfoForm();
                 }else{
-                    console.log("no personaNeed found by id.",currentPersonaNeedId);
+                    console.log("no categoryNeed found by id.",currentCategoryNeedId);
                 }
             });
         });   
@@ -242,7 +242,7 @@ function showPersonaNeeds(){
 
     //查询得到待添加需要列表，注意类型为Need
     $.ajax({
-        url:app.config.sx_api+"/mod/personaNeed/rest/pending-needs/"+personaId,
+        url:app.config.sx_api+"/mod/categoryNeed/rest/pending-needs/"+categoryId,
         type:"get",
         //data:JSON.stringify({}),//注意：不能使用JSON对象
         headers:{
@@ -250,7 +250,7 @@ function showPersonaNeeds(){
             "Accept": "application/json"
         },  
         success:function(ret){
-            console.log("===got pending personas===\n",ret);
+            console.log("===got pending categorys===\n",ret);
             if(ret && ret.length>0 && $("#createNeedBtn").length==0){  //避免重复添加
                 //逐条添加，注意是need节点
                 ret.forEach(function(node){
@@ -258,16 +258,16 @@ function showPersonaNeeds(){
                     var html = '<div class="sxTag0" id="need'+node.id+'" data-id="'+node.id+'" data-name="'+node.name+'" style="'+needtypeColor+'">';
                     html += node.name;
                     html += '</div>';
-                    $("#personaNeedsDiv").append(html);
+                    $("#categoryNeedsDiv").append(html);
                     //注册点击事件：点击后弹出浮框完成修改或删除
                     $("#need"+node.id).click(function(){ 
-                        //新增personaNeed
-                        personaNeed = {
+                        //新增categoryNeed
+                        categoryNeed = {
                             name: $(this).data("name"),
-                            persona: {id: personaId}, //设置当前persona
-                            need: {id: $(this).data("id")} //直接将当前选中属性作为personaNeed 的关联属性
+                            category: {id: categoryId}, //设置当前category
+                            need: {id: $(this).data("id")} //直接将当前选中属性作为categoryNeed 的关联属性
                         };
-                        showPersonaNeedInfoForm();
+                        showCategoryNeedInfoForm();
                     });
                 });                
             }else{
@@ -277,11 +277,11 @@ function showPersonaNeeds(){
             //增加创建按钮:避免重复添加
             if($("#createNeedBtn").length==0){ 
                 //添加新增need并注册事件
-                $("#personaNeedsDiv").append('<div class="sxTagNew" id="createNeedBtn" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加需要</div>');
+                $("#categoryNeedsDiv").append('<div class="sxTagNew" id="createNeedBtn" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加需要</div>');
                 //注册点击事件：点击后弹出浮框完成修改或删除
                 $("#createNeedBtn").click(function(){ 
-                    //设置空白persona
-                    personaNeed = {}
+                    //设置空白category
+                    categoryNeed = {}
                     showNeedInfoForm();
                 });
             }
@@ -290,11 +290,11 @@ function showPersonaNeeds(){
     });        
 
 }
-//操作按钮：显示personaNeed修改表单
-function showPersonaNeedInfoForm(){
-    console.log("show personaNeed form.",personaNeed);  
+//操作按钮：显示categoryNeed修改表单
+function showCategoryNeedInfoForm(){
+    console.log("show categoryNeed form.",categoryNeed);  
     //显示数据填报表单
-    $.blockUI({ message: $('#personaneedform'),
+    $.blockUI({ message: $('#categoryneedform'),
         css:{ 
             padding:        10, 
             margin:         0, 
@@ -313,55 +313,55 @@ function showPersonaNeedInfoForm(){
             cursor:          'normal' 
         }
     }); 
-    //设置默认值：对于有选定personaNeed的情况
-    if(personaNeed && personaNeed.id && personaNeed.id.trim().length>0){ //已经关联的属性
-        $("#personaNeedName2").val("需要："+personaNeed.need.name);
-        $("#personaNeedWeight2").val(personaNeed.weight);
-    }else if(personaNeed && personaNeed.name && personaNeed.name.trim().length>0){ //已存在但未关联属性
-        $("#personaNeedName2").val("需要："+personaNeed.name);
+    //设置默认值：对于有选定categoryNeed的情况
+    if(categoryNeed && categoryNeed.id && categoryNeed.id.trim().length>0){ //已经关联的属性
+        $("#categoryNeedName2").val("需要："+categoryNeed.need.name);
+        $("#categoryNeedWeight2").val(categoryNeed.weight);
+    }else if(categoryNeed && categoryNeed.name && categoryNeed.name.trim().length>0){ //已存在但未关联属性
+        $("#categoryNeedName2").val("需要："+categoryNeed.name);
     }else{//新建属性
-        $("#personaNeedName2").val("");
-        $("#personaNeedWeight2").val("");        
+        $("#categoryNeedName2").val("");
+        $("#categoryNeedWeight2").val("");        
     }
     //判定是否显示删除按钮：仅对于已经存在的指标显示删除按钮
-    if(personaNeed && personaNeed.id && personaNeed.id.trim().length>0){
-        $("#btnDeletePersonaNeed").css("display","block");
+    if(categoryNeed && categoryNeed.id && categoryNeed.id.trim().length>0){
+        $("#btnDeleteCategoryNeed").css("display","block");
     }else{
-        $("#btnDeletePersonaNeed").css("display","none");
+        $("#btnDeleteCategoryNeed").css("display","none");
     }
-    $("#btnCancelPersonaNeed").click(function(){      
+    $("#btnCancelCategoryNeed").click(function(){      
         $.unblockUI(); //直接取消即可
     });
-    $("#btnDeletePersonaNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+    $("#btnDeleteCategoryNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
         console.log("try to delete item.");
-        deletePersonaNeedInfo(personaNeed);
+        deleteCategoryNeedInfo(categoryNeed);
     });    
-    $("#btnSavePersonaNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
-        if( !$("#personaNeedWeight2").val() || $("#personaNeedWeight2").val().trim().length ==0 ){
-            $("#personaNeedWeight2").val(personaNeed.weight);
+    $("#btnSaveCategoryNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+        if( !$("#categoryNeedWeight2").val() || $("#categoryNeedWeight2").val().trim().length ==0 ){
+            $("#categoryNeedWeight2").val(categoryNeed.weight);
             siiimpleToast.message('数据占比为必填~~',{
               position: 'bottom|center'
             });                 
         }else{
             console.log("try to save new item.");
-            personaNeed.weight = $("#personaNeedWeight2").val();//仅需设置权重即可，needId及personaId已提前完成设置
-            savePersonaNeedInfo(personaNeed);
+            categoryNeed.weight = $("#categoryNeedWeight2").val();//仅需设置权重即可，needId及categoryId已提前完成设置
+            saveCategoryNeedInfo(categoryNeed);
         }
     });
 }
-//保存persona信息：完成后关闭浮框，并且刷新数据
-function savePersonaNeedInfo(personaNeed){
-    console.log("try to save personaNeed info.",personaNeed,JSON.stringify(personaNeed));
+//保存category信息：完成后关闭浮框，并且刷新数据
+function saveCategoryNeedInfo(categoryNeed){
+    console.log("try to save categoryNeed info.",categoryNeed,JSON.stringify(categoryNeed));
     $.ajax({
-        url:app.config.sx_api+"/mod/personaNeed/rest/persona-need",
+        url:app.config.sx_api+"/mod/categoryNeed/rest/category-need",
         type:"post",
-        data:JSON.stringify(personaNeed),//注意：不能使用JSON对象
+        data:JSON.stringify(categoryNeed),//注意：不能使用JSON对象
         headers:{
             "Content-Type":"application/json",
             "Accept": "application/json"
         },  
         success:function(ret){
-            console.log("===save personaNeed done===\n",ret);
+            console.log("===save categoryNeed done===\n",ret);
             if(ret.success){ 
                 //取消浮框，并刷新界面
                 $.unblockUI(); //直接取消即可
@@ -374,23 +374,23 @@ function savePersonaNeedInfo(personaNeed){
         }
     });
 }
-//删除persona信息：完成后关闭浮框，并且刷新数据
-function deletePersonaNeedInfo(personaNeed){
-    console.log("try to delete personaNeed info.",personaNeed);
+//删除category信息：完成后关闭浮框，并且刷新数据
+function deleteCategoryNeedInfo(categoryNeed){
+    console.log("try to delete categoryNeed info.",categoryNeed);
     $.ajax({
-        url:app.config.sx_api+"/mod/personaNeed/rest/persona-need",
+        url:app.config.sx_api+"/mod/categoryNeed/rest/category-need",
         type:"put",//DELETE方法遇到CORS问题，采用PUT
-        data:JSON.stringify(personaNeed),//注意：不能使用JSON对象
+        data:JSON.stringify(categoryNeed),//注意：不能使用JSON对象
         headers:{
             "Content-Type":"application/json",
             "Accept": "application/json"
         },  
         success:function(ret){
-            console.log("===delete personaNeed done===\n",ret);
+            console.log("===delete categoryNeed done===\n",ret);
             if(ret.success){ 
                 //取消浮框，并刷新界面
                 $.unblockUI(); //直接取消即可
-                loadPersonaNeeds();
+                loadCategoryNeeds();
             }else{
               siiimpleToast.message('啊哦，出错了~~',{
                       position: 'bottom|center'
@@ -426,7 +426,7 @@ function showNeedInfoForm(){
     $("#btnCancelNeed").click(function(){      
         $.unblockUI(); //直接取消即可
     });   
-    $("#btnSaveNeed").click(function(){//保存属性，并且直接保存personaNeed关联设置，完成后刷新数据
+    $("#btnSaveNeed").click(function(){//保存属性，并且直接保存categoryNeed关联设置，完成后刷新数据
         if( !$("#needWeight2").val() || $("#needWeight2").val().trim().length ==0 ){
             siiimpleToast.message('数据占比为必填~~',{
               position: 'bottom|center'
@@ -449,7 +449,7 @@ function showNeedInfoForm(){
         }
     });
 }
-//保存need信息：完成后需要继续提交建立personaNeed，并且关闭浮框
+//保存need信息：完成后需要继续提交建立categoryNeed，并且关闭浮框
 function saveNeedInfo(name,alias,weight){
     var need = { //构建空白need信息，全部采用默认值填写
         name: name,
@@ -470,9 +470,9 @@ function saveNeedInfo(name,alias,weight){
             if(ret.success && ret.data){ 
                 //先取消浮框
                 //$.unblockUI(); //直接取消即可
-                //建立personaNeed
-                savePersonaNeedInfo({
-                    persona:{id: personaId},
+                //建立categoryNeed
+                saveCategoryNeedInfo({
+                    category:{id: categoryId},
                     need:{id: ret.data.id},
                     weight: weight
                 });
@@ -484,23 +484,23 @@ function saveNeedInfo(name,alias,weight){
         }
     });
 }
-//保存personaNeed信息：完成后关闭浮框，并且刷新数据
-function savePersonaNeedInfo(personaNeed){
-    console.log("try to save personaNeed info.",personaNeed,JSON.stringify(personaNeed));
+//保存categoryNeed信息：完成后关闭浮框，并且刷新数据
+function saveCategoryNeedInfo(categoryNeed){
+    console.log("try to save categoryNeed info.",categoryNeed,JSON.stringify(categoryNeed));
     $.ajax({
-        url:app.config.sx_api+"/mod/personaNeed/rest/persona-need",
+        url:app.config.sx_api+"/mod/categoryNeed/rest/category-need",
         type:"post",
-        data:JSON.stringify(personaNeed),//注意：不能使用JSON对象
+        data:JSON.stringify(categoryNeed),//注意：不能使用JSON对象
         headers:{
             "Content-Type":"application/json",
             "Accept": "application/json"
         },  
         success:function(ret){
-            console.log("===save personaNeed done===\n",ret);
+            console.log("===save categoryNeed done===\n",ret);
             if(ret.success){ 
                 //取消浮框，并刷新界面
                 $.unblockUI(); //直接取消即可
-                loadPersonaNeeds();
+                loadCategoryNeeds();
             }else{
               siiimpleToast.message('啊哦，出错了~~',{
                       position: 'bottom|center'
@@ -522,7 +522,7 @@ function showTreemap(dimtree){
       group: d => d.name.split(".")[0], // e.g., "animate" in "flare.animate.Easing"; for color
       label: (d, n) => [...d.name.split(".").pop().split(/(?=[A-Z][a-z])/g), n.value.toLocaleString("en")].join("\n"),
       title: (d, n) => `${d.name}\n${n.value.toLocaleString("en")}`, // text to show on hover
-      //link: (d, n) => `${d.href}`,//`https://www.biglistoflittlethings.com/ilife-web-wx/expert/persona.html?categoryId=${d.categoryId}&id=${d.id}`,
+      //link: (d, n) => `${d.href}`,//`https://www.biglistoflittlethings.com/ilife-web-wx/expert/category.html?categoryId=${d.categoryId}&id=${d.id}`,
       padding: 2,
       //tile, // e.g., d3.treemapBinary; set by input above
       //width: 600,
@@ -547,7 +547,7 @@ function showTreemap(dimtree){
             height:Number(height)
         };
     svgAsPngUri(canvas, options, function(uri) {
-        //console.log("image uri.",dataURLtoFile(uri,"persona.png"));
+        //console.log("image uri.",dataURLtoFile(uri,"category.png"));
         //将图片提交到服务器端。保存文件文件key为：need-scheme
         uploadPngFile(uri, "treemap.png", "need-scheme");//文件上传后将在stuff.media下增加{need-scheme:imagepath}键值对
     }); 
@@ -584,16 +584,16 @@ function loadConnection(){
 }
 
 //加载用户关联的Persona
-function loadPersona(personaId){
+function loadPersona(categoryId){
     var header={
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     }; 
-    util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+personaId, function (res) {
-        console.log("Broker::My Loaded persona by id.", res)
+    util.AJAX(app.config.data_api+"/_api/document/category_categorys/"+categoryId, function (res) {
+        console.log("Broker::My Loaded category by id.", res)
         if(res){
             currentPersona = res;
-            currentPerson = {//直接引用persona属性作为当前用户设置
+            currentPerson = {//直接引用category属性作为当前用户设置
               ...res
             };
             delete  currentPerson._key;
@@ -602,7 +602,7 @@ function loadPersona(personaId){
             delete  currentPerson.broker;
             delete  currentPerson.image;
             delete  currentPerson.name;
-            currentPerson.persona = res;//设置当前用户的persona信息
+            currentPerson.category = res;//设置当前用户的category信息
             if(res.image)
                 currentPerson.avatarUrl = res.image;//设置默认头像
             if(res.name)
@@ -636,10 +636,10 @@ function showPerson(person){
 }
 
 function goRecommend(){
-    window.location.href = "index.html?type="+(currentPerson.openId?"person":"persona")+"&id="+currentPerson._key;
+    window.location.href = "index.html?type="+(currentPerson.openId?"person":"category")+"&id="+currentPerson._key;
 }
 function goActionHistory(){
-    window.location.href = "feeds.html?type="+(currentPerson.openId?"person":"persona")+"&id="+currentPerson._key;
+    window.location.href = "feeds.html?type="+(currentPerson.openId?"person":"category")+"&id="+currentPerson._key;
 }
 
 //修改用户信息
@@ -672,7 +672,7 @@ function updatePerson(){
         }, "PATCH",currentPerson,header);
     }else{//否则创建后更新
         console.log("create new user.",currentPerson);
-        var key = md5(currentPerson.persona._key+userInfo._key+new Date().getTime(),16);//构建一个user._key。注意用短md5，构成差异，并且避免微信 二维码 scene_str 总长64位限制
+        var key = md5(currentPerson.category._key+userInfo._key+new Date().getTime(),16);//构建一个user._key。注意用短md5，构成差异，并且避免微信 二维码 scene_str 总长64位限制
         util.AJAX(app.config.data_api+"/user/users/"+key, function (res) {
             console.log("User::Setting user created.", res)
             currentPerson = res;
@@ -731,7 +731,7 @@ function loadTags(){
     }; 
     console.log("try to load user tags.");
     util.AJAX(app.config.sx_api+"/mod/userTag/rest/tags?types=user-setting", function (res) {
-        console.log("Broker::My Loaded persona tags.", res)
+        console.log("Broker::My Loaded category tags.", res)
         if(res){
             showTags(res);//直接开始显示
         }
@@ -894,11 +894,11 @@ function loadPerson(personId) {
         //userInfo = res;
         currentPerson = res;
         //检查是否有persona设置，如果没有则跳转到persona选择界面
-        if((res.persona && res.persona._key) || !res.openId){//如果有persona则显示表单。注意：对于通过画像生成虚拟用户则直接显示表单，通过有无openId判断
+        if((res.persona && res.persona._key) || !res.openId){//如果有category则显示表单。注意：对于通过画像生成虚拟用户则直接显示表单，通过有无openId判断
             insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
             showPerson(currentPerson);//显示设置的用户表单
             loadBrokerByOpenid(userInfo._key);//根据当前登录用户openid加载broker信息
-        }else{//没有persona则提示先选择一个persona
+        }else{//没有category则提示先选择一个category
             window.location.href = "user-choosepersona.html?id="+personId+"&refer=user";//refer=user表示设置后返回到user界面
         }
     });
@@ -968,7 +968,7 @@ function changeActionType (e) {
 }
 
 
-//修改persona的tags：每次修改后均做更新，且仅更新tags
+//修改category的tags：每次修改后均做更新，且仅更新tags
 function updatePersonaTags(){
     var data={
         tags:currentPersona.tags//在发生操作后直接修改
@@ -977,7 +977,7 @@ function updatePersonaTags(){
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     }; 
-    util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+currentPersona._key, function (res) {
+    util.AJAX(app.config.data_api+"/_api/document/category_categorys/"+currentPersona._key, function (res) {
         console.log("Broker::My Persona tags updated.", res)
     }, "PATCH",data,header);
 }
