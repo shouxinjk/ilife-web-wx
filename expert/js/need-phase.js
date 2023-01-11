@@ -50,13 +50,13 @@ $(document).ready(function ()
 
     //注册事件：切换菜单
     $("#personaNeedsFilter").click(function(e){
-        window.location.href = "needs.html";
+        window.location.href = "need-persona.html";
     });
     $("#phaseNeedsFilter").click(function(e){
-        window.location.href = "needs-phase.html";
+        window.location.href = "need-phase.html";
     });
     $("#categoryNeedsFilter").click(function(e){
-        window.location.href = "categories.html?target=need";
+        window.location.href = "need-category.html";
     }); 
 
 });
@@ -291,6 +291,8 @@ function loadPhaseNeeds(){
                 showTreemap( nodes );                
             }else{
                 showPhaseNeeds();//显示属性列表供操作：需要显示待添加列表
+                $("#treemap").empty();//清空已经加载的treemap
+                $("#legendDiv").empty();//清空已经加载的legend                
             }
         }
     });  

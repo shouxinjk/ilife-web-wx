@@ -29,7 +29,7 @@ $(document).ready(function ()
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
-    loadPerson(currentPerson);//加载用户
+    //loadPerson(currentPerson);//加载用户
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
@@ -41,17 +41,6 @@ $(document).ready(function ()
         //点击后跳转到对应用户设置界面
         window.location.href = "../broker/my-addpersona.html";//跳转到海报生成界面
     });    
-
-    //注册事件：切换菜单
-    $("#personaNeedsFilter").click(function(e){
-        window.location.href = "needs.html";
-    });
-    $("#phaseNeedsFilter").click(function(e){
-        window.location.href = "needs-phase.html";
-    });
-    $("#categoryNeedsFilter").click(function(e){
-        window.location.href = "categories.html?target=need";
-    });     
 
 });
 
@@ -98,45 +87,61 @@ setInterval(function ()
 //加载特定于达人的画像列表
 function loadItems(){
     var query={
-            collection: "persona_personas", 
-            example: { 
-                broker:userInfo.openId
-            },
-            skip:(page.current+1)*page.size,
-            limit:page.size
+            from:(page.current+1)*page.size,
+            to:(page.current+1)*page.size+page.size
         };   
     var header={
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     }; 
-    util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
+    util.AJAX(app.config.sx_api+"/mod/persona/rest/personas", function (res) {
         showloading(false);
         console.log("Broker::My::loadItems try to retrive personas by broker id.", res)
-        if(res && res.count==0){//如果没有画像则提示，
+        if(res && res.length==0){//如果没有画像则提示，
             shownomore();
         }else{//否则显示到页面
             //更新当前翻页
             page.current = page.current + 1;
             //装载具体条目
-            var hits = res.result;
-            for(var i = 0 ; i < hits.length ; i++){
-                items.push(hits[i]);
-            }
+            res.forEach(function(item){
+                if(!items.find(d => d.id == item.id)) //排重
+                    items.push(item);
+            });
             insertItem();
         }
-    }, "PUT",query,header);
+    }, "POST",query,header);
 }
 
 //将item显示到页面
 function insertItem(){
     // 加载内容
     var item = items[num-1];
+    if(!item){
+        shownomore();
+        return;
+    }
 
-    //计算文字高度：按照1倍行距计算
-    //console.log("orgwidth:"+orgWidth+"orgHeight:"+orgHeight+"width:"+imgWidth+"height:"+imgHeight);
-    var image = "<img src='"+item.image+"' width='50' height='50' class='persona-logo'/>"
+    //logo
+    var logo = "http://www.shouxinjk.net/static/logo/distributor/ilife.png";
+    if(item.logo && item.logo.indexOf("http")>-1){
+        logo = item.logo;
+    }else if(item.logo && item.logo.trim().length>0){
+        logo = "http://www.shouxinjk.net/static/logo/phase/"+item.logo;
+    }
+
+    var image = "<img src='"+logo+"' width='50' height='50' class='persona-logo'/>"
     var tagTmpl = "<div class='persona-tag'>__TAG</div>";
     var tags = "<div class='persona-tags'>";
+    if(item.phase){ //阶段
+        tags += tagTmpl.replace("__TAG","阶段:"+item.phase.name);
+    }
+    if(item.hierarchy){ //阶层
+        tags += tagTmpl.replace("__TAG","阶层:"+item.hierarchy.name);
+    }    
+    if(item.parent){ //继承画像
+        tags += tagTmpl.replace("__TAG","画像:"+item.parent.name);
+    }    
+    /**
     var taggingList = item.tags;
     for(var t in taggingList){
         var txt = taggingList[t];
@@ -144,21 +149,19 @@ function insertItem(){
             tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
         }
     }
-    if(item.categoryId && item.categoryId.trim().length>1){
-        tags += tagTmpl.replace("__TAGGING",item.category).replace("__TAG",item.category);
-    }
+    //**/
     tags += "</div>";
     //var tags = "<span class='title'><a href='info.html?category="+category+"&id="+item._key+"'>"+item.title+"</a></span>"
     var title = "<div class='persona-title'>"+item.name+"</div>"
     var description = "<div class='persona-description'>"+item.description+"</div>"    
-    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +description+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
+    $("#waterfall").append("<li><div class='persona' id='"+item.id+"' data-id='"+item.id+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +description+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
 
     num++;
 
     //注册事件
-    $("div[data='"+item._key+"']").click(function(){
+    $("#"+item.id).click(function(){
         //跳转到详情页
-        window.location.href = "need-persona.html?personaId="+item._key;
+        window.location.href = "need-persona.html?personaId="+$(this).data("id");
     });
 
     // 表示加载结束

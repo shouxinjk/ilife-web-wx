@@ -36,7 +36,7 @@ $(document).ready(function ()
     $(".order-cell").click(function(e){
         changeActionType(e);
     });      
-    loadPerson(currentPersonId);//加载需要修改的用户信息
+    //loadPerson(currentPersonId);//加载需要修改的用户信息
 
     //加载类目
     loadItems("1");//加载根目录

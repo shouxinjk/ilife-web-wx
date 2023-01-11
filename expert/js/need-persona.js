@@ -33,7 +33,7 @@ $(document).ready(function ()
     $(".order-cell").click(function(e){
         changeActionType(e);
     });      
-    loadPerson(currentPersonId);//加载需要修改的用户信息
+    //loadPerson(currentPersonId);//加载需要修改的用户信息
 
     //注册事件：直接进入首页，通过切换画像得到
     $("#vailidateBtn").click(function(e){
@@ -43,18 +43,21 @@ $(document).ready(function ()
     //加载需要类型
     loadNeedTypes();
 
+    //加载画像列表
+    loadPersonas();//加载后将自动高亮，并加载阶段需要数据
+
     //加载维度定义数据
-    loadPersonaNeeds();
+    //loadPersonaNeeds();
 
     //注册事件：切换菜单
     $("#personaNeedsFilter").click(function(e){
-        window.location.href = "needs.html";
+        window.location.href = "need-persona.html";
     });
     $("#phaseNeedsFilter").click(function(e){
-        window.location.href = "needs-phase.html";
+        window.location.href = "need-phase.html";
     });
     $("#categoryNeedsFilter").click(function(e){
-        window.location.href = "categories.html?target=need";
+        window.location.href = "need-category.html";
     }); 
 
 });
@@ -109,6 +112,119 @@ var needTypeWeightSum={
 
 var need = {};//记录当前操作的need
 var personaNeed = {};//记录当前操作的personaNeed，注意新增need是直接完成
+
+
+//加载阶段列表：一次加载全部，用于顶部滑动条
+var personas = [];
+function loadPersonas() {
+    util.AJAX(app.config.sx_api+"/mod/persona/rest/personas", function (res) {
+        console.log("got personas.",res);
+        personas = res;
+        showSwiper();    
+    });
+}
+//显示滑动条
+function showSwiper(){
+    //装载到页面
+    personas.forEach(function(item){
+        if(item.id != "1") //排除根节点
+            insertPersonaItem(item);
+    });
+  
+    //显示滑动条
+    var mySwiper = new Swiper ('.swiper-container', {
+        slidesPerView: 7,
+    });  
+    //调整swiper 风格，使之悬浮显示
+    /**
+    $(".swiper-container").css("position","fixed");
+    $(".swiper-container").css("left","0");
+    $(".swiper-container").css("top","0");
+    $(".swiper-container").css("z-index","999");
+    $(".swiper-container").css("background-color","#fff");
+    //$(".swiper-container").css("margin-bottom","3px");
+    //**/
+  
+    //将当前选中条目设为高亮  
+    if(personaId){//有指定Id则直接高亮
+        var persona = personas.find(item => item.id == personaId);
+        if(persona){
+            changePersona(persona);
+        }else{
+            console.log("cannot find persona by id.",$(this).data("id"));
+        }         
+    }else{//否则，默认为第一个
+        changePersona(personas[0]);
+    }
+  
+}
+
+//显示滑动条显示元素：persona，包括LOGO及名称
+function insertPersonaItem(persona){
+    //logo
+    var logo = "http://www.shouxinjk.net/static/logo/distributor/ilife.png";
+    if(persona.logo && persona.logo.indexOf("http")>-1){
+        logo = persona.logo;
+    }else if(persona.logo && persona.logo.trim().length>0){
+        logo = "http://www.shouxinjk.net/static/logo/persona/"+persona.logo;
+    }
+    // 显示HTML
+    var html = '';
+    html += '<div class="swiper-slide">';
+    html += '<div class="person" id="'+persona.id+'" data-id="'+persona.id+'">';
+    var style = persona.id==personaId?'-selected':'';
+    html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+logo+'"/></div>';
+    html += '<span class="person-name">'+persona.name+'</span>';
+    html += '</div>';
+    html += '</div>';
+    $("#personas").append(html);
+
+    //注册事件:点击后切换
+    $("#"+persona.id).click(function(e){
+      console.log("change persona.",$(this).data("id"));
+      var persona = personas.find(item => item.id == $(this).data("id"));
+      if(persona){
+        changePersona(persona);
+      }else{
+        console.log("cannot find persona by id.",$(this).data("id"));
+      }
+      
+    });
+}
+//切换Persona
+function changePersona (persona) {
+    console.log("change persona.",persona);
+    $("#"+personaId+" img").removeClass("person-img-selected");
+    $("#"+personaId+" img").addClass("person-img");
+    $("#"+persona.id+" img").removeClass("person-img");
+    $("#"+persona.id+" img").addClass("person-img-selected");
+
+    $("#"+personaId+" span").removeClass("person-name-selected");
+    $("#"+personaId+" span").addClass("person-name");
+    $("#"+persona.id+" span").removeClass("person-name");
+    $("#"+persona.id+" span").addClass("person-name-selected");
+
+    personaId = persona.id;
+    personaName = persona.name;
+    if(persona.description && persona.description.trim().length>0){
+        $("#summaryDiv").css("display","block");
+        var summary = "";
+        if(persona.phase){ //阶段
+            summary += "阶段:"+persona.phase.name+" / ";
+        }
+        if(persona.hierarchy){ //阶层
+            summary += "阶层:"+persona.hierarchy.name+" / ";
+        }    
+        if(persona.parent){ //继承画像
+            summary += "上层画像:"+persona.parent.name+" / ";
+        }        
+        summary +=  persona.description;
+        $("#summary").html(summary);
+    }
+
+    loadPersonaNeeds();//重新加载数据
+  } 
+
 
 //装载需要类型
 function loadNeedTypes(){
@@ -188,6 +304,8 @@ function loadPersonaNeeds(){
                 showTreemap( nodes );                
             }else{
                 showPersonaNeeds();//显示属性列表供操作：需要显示待添加列表
+                $("#treemap").empty();//清空已经加载的treemap
+                $("#legendDiv").empty();//清空已经加载的legend                
             }
         }
     });  

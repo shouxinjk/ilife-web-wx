@@ -33,7 +33,7 @@ $(document).ready(function ()
     $(".order-cell").click(function(e){
         changeActionType(e);
     });      
-    loadPerson(currentPersonId);//加载需要修改的用户信息
+    //loadPerson(currentPersonId);//加载需要修改的用户信息
 
     //注册事件：直接进入首页，通过切换画像得到
     $("#vailidateBtn").click(function(e){
@@ -43,18 +43,21 @@ $(document).ready(function ()
     //加载需要类型
     loadNeedTypes();
 
+    //加载所有类目列表：注意是加载全部类目
+    loadCategories();//加载后将自动高亮，并加载需要数据
+
     //加载维度定义数据
-    loadCategoryNeeds();
+    //loadCategoryNeeds();
 
     //注册事件：切换菜单
     $("#personaNeedsFilter").click(function(e){
-        window.location.href = "needs.html";
+        window.location.href = "need-persona.html";
     });
     $("#phaseNeedsFilter").click(function(e){
-        window.location.href = "needs-phase.html";
+        window.location.href = "need-phase.html";
     });
     $("#categoryNeedsFilter").click(function(e){
-        window.location.href = "categories.html?target=need";
+        window.location.href = "need-category.html";
     }); 
 
 });
@@ -109,6 +112,106 @@ var needTypeWeightSum={
 
 var need = {};//记录当前操作的need
 var categoryNeed = {};//记录当前操作的categoryNeed，注意新增need是直接完成
+
+//加载阶段列表：一次加载全部，用于顶部滑动条
+var categories = [];
+function loadCategories() {
+    util.AJAX(app.config.sx_api+"/mod/itemCategory/rest/all-categories", function (res) {
+        console.log("got categories.",res);
+        categories = res;
+        showSwiper();    
+    });
+}
+//显示滑动条
+function showSwiper(){
+    //装载到页面
+    categories.forEach(function(item){
+        if(item.id != "1") //排除根节点
+            insertCategoryItem(item);
+    });
+  
+    //显示滑动条
+    var mySwiper = new Swiper ('.swiper-container', {
+        slidesPerView: 7,
+    });  
+    //调整swiper 风格，使之悬浮显示
+    /**
+    $(".swiper-container").css("position","fixed");
+    $(".swiper-container").css("left","0");
+    $(".swiper-container").css("top","0");
+    $(".swiper-container").css("z-index","999");
+    $(".swiper-container").css("background-color","#fff");
+    //$(".swiper-container").css("margin-bottom","3px");
+    //**/
+  
+    //将当前选中条目设为高亮  
+    if(categoryId){//有指定Id则直接高亮
+        var category = categories.find(item => item.id == categoryId);
+        if(category){
+            changeCategory(category);
+        }else{
+            console.log("cannot find category by id.",$(this).data("id"));
+        }         
+    }else{//否则，默认为第一个
+        changeCategory(categories[0]);
+    }
+  
+}
+
+//显示滑动条显示元素：category，包括LOGO及名称
+function insertCategoryItem(category){
+    //logo
+    var logo = "http://www.shouxinjk.net/static/logo/distributor/ilife.png";
+    if(category.logo && category.logo.indexOf("http")>-1){
+        logo = category.logo;
+    }else if(category.logo && category.logo.trim().length>0){
+        logo = "http://www.shouxinjk.net/static/logo/category/"+category.logo;
+    }
+    // 显示HTML
+    var html = '';
+    html += '<div class="swiper-slide">';
+    html += '<div class="person" id="'+category.id+'" data-id="'+category.id+'">';
+    var style = category.id==categoryId?'-selected':'';
+    html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+logo+'"/></div>';
+    html += '<span class="person-name">'+category.name+'</span>';
+    html += '</div>';
+    html += '</div>';
+    $("#categories").append(html);
+
+    //注册事件:点击后切换
+    $("#"+category.id).click(function(e){
+      console.log("change category.",$(this).data("id"));
+      var category = categories.find(item => item.id == $(this).data("id"));
+      if(category){
+        changeCategory(category);
+      }else{
+        console.log("cannot find category by id.",$(this).data("id"));
+      }
+      
+    });
+}
+//切换Category
+function changeCategory (category) {
+    console.log("change category.",category);
+    $("#"+categoryId+" img").removeClass("person-img-selected");
+    $("#"+categoryId+" img").addClass("person-img");
+    $("#"+category.id+" img").removeClass("person-img");
+    $("#"+category.id+" img").addClass("person-img-selected");
+
+    $("#"+categoryId+" span").removeClass("person-name-selected");
+    $("#"+categoryId+" span").addClass("person-name");
+    $("#"+category.id+" span").removeClass("person-name");
+    $("#"+category.id+" span").addClass("person-name-selected");
+
+    categoryId = category.id;
+    categoryName = category.name;
+    if(category.description && category.description.trim().length>0){
+        $("#summaryDiv").css("display","block");
+        $("#summary").html(category.description);
+    }
+
+    loadCategoryNeeds();//重新加载数据
+  } 
 
 //装载需要类型
 function loadNeedTypes(){
@@ -188,6 +291,8 @@ function loadCategoryNeeds(){
                 showTreemap( nodes );                
             }else{
                 showCategoryNeeds();//显示属性列表供操作：需要显示待添加列表
+                $("#treemap").empty();//清空已经加载的treemap
+                $("#legendDiv").empty();//清空已经加载的legend
             }
         }
     });  

@@ -223,7 +223,7 @@ div.title{
   width:60px;
   overflow:hidden; 
   text-overflow:ellipsis;
-  color:black;
+  color:#514c49;
   }
   .person-name-selected{ 
   display: inline;
