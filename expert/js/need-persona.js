@@ -222,6 +222,9 @@ function changePersona (persona) {
         $("#summary").html(summary);
     }
 
+    $("#treemapTitle").empty();
+    $("#treemapTitle").append("<span style='padding:0 2px;/*color:#007bff;*/'>"+personaName+" 分群需要构成</span>");
+
     loadPersonaNeeds();//重新加载数据
   } 
 

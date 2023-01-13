@@ -31,6 +31,17 @@ $(document).ready(function ()
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
+    //注册事件：新建排行榜
+    $("#createRankBtn").click(function(e){
+        if(!categoryId){
+            siiimpleToast.message('请选择类目~~',{
+              position: 'bottom|center'
+            });             
+        }else{
+            window.location.href = "../measures.html?categoryId="+categoryId+"&categoryName="+categoryName;
+        }
+    }); 
+
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
         changeActionType(e);

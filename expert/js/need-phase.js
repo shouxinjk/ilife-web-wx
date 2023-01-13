@@ -210,6 +210,9 @@ function changePhase (phase) {
         $("#summary").html(phase.description);
     }
 
+    $("#treemapTitle").empty();
+    $("#treemapTitle").append("<span style='padding:0 2px;/*color:#007bff;*/'>"+phaseName+"阶段 需要构成</span>");
+
     loadPhaseNeeds();//重新加载数据
   } 
 

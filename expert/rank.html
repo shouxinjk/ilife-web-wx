@@ -34,7 +34,9 @@
     </div-->   
 
     <!-- 用户信息 --> 
+    <!--
     <view class="info" id="user"></view>
+    --> 
     <!-- 按钮 --> 
     <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
         <div class="order-cell" id="dimension" data-tagging="like view">
@@ -42,25 +44,25 @@
             <div class="actiontype">评价规则</div>
         </div>          
         <div class="order-cell" id="proposal-schemes" data-tagging="like view favorite buy">
-            <img class="order-cell-icon-small" src="images/proposal-schemes-selected.png"/>
-            <div class="actiontype-selected">定制指南</div>
+            <img class="order-cell-icon-small" src="images/proposal-schemes.png"/>
+            <div class="actiontype">定制指南</div>
         </div>         
-        <div class="order-cell" id="needs" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/needs.png"/>
+        <div class="order-cell" id="need-persona" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/need-persona.png"/>
             <div class="actiontype">需要模型</div>
         </div>     
         <div class="order-cell" id="data" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/data.png"/>
-            <div class="actiontype">数据标注</div>
+            <div class="actiontype">数据打分</div>
         </div>                 
-        <div class="order-cell" id="texts" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/texts.png"/>
-            <div class="actiontype">推荐文案</div>
+        <div class="order-cell" id="ranks" data-tagging="share">
+            <img class="order-cell-icon-small" src="images/ranks-selected.png"/>
+            <div class="actiontype-selected">排行榜</div>
         </div>                                              
     </view>
 
     <div class="tips">
-        查看定制主题及指南
+        查看排行榜设置 <a href="#" id="createRankBtn" style="font-size: 12px;font-weight:bold;">创建排行榜</a>
     </div> 
 
     <div id="Center">
@@ -68,22 +70,10 @@
         <div id="base">
         </div> 
 
-        <!-- 关联指南列表 -->   
-        <div id="guideTitle" class="sx_seperator" style="display:none;margin:20px 0;"><span>引用指南</span></div>                    
-        <div id="guide">
-        </div>
-
-        <!-- 章节列表 -->   
-        <div id="sectionTitle" class="sx_seperator" style="margin:30px 0;width:90%;margin-left:5%;"><span>方案构成</span></div>                    
-        <div id="section">
-            <div style="text-align: center;line-height: 20px;font-size: 12px;color:darkred;display:none;" id="sctionTips">未建立构成章节，请进入PC端补充设置</div>
-        </div>
-
-        <!-- 子类型列表 -->   
-        <div id="subtypeTitle" class="sx_seperator" style="margin:30px 0;width:90%;margin-left:5%;"><span>条目类型</span></div>                    
-        <div id="subtype">
-            <div style="text-align: center;line-height: 20px;font-size: 12px;color:darkred;display:none;" id="subtypeTips">未建立任何类型，请进入PC端补充设置</div>
-        </div>        
+        <!-- 维度列表 -->   
+        <div id="dimensionTitle" class="sx_seperator" style="margin:30px 0;width:90%;margin-left:5%;"><span>排行规则</span></div>                    
+        <div id="dimensionItems">
+        </div>       
 
     </div>
 
@@ -93,7 +83,7 @@
     </div>
 
     <div id="footer" class="footer">
-        <button class="findMoreBtn-show" id="findMoreBtn">方案列表</button>
+        <button class="findMoreBtn-show" id="findMoreBtn">查看榜单</button>
     </div> 
 
     <div style="height:60px;">
@@ -137,6 +127,6 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/proposal-scheme.js?v=1.0"></script> 
+<script type="text/javascript" src="js/rank.js?v=1.0"></script> 
 <script type="text/javascript" src="../ext/short-md5.js"></script>
 </html>

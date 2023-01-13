@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>数据标注-小确幸大生活</title>
+    <title>数据打分-小确幸大生活</title>
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
@@ -34,7 +34,9 @@
     </div-->   
 
     <!-- 用户信息 --> 
+    <!--
     <view class="info" id="user"></view>
+    --> 
     <!-- 按钮 --> 
     <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
         <div class="order-cell" id="dimension" data-tagging="like view">
@@ -44,23 +46,24 @@
         <div class="order-cell" id="proposal-schemes" data-tagging="like view favorite buy">
             <img class="order-cell-icon-small" src="images/proposal-schemes.png"/>
             <div class="actiontype">定制指南</div>
-        </div>          
-        <div class="order-cell" id="needs" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/needs.png"/>
+        </div>         
+        <div class="order-cell" id="need-persona" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/need-persona.png"/>
             <div class="actiontype">需要模型</div>
         </div>     
         <div class="order-cell" id="data" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/data-selected.png"/>
-            <div class="actiontype-selected">数据标注</div>
+            <div class="actiontype-selected">数据打分</div>
         </div>                 
-        <div class="order-cell" id="texts" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/texts.png"/>
-            <div class="actiontype">推荐文案</div>
+        <div class="order-cell" id="ranks" data-tagging="share">
+            <img class="order-cell-icon-small" src="images/ranks.png"/>
+            <div class="actiontype">排行榜</div>
         </div>                                              
     </view>
 
+
     <div class="tips">
-        请对以下数据评价打分 <a href="#" id="vailidateBtn" style="font-size: 12px;font-weight:bold;">筛选类目</a>
+        请对以下数据评价打分 <a href="categories.html" style="font-size: 12px;font-weight:bold;">所有类目</a> 
     </div> 
 
     <div id="Center">
@@ -118,6 +121,6 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/data-by-dict.js?v=0.03"></script> 
+<script type="text/javascript" src="js/data-by-dict.js?v=1.0"></script> 
 <script type="text/javascript" src="../ext/short-md5.js"></script>
 </html>

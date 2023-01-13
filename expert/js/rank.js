@@ -14,18 +14,13 @@ $(document).ready(function ()
         delay: 100,
     });
 
-    //显示加载状态
-    showloading(true);
-
-    //显示加载状态
-    //showloading(true);
     //处理参数
     var args = getQuery();//获取参数
     if(args["from"]){
         from = args["from"]; //需要修改的用户ID
     }    
     if(args["id"]){
-        schemeId = args["id"]; //schemeId
+        rankId = args["id"]; //rankId
     } 
     if(args["categoryId"]){
         categoryId = args["categoryId"]; //记录当前修改节点维度
@@ -36,21 +31,26 @@ $(document).ready(function ()
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
+    //注册事件：新建排行榜
+    $("#createRankBtn").click(function(e){
+        window.location.href = "../measures.html?categoryId="+categoryId+"&categoryName="+categoryName;
+    }); 
+
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
         changeActionType(e);
     });      
-    loadPerson(currentPersonId);//加载需要修改的用户信息
+    //loadPerson(currentPersonId);//加载需要修改的用户信息
 
-    //加载指南类型字典
-    loadGuideTypes();
+    //加载排行榜类型字典：支持自动选集及手动选集
+    //loadRankTypes();
 
     //加载列表
     loadItem();
 
-    //注册事件：查看方案列表
+    //注册事件：查看排行榜
     $("#findMoreBtn").click(function(){
-        window.location.href = "../proposals.html?schemeId="+schemeId;
+        window.location.href = "../billboard.html?rankId="+rankId;
     });
 
 });
@@ -85,39 +85,41 @@ var currentConnection = null;
 var categoryId = null;
 var categoryName = null;
 
-var schemeId = null;
-var guideTypes = {};//指南类型键值对
+var rankId = null;
+var rankTypes = {};//指南类型键值对
 
 var currentPerson = {};//默认当前修改用户为空
 
-function loadGuideTypes(){
+function loadRankTypes(){
     util.AJAX(app.config.sx_api+"/sys/dict/rest/byType", function (res) {
         showloading(false);
         console.log("loadItems try to retrive pending items.", res)
         if (res && res.length>0) {//加载类型列表
             res.forEach(function(item){
-                guideTypes[item.value]=item.label;
+                rankTypes[item.value]=item.label;
             });         
         }else{//如果没有则提示，
-            console.log("cannot load ditc by type: guide_type ");           
+            console.log("cannot load ditc by type: rank_type ");           
         }
     }, 
     "GET",
-    {type:"guide_type"},
+    {type:"rank_type"},
     {});
 }
 
 function loadItem(){
-    util.AJAX(app.config.sx_api+"/diy/proposalScheme/rest/scheme/"+schemeId, function (res) {
-        showloading(false);
-        console.log("loadItems try to retrive pending items.", res)
-        if (res.scheme) {//有数值时才显示
+    util.AJAX(app.config.sx_api+"/mod/rank/rest/rank/"+rankId, function (res) {
+        console.log("got rank.",res);
+        if (res.rank) {//有数值时才显示
+            //设置categoryId、categoryName，用于新建排行榜
+            categoryId = res.rank.category.id;
+            categoryName = res.rank.category.name;
             //显示到页面
-            insertItem(res.scheme,res.guideBooks,res.sections,res.subtypes);           
+            insertItem(res.rank,res.items);           
         }else{//如果没有则提示，
             shownomore();
-            console.log("cannot find scheme by id. ", schemeId);           
-        }
+            console.log("cannot find rank by id. ", rankId);           
+        }          
     }, 
     "GET",
     {},
@@ -125,7 +127,7 @@ function loadItem(){
 }
 
 //将item显示到页面
-var sectionTpl = `
+var dimensionTpl = `
         <div style='margin:2px 0;width:80%;margin-left:10%;display:flex;flex-direction:row;align-items: center; padding:2px;'>
             <div style="width:20%;">
                 <span style="font-size:32px;margin-left:15px;line-height:40px;color:grey;text-align:center;">__number</span>
@@ -135,484 +137,59 @@ var sectionTpl = `
                 <div style="text-align:center;font-size:12px;line-height:16px;">__description</div>
             </div>
         </div>
-    `;    
-var subtypeTpl = `
-        <div style='margin:2px 0;width:80%;margin-left:10%;display:flex;flex-direction:row;align-items: center; padding:2px;'>
-            <div style="width:20%;">
-                <img src='__img' width='48px' height='48px' style='object-fit:cover;' />
-            </div>
-            <div style="width:80%;">
-                <div style="text-align:center;font-size:14px;line-height:18px;font-weight:bold;">__title</div>
-                <div style="text-align:center;font-size:12px;line-height:16px;">__description</div>
-            </div>
-        </div>
-    `;     
-function insertItem(item, guides, sections, subtypes){
-    // 基本信息
-    var image = "<img src='"+item.logo+"' width='60px' height='60px' style='object-fit:cover;' />"
+    `;      
+function insertItem(item, rankItems){
+    //logo
+    var logo = "http://www.shouxinjk.net/static/logo/distributor/ilife.png";
+    if(item.category.logo && item.category.logo.indexOf("http")>-1){
+        logo = item.category.logo;
+    }else if(item.category.logo && item.category.logo.trim().length>0){
+        logo = "http://www.shouxinjk.net/static/logo/category/"+item.category.logo;
+    }
+
+    var image = "<img src='"+logo+"' width='60px' height='60px' style='object-fit:cover;' />"
     var tagTmpl = "<div class='persona-tag' style='background-color:__bgcolor;border-color:__bgcolor;'>__TAG</div>";
     var tags = "<div class='persona-tags'>";
-    //将类型描述作为标签
-    if(item.category && item.category.trim().length>0)
-    tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,item.category.trim());
+    //将关键字作为标签
+    if(item.keywords && item.keywords.trim().length>0){
+        item.keywords.trim().split(" ").forEach(function(keyword){
+            if(keyword.trim().length>0)
+                tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,keyword);    
+        });
+    }
     tags += "</div>";
 
     //显示高亮标签，包括类型、状态。采用固定样式结构
     var highlightTagTpl = "<span class='profitTipCredit'>__type</span><span class='itemTagProfitCredit'>__tag</span>&nbsp;"
     var highlights = "<div style='margin:5px 0;'>";
-    //类型：
-    if("guide"==item.type){
-        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkred").replace(/__bgcolor/g,"#fff").replace(/__type/g,"类型").replace(/__tag/g,"专家指南");
-    }else{
-        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkgreen").replace(/__bgcolor/g,"#fff").replace(/__type/g,"类型").replace(/__tag/g,"定制师方案");
-    }
-    //状态：
-    if(item.status=="0"){
-        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkred").replace(/__bgcolor/g,"#fff").replace(/__type/g,"状态").replace(/__tag/g,"未启用");
-    }else{
-        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkgreen").replace(/__bgcolor/g,"#fff").replace(/__type/g,"状态").replace(/__tag/g,"已启用");
-    }
+    //类目：
+    highlights += highlightTagTpl.replace(/__type/g,"类目").replace(/__tag/g,item.category.name);
     highlights += "</div>";
 
-    var parentTitle = "";
-    if(item.parent && item.parent.name){
-        parentTitle = item.parent.name +" · ";
-    }
-    var goSolutions = "&nbsp;<a href='../proposals.html?schemeId="+schemeId+"' style='font-size:12px;font-weight:bold;'>方案列表</a>";
-    var title = "<div class='persona-title'>"+parentTitle+item.name+goSolutions+"</div>"
-    var description = "<div class='persona-description'>"+item.description+"</div>"   
+    var goBillboard = "&nbsp;<a href='../billboard.html?rankId="+rankId+"' style='font-size:12px;font-weight:bold;'>查看榜单</a>";
 
-    $("#base").append("<div class='persona' id='"+item._key+"' style='border:0;'><div class='persona-logo-wrapper' style='width:25%;'>" + image +"</div><div class='persona-info' style='width:75%;'>" +title +highlights+description+ tags+ "</div>");
-    
-    //指南列表
-    if(guides && guides.length>0){
-        var index = 0;
-        $("#guideTitle").css("display","block");
-        guides.forEach(function(guide){
-            if(index>0)
-                $("#guide").append("<div class='sx_seperator' style='margin:5px 0;width:80%;margin-left:10%;'></div>");
-            insertGuideItem(guide);
-            index ++;
-        });
-    }
+    var title = "<div class='persona-title'>"+item.name+goBillboard+"</div>"
+    var description = "<div class='persona-description'>"+item.description+"</div>"  
+
+    $("#base").append("<div class='persona' id='"+item.id+"' style='border:0;'><div class='persona-logo-wrapper' style='width:25%;'>" + image +"</div><div class='persona-info' style='width:75%;'>" +title +highlights+description+ tags+ "</div>");
 
     //章节列表
-    if(sections && sections.length>0){
+    if(rankItems && rankItems.length>0){
         var index = 0;
-        sections.forEach(function(section){
+        rankItems.forEach(function(rankItem){
             var html = "";
             if(index>0)
                 html += "<div class='sx_seperator' style='margin:2px 0;width:80%;margin-left:10%;'></div>";
-            html += sectionTpl.replace(/__title/g,section.name).replace(/__description/g,section.description).replace(/__number/g,(index+1));
-            $("#section").append(html);
+            html += dimensionTpl.replace(/__title/g,rankItem.dimension.name).replace(/__description/g,rankItem.dimension.description).replace(/__number/g,(index+1));
+            $("#dimensionItems").append(html);
             index ++;
         });
     }else{
-        $("#sectionTips").css("display","block");
-    }
-
-    //子类型列表
-    if(subtypes && subtypes.length>0){
-        var index = 0;
-        subtypes.forEach(function(subtype){
-            var html = "";
-            if(index>0)
-                html += "<div class='sx_seperator' style='margin:2px 0;width:80%;margin-left:10%;'></div>";
-            html += subtypeTpl.replace(/__title/g,subtype.name).replace(/__description/g,subtype.description).replace(/__img/g,subtype.logo);
-            $("#subtype").append(html);
-            index ++;
-        });
-    }else{
-        $("#subtypeTips").css("display","block");
+        $("#dimensionTips").css("display","block");
     }
 
     // 表示加载结束
     loading = false;
-}
-
-function insertGuideItem(item){
-    // 基本信息
-    var tagTmpl = "<div class='persona-tag' style='background-color:__bgcolor;border-color:__bgcolor;'>__TAG</div>";
-    var tags = "<div class='persona-tags'>";
-
-    //显示标签
-    if(item.tags && item.tags.trim().length>0){
-        item.tags.split(" ").forEach(function(tag){
-            tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,tag.trim());
-        });
-    }
-    tags += "</div>";
-
-    //显示高亮标签，包括类型、来源、版本、状态。采用固定样式结构
-    //var highlightTagTpl = "<span class='profitTipCredit' style='background-color:__bgcolor;color:__color;'>__type</span><span class='itemTagProfitCredit' style='background-color:__bgcolor;color:__color;'>__tag</span>";
-    var highlightTagTpl = "<span class='profitTipTeam'>__type</span><span class='itemTagProfitTeam'>__tag</span>&nbsp;";
-    var highlights = "<div style='margin:5px 0;'>";
-    //指南类型：
-    highlights += highlightTagTpl.replace(/__bgcolor/g,"darkgreen").replace(/__bgcolor/g,"#fff").replace(/__type/g,"类型").replace(/__tag/g,guideTypes[item.type]);
-    //指南来源：
-    highlights += highlightTagTpl.replace(/__bgcolor/g,"#000").replace(/__bgcolor/g,"#fff").replace(/__type/g,"来源").replace(/__tag/g,item.origin);
-    //指南版本：
-    //highlights += highlightTagTpl.replace(/__bgcolor/g,"#000").replace(/__bgcolor/g,"#fff").replace(/__type/g,"版本").replace(/__tag/g,item.revision);
-    //指南状态：
-    /**
-    if(item.status==0){
-        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkred").replace(/__bgcolor/g,"#fff").replace(/__type/g,"状态").replace(/__tag/g,"未启用");
-    }else{
-        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkgreen").replace(/__bgcolor/g,"#fff").replace(/__type/g,"状态").replace(/__tag/g,"已启用");
-    }
-    //**/
-
-    highlights += "</div>";
-
-    var alias = "";
-    if(item.alias && item.alias.trim().length>0){
-        alias = "("+item.alias.trim()+")";
-    }
-    var revision = "";
-    if(item.revision && item.revision.trim().length>0){
-        revision = " 版本:"+item.revision;
-    }
-    var url = "";
-    if(item.url && item.url.indexOf("http")==0){
-        url = "&nbsp;<a href='"+item.url+"' style='font-size:12px;font-weight:bold;'>查看</a>";
-    }
-    var title = "<div class='persona-title'>"+item.name+alias+revision+url+"</div>"
-    var description = "<div class='persona-description'>"+item.description+"</div>"   
-
-    $("#guide").append("<div class='persona' id='"+item.id+"' style='border:0;width:80%;min-height:40px;'><div class='persona-info' style='width:100%;'>" +title+ highlights +description+ tags+ "</div></div>");
-
-}
-
-
-//加载当前修改的connection
-function loadConnection(){
-    var query={
-            collection: "connections", 
-            example: { 
-                _from:"user_users/"+userInfo._key,//发起端为当前用户
-                _to:"user_users/"+currentPersonId//目的端为修改用户
-            },
-            limit:1
-        };   
-    var header={
-        "Content-Type":"application/json",
-        Authorization:"Basic aWxpZmU6aWxpZmU="
-    }; 
-    util.AJAX(app.config.data_api+"/_api/simple/by-example", function (res) {
-        //showloading(false);
-        console.log("User::Settings::loadConnection try to retrive user connections.", res);
-        if(res && res.count==0){//如果没有则表示有问题哦
-            console.log("something wrong. we cannot get user-user connections.");
-            $("#relationship").val("我关心的TA");//设置默认关系名称
-        }else{//否则更新关系名称
-            var hits = res.result;
-            currentConnection = hits[0];
-            $("#relationship").val(currentConnection.name);//设置默认关系名称
-        }
-    }, "PUT",query,header);
-}
-
-//加载用户关联的Persona
-function loadPersona(personaId){
-    var header={
-        "Content-Type":"application/json",
-        Authorization:"Basic aWxpZmU6aWxpZmU="
-    }; 
-    util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+personaId, function (res) {
-        console.log("Broker::My Loaded persona by id.", res)
-        if(res){
-            currentPersona = res;
-            currentPerson = {//直接引用persona属性作为当前用户设置
-              ...res
-            };
-            delete  currentPerson._key;
-            delete  currentPerson._id;
-            delete  currentPerson._rev;
-            delete  currentPerson.broker;
-            delete  currentPerson.image;
-            delete  currentPerson.name;
-            currentPerson.persona = res;//设置当前用户的persona信息
-            if(res.image)
-                currentPerson.avatarUrl = res.image;//设置默认头像
-            if(res.name)
-                currentPerson.nickName = res.name+"人设";//默认设置名称为画像名称
-            currentPerson.status = "pending";//设置为待分析用户
-            showPerson(currentPerson);
-        }
-    }, "GET",{},header);
-}
-
-//将默认信息填写到表单
-function showPerson(person){
-    $("#nickName").val(person.nickName);
-    //如果当前修改的用户和登录用户不同，则显示关系字段，否则隐藏
-    if(currentPerson._key==userInfo._key){
-        $("#relationship-wrapper").css("display","none");
-    }else{
-        $("#relationship-wrapper").css("display","block");
-    }
-    //如果用户是画像则显示分享二维码按钮，否则隐藏
-    if(person.openId){
-        $("#qrcodeBtn").css("display","none");
-        $("br").css("display","none");
-    }    
-    //$("#personTags").val(person.tags?person.tags.join(" "):"");
-    //加载标签列表供选择
-    //loadTags(); 
-
-    // 表示加载结束
-    loading = false;
-}
-
-function goRecommend(){
-    window.location.href = "index.html?type="+(currentPerson.openId?"person":"persona")+"&id="+currentPerson._key;
-}
-function goActionHistory(){
-    window.location.href = "feeds.html?type="+(currentPerson.openId?"person":"persona")+"&id="+currentPerson._key;
-}
-
-//修改用户信息
-function updatePerson(){
-    currentPerson.nickName = $("#nickName").val().trim().length>0?$("#nickName").val().trim():currentPersona.name;
-
-    var header={
-        "Content-Type":"application/json",
-        Authorization:"Basic aWxpZmU6aWxpZmU="
-    }; 
-
-    //创建或更新用户
-    if(currentPerson._key && currentPerson._key.trim().length>0){//如果有_key则表示用户存在，直接更新
-        console.log("update existing user.",currentPerson);
-        util.AJAX(app.config.data_api+"/_api/document/user_users/"+currentPerson._key, function (res) {
-            console.log("User::Setting updated.", res)
-            if(from=="connection"){
-                //window.location.href = "connection.html";//跳转到关心的人列表
-                var conn={
-                    name:$("#relationship").val()?$("#relationship").val():"我关心的TA"
-                };
-                console.log("try to update connections.",conn);
-                util.AJAX(app.config.data_api+"/_api/document/connections/"+currentConnection._key, function (res) {
-                    console.log("User::Connection updated.", res)
-                    window.location.href = "connection.html";//跳转到关心的人列表
-                }, "PATCH",conn,header); 
-            }else{
-                window.location.href = "user.html";//跳转到设置页面
-            }
-        }, "PATCH",currentPerson,header);
-    }else{//否则创建后更新
-        console.log("create new user.",currentPerson);
-        var key = md5(currentPerson.persona._key+userInfo._key+new Date().getTime(),16);//构建一个user._key。注意用短md5，构成差异，并且避免微信 二维码 scene_str 总长64位限制
-        util.AJAX(app.config.data_api+"/user/users/"+key, function (res) {
-            console.log("User::Setting user created.", res)
-            currentPerson = res;
-            //建立与当前登录用户的关联
-            if(from=="connection"){
-                //新建connection后跳转回到列表页面
-                var conn={
-                    _from:"user_users/"+userInfo._key,
-                    _to:"user_users/"+currentPerson._key,
-                    name:$("#relationship").val()?$("#relationship").val():"我关心的TA"
-                };
-                console.log("try to create connections.",conn);
-                util.AJAX(app.config.data_api+"/_api/document/connections", function (res) {
-                    console.log("User::Connection created.", res)
-                    window.location.href = "connection.html";//跳转到关心的人列表
-                }, "POST",conn,header);                 
-            }else{//不可能走到这里，自己设置时是已经有了用户的，仅对于新增关心的人才会进来
-                console.log("how could it be?");
-            }
-        }, "POST",currentPerson,header);
-    }
-
-    //将用户信息推送到kafka
-    util.updatePersonNotify(currentPerson);
-}
-
-//删除关心的人。注意：仅删除关联
-function deletePerson(){
-    currentPerson.nickName = $("#nickName").val().trim().length>0?$("#nickName").val().trim():currentPersona.name;
-
-    var header={
-        "Content-Type":"application/json",
-        Authorization:"Basic aWxpZmU6aWxpZmU="
-    }; 
-
-    console.log("try to remove connections.",currentConnection);
-    util.AJAX(app.config.data_api+"/_api/document/connections/"+currentConnection._key, function (res) {
-        console.log("User::Connection removed.", res)
-        if(!currentPerson.openId){//如果是非注册用户，则直接删除
-            console.log("try to remove unregistered user.",currentPerson);
-            util.AJAX(app.config.data_api+"/_api/document/user_users/"+currentPerson._key, function (res) {
-                console.log("User::Setting updated.", res)
-                window.location.href = "connection.html";//跳转到关心的人列表
-            }, "DELETE",{},header);
-        }else{
-            window.location.href = "connection.html";//跳转到关心的人列表
-        }
-    }, "DELETE",{},header); 
-}
-
-//加载预定义用户标签：仅加载用户标注类标签
-function loadTags(){
-   var header={
-        "Content-Type":"application/json",
-        Authorization:"Basic aWxpZmU6aWxpZmU="
-    }; 
-    console.log("try to load user tags.");
-    util.AJAX(app.config.sx_api+"/mod/userTag/rest/tags?types=user-setting", function (res) {
-        console.log("Broker::My Loaded persona tags.", res)
-        if(res){
-            showTags(res);//直接开始显示
-        }
-    }, "GET",{},header);    
-}
-
-//显示预定义标签。采用动态显示的方式
-var userTagTypes = [];//存放类别名称
-var userTags = [];//按照分类存放分类下的tags
-function showTags(tags){
-    //首先将所有tag按照类别放入二维数组
-    for(var i=0;i<tags.length;i++){
-        var tag = tags[i];
-        var tagType = tag.userTagCategory.name;
-        if(userTagTypes.indexOf(tagType)<0){
-            userTagTypes.push(tagType);
-            userTags[tagType] = [];
-        }
-        var subTags = userTags[tagType];
-        subTags.push(tag);
-        userTags[tagType] = subTags;
-    }
-    //然后按照二维数组组织HTML显示
-    var html = "";
-    for(var i=0;i<userTagTypes.length;i++){
-        var userTagByCategory = userTagTypes[i];
-        //添加标签分类及分割线
-        $("#user-tags-div").append("<div class='user-tag-wrapper-separator'></div>");
-        $("#user-tags-div").append("<div class='user-tag-wrapper' id='user-tag-wrapper-"+userTagByCategory+"'></div>");
-        //添加分类文字
-        $("#user-tag-wrapper-"+userTagByCategory).append('<div class="user-tag-category">'+userTagByCategory+'</div>');
-        //添加具体标签
-        var taglist = userTags[userTagByCategory];
-        $("#user-tag-wrapper-"+userTagByCategory).append('<div class="user-tag-list" id="user-tag-list-'+userTagByCategory+'"></div>');
-        for(var j=0;j<taglist.length;j++){
-            var tag = taglist[j];
-
-            //创建动态判定脚本，并检查是否已经选中
-            var myScript= document.createElement("script");
-            myScript.type = "text/javascript";
-            myScript.appendChild(document.createTextNode('function checkTag'+tag.id+'(doc){console.log("try to eval tag expr.",doc); return '+tag.ruleOfJudgment+';}'));
-            document.body.appendChild(myScript); 
-
-            //组织tag HTML            
-            $("#user-tag-list-"+userTagByCategory).append('<div class="user-tag" id="tag'+tag.userTagCategory.id+'-'+tag.id+'" data-tagId="'+tag.id+'" data-name="'+tag.name+'" data-rule=\''+tag.ruleOfJudgment+'\' data-categoryId="'+tag.userTagCategory.id+'" data-type="'+tag.userMeasure.type+'" data-property="'+tag.userMeasure.property+'" data-isExclusive="'+tag.userTagCategory.isExclusive+'" data-expr=\''+tag.expression+'\'>'+tag.name+'</div>');
-            //注册点击事件
-            $("#tag"+tag.userTagCategory.id+'-'+tag.id).click(function(e){
-                changeTag(e);
-            }); 
-    
-            //检查tag状态
-            checkTagStatus({
-                tagId:tag.id,
-                name:tag.name,
-                type:tag.userMeasure.type,
-                property:tag.userMeasure.property,  
-                rule:tag.ruleOfJudgment,
-                expr:tag.expression,  
-                categoryId:tag.userTagCategory.id,                              
-                isExclusive:tag.userTagCategory.isExclusive
-            });       
-        }
-    }
-}
-
-//tag点选响应事件
-function changeTag(e){
-    console.log("tag changed.",e);
-    var data = {};
-    if(e.currentTarget.dataset.type=="script"){//通过脚本直接更新
-        try{
-            data = JSON.parse(e.currentTarget.dataset.expr); 
-        }catch(err){
-            console.log("parse expression error.",e.currentTarget.dataset.expr);
-        }
-    }else if(e.currentTarget.dataset.type=="array"){//这是一个数组，则要单独做一些处理
-        var tag = e.currentTarget.dataset.name;
-        var array = currentPersona[e.currentTarget.dataset.property];
-        if(!array){
-            array=[];
-        }
-        if(array.indexOf(tag)>=0){//如果存在则删除
-            var str = array.join(" ");
-            str = str.replace(tag,"").replace(/\s+/g," ");
-            array = str.split(" ");
-        }else{
-            array.push(tag)
-        }
-        var uniqueArray = [...new Set(array)];//排重
-        var newArray = [];
-        for(var k=0;k<uniqueArray.length;k++){
-            if(uniqueArray[k]&&uniqueArray[k].trim().length>0){
-                newArray.push(uniqueArray[k].trim());
-            }
-        }
-        data[e.currentTarget.dataset.property]=newArray;
-        currentPersona[e.currentTarget.dataset.property]=newArray;
-    }else{
-        console.log("what the fuck. I dont know the type.[type]"+e.currentTarget.dataset.type);
-    }
-
-    //修改currentPerson信息，直接merge
-    currentPerson = {
-      ...currentPerson,
-      ...data
-    };
-
-    console.log("currentPerson changed by tag.",currentPerson);   
-    changeTagDisplay({
-        tagId:e.currentTarget.dataset.tagid,
-        name:e.currentTarget.dataset.name,
-        type:e.currentTarget.dataset.type,
-        property:e.currentTarget.dataset.property,
-        categoryId:e.currentTarget.dataset.categoryid,
-        isExclusive:e.currentTarget.dataset.isexclusive
-    });
-}
-
-//修改tag显示风格
-function changeTagDisplay(tagInfo){
-    //console.log("try to change tag style.",tagInfo);
-    if(tagInfo.isExclusive=="1" || tagInfo.isExclusive==1){    //如果是单选，则先把所有已选中的干掉，然后把选中的加上高亮
-        //把同一类标签风格都改为取消状态
-        console.log("change exclusive tag.",tagInfo)
-        $("div[id^='tag"+tagInfo.categoryId+"']").each(function(index, element) {
-             $(this).removeClass("user-tag-selected");
-             $(this).addClass("user-tag");
-        });   
-        //高亮显示当前选中的标签 
-        $("#"+tagInfo.categoryId+'-'+tagInfo.tagId).removeClass("user-tag");
-        $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).addClass("user-tag-selected");        
-    }else{//对于多选，如果当前值在列表内则加上高亮，如果不在则去掉高亮
-        console.log("\n\nchange non-exclusive tag.",tagInfo)
-        if(currentPerson[tagInfo.property] && currentPerson[tagInfo.property].indexOf(tagInfo.name)>=0){
-            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).removeClass("user-tag");
-            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).addClass("user-tag-selected");             
-        }else{
-            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).removeClass("user-tag-selected");
-            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).addClass("user-tag");             
-        }
-    }
-}
-
-//检查tag是否选中。仅用于初次加载时
-function checkTagStatus(tagInfo){
-    //console.log("try to check tag status.",tagInfo);
-    var result = false;
-    eval("result=checkTag"+tagInfo.tagId+"(currentPerson);");
-    console.log("check tag result.",result,tagInfo,currentPerson);
-    if( result ){
-        changeTagDisplay(tagInfo);
-    }
 }
 
 //load person
@@ -694,69 +271,6 @@ function changeActionType (e) {
 
     //跳转到相应页面
     window.location.href = currentActionType+".html";
-}
-
-
-//修改persona的tags：每次修改后均做更新，且仅更新tags
-function updatePersonaTags(){
-    var data={
-        tags:currentPersona.tags//在发生操作后直接修改
-    }
-    var header={
-        "Content-Type":"application/json",
-        Authorization:"Basic aWxpZmU6aWxpZmU="
-    }; 
-    util.AJAX(app.config.data_api+"/_api/document/persona_personas/"+currentPersona._key, function (res) {
-        console.log("Broker::My Persona tags updated.", res)
-    }, "PATCH",data,header);
-}
-
-
-//show editable tags
-function showMoreTags(){
-    var moreTags = currentPerson.tags?currentPerson.tags:[];
-    currentPerson.tags = moreTags;
-    for(var i=0;i<moreTags.length;i++){
-        $('#moreTags').append("<li>"+moreTags[i]+"</li>");
-    }
-    var eventTags = $('#moreTags');
-
-    var addEvent = function(text) {
-        console.log(text,currentPerson);
-        //$('#events_container').append(text + '<br>');
-    };
-
-    eventTags.tagit({
-        availableTags: moreTags,//TODO: 可以获取所有标签用于自动补全
-        //**
-        beforeTagAdded: function(evt, ui) {
-            if (!ui.duringInitialization) {
-                addEvent('beforeTagAdded: ' + eventTags.tagit('tagLabel', ui.tag));
-            }
-        },//**/
-        afterTagAdded: function(evt, ui) {
-            if (!ui.duringInitialization) {
-                currentPerson.tags.push(eventTags.tagit('tagLabel', ui.tag));
-                addEvent('afterTagAdded: ' + eventTags.tagit('tagLabel', ui.tag));
-            }
-        },
-        //**
-        beforeTagRemoved: function(evt, ui) {
-            addEvent('beforeTagRemoved: ' + eventTags.tagit('tagLabel', ui.tag));
-        },//**/
-        afterTagRemoved: function(evt, ui) {
-            var tags = currentPerson.tags.join(" ").replace(eventTags.tagit('tagLabel', ui.tag),"");
-            currentPerson.tags = tags.split(" ");
-            addEvent('afterTagRemoved: ' + eventTags.tagit('tagLabel', ui.tag));
-        },
-        /**
-        onTagClicked: function(evt, ui) {
-            addEvent('onTagClicked: ' + eventTags.tagit('tagLabel', ui.tag));
-        },//**/
-        onTagExists: function(evt, ui) {
-            addEvent('onTagExists: ' + eventTags.tagit('tagLabel', ui.existingTag));
-        }
-    });    
 }
 
 

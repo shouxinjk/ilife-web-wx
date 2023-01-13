@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
+    <link rel="stylesheet" type="text/css" href="../broker/css/feeds.css?v=3.9"> 
 </head>
 
 <body>
@@ -33,7 +34,9 @@
     </div-->   
 
     <!-- 用户信息 --> 
+    <!--
     <view class="info" id="user"></view>
+    --> 
     <!-- 按钮 --> 
     <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
         <div class="order-cell" id="dimension" data-tagging="like view">
@@ -44,27 +47,40 @@
             <img class="order-cell-icon-small" src="images/proposal-schemes.png"/>
             <div class="actiontype">定制指南</div>
         </div>         
-        <div class="order-cell" id="needs" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/needs.png"/>
+        <div class="order-cell" id="need-persona" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/need-persona.png"/>
             <div class="actiontype">需要模型</div>
         </div>     
         <div class="order-cell" id="data" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/data.png"/>
-            <div class="actiontype">数据标注</div>
+            <div class="actiontype">数据打分</div>
         </div>                 
-        <div class="order-cell" id="texts" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/texts.png"/>
-            <div class="actiontype">推荐文案</div>
+        <div class="order-cell" id="ranks" data-tagging="share">
+            <img class="order-cell-icon-small" src="images/ranks.png"/>
+            <div class="actiontype">排行榜</div>
         </div>                                              
     </view>
 
     <div class="tips">
-        建立评价指标和数据属性 <a href="#" id="vailidateBtn" style="font-size: 12px;font-weight:bold;">模型验证</a>
+        建立评价指标和数据属性 <a href="categories.html" style="font-size: 12px;font-weight:bold;">所有类目</a> <a href="#" id="vailidateBtn" style="font-size: 12px;font-weight:bold;">模型验证</a>
     </div> 
+
+    <!-- 类目列表 -->
+<section style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+    <div class="swiper-container menus">
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper btn-area" id="categories">
+
+        </div>
+    </div>    
+</section>
+    <!--滑动条底部占位符。固定显示，在推到顶端时将显示出来-->
+    <div class="swiper-placeholder" style="position:fixed;z-index: -1;background-color: #fff;top:0;">&nbsp;&nbsp;</div>
+
 
     <div id="Center">
         <!--客观评价treemap图，显示当前选定层级的指标及属性分布-->   
-        <div id="treemapTitle" class="sx_seperator" style="display:none;margin:30px 0;margin-bottom:20px; "><span>评价体系</span></div>     
+        <div id="treemapTitle" class="sx_seperator" style="display:none;margin:20px 0; "><span>评价体系</span></div>     
         <div id="treemapTips" style="display:none;margin-bottom:5px;text-align: center;color:#ff6781;font-size: 12px;"></div>                  
         <div id="treemap" style="margin:0 2%;width:96%;">
         </div> 
@@ -168,6 +184,6 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/dimension.js?v=1.31"></script> 
+<script type="text/javascript" src="js/dimension.js?v=1.6"></script> 
 <script type="text/javascript" src="../ext/short-md5.js"></script>
 </html>

@@ -34,7 +34,9 @@
     </div-->   
 
     <!-- 用户信息 --> 
+    <!--
     <view class="info" id="user"></view>
+    --> 
     <!-- 按钮 --> 
     <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
         <div class="order-cell" id="dimension" data-tagging="like view">
@@ -45,17 +47,17 @@
             <img class="order-cell-icon-small" src="images/proposal-schemes-selected.png"/>
             <div class="actiontype-selected">定制指南</div>
         </div>         
-        <div class="order-cell" id="needs" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/needs.png"/>
+        <div class="order-cell" id="need-persona" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/need-persona.png"/>
             <div class="actiontype">需要模型</div>
         </div>     
         <div class="order-cell" id="data" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/data.png"/>
-            <div class="actiontype">数据标注</div>
+            <div class="actiontype">数据打分</div>
         </div>                 
-        <div class="order-cell" id="texts" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/texts.png"/>
-            <div class="actiontype">推荐文案</div>
+        <div class="order-cell" id="ranks" data-tagging="share">
+            <img class="order-cell-icon-small" src="images/ranks.png"/>
+            <div class="actiontype">排行榜</div>
         </div>                                              
     </view>
 
@@ -76,7 +78,7 @@
         <!-- 章节列表 -->   
         <div id="sectionTitle" class="sx_seperator" style="margin:30px 0;width:90%;margin-left:5%;"><span>方案构成</span></div>                    
         <div id="section">
-            <div style="text-align: center;line-height: 20px;font-size: 12px;color:darkred;display:none;" id="sctionTips">未建立构成章节，请进入PC端补充设置</div>
+            <div style="text-align: center;line-height: 20px;font-size: 12px;color:darkred;display:none;" id="sectionTips">未建立构成章节，请进入PC端补充设置</div>
         </div>
 
         <!-- 子类型列表 -->   
@@ -137,6 +139,6 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/proposal-scheme.js?v=1.0"></script> 
+<script type="text/javascript" src="js/proposal-scheme.js?v=1.1"></script> 
 <script type="text/javascript" src="../ext/short-md5.js"></script>
 </html>

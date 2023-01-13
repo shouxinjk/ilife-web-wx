@@ -22,10 +22,7 @@ $(document).ready(function ()
     if(args["from"]){
         from = args["from"]; //需要修改的用户ID
     }    
-
-    if(args["target"]){
-        target = args["target"]; //记录目标跳转页
-    }    
+   
     if(args["personaId"]){
         currentPersonaId = args["personaId"]; //初次设置时，默认使用persona属性填充
     }
@@ -72,8 +69,6 @@ var currentConnection = null;
 
 var categoryId = null;
 var categoryName = null;
-
-var target = "dimension";//记录选择目录后跳转地址，支持类目需要构成category-need, 类目评价体系 dimension。默认为评价体系
 
 var currentPerson = {};//默认当前修改用户为空
 
@@ -127,14 +122,25 @@ function insertItem(item){
 
     //注册事件： 点击跳转设置界面
     $("#node"+item.id).click(function(){
-        goTarget(item.id);
+        goTarget($(this).data("id"));
     });
 
     //加载二级目录
     loadChildItems(2,item.id);
 }
-//根据target类型进入目标页面
+//根据document.referrer返回来源页面，并添加categoryId参数
 function goTarget(id){
+    console.log("try jump.",document.referrer);
+    if(document.referrer){
+        if(document.referrer.indexOf("?")>0){
+            window.location.href = document.referrer + "&categoryId="+id;
+        }else{
+            window.location.href = document.referrer + "?categoryId="+id;
+        }
+    }else{
+        console.log("no referrer.ignore.");
+    }
+    /**
     if("dimension"==target){
         //TODO 需要查询得到对应目录的顶级dimensionId，然后跳转
         window.location.href="dimension.html?categoryId="+id+"&id="+id;//其中id为dimensionId，顶级目录对应的维度id和categoryId相同
@@ -143,6 +149,7 @@ function goTarget(id){
     }else{
         console.log("unknown target type.",target);
     }
+    //**/
 }
 
 //加载二级、三级类目并显示到界面：直接显示为文字标签

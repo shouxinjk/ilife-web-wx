@@ -209,6 +209,8 @@ function changeCategory (category) {
         $("#summaryDiv").css("display","block");
         $("#summary").html(category.description);
     }
+    $("#treemapTitle").empty();
+    $("#treemapTitle").append("<span style='padding:0 2px;/*color:#007bff;*/'>"+categoryName+" 需要满足</span>");
 
     loadCategoryNeeds();//重新加载数据
   } 

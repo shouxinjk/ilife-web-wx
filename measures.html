@@ -16,6 +16,7 @@
     <link rel="stylesheet" type="text/css" href="css/pattern.min.css">   
     <link rel="stylesheet" type="text/css" href="broker/css/feeds.css?v=3.8">   
     <link rel="stylesheet" type="text/css" href="publisher/css/publisher.css?v=3.8">      
+     <link rel="stylesheet" type="text/css" href="css/measures.css?v=1.0">   
 </head>
 
 <body>
@@ -25,7 +26,7 @@
             <span style="margin-left:-20px;background-color: green;">&nbsp;</span>
             <input id="searchTxt" placeholder="🔍  客观评价每一件商品" style="line-height: normal;display: inline-block;"/><a id="findAll" class="searchBtn" style="color:#fff;">&nbsp;&nbsp;搜索</a> 
             <!--a class="searchBtn" style="color:#fff;" href="measures.html">&nbsp;&nbsp;热门</a-->   
-            <a id="addNewItemBtn" href="#" style="font-size: 12px;font-weight:bold;color:#fff;">&nbsp;&nbsp;提交商品</a>
+            <!--a id="addNewItemBtn" href="#" style="font-size: 12px;font-weight:bold;color:#fff;">&nbsp;&nbsp;提交商品</a-->
         </div>       
     </div>
     <div style="background-color: green;height:4px;">&nbsp;&nbsp;</div>
@@ -65,7 +66,7 @@
 
 <section style="position:sticky;z-index: 10;top:104px;background-color: #fff;" id="legendDivSticky">
     <!-- 图例：采用不同颜色标记不同维度 -->
-    <div id="legendDiv" style="display:flex;flex-direction: row; flex-wrap: nowrap;text-align: center; justify-content: center; align-items: center;margin-top:10px;">
+    <div id="legendDiv" style="display:flex;flex-direction: row; flex-wrap: nowrap;text-align: center; justify-content: center; align-items: center;margin-top:10px;width:96%;margin-left:2%;">
 
     </div>    
 </section>
@@ -118,6 +119,18 @@
     </a>        
   </div>
 
+    <!-- 操作按钮 -->
+    <div id="share-box" class="share-box" style="bottom:50px;">
+        <div id="share-tips" class="share-tips">立即评价</div>
+        <div id="share-bonus" class="share-bonus" style="border:0"></div>
+        <div id="share-btn" class="share-btn" style="margin-top:5px;">
+            <!--div id="share-instruction">清单分享更高效</div-->
+            <a id="addNewItemBtn" href="#" style="background-color: #00bfff;border-color: #00bfff;line-height: 24px;">评价商品</a><br/>
+            <a id="createRankBtn" href="#" style="background-color: #50c878;border-color: #50c878;line-height: 28px;">创建榜单</a>
+        </div>
+    </div>  
+
+    <!-- 提交商品URL -->
     <div id="itemform" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">粘贴商品URL</div> 
             <div style="width:100%;line-height: 16px;display:none;" id="enhouseWaiting"><image src="images/loading.gif" style="margin:5px auto;"/></div> 
@@ -127,6 +140,30 @@
                 <button type="submit" class="btnYes" id="btnPublish">确定</button> 
             </div>
     </div> 
+
+    <!-- 新建排行榜 -->
+    <div id="rankform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="rankTip" data-rankid="">创建排行榜</div> 
+            <!--
+            <input type="text" id="rankCategory2" placeholder="所属类目，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" readonly/>
+            --> 
+            <input type="text" id="rankKeywords2" placeholder="主题，设置后将根据关键字筛选商品" style="display:none;idth:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;"/>   
+                     
+            <input type="text" id="rankName2" placeholder="名称，如西班牙进口橄榄油排行榜，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>                             
+            <textarea type="url" id="rankDesc2" rows="3" placeholder="简要介绍排行榜，必填" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;padding:2px;"></textarea>  
+            <!-- 排行榜字段调整按钮 -->    
+            <div id="rankBtns" class="button-group">
+                <button class="button" data-action="up" id="moveupBtn">更靠前</button>
+                <button class="button" data-action="change" id="changeBtn">移出排行</button>
+                <button class="button" data-action="down" id="movedownBtn">更靠后</button>
+            </div>   
+            <!-- 排行榜字段设置 -->    
+            <div  class="grid" id="rankItems" style="height: 40px;"></div>                                    
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelRank" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
+                <button type="submit" class="btnYes" id="btnSaveRank" style="font-size: 12px;padding:2px 5px;margin:2px;">确定</button> 
+            </div>
+    </div>    
 
 </body>
 
@@ -139,6 +176,7 @@
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="ext/jquery.blockUI.js"></script>
 <script type="text/javascript" src="js/swiper.min.js"></script>
+<script type="text/javascript" src="ext/isotope.pkgd.min.js"></script>
 <script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
 <script type="text/javascript" src="ext/d3/d3.min.js"></script>
 <script type="text/javascript" src="ext/d3/d3-hierarchy.js"></script>
@@ -147,6 +185,7 @@
 <script type="text/javascript" src="ext/d3/partition-sunburst.js?v=0.2"></script>
 <script type="text/javascript" src="ext/d3/sankey.js?v=0.12"></script>
 <script type="text/javascript" src="ext/require.min.js"></script>
+<script type="text/javascript" src="js/md5.js?v=1.2"></script>
 <script type="text/javascript" src="js/util.js?v=3.2"></script>
-<script type="text/javascript" src="js/measures.js?v=0.74"></script> 
+<script type="text/javascript" src="js/measures.js?v=0.76"></script> 
 </html>

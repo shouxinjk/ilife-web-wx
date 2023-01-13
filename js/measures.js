@@ -49,7 +49,43 @@ $(document).ready(function ()
     //注册点击事件：添加商品URL
     $("#addNewItemBtn").click(function(){
         showItemForm();        
-    });        
+    });   
+
+    //注册点击事件：调整排行榜规则
+    $(".button").click(function(){
+        if(!rankItemId){ //如果未选中则提示
+          siiimpleToast.message('请点选需要调整的指标~~',{
+                  position: 'bottom|center'
+                });
+        }else{//否则调整排序规则
+          changeRankItems(rankItemId, $(this).data("action"));
+        }    
+    }); 
+
+    //初始化排行榜规则显示
+    // init Isotope: not work. use jquery directly
+    /** 
+    rankItemGrid = $('#rankItems').isotope({
+      itemSelector: '.element-item',
+      layoutMode: 'fitRows',
+      getSortData: {
+        name: '.name',
+        symbol: '.symbol',
+        number: '.number parseInt',
+        category: '[data-category]',
+        priority: function( itemElem ) { //根据priority排序
+                  var priority = $( itemElem ).data('priority');
+                  return parseFloat( priority );
+                }
+      }
+    });
+    $("#rankItems").css("height","40px");
+    //**/
+
+    //注册点击事件：创建排行榜
+    $("#createRankBtn").click(function(){
+        showRankForm();        
+    });            
 
     //装载sankey图必要组件
     require.config({
@@ -72,6 +108,8 @@ $(document).ready(function ()
     //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
     registerShareHandler();  
 });
+
+var rankItemGrid = null;//排行榜维度条目grid
 
 var width = 600;
 var clientWidth = 600;
@@ -401,6 +439,7 @@ function showMeasureCharts(categoryName){
   $("#sankey").css("display","none");
   $("#circlepack").css("display","none");
   $("#sunburst").css("display","none");
+  $("#treemap").css("display","none");
   var idx = new Date().getTime()%4;
   if(idx==0){
     $("#sankey").css("display","block");
@@ -623,18 +662,115 @@ function showSunBurst(data){
     });
 }
 
+//排行榜设置模板
+var rankItemTpl = `
+  <div class="element-item post-transition metal " id="rankItem__dimensionid" data-dimensionid="__dimensionid" data-priority="__priority" data-bgcolor="__bgcolor" style="background-color:__bgcolor">
+    <h5 class="name" style="font-size:10px;">__name</h5>
+    <p class="symbol" data-sort="__sort" id="sort__dimensionid">__sort</p>
+    <p class="number">__weight</p>
+  </div>
+`;
+//显示排行榜规则列表，根据最新数据更新
+function showRankItems(){
+  console.log("show rank items.",rankItems);
+  $("#rankItems").empty();//先清空
+  var i=0;
+  rankItems.forEach(function(rankItem){
+    var dimension = rankItem.dimension;
+    var rankItemHtml = rankItemTpl;
+    rankItemHtml = rankItemHtml.replace(/__dimensionid/g,dimension.id);
+    rankItemHtml = rankItemHtml.replace(/__name/g,dimension.name);
+    rankItemHtml = rankItemHtml.replace(/__priority/g,rankItem.priority);
+    rankItemHtml = rankItemHtml.replace(/__sort/g,(i+1));
+    rankItemHtml = rankItemHtml.replace(/__weight/g,dimension.weight+"%");
+    rankItemHtml = rankItemHtml.replace(/__bgcolor/g,$("#legendDim"+dimension.id).data("bgcolor"));//使用缓存颜色
+    $("#rankItems").append(rankItemHtml);
+    //根据priority调整sort显示及背景颜色
+    if(rankItem.priority<0){
+      $("#sort"+dimension.id).empty();
+      $("#sort"+dimension.id).append("-");   
+      
+      $("#rankItem"+dimension.id).css("background","silver"); 
+    }
+    //注册点击事件：选中后高亮，并且支持修改排序
+    $("#rankItem"+dimension.id).click(function(){
+      //设置当前选中条目ID
+      rankItemId = $(this).data("dimensionid");
+      var currentRankItem = rankItems.find(rankItem => rankItem.dimension.id == rankItemId); //查询得到当前节点元素  
+      //修改提示编号为问号，提示调整
+      $("#sort"+dimension.id).empty();
+      $("#sort"+dimension.id).append("?");
 
+      //修改按钮文字：根据选中条目判断后调整加入或取消排序  
+      if(currentRankItem.priority<0){//显示加入排序
+        $("#changeBtn").empty();
+        $("#changeBtn").data("action","enable");
+        $("#changeBtn").append("加入排行");
+      }else{//否则显示取消排序
+        $("#changeBtn").empty();
+        $("#changeBtn").data("action","disable");
+        $("#changeBtn").append("移出排行");
+      }
+    });
+    i++;
+  });
+}
 
 //显示条目评分图例颜色
+var legendItemTpl=`
+<div id='legendDim__id' data-bgcolor='__bgcolor' style='background-color:__bgcolor;color:#fff;font-size:10px;padding:2px;height:48px;width:__weight%;display: table;_position:relative;overflow:hidden;'>
+  <div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'>
+    <div style='_position: relative;_top: -50%;'>
+      __name
+    </div>
+  </div>
+</div>
+`;
 var  colors = ['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#40e0d0','#0dbf8c','#9acd32','#32cd32','#228b22','#067633'];
+var rankItemId = null;
 function showLegends(dimensions){
   $("#legendDiv").empty();
   var i=0;
+  var priority = 100; //加入排行榜规则列表，最大支持100个维度
   dimensions.forEach(function(dimension){ //仅显示第一层
-    $("#legendDiv").append("<div style='background-color:"+colors[i]+";color:#fff;font-size:10px;margin:1px;padding:2px;'>"+dimension.name+"</div>");
-    //$("#legendDiv").append("<div  class='pattern-checks-sm bg-mint white text-pattern' style='font-size:10px;margin:1px;padding:2px;'>"+dimension.name+"</div>");
+    //显示到legend图例列表
+    var legendItemHtml = legendItemTpl
+            .replace(/__id/g,dimension.id)
+            .replace(/__name/g,dimension.name)
+            .replace(/__weight/g,dimension.weight)
+            .replace(/__bgcolor/g,colors[i]);
+    $("#legendDiv").append(legendItemHtml);
+
+    //$("#legendDiv").append("<div id='legendDim"+dimension.id+"' data-bgcolor='"+colors[i]+"' style='background-color:"+colors[i]+";color:#fff;font-size:10px;margin:1px;padding:2px;'>"+dimension.name+"</div>");
+    
+    //检查rankItems是否已装载
+    var rankItem = { //注意：不需要设置rankId，后端自动添加到当前rank上
+      dimension:dimension,
+      priority: priority*10 //默认按照featuredDimension排序
+    };
+    rankItems.push(rankItem);
+    priority--;
+
+    /**
+    if(rankItems.length==0){ //如果为空则根据featuredDimension添加
+      var priority = 100; //最大支持100个维度
+      dimensions.forEach(function(featuredDim){
+        var rankItem = { //注意：不需要设置rankId，后端自动添加到当前rank上
+          dimension:{
+            id: featuredDim.id
+          },
+          priority: priority*10 //默认按照featuredDimension排序
+        };
+        rankItems.push(rankItem);
+        priority--;
+      })
+    }
+    //**/
+
     i++;
   });
+  //显示评价维度
+  showRankItems();
 }
 
 //加载用户浏览数据：根据选定用户显示其浏览历史，对于画像则显示该画像下的聚集数据
@@ -843,145 +979,6 @@ function insertItem(){
     loading = false;
 }
 
-
-//load predefined personas
-function loadPersonas() {
-    util.AJAX(app.config.data_api+"/persona/personas/broker/"+app.globalData.userInfo._key, function (res) {
-      var arr = res;
-      //将persona作为特殊的person显示到顶部
-      for (var i = 0; i < arr.length; i++) {
-        var u = arr[i];
-        if(personKeys.indexOf(u._key) < 0){
-          u.nickName = u.name;//将persona转换为person
-          u.avatarUrl = u.image;//将persona转换为person
-          u.personOrPersona = "persona";//设置标记，用于区分persona及person
-          persons.push(u);
-          personKeys.push(u._key);
-        }
-      }
-
-      //新增客群按钮
-      var addPersonaKey = "btn-add-persona";
-      personKeys.push(addPersonaKey);
-      persons.push({
-        nickName:"添加客群",
-        avatarUrl:"images/add-persona.png",
-        _key:addPersonaKey
-      });       
-
-      //显示滑动条
-      showSwiper(); 
-    });
-}
-
-//load related persons
-function loadPersons() {
-    util.AJAX(app.config.data_api+"/user/users/connections/"+app.globalData.userInfo._key, function (res) {
-      var arr = res;
-      //从列表内过滤掉当前用户：当前用户永远排在第一个
-      //*
-      if (app.globalData.userInfo != null && personKeys.indexOf(app.globalData.userInfo._key) < 0){
-          persons.push(app.globalData.userInfo);
-          personKeys.push(app.globalData.userInfo._key);
-        }
-      //**/
-      for (var i = 0; i < arr.length; i++) {
-        var u = arr[i];
-        if(personKeys.indexOf(u._key) < 0/* && u.openId*/){//对于未注册用户不显示
-          //如果是非注册用户则显示为客群
-          if(!u.openId){
-            u.personOrPersona = "persona";//设置标记，用于区分persona及person
-          }
-          persons.push(u);
-          personKeys.push(u._key);
-        }
-      } 
-
-      //新增关心的人按钮
-      var addPersonKey = "btn-add-related-person";
-      personKeys.push(addPersonKey);
-      persons.push({
-        nickName:"添加关心的人",
-        avatarUrl:"images/add-person.png",
-        _key:addPersonKey
-      });      
-
-      //显示顶部滑动条
-      if(util.hasBrokerInfo()){//如果是达人，则继续装载画像
-          loadPersonas();
-      }else{//否则直接显示顶部滑动条
-          showSwiper();
-      } 
-    });
-}
-
-function showSwiper(){
-    //将用户装载到页面
-    for (var i = 0; i < persons.length; i++) {
-      insertPerson(persons[i]);
-    }    
-    //显示滑动条
-    var mySwiper = new Swiper ('.swiper-container', {
-        slidesPerView: 7,
-    });  
-    //调整swiper 风格，使之悬浮显示
-    $(".swiper-container").css("position","fixed");
-    $(".swiper-container").css("left","0");
-    $(".swiper-container").css("top","0");
-    $(".swiper-container").css("z-index","999");
-    $(".swiper-container").css("background-color","#fff");
-    //$(".swiper-container").css("margin-bottom","3px");
-  
-    //将当前用户设为高亮  
-    if(inputPerson && personKeys.indexOf(inputPerson)>-1 && persons[personKeys.indexOf(inputPerson)]){//有输入用户信息则优先使用
-      currentPerson = inputPerson;
-      currentPersonType = persons[personKeys.indexOf(inputPerson)].personOrPersona?"persona":"person";
-      currentPersonTagging = persons[personKeys.indexOf(inputPerson)].tags?persons[personKeys.indexOf(inputPerson)].tags.join(" "):"";
-    }else{//根据当前用户加载数据：默认使用第一个
-      currentPerson = persons[0]._key;
-      currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";   
-    }   
-    changePerson(currentPersonType,currentPerson,currentPersonTagging);    
-}
-
-//将person显示到页面
-/*
-<view class="person">
-      <image class="person-img{{person._key==currentPerson?'-selected':''}}" src="{{person.avatarUrl}}" bindtap="changePerson" data-id="{{person._key}}"/>
-      <view class="person-name">{{person.nickName}}</view>
-</view>
-*/
-
-function insertPerson(person){
-    // 显示HTML
-    var html = '';
-    html += '<div class="swiper-slide">';
-    html += '<div class="person" id="'+person._key+'"data-type="'+(person.personOrPersona?"persona":"person")+'" data-tagging="'+(person.tags?person.tags.join(" "):"*")+'">';
-    var style= person._key==currentPerson?'-selected':'';
-    html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+person.avatarUrl+'"/></div>';
-    html += '<span class="person-name">'+(person.personOrPersona=="persona"?"☆":"")+person.nickName+'</span>';
-    html += '</div>';
-    html += '</div>';
-    $("#persons").append(html);
-
-    //注册事件:点击后切换用户
-    //通过jquery事件注入
-    if(person._key=="btn-add-related-person"){//新增关心的人，直接跳转
-      $("#"+person._key).click(function(e){
-          window.location.href="user-choosepersona.html?from=feeds";
-      });
-    }else if(person._key=="btn-add-persona"){//新增客群，直接跳转
-      $("#"+person._key).click(function(e){
-          window.location.href="broker/my-addpersona.html?from=feeds";
-      });
-    }else{//切换数据列表
-      $("#"+person._key).click(function(e){
-          console.log("try to change person by jQuery click event.",person._key,e.currentTarget.type,e.currentTarget.id,e);
-          changePerson(e.currentTarget.dataset.type,e.currentTarget.id,e.currentTarget.dataset.tagging);
-      });
-    }
-}
-
 //显示没有更多内容
 function shownomore(flag){
   //检查是否是一条数据都没加载
@@ -1066,46 +1063,6 @@ function insertCategoryItem(measureItem){
     loading = false;      
 }
 
-//更新item信息。只用于更新profit
-function updateItem(item) {
-    var header={
-        "Content-Type":"application/json",
-        Authorization:"Basic aWxpZmU6aWxpZmU="
-    };  
-    var url = app.config.data_api +"/_api/document/my_stuff/"+item._key;
-    if (app.globalData.isDebug) console.log("Feeds::updateItem update item.",item);
-    util.AJAX(url, function (res) {
-      if (app.globalData.isDebug) console.log("Feeds::updateItem update item finished.", res);
-      //do nothing
-    }, "PATCH", item, header);
-}
-
-function changePerson (type,personId,personTagging) {
-    var ids = personId;
-    if (app.globalData.isDebug) console.log("Feed::ChangePerson change person.",currentPerson,personId);
-    $("#"+currentPerson+" img").removeClass("person-img-selected");
-    $("#"+currentPerson+" img").addClass("person-img");
-    $("#"+ids+" img").removeClass("person-img");
-    $("#"+ids+" img").addClass("person-img-selected");
-
-    $("#"+currentPerson+" span").removeClass("person-name-selected");
-    $("#"+currentPerson+" span").addClass("person-name");
-    $("#"+ids+" span").removeClass("person-name");
-    $("#"+ids+" span").addClass("person-name-selected");
-
-    $("#waterfall").empty();//清空原有列表
-    $("#waterfall").css("height","20px");//调整瀑布流高度
-    showloading(true);//显示加载状态
-
-    page.current = -1;//从第一页开始查看
-    currentPerson = ids;//修改当前用户
-    currentPersonTagging = personTagging;//修改当前用户推荐Tagging
-    currentPersonType = type;//更改当前用户类型
-    items = [];//清空列表
-    num = 1;//从第一条开始加载
-    //loadData();//重新加载数据
-  } 
-
 // 自动加载更多：此处用于测试，动态调整图片高度
 function random(min, max)
 {
@@ -1151,6 +1108,251 @@ function getDateDiff(dateTimeStamp) {
     return result;
 }
 
+//记录排行榜规则条目，并检查排行榜唯一性。注意：在保存前，rankId及rankItemId均未生成，根据dimensionId完成排序及唯一性检查
+//操作包括前移、后移、启用、禁用。禁用时优先级直接变为-1，启用后变为0，前移后移动则通过计算得到
+//实际存储时，按照priority倒序排列
+var rankItems = [];
+function changeRankItems(dimensionId, action){
+  //根据操作类型计算priority
+  var idx = rankItems.findIndex(rankItem => rankItem.dimension.id == dimensionId); //查询得到当前节点下标
+  var currentRankItem = rankItems.find(rankItem => rankItem.dimension.id == dimensionId); //查询得到当前节点元素
+  if("disable"==action){ //禁用时直接设置为-1
+    //需要检查保证至少有一个维度
+    var totalEnabled = 0;
+    rankItems.forEach(function(item){
+      if(item.priority>0)totalEnabled++;
+    });
+    if(totalEnabled<2){ //如果仅有一个则拒绝
+        siiimpleToast.message('至少要有一个参与排行~~',{
+                position: 'bottom|center'
+              }); 
+        return;            
+    }
+    currentRankItem.priority = -1 * new Date().getTime();//放到最后
+    rankItems.splice(idx,1);//删除元素
+    rankItems.push(currentRankItem);//添加为最后一个
+  }else if("enable"==action){ //作为最后一个，需要查询当前最后一个，并且设置priority为其一半
+    //遍历得到目标位置
+    var toIdx = 0;
+    var priority = 0;
+    rankItems.forEach(function(rankItem){
+      if(rankItem.priority>0){
+        priority = rankItem.priority;
+        toIdx ++;
+      }
+    });
+    currentRankItem.priority = priority/2;//放到最后
+    rankItems.splice(idx,1);//删除当前元素
+    //插入目标位置之后
+    rankItems.splice(toIdx+1,0,currentRankItem);//插入到目标位置之后
+  }else if("up"==action){ //前移一个，查询前一个，两者交换priority
+    var priority = currentRankItem.priority;
+    //如果未加入排序则提示先加入排序
+    if(priority<0){
+        siiimpleToast.message('请先加入排行~~',{
+                position: 'bottom|center'
+              }); 
+        return;        
+    }
+    if(idx>0){//仅对非第一个进行操作
+      var toIdx = idx-1;
+      var toRankItem = rankItems[toIdx];
+      currentRankItem.priority = toRankItem.priority;
+      toRankItem.priority = priority;
+      rankItems.splice(idx,1,toRankItem);//替换当前元素
+      rankItems.splice(toIdx,1,currentRankItem);//替换前一个元素
+    }
+  }else if("down"==action){ //后移一个，查询后一个，两者交换priority
+    var priority = currentRankItem.priority;
+    //如果未加入排序则提示先加入排序
+    if(priority<0){
+        siiimpleToast.message('请先加入排行~~',{
+                position: 'bottom|center'
+              }); 
+        return;        
+    }    
+    if(idx<rankItems.length-1){//仅对非最后一个进行操作
+      var toIdx = idx+1;
+      var toRankItem = rankItems[toIdx];
+      currentRankItem.priority = toRankItem.priority;
+      toRankItem.priority = priority;
+      rankItems.splice(idx,1,toRankItem);//替换当前元素
+      rankItems.splice(toIdx,1,currentRankItem);//替换后一个元素
+    }
+  }
+
+  //更改界面显示:包括颜色及位置
+  if(currentRankItem.priority<0){ //显示为灰色，sort显示为-
+    $("#sort"+dimensionId).empty();
+    $("#sort"+dimensionId).append("-");
+    $("#rankItem"+dimensionId).css("background","silver");
+    //调整按钮
+    $("#changeBtn").empty();
+    $("#changeBtn").data("action","enable");
+    $("#changeBtn").append("加入排行");
+  }else{//显示原本颜色，并恢复sort显示
+    $("#sort"+dimensionId).empty();
+    $("#sort"+dimensionId).append($("#sort"+dimensionId).data("sort"));
+    $("#rankItem"+dimensionId).css("background",$("#rankItem"+dimensionId).data("bgcolor"));
+    //调整按钮
+    $("#changeBtn").empty();
+    $("#changeBtn").data("action","disable");
+    $("#changeBtn").append("移出排行");
+  }  
+
+  //显示评价维度：根据调整结果刷新
+  /**
+  rankItemGrid.isotope({ sortBy: "priority" });
+  $("#rankItems").css("height","40px");
+  //**/
+  showRankItems();
+
+  //根据修改后的排序检查唯一性，如果已经有排行榜存在则提示
+  var rankId = getRankId();
+  console.log("check rank by id.",rankId);
+  $.ajax({
+      url:app.config.sx_api+"/mod/rank/rest/rank/"+rankId,
+      type:"get",
+      //data:JSON.stringify({}),//注意：不能使用JSON对象
+      headers:{
+          "Content-Type":"application/json",
+          "Accept": "application/json"
+      },  
+      success:function(ret){
+          console.log("===got rank info===\n",ret);
+          if(ret.success && ret.rank){ //表示已存在，需要提示
+              $("#rankTip").empty();
+              $("#rankTip").append("排行榜已存在，可<a href='billboard.html?rankId="+rankId+"'>直接查看</a>");
+              $("#rankTip").data("rankid",rankId);
+          }else{ //不存在，可以继续创建
+              $("#rankTip").empty();
+              $("#rankTip").append("创建"+(categoryName?categoryName:"")+"排行榜");
+              $("#rankTip").data("rankid","");
+          }
+      }
+  });
+}
+
+//保存排行榜：完成后关闭浮框，并且跳转到排行榜界面
+function saveRankInfo(rank){
+    if($("#rankTip").data("rankid") && $("#rankTip").data("rankid").trim().length>0){ //如果排行榜已存在，则提示不预创建
+        siiimpleToast.message('排行榜已存在~~',{
+                position: 'bottom|center'
+              }); 
+        return;      
+    }
+    //设置rank信息
+    rank.id = getRankId();//设置id
+    var finalRankItems = [];//仅保留priority>0的items
+    rankItems.forEach(function(item){
+      if(item.priority>0){
+        finalRankItems.push(item);
+      }
+    })
+    rank.items = finalRankItems;//添加items
+    //保存rank
+    console.log("try to save rank info.",rank);
+    $.ajax({
+        url:app.config.sx_api+"/mod/rank/rest/rank",
+        type:"post",
+        data:JSON.stringify(rank),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },  
+        success:function(ret){
+            console.log("===save rank done===\n",ret);
+            if(ret.success){ 
+                //取消浮框，并刷新界面
+                $.unblockUI(); //直接取消即可
+                window.location.href="billboard.html?rankId="+ret.data.id;
+            }else{
+              siiimpleToast.message('啊哦，出错了~~',{
+                      position: 'bottom|center'
+                    });    
+            }
+        }
+    });
+}
+
+//生成rankId 根据所有enable的维度及keyword做唯一性校验
+function getRankId(){
+  var str = "";
+  rankItems.forEach(function(rankItem){
+    if(rankItem.priority>0) //仅考虑纳入排行规则的维度
+      str += rankItem.dimension.id;
+  });
+  if( $("#rankKeywords2").val() && $("#rankKeywords2").val().trim().length>0){
+    str += $("#rankKeywords2").val().trim();
+  }
+  return hex_md5(str);
+}
+
+//显示建立排行榜表单：输入名称、keywords、描述，并支持调整排行规则
+function showRankForm(){
+    console.log("show rank form.");  
+    //设置默认值
+    $("#rankTip").empty();
+    $("#rankTip").append("创建"+(categoryName?categoryName:"")+"排行榜");
+
+    $("#rankName2").attr("placeholder","名称，如 XXX "+(categoryName?categoryName:"")+" 排行榜， 必填");
+
+    $("#rankCategory2").val("类目："+categoryName);
+    if($("#rankKeywords2").val().trim().length==0 && $("#searchTxt").val().trim().length>0 ){
+      $("#rankKeywords2").val( $("#searchTxt").val().trim() );
+    }
+    //显示表单
+    $.blockUI({ message: $('#rankform'),
+        css:{ 
+            padding:        10, 
+            margin:         0, 
+            width:          '80%', 
+            top:            '20%', 
+            left:           '10%', 
+            textAlign:      'center', 
+            color:          '#000', 
+            border:         '1px solid silver', 
+            backgroundColor:'#fff', 
+            cursor:         'normal' 
+        },
+        overlayCSS:  { 
+            backgroundColor: '#000', 
+            opacity:         0.7, 
+            cursor:          'normal' 
+        }
+    }); 
+    $("#btnCancelRank").click(function(){
+        $("#itemUrl").css("border","1px solid silver");//恢复标准风格       
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnSaveRank").click(function(){//提交后创建排行榜
+        //检查必填项：名称。排行规则在切换时已经检查
+        if( !$("#rankName2").val() || $("#rankName2").val().trim().length ==0 ){
+            siiimpleToast.message('名称为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#rankDesc2").val() || $("#rankDesc2").val().trim().length ==0 ){
+            siiimpleToast.message('简介为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save rank.");
+            var rank = {
+              id: "",//设置为空将自动根据items计算
+              isNewRecord: true,//做为新排行榜建立
+              category:{
+                id: categoryId
+              },
+              name: $("#rankName2").val(),
+              description: $("#rankDesc2").val(),
+              keywords: $("#rankKeywords2").val()?$("#rankKeywords2").val().trim():"",
+              openid: app.globalData.userInfo._key,
+              nickname: app.globalData.userInfo.nickname
+            }           
+            saveRankInfo(rank);
+        }
+    });
+}
 
 //显示增加商品表单：粘贴URL即可
 function showItemForm(){
