@@ -440,7 +440,7 @@ function showMeasureCharts(categoryName){
   $("#circlepack").css("display","none");
   $("#sunburst").css("display","none");
   $("#treemap").css("display","none");
-  var idx = new Date().getTime()%4;
+  var idx = new Date().getTime()%3;//仅显示sankey、treemap、sunburst
   if(idx==0){
     $("#sankey").css("display","block");
     linkTree = [];
@@ -450,11 +450,11 @@ function showMeasureCharts(categoryName){
     $("#treemap").css("display","block");
     showTreemap();
   }else if(idx==2){
-    $("#circlepack").css("display","block");
-    showDimensionCirclePack(categoryName);
-  }else{
     $("#sunburst").css("display","block");
     showSunburst();
+  }else{
+    $("#circlepack").css("display","block");
+    showDimensionCirclePack(categoryName);    
   }
  
 }

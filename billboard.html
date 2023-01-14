@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+    <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">     
+    <link rel="stylesheet" type="text/css" href="ext/siiimple-toast-master/style.css?v=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">  
+    <link rel="stylesheet" type="text/css" href="css/common.css?v=1.6"> 
+    <link rel="stylesheet" type="text/css" href="css/pattern.min.css">   
+    <link rel="stylesheet" type="text/css" href="broker/css/feeds.css?v=3.8">   
+    <link rel="stylesheet" type="text/css" href="publisher/css/publisher.css?v=3.8">      
+     <link rel="stylesheet" type="text/css" href="css/measures.css?v=1.0">   
+</head>
+
+<body>
+
+    <div class="header" style="background-color: #5B9FDC;min-height: 160px;">
+        <div id="rankSummay" style="display:flex;flex-direction: row;flex-wrap: nowrap;width:100%;padding:30px 20px;align-items: center;justify-content: center;">
+            <!--左侧显示类目、关键字、名称、描述-->
+            <div style="width:60%">
+                <div>
+                    <div id="rankCategoryName" style="font-size:14px;line-height:16px;font-weight:bold;color:#fff;"></div>
+                    <div id="rankKeywrod" style="font-size:10px;line-height:16px;color:#fff;"></div>
+                </div>
+                <div id="rankName" style="font-size:18px;line-height:24px;font-weight:bold;color:#fff;"></div>
+                <div id="rankDesc" style="font-size:12px;line-height:16px;color:#fff;"></div>
+                <!--排序规则:显示为grid-->   
+                <div id="rankItems">
+                    
+                </div>                
+            </div>
+            <!--右侧显示LOGO。对应类目LOGO-->
+            <div style="width:40%;text-align:center;">
+                <img src="http://www.shouxinjk.net/static/logo/distributor/ilife.png" style="width:100px;height:100px;object-fit: cover;border-radius: 10px;"/>
+            </div>
+        </div>  
+    </div>
+
+
+    <!-- 导航菜单 -->
+    <!--div class="nav">
+        <ul class="navUl">
+        </ul>
+    </div-->   
+
+    <!-- 瀑布流：显示匹配的商品数据 -->
+    <div id="Center">
+        <ul id="waterfall"></ul>
+    </div>
+
+    <!-- 加载进度与提示 -->
+    <div class="loading-hide" id="loading">
+        <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
+    </div>
+
+    <div id="footer" class="footer">
+        <button class="btn btn-default findMoreBtn-hide" id="createRankBtn">创建排行榜</button>
+    </div> 
+
+    <!-- 支持用户自己提交商品链接发起评价 -->
+    <!--div class="share-box" id="sharebox" style="bottom:45px;border-color: #5B9FDC;">
+        <div class="share-tips" style="background-color: #5B9FDC;border-color: #5B9FDC;">立即评价</div>
+        <div id="share-bonus" class="share-bonus" style="border-bottom: 0;"></div>
+        <div class="share-btn">
+            <div>添加商品URL就<br/>可以立即评价</div>
+            <a id="addNewItemBtn" href="#" style="background-color: #ff6347;border-color: #ff6347;line-height: 24px;">添加商品</a><br/>
+        </div>
+    </div-->  
+
+    <!--div class="share-box" id="sharebox" style="width:48px;height:48px;border-radius: 50%;bottom:45px;border-color: #5B9FDC;background-color: #5B9FDC;">
+        <div id="addNewItemBtn" style="line-height: 16px;font-size: 12px;text-align: center;vertical-align: middle;width:30px;margin:6px auto;font-weight: bold;">添加商品</div>
+    </div-->
+
+    <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
+
+  <div id="sx-menu">
+    <a href="index.html" class="menu-btn">
+        <img src="images/smile-happy.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;推荐</div>
+    </a>
+    <a href="measures.html" class="menu-btn">
+        <img src="images/measure.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;评价</div>
+    </a>
+    <a href="billboards.html" class="menu-btn">
+        <img src="images/billboard-selected.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt-selected">&nbsp;排行</div>
+    </a>      
+    <a href="proposals.html" class="menu-btn">
+        <img src="images/proposal.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;定制</div>
+    </a>  
+    <a href="user.html" class="menu-btn">
+        <img src="images/my.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;我</div>
+    </a>        
+  </div>
+
+    <!-- 修改排行榜：仅能修改名称及描述，且仅对创建者有效 -->
+    <div id="rankform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="rankTip" data-rankid="">修改排行榜</div> 
+            <!--
+            <input type="text" id="rankCategory2" placeholder="所属类目，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" readonly/>
+            --> 
+            <input type="text" id="rankKeywords2" placeholder="主题，设置后将根据关键字筛选商品" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;"/>   
+                     
+            <input type="text" id="rankName2" placeholder="名称，如西班牙进口橄榄油排行榜，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>                             
+            <textarea type="url" id="rankDesc2" rows="3" placeholder="简要介绍排行榜，必填" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;padding:2px;"></textarea>  
+            <!-- 排行榜字段调整按钮 -->    
+            <div id="rankBtns" class="button-group">
+                <button class="button" data-action="up" id="moveupBtn">更靠前</button>
+                <button class="button" data-action="change" id="changeBtn">移出排行</button>
+                <button class="button" data-action="down" id="movedownBtn">更靠后</button>
+            </div>   
+            <!-- 排行榜字段设置 -->    
+            <div  class="grid" id="rankItems" style="height: 40px;"></div>                                    
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelRank" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
+                <button type="submit" class="btnYes" id="btnSaveRank" style="font-size: 12px;padding:2px 5px;margin:2px;">确定</button> 
+            </div>
+    </div>    
+
+</body>
+
+<!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
+<script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="js/newWaterfall.js"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="js/swiper.min.js"></script>
+<script type="text/javascript" src="ext/isotope.pkgd.min.js"></script>
+<script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
+<script type="text/javascript" src="ext/d3/d3.min.js"></script>
+<script type="text/javascript" src="ext/d3/d3-hierarchy.js"></script>
+<script type="text/javascript" src="ext/d3/treemap.js?v=0.14"></script>
+<script type="text/javascript" src="ext/d3/zoomable-circle-packing.js?v=0.6"></script>
+<script type="text/javascript" src="ext/d3/partition-sunburst.js?v=0.2"></script>
+<script type="text/javascript" src="ext/d3/sankey.js?v=0.12"></script>
+<script type="text/javascript" src="ext/require.min.js"></script>
+<script type="text/javascript" src="js/md5.js?v=1.2"></script>
+<script type="text/javascript" src="js/util.js?v=3.2"></script>
+<script type="text/javascript" src="js/billboard.js?v=0.76"></script> 
+</html>
