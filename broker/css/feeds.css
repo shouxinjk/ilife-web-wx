@@ -210,8 +210,8 @@ div.title{
   text-align: center; 
   vertical-align: middle;
 }
-.person-img{ width: 40px; height: 40px; border-radius: 50%; margin:2px;border:2px silver solid;}
-.person-img-selected{ width: 40px; height: 40px; border-radius: 50%; margin:2px; border:2px #d14046 solid;}
+.person-img{ width: 40px; height: 40px; border-radius: 5px; margin:2px;border:2px silver solid;}
+.person-img-selected{ width: 40px; height: 40px; border-radius: 5px; margin:2px; border:2px #d14046 solid;}
 
 .person-name{ 
   display: inline;

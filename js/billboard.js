@@ -171,7 +171,7 @@ function showRankInfo(){
     rankItemHtml = rankItemHtml.replace(/__name/g,dimension.name);
     rankItemHtml = rankItemHtml.replace(/__priority/g,rankItem.priority);
     rankItemHtml = rankItemHtml.replace(/__sort/g,(i+1));
-    rankItemHtml = rankItemHtml.replace(/__weight/g,Number((dimension.weight/weightSum).toFixed(1))+"%");
+    rankItemHtml = rankItemHtml.replace(/__weight/g,Number((dimension.weight/weightSum*100).toFixed(0))+"%");
     rankItemHtml = rankItemHtml.replace(/__bgcolor/g,colors[i]);//使用缓存颜色
     $("#rankItems").append(rankItemHtml);
     //根据priority调整sort显示及背景颜色
@@ -183,6 +183,9 @@ function showRankInfo(){
     }
     i++;
   });
+  if(rankItems.length>5){//在指标过多时，调整高度
+    $(".header").css("min-height","200px");
+  }
 }
 
 var sxInterval = null;

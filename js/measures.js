@@ -720,7 +720,7 @@ function showRankItems(){
 var legendItemTpl=`
 <div id='legendDim__id' data-bgcolor='__bgcolor' style='background-color:__bgcolor;color:#fff;font-size:10px;padding:2px;height:48px;width:__weight%;display: table;_position:relative;overflow:hidden;'>
   <div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'>
-    <div style='_position: relative;_top: -50%;'>
+    <div style='_position: relative;_top: -50%;overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;'>
       __name
     </div>
   </div>

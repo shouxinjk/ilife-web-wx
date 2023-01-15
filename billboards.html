@@ -17,7 +17,7 @@
     <link rel="stylesheet" type="text/css" href="broker/css/feeds.css?v=3.8">   
     <link rel="stylesheet" type="text/css" href="publisher/css/publisher.css?v=3.8">      
      <link rel="stylesheet" type="text/css" href="css/measures.css?v=1.0">   
-     <link rel="stylesheet" type="text/css" href="css/billboards.css?v=1.0"> 
+     <link rel="stylesheet" type="text/css" href="broker/css/feeds.css?v=1.0"> 
 </head>
 
 <body>
@@ -33,9 +33,18 @@
         <ul class="navUl">
         </ul>
     </div-->   
+    <div class="header" style="background-color: #5B9FDC;">
+        <div class="search" style="text-align: center;background-color: #5B9FDC; ">
+            <span style="margin-left:-20px;background-color: #5B9FDC;">&nbsp;</span>
+            <input id="searchTxt" placeholder="🔍  排行规则由你定义" style="line-height: normal;display: inline-block;"/><a id="findAll" class="searchBtn" style="color:#fff;">&nbsp;&nbsp;搜索</a> 
+            <!--a class="searchBtn" style="color:#fff;" href="measures.html">&nbsp;&nbsp;热门</a-->   
+            <a id="addNewItemBtn" href="#" style="font-size: 12px;font-weight:bold;color:#fff;">&nbsp;&nbsp;排行规则</a>
+        </div>       
+    </div>
+    <div style="background-color: #5B9FDC;height:4px;">&nbsp;&nbsp;</div>
 
     <!-- 类目列表 -->
-<section style="position:sticky;z-index: 9;top:0;background-color: #5B9FDC;">
+<section style="position:sticky;z-index: 9;top:0;">
     <div class="swiper-container menus" style="margin-top:5px;">
         <!-- Additional required wrapper -->
         <div class="swiper-wrapper btn-area" id="categories">
@@ -122,5 +131,5 @@
 <script type="text/javascript" src="ext/require.min.js"></script>
 <script type="text/javascript" src="js/md5.js?v=1.2"></script>
 <script type="text/javascript" src="js/util.js?v=3.2"></script>
-<script type="text/javascript" src="js/billboards.js?v=1.0"></script> 
+<script type="text/javascript" src="js/billboards.js?v=1.1"></script> 
 </html>
