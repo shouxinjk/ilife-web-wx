@@ -107,6 +107,11 @@ $(document).ready(function ()
     loadBrokerInfo();
     //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
     registerShareHandler();  
+
+    //如果是从排行榜进入则直接显示创建排行榜表单
+    if(args["showRankForm"]=="true"){
+      showRankForm();
+    }
 });
 
 var rankItemGrid = null;//排行榜维度条目grid

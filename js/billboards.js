@@ -27,6 +27,7 @@ $(document).ready(function ()
         //width: columnWidth,//动态列宽，当前为2列
         delay: 100,
     });
+    $('#waterfall').css("margin-top","0");//手动调整与顶部margin
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
@@ -39,6 +40,17 @@ $(document).ready(function ()
 
     //加载broker信息
     loadBrokerInfo(); 
+
+    //注册事件：创建排行榜
+    $("#createRankBtn").click(function(){
+        if(!categoryId){
+            siiimpleToast.message('请选择一个类目~~',{
+              position: 'bottom|center'
+            });             
+        }else{
+            window.location.href = "measures.html?showRankForm=true&categoryId="+categoryId+"&categoryName="+categoryName;
+        }
+    });
 });
 
 var width = 600;
@@ -273,16 +285,17 @@ function loadData(){
 
 //排行榜设置模板
 var rankTpl = `
+    <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
     <div id="rank__id" data-id="__id" style="display:flex;flex-direction: row;flex-wrap: nowrap;width:100%;padding:5px;align-items: center;justify-content: center;">
         <div style="width:20%;text-align:center;">
             <img src="__logo" style="width:60px;height:60px;object-fit: cover;border-radius: 10px;"/>
         </div>
         <div style="width:76%">
             <div>
-                <div id="rankCategoryName__id" style="font-size:14px;line-height:16px;font-weight:bold;">__categoryName</div>
+                <div id="rankCategoryName__id" style="font-size:12px;line-height:16px;font-weight:bold;">__categoryName</div>
                 <div id="rankKeywrod__id" style="font-size:10px;line-height:16px;">__keyword</div>
             </div>
-            <div id="rankName__id" style="font-size:18px;line-height:24px;font-weight:bold;;">__name</div>
+            <div id="rankName__id" style="font-size:16px;line-height:20px;font-weight:bold;;">__name</div>
             <div id="rankDesc__id" style="font-size:12px;line-height:16px;;">__desc</div>
             <!--排序规则:显示为grid-->   
             <div id="rankItems__id">
