@@ -7,8 +7,8 @@ function insertPerson(person){
     html += '</div>';
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
-    html += '<div class="info-text info-blank" id="brokerHint">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    html += '<div class="info-text info-blank" id="brokerLink">让小确幸填满你的大生活</div>';
+    html += '<div class="info-text info-blank" id="brokerHint" style="display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
+    html += '<div class="info-text info-blank" id="brokerLink" style="display:flex;flex-direction:row;">让小确幸填满你的大生活</div>';
     html += '<div style="position:absolute;right:5px;top:5px;"><a href="task.html" style="color:silver;font-size:10px;">帮助</a></div>';
     html += '</div>';
     $("#user").append(html);
@@ -35,9 +35,64 @@ function insertPerson(person){
 }
 
 //更新达人信息：显示达人后台入口
+/**
 function insertBroker(broker){
     $("#brokerLink").html('<a href="broker/selection.html">生活家后台</a>&nbsp;&nbsp;<a href="publisher/articles.html">流量主后台</a>');
     $("#brokerHint").html("达人级别："+broker.level);
+}
+//**/
+
+//查询用户徽章：当前方式为根据用户等级显示徽章列表，以高级用户为分界线，低于高级用户显示用户徽章，高于高级用户显示达人徽章
+function loadBadges(broker) {
+    console.log("try to load badges.");
+    util.AJAX(app.config.sx_api+"/mod/badge/rest/badges", function (res) {
+        console.log("load broker badges.",res);
+        if(broker.level>3){
+            for(var i=3;i<=broker.level && i<res.length;i++){
+                showBadge(res[i]);
+            }
+        }else{
+            for(var i=0;i<=broker.level && i<res.length;i++){
+                showBadge(res[i]);
+            }            
+        }
+    });
+}
+//显示badge
+function showBadge(badge){
+    //徽章
+    var badgesHtml = "";
+    badgesHtml += "<div style='min-width:32px;display:flex;flex-direction:column;align-items:center;margin:0 2px;'>";
+    badgesHtml += "<div><img src='images/badge/"+(badge.icon?badge.icon:(badge.key+".png"))+"' style='width:32px;height:32px;object-fit:cover;'/></div>";
+    badgesHtml += "<div style='text-align:center;font-size:9px;color:#fff;'><span>"+badge.name+"</span></div>";
+    badgesHtml += "</div>";
+
+    $("#brokerHint").append(badgesHtml);
+}
+
+//对于达人显示勋章及贡献度
+function insertBroker(broker){
+
+    //徽章
+    loadBadges(broker);
+
+    //贡献度
+    $("#brokerLink").empty();
+    $("#brokerLink").append('<div style="border:1px solid #E5F0FC;background-color:#E5F0FC;color:#3070E8;font-size:10px;font-weight:bold;border-radius:10px;padding:2px 5px;display:flex;justify-content:center;align-items:center;"><div><img src="images/icon/points.png" style="width:12px;height:12px;object-fit:cover;"/></div>&nbsp;<div>贡献度 : '+(broker.points&&broker.points>0?broker.points:0)+'</div></div>');
+
+    //收益
+    $("#brokerLink").append('&nbsp;<div style="border:1px solid #f6d0ca;background-color:#f6d0ca;color:#b80010;font-size:10px;font-weight:bold;border-radius:10px;padding:2px 5px;display:flex;justify-content:center;align-items:center;"><div><img src="images/icon/coins.png" style="width:12px;height:12px;object-fit:cover;"/></div>&nbsp;<div id="totalMoney">总收益 : 0</div></div>');
+    getMoney(broker.id); 
+}
+
+//查询达人收益
+function getMoney(brokerId) {
+    console.log("try to load broker money info by brokerId.",brokerId);
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/money/"+brokerId, function (res) {
+        console.log("load broker money info.",brokerId,res);
+        $("#totalMoney").empty();
+        $("#totalMoney").append("总收益："+res.totalAmount);
+    });
 }
 
 //生成UUID

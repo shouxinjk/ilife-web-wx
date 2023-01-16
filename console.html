@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="broker/css/broker.css?v=1.0">
+    <link rel="stylesheet" type="text/css" href="broker/css/broker-my.css?v=1.41">
+    <link rel="stylesheet" type="text/css" href="css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">    
+    <link href="ext/tag-it/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+    <link href="ext/tag-it/css/tagit.ui-zendesk.css" rel="stylesheet" type="text/css">    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
+</head>
+
+<body>
+    <!--div class="header">
+        <div class="search">
+            <span>MAN生活</span>
+            <input placeholder=" 小确幸,大生活">
+        </div>
+    </div-->
+
+    <!-- 导航菜单 -->
+    <!--div class="nav">
+        <ul class="navUl">
+        </ul>
+    </div-->   
+
+    <!-- 用户信息 --> 
+    <view class="info" id="user" style="justify-content: center;min-height: 100px;"></view>
+
+
+    <div class="tips">
+        数据度量，理性决策，过滤噪声，让生活充满小确幸~~
+    </div> 
+
+    <div id="Center">
+
+        <!-- 用户后台 --> 
+        <div style="width:90%;margin-left:5%;border:1px solid silver;border-radius: 5px;padding:20px 5px;margin:15px 5%;">
+            <div style="display:flex;width:96%;flex-wrap: nowrap;justify-content: center;align-items: center;">
+                <div style="font-size:14px;font-weight:bold;width:20%;text-align: center;">用户设置</div>
+                <div style="font-size:10px;width:80%;"></div>
+            </div>
+            <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
+            <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+                <div class="order-cell" id="user" data-target="user.html">
+                    <img class="order-cell-icon-small" src="images/user.png"/>
+                    <div class="actiontype">基本信息</div>
+                </div>                  
+                <div class="order-cell" id="task" data-target="need-person.html">
+                    <img class="order-cell-icon-small" src="images/need-person.png"/>
+                    <div class="actiontype">生活构成</div>
+                </div>          
+                <div class="order-cell" id="favorite" data-target="favorite.html">
+                    <img class="order-cell-icon-small" src="images/favorite.png"/>
+                    <div class="actiontype">关注的物</div>
+                </div>  
+                <div class="order-cell" id="connection" data-target="connection.html">
+                    <img class="order-cell-icon-small" src="images/connection.png"/>
+                    <div class="actiontype">关心的人</div>
+                </div>   
+                <div class="order-cell" id="solutions" data-target="solutions.html">
+                    <img class="order-cell-icon-small" src="images/icon/solutions.png"/>
+                    <div class="actiontype">我的定制</div>
+                </div>                                             
+            </view>
+        </div>
+
+        <!-- 生活家后台 --> 
+        <div style="width:90%;margin-left:5%;border:1px solid silver;border-radius: 5px;padding:20px 5px;margin:15px 5%;">
+            <div style="display:flex;flex-direction:column;width:96%;flex-wrap: nowrap;margin-left:2%;">
+                <div style="display:flex;margin:2px 0;">
+                    <div style="font-size:14px;font-weight:bold;width:40%;">生活家</div>
+                    <div style="font-size:12px;width:60%;text-align:right;color:#007bff;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">立即加入</span></div>
+                </div>
+                <div style="font-size:12px;line-height: 16px;">自购省钱，分享赚钱。为关心的人和客群选品，分享小确幸</div>
+            </div>
+            <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
+            <view class="order" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+                <div class="order-cell" id="selection" data-target="broker/selection.html">
+                    <img class="order-cell-icon-small" src="broker/images/selection.png"/>
+                    <div class="actiontype">选品库</div>
+                </div>           
+                <div class="order-cell" id="feeds" data-target="broker/feeds.html">
+                    <img class="order-cell-icon-small" src="broker/images/feeds.png"/>
+                    <div class="actiontype">发现</div>
+                </div>         
+                <div class="order-cell" id="team" data-target="broker/team.html">
+                    <img class="order-cell-icon-small" src="broker/images/team.png"/>
+                    <div class="actiontype">团队</div>
+                </div>   
+                <div class="order-cell" id="my" data-target="broker/my.html">
+                    <img class="order-cell-icon-small" src="broker/images/my.png"/>
+                    <div class="actiontype">客群</div>
+                </div>         
+                <div class="order-cell" id="money" data-target="broker/money.html">
+                    <img class="order-cell-icon-small" src="images/icon/money.png"/>
+                    <div class="actiontype">收益</div>
+                </div>                                   
+            </view>
+        </div>
+
+        <!-- 流量主后台 --> 
+        <!--
+        <div style="width:90%;margin-left:5%;border:1px solid silver;border-radius: 5px;padding:20px 5px;margin:15px 5%;">
+            <div style="display:flex;width:96%;flex-wrap: nowrap;justify-content: center;align-items: center;">
+                <div style="display:flex;flex-direction:column;margin:2px 0;">
+                    <div style="font-size:14px;font-weight:bold;width:40%;">流量主</div>
+                    <div style="font-size:12px;width:60%;text-align:right;color:#007bff;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">立即加入</span></div>
+                </div>
+                <div style="font-size:12px;width:80%;line-height:16px;">在公众号增加精准推荐，开白互推，粉丝所读即所得</div>
+            </div>
+            <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
+            <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">            
+                <div class="order-cell" id="articles" data-target="publisher/articles.html">
+                    <img class="order-cell-icon-small" src="publisher/images/articles.png"/>
+                    <div class="actiontype">文章转载</div>
+                </div>           
+                <div class="order-cell" id="accounts" data-target="publisher/accounts.html">
+                    <img class="order-cell-icon-small" src="images/icon/accounts.png"/>
+                    <div class="actiontype">公众号开白</div>
+                </div>   
+                <div class="order-cell" id="material" data-target="publisher/material.html">
+                    <img class="order-cell-icon-small" src="publisher/images/material.png"/>
+                    <div class="actiontype">带货物料</div>
+                </div>   
+                <div class="order-cell" id="material" data-target="buy">
+                </div>  
+                <div class="order-cell" id="material" data-target="buy">
+                </div>                                                                                   
+            </view>
+        </div>
+        -->
+
+
+        <!-- 定制师 --> 
+        <div style="width:90%;margin-left:5%;border:1px solid silver;border-radius: 5px;padding:20px 5px;margin:15px 5%;">
+            <div style="display:flex;flex-direction:column;width:96%;margin-left: 2%;">
+                <div style="display:flex;margin:2px 0;">
+                    <div style="font-size:14px;font-weight:bold;width:40%;">定制师</div>
+                    <div style="font-size:12px;width:60%;text-align:right;color:#007bff;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">申请加入</span></div>
+                </div>
+                <div style="font-size:12px;line-height: 16px;">旅游、体检、健康饮食，用专业知识，定制个性化方案</div>
+            </div>
+            <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
+            <view class="order" style="position:sticky;z-index: 9;top:0;background-color: #fff;justify-content: flex-start;">         
+                <div class="order-cell" id="proposal-schemes" data-target="expert/proposal-schemes.html">
+                    <img class="order-cell-icon-small" src="images/icon/proposal-free.png"/>
+                    <div class="actiontype">自由定制</div>
+                </div>  
+                <div class="order-cell" id="proposal-schemes" data-target="expert/proposal-schemes.html">
+                    <img class="order-cell-icon-small" src="images/icon/proposal-guide.png"/>
+                    <div class="actiontype">指南生成</div>
+                </div>                        
+                <div class="order-cell" id="need-persona" data-target="solutions.html">
+                    <img class="order-cell-icon-small" src="images/icon/solution.png"/>
+                    <div class="actiontype">方案列表</div>
+                </div>     
+                <div class="order-cell" id="data" data-target="boards.html">
+                    <img class="order-cell-icon-small" src="images/icon/board.png"/>
+                    <div class="actiontype">组合清单</div>
+                </div>  
+                                                                                          
+            </view>
+
+        </div>
+
+
+        <!-- 专家后台：领域达人 --> 
+        <div style="width:90%;margin-left:5%;border:1px solid silver;border-radius: 5px;padding:20px 5px;margin:15px 5%;">
+            <div style="display:flex;flex-direction:column;width:96%;margin-left: 2%;">
+                <div style="display:flex;margin:2px 0;">
+                    <div style="font-size:14px;font-weight:bold;width:40%;">领域达人</div>
+                    <div style="font-size:12px;width:60%;text-align:right;color:#007bff;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">申请加入</span></div>
+                </div>
+                <div style="font-size:12px;line-height: 16px;">让领域知识数据化，度量更客观，决策更理性</div>
+            </div>
+            <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
+            <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+                <div class="order-cell" id="dimension" data-target="expert/dimension.html">
+                    <img class="order-cell-icon-small" src="expert/images/dimension.png"/>
+                    <div class="actiontype">评价规则</div>
+                </div>        
+                <div class="order-cell" id="ranks" data-target="expert/ranks.html">
+                    <img class="order-cell-icon-small" src="expert/images/ranks.png"/>
+                    <div class="actiontype">排行规则</div>
+                </div>      
+                <div class="order-cell" id="data" data-target="expert/data.html">
+                    <img class="order-cell-icon-small" src="expert/images/data.png"/>
+                    <div class="actiontype">数据打分</div>
+                </div>                                                       
+                <div class="order-cell" id="need-persona" data-target="expert/need-persona.html">
+                    <img class="order-cell-icon-small" src="images/icon/advice.png"/>
+                    <div class="actiontype">文案模板</div>
+                </div>                                                                 
+            </view>
+
+        </div>
+
+        <!-- 专家后台：社会学家 --> 
+        <div style="width:90%;margin-left:5%;border:1px solid silver;border-radius: 5px;padding:20px 5px;margin:15px 5%;">
+            <div style="display:flex;flex-direction:column;width:96%;margin-left: 2%;">
+                <div style="display:flex;margin:2px 0;">
+                    <div style="font-size:14px;font-weight:bold;width:40%;">专家学者</div>
+                    <div style="font-size:12px;width:60%;text-align:right;color:#007bff;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">申请加入</span></div>
+                </div>
+                <div style="font-size:12px;line-height: 16px;">不只是口传新授，把研究成果模型化，让更多人在日常行为中受益</div>
+            </div>
+            <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
+            <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+                <div class="order-cell" id="proposal-schemes" data-target="expert/proposal-schemes.html">
+                    <img class="order-cell-icon-small" src="images/icon/guide.png"/>
+                    <div class="actiontype">专家指南</div>
+                </div>                 
+                <div class="order-cell" id="dimension" data-target="expert/need-persona.html">
+                    <img class="order-cell-icon-small" src="images/icon/persona.png"/>
+                    <div class="actiontype">画像模型</div>
+                </div>          
+                <div class="order-cell" id="dimension" data-target="expert/need-phase.html">
+                    <img class="order-cell-icon-small" src="images/icon/phase.png"/>
+                    <div class="actiontype">阶段模型</div>
+                </div>  
+                <div class="order-cell" id="dimension" data-target="expert/need-category.html">
+                    <img class="order-cell-icon-small" src="images/icon/category.png"/>
+                    <div class="actiontype">类目模型</div>
+                </div>                                                               
+            </view>
+
+        </div>
+
+        <!-- 话题 --> 
+        <div style="width:90%;margin-left:5%;border:1px solid silver;border-radius: 5px;padding:20px 5px;margin:15px 5%;">
+            <div style="display:flex;width:96%;margin-left: 2%;justify-content: center;align-items: center;">
+                <div style="font-size:14px;font-weight:bold;width:20%;text-align: center;">话题</div>
+                <div style="font-size:10px;width:80%;">加入讨论，发表观点，让度量更透明，让决策更有据</div>
+            </div>
+            <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
+            <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+                <div class="order-cell" id="dimension" data-target="https://weibo.com/u/7205503676">
+                    <img class="order-cell-icon-small" src="images/sns/weibo.png"/>
+                    <div class="actiontype">微博</div>
+                </div>          
+                <div class="order-cell" id="proposal-schemes" data-target="https://www.douban.com/group/735585/">
+                    <img class="order-cell-icon-small" src="images/sns/douban.png"/>
+                    <div class="actiontype">豆瓣</div>
+                </div>         
+                <div class="order-cell" id="need-persona" data-target="https://www.zhihu.com/people/alexchew-68">
+                    <img class="order-cell-icon-small" src="images/sns/zhihu.png"/>
+                    <div class="actiontype">知乎</div>
+                </div>     
+                <div class="order-cell" id="data" data-target="https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MjM5MTUxNTMyNA==&scene=117#wechat_redirect">
+                    <img class="order-cell-icon-small" src="images/sns/gongzhonghao.png"/>
+                    <div class="actiontype">识物说</div>
+                </div>  
+                <div class="order-cell" id="data" data-target="https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU2NTc3OTQ0MA==&scene=161#wechat_redirect">
+                    <img class="order-cell-icon-small" src="images/icon.jpeg" style="object-fit: cover;border-radius: 50%;"/>
+                    <div class="actiontype">更多文章</div>
+                </div>                                                                             
+            </view>
+
+        </div>
+
+    </div>
+
+    <div id="footer" class="footer-hide">
+
+    </div>  
+
+    <div style="height:60px;">
+        &nbsp;&nbsp;
+    </div>  
+
+  <div id="sx-menu">
+    <a href="index.html" class="menu-btn">
+        <img src="images/smile-happy.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;推荐</div>
+    </a>
+    <a href="measures.html" class="menu-btn">
+        <img src="images/measure.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;评价</div>
+    </a>
+    <a href="billboards.html" class="menu-btn">
+        <img src="images/billboard.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;排行</div>
+    </a>     
+    <a href="proposals.html" class="menu-btn">
+        <img src="images/proposal.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;定制</div>
+    </a>  
+    <a href="#" class="menu-btn">
+        <img src="images/my-selected.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt-selected">&nbsp;我</div>
+    </a>        
+  </div>
+
+</body>
+
+<!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
+<script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="ext/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/newWaterfall.js"></script>
+<script type="text/javascript" src="js/swiper.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+<script type="text/javascript" src="js/util.js?v=3.02"></script>
+<script type="text/javascript" src="js/common.js?v=1.36"></script> 
+<script type="text/javascript" src="js/console.js?v=1.9"></script> 
+<script type="text/javascript" src="ext/short-md5.js"></script>
+<script src="ext/tag-it/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
+</html>

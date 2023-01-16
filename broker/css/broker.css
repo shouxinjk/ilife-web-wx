@@ -40,12 +40,13 @@
     background: url("http://www.shouxinjk.net/list/images/bg.jpg") #FFF no-repeat 0 50%; 
     background-size: cover; 
     display:flex;
-    align-content:center;
+    justify-content: center;
+    align-items: center;
 }
 
 .info-general{
-    width:25%;
-    text-align: right;
+    width:30%;
+    text-align: center;
 }
 
 .general-icon {
@@ -53,7 +54,6 @@
     height: 120rpx;
     border: 5rpx solid white;
     border-radius: 50%;
-    margin-top:10px;/*注意：如果图片高度改变需要相应调整*/
 }
 
 .info-text{
@@ -66,7 +66,7 @@
 }
 
 .info-detail{
-  width:55%;
+  width:70%;
   margin:auto;
 }
 
