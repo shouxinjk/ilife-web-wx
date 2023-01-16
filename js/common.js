@@ -91,7 +91,7 @@ function getMoney(brokerId) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/money/"+brokerId, function (res) {
         console.log("load broker money info.",brokerId,res);
         $("#totalMoney").empty();
-        $("#totalMoney").append("总收益："+res.totalAmount);
+        $("#totalMoney").append("总收益："+Number(res.totalAmount.toFixed(1)));
     });
 }
 
