@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
     <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="ext/siiimple-toast-master/style.css?v=1.0">    
     <link rel="stylesheet" type="text/css" href="broker/css/broker.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="broker/css/broker-my.css?v=1.41">
     <link rel="stylesheet" type="text/css" href="css/waterfall.css">
@@ -37,7 +38,7 @@
 
 
     <div class="tips">
-        数据度量，理性决策，过滤噪声，让生活充满小确幸~~
+        度量和秩序，让生活充满小确幸~~
     </div> 
 
     <div id="Center">
@@ -49,7 +50,7 @@
                 <div style="font-size:10px;width:80%;"></div>
             </div>
             <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
-            <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+            <view class="order" id="userBtns">
                 <div class="order-cell" id="user" data-target="user.html">
                     <img class="order-cell-icon-small" src="images/icon/user.png"/>
                     <div class="actiontype">基本信息</div>
@@ -78,12 +79,12 @@
             <div style="display:flex;flex-direction:column;width:96%;flex-wrap: nowrap;margin-left:2%;">
                 <div style="display:flex;margin:2px 0;">
                     <div style="font-size:14px;font-weight:bold;width:40%;">生活家</div>
-                    <div style="font-size:12px;width:60%;text-align:right;color:#007bff;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">立即加入</span></div>
+                    <div id="brokerJoinBtn" data-action="join" style="font-size:12px;width:60%;text-align:right;color:#007bff;display:none;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">立即加入</span></div>
                 </div>
-                <div style="font-size:12px;line-height: 16px;">自购省钱，分享赚钱。为关心的人和客群选品，分享小确幸</div>
+                <div style="font-size:12px;line-height: 16px;">为关心的人和客群选品分享，获取订单和团队收益</div>
             </div>
             <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
-            <view class="order" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+            <view class="order" id="brokerBtns" style="display:none;flex-direction: row;justify-content: space-around;align-items: center;">
                 <div class="order-cell" id="selection" data-target="broker/selection.html">
                     <img class="order-cell-icon-small" src="images/icon/selection.png"/>
                     <div class="actiontype">选品库</div>
@@ -105,6 +106,9 @@
                     <div class="actiontype">收益</div>
                 </div>                                   
             </view>
+            <div id='brokerTips' style='line-height: 16px;font-size:12px;display:none;width:96%;margin-left: 2%;'>
+                成为生活家后将能够：获取订单收益、邀请加入团队、客群管理。团队成员选品分享形成订单后均能获取佣金收益，自购省钱，分享赚钱。
+            </div>
         </div>
 
         <!-- 流量主后台 --> 
@@ -118,7 +122,7 @@
                 <div style="font-size:12px;width:80%;line-height:16px;">在公众号增加精准推荐，开白互推，粉丝所读即所得</div>
             </div>
             <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
-            <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">            
+            <view class="order" id="buttons" style="display:none;">            
                 <div class="order-cell" id="articles" data-target="publisher/articles.html">
                     <img class="order-cell-icon-small" src="publisher/images/articles.png"/>
                     <div class="actiontype">文章转载</div>
@@ -145,12 +149,12 @@
             <div style="display:flex;flex-direction:column;width:96%;margin-left: 2%;">
                 <div style="display:flex;margin:2px 0;">
                     <div style="font-size:14px;font-weight:bold;width:40%;">定制师</div>
-                    <div style="font-size:12px;width:60%;text-align:right;color:#007bff;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">申请加入</span></div>
+                    <div id="tailorJoinBtn" data-action="join" style="font-size:12px;width:60%;text-align:right;color:#007bff;display:none;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">立即加入</span></div>
                 </div>
-                <div style="font-size:12px;line-height: 16px;">旅游、体检、健康饮食，用专业知识，定制个性化方案</div>
+                <div style="font-size:12px;line-height: 16px;">旅游、体检、着装…用领域经验，满足更多个性化需求</div>
             </div>
             <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
-            <view class="order" style="position:sticky;z-index: 9;top:0;background-color: #fff;justify-content: flex-start;">         
+            <view class="order" id="tailorBtns" style="display:none;flex-direction: row;justify-content: space-around;align-items: center;">         
                 <div class="order-cell" id="proposal-schemes" data-target="expert/proposal-schemes.html">
                     <img class="order-cell-icon-small" src="images/icon/proposal-free.png"/>
                     <div class="actiontype">自由定制</div>
@@ -166,10 +170,11 @@
                 <div class="order-cell" id="data" data-target="boards.html">
                     <img class="order-cell-icon-small" src="images/icon/board.png"/>
                     <div class="actiontype">组合清单</div>
-                </div>  
-                                                                                          
+                </div>                                                                        
             </view>
-
+            <div id='tailorTips' style='line-height: 16px;font-size:12px;display:none;width:96%;margin-left: 2%;'>
+                成为定制时候能够快速建立定制主题及方案，如旅游行程、健康体检、团建活动、着装搭配、健身食谱等，满足个性化用户需求。
+            </div>
         </div>
 
 
@@ -178,12 +183,12 @@
             <div style="display:flex;flex-direction:column;width:96%;margin-left: 2%;">
                 <div style="display:flex;margin:2px 0;">
                     <div style="font-size:14px;font-weight:bold;width:40%;">领域达人</div>
-                    <div style="font-size:12px;width:60%;text-align:right;color:#007bff;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">申请加入</span></div>
+                    <div id="expertJoinBtn" data-action="join" style="font-size:12px;width:60%;text-align:right;color:#007bff;display:none;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">申请加入</span></div>
                 </div>
-                <div style="font-size:12px;line-height: 16px;">让领域知识数据化，度量更客观，决策更理性</div>
+                <div style="font-size:12px;line-height: 16px;">让领域知识数据化，度量更客观，评价更专业</div>
             </div>
             <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
-            <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+            <view class="order" id="expertBtns" style="display:none;flex-direction: row;justify-content: space-around;align-items: center;">
                 <div class="order-cell" id="dimension" data-target="expert/dimension.html">
                     <img class="order-cell-icon-small" src="images/icon/dimension.png"/>
                     <div class="actiontype">评价规则</div>
@@ -201,7 +206,9 @@
                     <div class="actiontype">文案模板</div>
                 </div>                                                                 
             </view>
-
+            <div id='expertTips' style='line-height: 16px;font-size:12px;display:none;width:96%;margin-left: 2%;'>
+                领域达人能够对擅长的领域及类目建立评价规则、排行规则，并能够对数据进行打分。提供专业、客观的评价能力，并持续分享贡献度收益。
+            </div>
         </div>
 
         <!-- 专家后台：社会学家 --> 
@@ -209,12 +216,12 @@
             <div style="display:flex;flex-direction:column;width:96%;margin-left: 2%;">
                 <div style="display:flex;margin:2px 0;">
                     <div style="font-size:14px;font-weight:bold;width:40%;">专家学者</div>
-                    <div style="font-size:12px;width:60%;text-align:right;color:#007bff;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">申请加入</span></div>
+                    <div id="scholarJoinBtn" data-action="join" style="font-size:12px;width:60%;text-align:right;color:#007bff;display:none;"><span style="border:1px solid #007bff;padding:2px 10px;border-radius: 12px;">申请加入</span></div>
                 </div>
-                <div style="font-size:12px;line-height: 16px;">不只是口传新授，把研究成果模型化，让更多人在日常行为中受益</div>
+                <div style="font-size:12px;line-height: 16px;">把专业知识变成模型和服务，让更多人受益</div>
             </div>
             <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
-            <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+            <view class="order" id="scholarBtns" style="display:none;flex-direction: row;justify-content: space-around;align-items: center;">
                 <div class="order-cell" id="proposal-schemes" data-target="expert/proposal-schemes.html">
                     <img class="order-cell-icon-small" src="images/icon/guide.png"/>
                     <div class="actiontype">专家指南</div>
@@ -232,7 +239,9 @@
                     <div class="actiontype">类目模型</div>
                 </div>                                                               
             </view>
-
+            <div id='scholarTips' style='line-height: 16px;font-size:12px;display:none;width:96%;margin-left: 2%;'>
+                专家学者能够建立专家指南，能够指导自动生成个性化定制方案、用户模型、商品模型，并持续获取贡献度收益。
+            </div>
         </div>
 
         <!-- 话题 --> 
@@ -242,7 +251,7 @@
                 <div style="font-size:10px;width:80%;">加入讨论，发表观点，让度量更透明，让决策更有据</div>
             </div>
             <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
-            <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+            <view class="order" id="topicBtns">
                 <div class="order-cell" id="dimension" data-target="https://weibo.com/u/7205503676">
                     <img class="order-cell-icon-small" src="images/sns/weibo.png"/>
                     <div class="actiontype">微博</div>
@@ -300,6 +309,21 @@
     </a>        
   </div>
 
+    <!-- 申请成为领域达人或专家 -->
+    <div id="candidateform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="candidateTip" data-badge="expert">申请成为领域达人</div> 
+            <input type="text" id="candidateName2" placeholder="姓名，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>   
+            <!--
+            <input type="text" id="candidateJob2" placeholder="身份/职位/头衔，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>                        
+            <input type="text" id="candidateCompany2" placeholder="公司/院校/机构，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>  
+            -->                           
+            <textarea type="text" id="candidateDesc2" rows="3" placeholder="个人及优势领域简介，必填" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;padding:2px;"></textarea>                                     
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelCandidate" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
+                <button type="submit" class="btnYes" id="btnSaveCandidate" style="font-size: 12px;padding:2px 5px;margin:2px;">提交申请</button> 
+            </div>
+    </div> 
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
@@ -308,11 +332,13 @@
 <script type="text/javascript" src="js/newWaterfall.js"></script>
 <script type="text/javascript" src="js/swiper.min.js"></script>
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
-<script type="text/javascript" src="ext/toast/jquery.toast.min.js"></script>
+<script type="text/javascript" src="ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="js/util.js?v=3.02"></script>
-<script type="text/javascript" src="js/common.js?v=1.36"></script> 
-<script type="text/javascript" src="js/console.js?v=1.9"></script> 
+<script type="text/javascript" src="js/common.js?v=1.37"></script> 
+<script type="text/javascript" src="js/console.js?v=2.01"></script> 
 <script type="text/javascript" src="ext/short-md5.js"></script>
 <script src="ext/tag-it/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
 </html>

@@ -47,14 +47,30 @@ function loadBadges(broker) {
     console.log("try to load badges.");
     util.AJAX(app.config.sx_api+"/mod/badge/rest/badges", function (res) {
         console.log("load broker badges.",res);
-        if(broker.level>3){
+        if(broker && broker.level>3){ //生活家及以上
             for(var i=3;i<=broker.level && i<res.length;i++){
-                showBadge(res[i]);
+                if( (res[i].key=="broker" && broker.badges.find(item => item.badge.key == "broker_pro")) //是broker，且是broker_pro
+                    || (res[i].key=="tailor" && broker.badges.find(item => item.badge.key == "tailor_pro"))  //是tailor，且是tailor_pro
+                    || (res[i].key=="broker_pro" && !broker.badges.find(item => item.badge.key == "broker_pro"))   //是broker_pro，需要同时检查授权
+                    || (res[i].key=="tailor_pro" && !broker.badges.find(item => item.badge.key == "tailor_pro"))   //是tailor_pro，需要同时检查授权
+                ){
+                    continue; //不显示，在下一个等级显示
+                }else{
+                    showBadge(res[i]);                                
+                }
             }
-        }else{
+        }else if(broker && broker.level<=3){ //已注册达人，但等级低于生活家：在取消关注后等级被取消，重新关注后将出现此情况
             for(var i=0;i<=broker.level && i<res.length;i++){
                 showBadge(res[i]);
             }            
+        }else{ //普通用户：根据用户等级显示
+            if(app.globalData.userInfo && app.globalData.userInfo.level){ //用户等级都<=3
+                for(var i=0;i<=app.globalData.userInfo.level && i<res.length;i++){
+                    showBadge(res[i]);
+                }                
+            }else{ //如果没有则仅显示用于勋章
+                showBadge(res[0]);
+            }
         }
     });
 }
@@ -83,6 +99,28 @@ function insertBroker(broker){
     //收益
     $("#brokerLink").append('&nbsp;<div style="border:1px solid #f6d0ca;background-color:#f6d0ca;color:#b80010;font-size:10px;font-weight:bold;border-radius:10px;padding:2px 5px;display:flex;justify-content:center;align-items:center;"><div><img src="images/icon/coins.png" style="width:12px;height:12px;object-fit:cover;"/></div>&nbsp;<div id="totalMoney">总收益 : 0</div></div>');
     getMoney(broker.id); 
+
+    //解锁可用区域按钮
+    var locks = {"broker":4,"tailor":6,"expert":8,"scholar":9};
+    Object.keys(locks).forEach(function(lock){
+        if((broker.badges && broker.badges.find(item => item.badge.key == lock))||( broker.level>=locks[lock])){ //有勋章
+            console.log("check badge.",lock,broker.badges);
+            $("#"+lock+"Btns").css("display","flex");
+            $("#"+lock+"Tips").css("display","none");
+            $("#"+lock+"JoinBtn").css("display","none");
+            //对于生活家和定制师需要提供充值升级能力
+            if( (lock=="broker" &&  !broker.badges.find(item => item.badge.key == "broker_pro")) //是broker，但不是broker_pro
+                || (lock=="tailor"  &&  !broker.badges.find(item => item.badge.key == "tailor_pro")) ){ //是tailor，但不是tailor_pro
+                $("#"+lock+"JoinBtn").data("action","upgrade");
+                $("#"+lock+"JoinBtn>span").html("升级");
+                $("#"+lock+"JoinBtn").css("display","block");
+            }
+        }else{
+            $("#"+lock+"Btns").css("display","none");
+            $("#"+lock+"Tips").css("display","block");    
+            $("#"+lock+"JoinBtn").css("display","block");        
+        }
+    });      
 }
 
 //查询达人收益
