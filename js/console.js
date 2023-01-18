@@ -345,7 +345,7 @@ function saveCandidateInfo(badgeName, candidate){
                       position: 'bottom|center'
                     });                  
             }else{
-              siiimpleToast.message('啊哦，出错了~~',{
+              siiimpleToast.message('啊哦，出错了，不用重复提交哦~~',{
                       position: 'bottom|center'
                     });    
             }
