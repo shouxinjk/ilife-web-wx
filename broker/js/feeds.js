@@ -127,7 +127,7 @@ function loadPerson(personId) {
         console.log("load person info.",personId,res);
         syncPerson(res);//提交用户昵称到后端
         //loadBrokerByOpenid(res._key);//根据openid加载broker信息
-        insertPerson(res);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
+        //insertPerson(res);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
         //loadData();
         loadBrokerByOpenid(res._key);//根据openid加载broker信息        
     });

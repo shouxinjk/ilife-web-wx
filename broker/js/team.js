@@ -64,6 +64,16 @@ var tagging = '';//操作对应的action 如buy view like 等
 var currentPerson = app.globalData.userInfo?app.globalData.userInfo._key:null;
 var userInfo=app.globalData.userInfo;//默认为当前用户
 
+//加载徽章，根据达人等级显示
+var badges = [];
+function loadBadges() {
+    console.log("try to load badges.");
+    util.AJAX(app.config.sx_api+"/mod/badge/rest/badges", function (res) {
+        console.log("load broker badges.",res);
+        badges = res;
+    });
+}
+
 setInterval(function ()
 {
     if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
@@ -150,12 +160,17 @@ function insertItem(){
         var tagTmpl = "<a class='persona-tag' href='#'>__TAG</a>";
         var tags = "<div class='persona-tags'>";
         var taggingList = [];
-        taggingList.push(item.level);
+        //加载等级：需要查询对应的badge等级
+        //taggingList.push(item.level);
+        var badge = badges.find(item => item.badge.level == brokerUser.level);
+        if(badge){
+            taggingList.push(badge.name);
+        }
         if(brokerUser.province)taggingList.push(brokerUser.province);
         if(brokerUser.city)taggingList.push(brokerUser.city);
         for(var t in taggingList){
             var txt = taggingList[t];
-            if(txt && txt.trim().length>1 && txt.trim().length<6){
+            if(txt && txt.trim().length>1 && txt.trim().length<8){
                 tags += tagTmpl.replace("__TAGGING",txt).replace("__TAG",txt);
             }
         }
@@ -197,7 +212,7 @@ function loadPerson(personId) {
         console.log("load person info.",personId,res);
         userInfo = res;
         currentPerson = res._key;
-        insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
+        //insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
         loadItems();//加载下级达人列表
         loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
