@@ -110,8 +110,15 @@ function showBadgeList(broker, badges){
         var greyscale = "filter: grayscale(100%);"
         var got = "";
         if( broker.level>= badge.level ){ //已获得的显示图标
-            greyscale = "";
-            got = "✅";
+            //对于生活家+ 定制师+需要特殊判断
+            if( (badge.key=="broker_pro" && !broker.badges.find(item => item.badge.key == "broker_pro"))   //是broker_pro，需要同时检查授权
+                || (badge.key=="tailor_pro" && !broker.badges.find(item => item.badge.key == "tailor_pro"))   //是tailor_pro，需要同时检查授权
+            ){
+                //如果未在授权列表里，则显示未获取
+            }else{
+                greyscale = "";
+                got = "✅";                               
+            }            
         }     
         var html  = badgeTpl.replace(/__greyscale/g,greyscale).replace(/__key/g,badge.key).replace(/__name/g,got+badge.name).replace(/__desc/g,badge.description)
         $("#badgeList").append(html);

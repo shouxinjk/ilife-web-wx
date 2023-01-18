@@ -173,8 +173,10 @@ function loadCredits(){
         console.log("load credits.", res)
         if (res && res.length>0) {//加载类型列表
             res.forEach(function(credit){   
-                var html  = creditTpl.replace(/__points/g,credit.points?creditpoints:15).replace(/__type/g,credit.type).replace(/__name/g,credit.name).replace(/__desc/g,credit.description)
-                $("#creditList").append(html);
+                if(credit.points>0){
+                    var html  = creditTpl.replace(/__points/g,credit.points).replace(/__type/g,credit.type).replace(/__name/g,credit.name).replace(/__desc/g,credit.description)
+                    $("#creditList").append(html);
+                }
             });     
         }else{//如果没有则提示，
             console.log("cannot load ditc by type: sx_default ");           
