@@ -735,6 +735,8 @@ var  colors = ['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#40e0d0','
 var rankItemId = null;
 function showLegends(dimensions){
   $("#legendDiv").empty();
+  rankItems = [];
+
   var i=0;
   var priority = 100; //加入排行榜规则列表，最大支持100个维度
   dimensions.forEach(function(dimension){ //仅显示第一层
