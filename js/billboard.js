@@ -41,6 +41,7 @@ $(document).ready(function ()
 
     //加载broker信息
     loadBrokerInfo(); 
+       
 });
 
 var width = 600;
@@ -184,7 +185,7 @@ function showRankInfo(){
     i++;
   });
   if(rankItems.length>5){//在指标过多时，调整高度
-    $(".header").css("min-height","200px");
+    $(".header").css("height",($("#rankInfoDiv").height()+40)+"px");//主体高度 + 上下留白
   }
 }
 
@@ -237,6 +238,14 @@ function loadData() {
           { "_score": { "order": "desc" } }
       ] 
     };
+
+    //如果有关键字，则根据关键字过滤
+    if(rank.keywords && rank.keywords.trim().length>0){
+      console.log("add query text to search.",rank.keywords);
+      esQuery.query.bool.must.push({
+                      "match" : {"full_text": rank.keywords}
+                });
+    }    
 
     //设置请求头
     var esHeader = {

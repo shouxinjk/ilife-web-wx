@@ -38,7 +38,7 @@
             <span style="margin-left:-20px;background-color: #5B9FDC;">&nbsp;</span>
             <input id="searchTxt" placeholder="🔍  排行规则由你定义" style="line-height: normal;display: inline-block;"/><a id="findAll" class="searchBtn" style="color:#fff;">&nbsp;&nbsp;搜索</a> 
             <!--a class="searchBtn" style="color:#fff;" href="measures.html">&nbsp;&nbsp;热门</a-->   
-            <a id="addNewItemBtn" href="#" style="font-size: 12px;font-weight:bold;color:#fff;">&nbsp;&nbsp;排行规则</a>
+            <a id="showRankRuleInfoBtn" href="#" style="font-size: 12px;font-weight:bold;color:#fff;">&nbsp;&nbsp;排行规则</a>
         </div>       
     </div>
     <div style="background-color: #5B9FDC;height:4px;">&nbsp;&nbsp;</div>
@@ -109,6 +109,31 @@
     </a>        
   </div>    
 
+    <!-- 排行规则描述 -->
+    <div id="rankruleform" style="display:none; cursor: default;text-align: left;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;text-align: center;">排行及得分规则</div> 
+            <div class="wx-scroll-list" id="rankRuleInfo" style="height:300px;">
+               <div style="line-height: 16px;">确性评价对排行榜采用以下规则计算得分：</div>
+               <div style="text-align: center;"><img src="images/formula1.png" style="width:80%;object-fit: cover;"/></div>
+               <div style="line-height: 16px;">其中：</div>
+               <div style="line-height: 16px;">1)&nbsp;<b>n</b>为选定的指标数量</div>
+               <div style="line-height: 16px;">2)&nbsp;<b>rank</b>为指标排序位置系数，按照下图中紫色曲线变化，排序越靠后系数越小</div>
+               <div style="text-align: center;"><img src="images/formula3.png" style="width:80%;object-fit: cover;"/></div>
+               <div style="line-height: 16px;">3)&nbsp;<b>weight'</b>为指标占比，将根据指标数量动态计算，计算方法为：</div>
+               <div style="text-align: center;"><img src="images/formula2.png" style="width:40%;object-fit: cover;"/></div>
+               <div style="line-height: 16px;">4)&nbsp;<b>score</b>为领域专家对该指标的评分</div>
+            </div>    
+            <div>
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;margin-top:2px;">
+                    <div><img src="images/money/info.png" style="width:12px;height:12px;object-fit: cover;"/></div>
+                    <div>&nbsp;可以调整参与排行的指标，或设置主题关键字建立新的排行榜</div>
+                </div> 
+            </div>                                 
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelMoney" style="font-size: 12px;padding:2px 5px; margin:2px;">关闭</button>  
+            </div>
+    </div> 
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
@@ -131,5 +156,5 @@
 <script type="text/javascript" src="ext/require.min.js"></script>
 <script type="text/javascript" src="js/md5.js?v=1.2"></script>
 <script type="text/javascript" src="js/util.js?v=3.2"></script>
-<script type="text/javascript" src="js/billboards.js?v=1.2"></script> 
+<script type="text/javascript" src="js/billboards.js?v=1.3"></script> 
 </html>

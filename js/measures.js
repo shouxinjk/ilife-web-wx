@@ -256,7 +256,7 @@ function searchCategory() {
           { "_score": { "order": "desc" } }
       ] 
     };
-
+    //如果有关键字，则根据关键字过滤
     if($("#searchTxt").val() && $("#searchTxt").val().trim().length>0){
       console.log("add query text to search.",$("#searchTxt").val());
       esQuery.query.bool.must.push({
@@ -808,6 +808,17 @@ function loadData() {
       ] 
     };
 
+    //如果有关键字则添加
+    if($("#searchTxt").val() && $("#searchTxt").val().trim().length>0){
+      esQuery.query.bool.must.push(
+        {
+          "match": {
+            "full_text": $("#searchTxt").val()
+          }
+        }
+      );
+    }
+
     //设置请求头
     var esHeader = {
       "Content-Type": "application/json",
@@ -1270,6 +1281,10 @@ function saveRankInfo(rank){
         success:function(ret){
             console.log("===save rank done===\n",ret);
             if(ret.success){ 
+                //清空之前的数据
+                $("#rankName2").val("");
+                $("#rankDesc2").val("");
+                $("#rankKeywords2").val("");
                 //取消浮框，并刷新界面
                 $.unblockUI(); //直接取消即可
                 window.location.href="billboard.html?rankId="+ret.data.id;
@@ -1302,7 +1317,8 @@ function showRankForm(){
     $("#rankTip").empty();
     $("#rankTip").append("创建"+(categoryName?categoryName:"")+"排行榜");
 
-    $("#rankName2").attr("placeholder","名称，如 XXX "+(categoryName?categoryName:"")+" 排行榜， 必填");
+    $("#rankName2").attr("placeholder","名称，如 "+$("#searchTxt").val()+(categoryName?categoryName:"")+" 排行榜， 必填");
+    //$("#rankName2").val($("#searchTxt").val()+(categoryName?categoryName:""));
 
     $("#rankCategory2").val("类目："+categoryName);
     if($("#rankKeywords2").val().trim().length==0 && $("#searchTxt").val().trim().length>0 ){

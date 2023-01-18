@@ -21,16 +21,16 @@
 
 <body>
 
-    <div class="header" style="background-color: #5B9FDC;min-height: 160px;">
-        <div id="rankSummay" style="display:flex;flex-direction: row;flex-wrap: nowrap;width:100%;padding:30px 20px;align-items: center;justify-content: center;">
+    <div class="header" style="background-color: #5B9FDC;min-height: 160px;position:sticky;z-index: 9;top:0;">
+        <div id="rankSummay" style="display:flex;flex-direction: row;flex-wrap: nowrap;width:100%;padding:20px 20px;align-items: center;justify-content: center;">
             <!--左侧显示类目、关键字、名称、描述-->
-            <div style="width:60%">
+            <div id="rankInfoDiv" style="width:60%">
                 <div>
                     <div id="rankCategoryName" style="font-size:14px;line-height:16px;font-weight:bold;color:#fff;"></div>
                     <div id="rankKeywrod" style="font-size:10px;line-height:16px;color:#fff;"></div>
                 </div>
                 <div id="rankName" style="font-size:18px;line-height:24px;font-weight:bold;color:#fff;"></div>
-                <div id="rankDesc" style="font-size:12px;line-height:16px;color:#fff;"></div>  
+                <div id="rankDesc" style="font-size:12px;line-height:16px;color:#fff;overflow: hidden;display: -webkit-box;-webkit-box-orient: vertical;-webkit-line-clamp:3;"></div>  
                 <!--排序规则:显示为grid-->   
                 <div id="rankItems" style="width:100%;">
             
@@ -149,5 +149,5 @@
 <script type="text/javascript" src="ext/require.min.js"></script>
 <script type="text/javascript" src="js/md5.js?v=1.2"></script>
 <script type="text/javascript" src="js/util.js?v=3.2"></script>
-<script type="text/javascript" src="js/billboard.js?v=0.78"></script> 
+<script type="text/javascript" src="js/billboard.js?v=0.8"></script> 
 </html>
