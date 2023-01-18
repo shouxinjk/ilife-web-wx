@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="ext/siiimple-toast-master/style.css?v=1.0">    
     <link rel="stylesheet" type="text/css" href="broker/css/broker.css?v=1.0">
     <link rel="stylesheet" type="text/css" href="broker/css/broker-my.css?v=1.41">
+    <link rel="stylesheet" type="text/css" href="publisher/css/publisher.css?v=1.02">
     <link rel="stylesheet" type="text/css" href="css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css">    
     <link href="ext/tag-it/css/jquery.tagit.css" rel="stylesheet" type="text/css">
@@ -330,6 +331,57 @@
             </div>
     </div> 
 
+    <!-- 勋章列表 -->
+    <div id="badgeform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">徽章与能力</div> 
+            <div class="wx-scroll-list" id="badgeList"></div>  
+            <div>
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;margin-top:2px;">
+                    <div>✅</div>
+                    <div>&nbsp;表示已获取该徽章与能力</div>
+                </div> 
+            </div>                                   
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelBadge" style="font-size: 12px;padding:2px 5px; margin:2px;">关闭</button>  
+            </div>
+    </div> 
+
+    <!-- 贡献值列表 -->
+    <div id="creditform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">贡献值与收益分配</div> 
+            <div  class="wx-scroll-list" id="creditList"></div>    
+            <div>
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;">
+                    <div><img src="images/credit/periodic.png" style="width:12px;height:12px;object-fit: cover;"/></div>
+                    <div>按周期结算：结算后贡献值将从0重新开始累计</div>
+                </div> 
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;">
+                    <div><img src="images/credit/permanent.png" style="width:12px;height:12px;object-fit: cover;"/></div>
+                    <div>永久分成：结算后不清零，持续累计，并参与收益分成</div>
+                </div> 
+            </div>                                 
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelCredit" style="font-size: 12px;padding:2px 5px; margin:2px;">关闭</button>  
+            </div>
+    </div> 
+
+    <!-- 收益列表描述 -->
+    <div id="moneyform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">收益及提现</div> 
+            <div class="wx-scroll-list" id="moneyTipList" style="height:300px;">
+               
+            </div>    
+            <div>
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;margin-top:2px;">
+                    <div><img src="images/money/info.png" style="width:12px;height:12px;object-fit: cover;"/></div>
+                    <div>&nbsp;机构用户统一提现请联系客服</div>
+                </div> 
+            </div>                                 
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelMoney" style="font-size: 12px;padding:2px 5px; margin:2px;">关闭</button>  
+            </div>
+    </div> 
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
@@ -343,8 +395,8 @@
 <script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="js/util.js?v=3.02"></script>
-<script type="text/javascript" src="js/common.js?v=1.37"></script> 
-<script type="text/javascript" src="js/console.js?v=2.01"></script> 
+<script type="text/javascript" src="js/common.js?v=1.38"></script> 
+<script type="text/javascript" src="js/console.js?v=2.03"></script> 
 <script type="text/javascript" src="ext/short-md5.js"></script>
 <script src="ext/tag-it/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
 </html>

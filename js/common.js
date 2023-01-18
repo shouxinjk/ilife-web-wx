@@ -7,7 +7,7 @@ function insertPerson(person){
     html += '</div>';
     html += '<div class="info-detail">';
     html += '<div class="info-text info-blank">'+person.nickName+'</div>';
-    html += '<div class="info-text info-blank" id="brokerHint" style="display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
+    html += '<div class="info-text info-blank tipform" id="brokerHint" data-type="badge" style="display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
     html += '<div class="info-text info-blank" id="brokerLink" style="display:flex;flex-direction:row;">让小确幸填满你的大生活</div>';
     html += '<div style="position:absolute;right:5px;top:5px;"><a href="task.html" style="color:silver;font-size:10px;">帮助</a></div>';
     html += '</div>';
@@ -47,6 +47,7 @@ function loadBadges(broker) {
     console.log("try to load badges.");
     util.AJAX(app.config.sx_api+"/mod/badge/rest/badges", function (res) {
         console.log("load broker badges.",res);
+        //装载到达人徽章
         if(broker && broker.level>3){ //生活家及以上
             for(var i=3;i<=broker.level && i<res.length;i++){
                 if( (res[i].key=="broker" && broker.badges.find(item => item.badge.key == "broker_pro")) //是broker，且是broker_pro
@@ -72,9 +73,11 @@ function loadBadges(broker) {
                 showBadge(res[0]);
             }
         }
+        //装载徽章列表，用于展示
+        showBadgeList(broker, res);
     });
 }
-//显示badge
+//显示单个badge到达人徽章列表
 function showBadge(badge){
     //徽章
     var badgesHtml = "";
@@ -86,6 +89,35 @@ function showBadge(badge){
     $("#brokerHint").append(badgesHtml);
 }
 
+//显示所有徽章列表，其中未获取的灰度显示
+var badgeTpl = `
+    <div style="display:flex;flex-direction:row;flex-wrap:nowrap;justify-content:center;align-items:center;">
+        <div style="width:15%;text-align:center;">
+            <img src="images/badge/__key.png" style="width:48px;height:48px;__greyscale"/>
+        </div>
+        <div style="width:85%;">
+            <div style="font-size:12px; font-weight:bold;line-height:14px;text-align:left;">
+                __name
+            </div>
+            <div style="font-size:10px;font-weight:normal;line-height:12px;text-align:left;">
+                __desc
+            </div>         
+        </div>        
+    </div>
+`;
+function showBadgeList(broker, badges){
+    badges.forEach(function(badge){
+        var greyscale = "filter: grayscale(100%);"
+        var got = "";
+        if( broker.level>= badge.level ){ //已获得的显示图标
+            greyscale = "";
+            got = "✅";
+        }     
+        var html  = badgeTpl.replace(/__greyscale/g,greyscale).replace(/__key/g,badge.key).replace(/__name/g,got+badge.name).replace(/__desc/g,badge.description)
+        $("#badgeList").append(html);
+    });
+}
+
 //对于达人显示勋章及贡献度
 function insertBroker(broker){
 
@@ -94,11 +126,37 @@ function insertBroker(broker){
 
     //贡献度
     $("#brokerLink").empty();
-    $("#brokerLink").append('<div style="border:1px solid #E5F0FC;background-color:#E5F0FC;color:#3070E8;font-size:10px;font-weight:bold;border-radius:10px;padding:2px 5px;display:flex;justify-content:center;align-items:center;"><div><img src="images/icon/points.png" style="width:12px;height:12px;object-fit:cover;"/></div>&nbsp;<div>贡献度 : '+(broker.points&&broker.points>0?broker.points:0)+'</div></div>');
+    $("#brokerLink").append('<div data-type="credit" class="tipform" style="border:1px solid #E5F0FC;background-color:#E5F0FC;color:#3070E8;font-size:10px;font-weight:bold;border-radius:10px;padding:2px 5px;display:flex;justify-content:center;align-items:center;"><div><img src="images/icon/points.png" style="width:12px;height:12px;object-fit:cover;"/></div>&nbsp;<div>贡献度 : '+(broker.points&&broker.points>0?broker.points:0)+'</div></div>');
 
     //收益
-    $("#brokerLink").append('&nbsp;<div style="border:1px solid #f6d0ca;background-color:#f6d0ca;color:#b80010;font-size:10px;font-weight:bold;border-radius:10px;padding:2px 5px;display:flex;justify-content:center;align-items:center;"><div><img src="images/icon/coins.png" style="width:12px;height:12px;object-fit:cover;"/></div>&nbsp;<div id="totalMoney">总收益 : 0</div></div>');
+    $("#brokerLink").append('&nbsp;<div data-type="money" class="tipform" style="border:1px solid #f6d0ca;background-color:#f6d0ca;color:#b80010;font-size:10px;font-weight:bold;border-radius:10px;padding:2px 5px;display:flex;justify-content:center;align-items:center;"><div><img src="images/icon/coins.png" style="width:12px;height:12px;object-fit:cover;"/></div>&nbsp;<div id="totalMoney">总收益 : 0</div></div>');
     getMoney(broker.id); 
+
+    //注册事件：提示表单事件
+    $(".tipform").click(function(){
+        var eleId = '#'+$(this).data("type")+"form";
+        console.log("try show tip form.",eleId);
+        //显示表单
+        $.blockUI({ message: $(eleId),
+            css:{ 
+                padding:        10, 
+                margin:         0, 
+                width:          '80%', 
+                top:            '15%', 
+                left:           '10%', 
+                textAlign:      'center', 
+                color:          '#000', 
+                border:         '1px solid silver', 
+                backgroundColor:'#fff', 
+                cursor:         'normal' 
+            },
+            overlayCSS:  { 
+                backgroundColor: '#000', 
+                opacity:         0.7, 
+                cursor:          'normal' 
+            }
+        });         
+    });
 
     //解锁可用区域按钮
     var locks = {"broker":4,"tailor":6,"expert":8,"scholar":9};

@@ -47,6 +47,12 @@ $(document).ready(function ()
     //加载默认设置，获取注册上级达人
     loadDefaultSettings();
 
+    //装载贡献度列表
+    loadCredits();
+
+    //装载收益提示列表
+    showMoneyTipList();
+
     //注册事件：加入或升级 生活家
     $("#brokerJoinBtn").click(function(){
         if($(this).data("action")=="join"){
@@ -86,6 +92,10 @@ $(document).ready(function ()
         showCandidateForm("scholar", "专家学者");
     });
 
+    //注册事件：关闭浮出表单
+    $(".btnNo").click(function(){     
+        $.unblockUI(); //直接取消即可
+    });    
 
 });
 
@@ -137,6 +147,75 @@ function loadDefaultSettings(){
     "GET",
     {type:"sx_default"},
     {});
+}
+
+//加载并显示贡献度列表
+var creditTpl = `
+    <div style="display:flex;flex-direction:row;flex-wrap:nowrap;justify-content:center;align-items:center;">
+        <div style="width:12%;text-align:center;">
+            <img src="images/credit/__type.png" style="width:36px;height:36px;__greyscale"/>
+        </div>
+        <div style="width:15%;text-align:center;font-size:18px;font-weight:bold;color:#F54E4D">
+            __points
+        </div>        
+        <div style="width:73%;">
+            <div style="font-size:12px;font-weight:bold;line-height:16px;text-align:left;">
+                __name
+            </div>
+            <div style="font-size:10px;line-height:12px;font-weight:normal;text-align:left;">
+                __desc
+            </div>         
+        </div>        
+    </div>
+`;
+function loadCredits(){
+    util.AJAX(app.config.sx_api+"/mod/credit/rest/credits", function (res) {
+        console.log("load credits.", res)
+        if (res && res.length>0) {//加载类型列表
+            res.forEach(function(credit){   
+                var html  = creditTpl.replace(/__points/g,credit.points?creditpoints:15).replace(/__type/g,credit.type).replace(/__name/g,credit.name).replace(/__desc/g,credit.description)
+                $("#creditList").append(html);
+            });     
+        }else{//如果没有则提示，
+            console.log("cannot load ditc by type: sx_default ");           
+        }
+    }, 
+    "GET",
+    {},
+    {});
+}
+
+//显示所有收益提示列表
+var moneyTips = [
+    {type:"order",name:"直接订单收益",desc:"分享商品并形成订单后获取相应的收益"},
+    {type:"team",name:"团队订单收益",desc:"团队成员及再下级团队成员形成订单后获取相应收益，团队越大收益越多"},
+    {type:"credit",name:"贡献度收益",desc:"按照贡献度大小获取相应的贡献度收益"},
+    {type:"notify",name:"订单通知",desc:"直接订单或团队订单形成后将收到公众号通知消息"},
+    {type:"settle",name:"结算周期",desc:"按月结算，每月25日结算上月收益"},
+    {type:"withdraw",name:"提现",desc:"金额大于50元即可提现，直接通过微信操作完成"},
+    {type:"invoice",name:"发票",desc:"机构伙伴可提前开具发票，在提现前提交发票即可"},
+
+];
+var moneyTipTpl = `
+    <div style="display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;margin:5px 0;">
+        <div style="width:20%;text-align:center;">
+            <img src="images/money/__type.png" style="width:36px;height:36px;"/>
+        </div>
+        <div style="width:80%;">
+            <div style="font-size:12px; font-weight:bold;line-height:14px;text-align:left;">
+                __name
+            </div>
+            <div style="font-size:10px;font-weight:normal;line-height:12px;text-align:left;">
+                __desc
+            </div>         
+        </div>        
+    </div>
+`;
+function showMoneyTipList(){
+    moneyTips.forEach(function(tip){ 
+        var html  = moneyTipTpl.replace(/__type/g,tip.type).replace(/__name/g,tip.name).replace(/__desc/g,tip.desc)
+        $("#moneyTipList").append(html);
+    });
 }
 
 //注册生活家
@@ -198,9 +277,7 @@ function showCandidateForm(badgeType, badgeName){
             cursor:          'normal' 
         }
     }); 
-    $("#btnCancelCandidate").click(function(){     
-        $.unblockUI(); //直接取消即可
-    });
+
     $("#btnSaveCandidate").click(function(){//提交申请，等待审核
         //检查必填项：名称。排行规则在切换时已经检查
         if( !$("#candidateName2").val() || $("#candidateName2").val().trim().length ==0 ){
