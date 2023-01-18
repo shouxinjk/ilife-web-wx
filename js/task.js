@@ -29,7 +29,7 @@ $(document).ready(function ()
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
-    loadPerson(currentPerson);//加载用户
+    //loadPerson(currentPerson);//加载用户
 
     //注册事件：切换操作类型
     $(".order-cell").click(function(e){
@@ -170,7 +170,7 @@ function loadPerson(personId) {
         console.log("load person info.",personId,res);
         userInfo = res;
         currentPerson = res._key;
-        insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
+        //insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
         //loadData();
         loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });

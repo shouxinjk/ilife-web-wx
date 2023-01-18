@@ -32,12 +32,18 @@
     </div-->   
 
     <!-- 用户信息 --> 
+    <!--
     <view class="info" id="user"></view>
+    -->
     <!-- 按钮 --> 
     <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
-        <div class="order-cell" id="task" data-tagging="like view">
-            <img class="order-cell-icon-small" src="broker/images/task.png"/>
-            <div class="actiontype">生活家</div>
+        <div class="order-cell" id="user" data-tagging="share">
+            <img class="order-cell-icon-small" src="images/user.png"/>
+            <div class="actiontype">基本信息</div>
+        </div>         
+        <div class="order-cell" id="need-person" data-tagging="like view">
+            <img class="order-cell-icon-small" src="images/need-person.png"/>
+            <div class="actiontype">生活构成</div>
         </div>          
         <div class="order-cell" id="favorite" data-tagging="like view favorite buy">
             <img class="order-cell-icon-small" src="images/favorite.png"/>
@@ -50,11 +56,7 @@
         <div class="order-cell" id="solutions" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/solutions-selected.png"/>
             <div class="actiontype-selected">我的定制</div>
-        </div>            
-        <div class="order-cell" id="user" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/user.png"/>
-            <div class="actiontype">我的设置</div>
-        </div>                            
+        </div>                                       
     </view>
 
     <div class="tips">

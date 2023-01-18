@@ -151,7 +151,7 @@ function loadPerson(personId) {
         console.log("load person info.",personId,res);
         userInfo = res;
         currentPerson = res._key;
-        insertPerson(userInfo);
+        //insertPerson(userInfo);
         loadData();
         loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
