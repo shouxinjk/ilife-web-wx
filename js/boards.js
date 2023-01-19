@@ -234,6 +234,7 @@ function insertItem(){
     var description = "<div class='description' style='margin-top:5px;'>"+item.description+"</div>";
     //tag区分是自由定制还是专家指南 
     var tags = "<div style='display:flex;'>";
+    tags += "<span style='border-radius:10px;background-color:#2a61f1;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>主题组合清单</span>";  
     if(item.tags && item.tags.trim().length>0){
         item.tags.split(" ").forEach(function(tag){
             if(tag&&tag.trim().length>0)
@@ -357,7 +358,7 @@ function loadBrokerByOpenid(openid) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
         if (res.status) {
-            insertBroker(res.data);//显示达人信息
+            //insertBroker(res.data);//显示达人信息
             loadWxGroups(res.data.id);//加载该达人的微信群
             registerTimer(res.data.id);//加载该达人的board列表
         }

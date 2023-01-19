@@ -199,7 +199,7 @@ function loadBrokerByOpenid(openid) {
     util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
         console.log("load broker info.",openid,res);
         if (res.status) {//如果是达人则显示达人入口
-            insertBroker(res.data);//显示达人信息
+            //insertBroker(res.data);//显示达人信息
         }
     });
 }

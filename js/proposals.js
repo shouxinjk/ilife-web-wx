@@ -14,6 +14,9 @@ $(document).ready(function ()
         columnWidth = (width-columnMargin*4)/2;//由于每一个图片左右均留白，故2列有4个留白
     }    
     //**/
+    //加载所有定制主题
+    loadProposalSchemes();
+
     //显示加载状态
     showloading(true);
     //处理参数
@@ -174,6 +177,27 @@ var currentPersonType = "person";//当前选中的是用户还是画像，默认
 var personKeys = [];//标记已经加载的用户key，用于排重
 
 var inputPerson = null;//接收指定的personId或personaId
+
+//获取所有定制主题列表，显示方案时根据主题得到具体类型。
+//fix：索引里所有定制方案类型均为solution，需要根据scheme判断是free还是guide
+var proposalSchemes = [];
+function loadProposalSchemes() {
+    console.log("try load proposal scheme.");
+    //直接查询全部
+    $.ajax({
+        url:app.config.sx_api+"/diy/proposalScheme/rest/byName/*",
+        type:"get",
+        data:{name:"*"},
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },
+        success:function(data){
+            console.log("Feed::loadData success.",data);
+            if(data)proposalSchemes=data;
+        }
+    });
+  }
 
 //对于guide类型方案，需要根据用户属性显示表单
 var props = [];
@@ -799,8 +823,23 @@ function insertItem(){
     var tags = "<div style='display:flex;'>";
     //如果是board，默认第一个添加 主题组合清单标签
     if(item.type=="board"){
-        tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>主题组合清单</span>";      
+        tags += "<span style='border-radius:10px;background-color:#2a61f1;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>主题组合清单</span>";      
+    }else if(item.type=="solution"){ //如果是定制主题，则需要根据scheme判断具体类型
+        var proposalScheme = proposalSchemes.find(proposalScheme => proposalScheme.id == item.scheme);
+        if(proposalScheme && proposalScheme.type =="guide"){
+            tags += "<span style='border-radius:10px;background-color:darkred;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>专家指南</span>";      
+        }else if(proposalScheme && proposalScheme.type =="free"){
+            tags += "<span style='border-radius:10px;background-color:darkgreen;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>定制师方案</span>";      
+        }
+        //将scheme的category作为标签
+        if(proposalScheme.category && proposalScheme.category.trim().length>0){
+            proposalScheme.category.split(" ").forEach(function(categoryTag){
+                if(categoryTag.trim().length>0)
+                    tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>"+categoryTag+"</span>";      
+            });
+        }
     }
+
     if(item.tags && item.tags.length>0){//装载标签
         item.tags.forEach(function(tag){
             if(tag&&tag.trim().length>0)
@@ -1119,8 +1158,19 @@ function insertCategoryItem(proposalScheme){
     //隐藏no-more-tips
     $("#no-results-tip").toggleClass("no-result-tip-hide",true);
     $("#no-results-tip").toggleClass("no-result-tip-show",false); 
-    
-    var measureTag = "<div id='metacat"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-type='"+proposalScheme.type+"' data-name='"+proposalScheme.name+"' style='line-height:16px;font-size:12px;min-width:60px;font-weight:bold;padding:2px;border:1px solid silver;border-radius:10px;margin:2px;'>"+proposalScheme.name+"</div>"
+
+    //根据类型显示不同的标签：board普通显示，free绿色，guide红色
+    var styleCss = "border:1px solid #2a61f1;color:#2a61f1;";
+    var color = "#2a61f1";
+    if(proposalScheme.type == "guide"){
+        styleCss = "border:1px solid darkred;color:darkred;";
+        color = "darkred";
+    }else if(proposalScheme.type == "free"){
+        styleCss = "border:1px solid darkgreen;color:darkgreen;";
+        color = "darkgreen";
+    }
+
+    var measureTag = "<div id='metacat"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-type='"+proposalScheme.type+"' data-color='"+color+"' data-name='"+proposalScheme.name+"' style='line-height:16px;font-size:12px;min-width:60px;font-weight:bold;padding:2px;border-radius:10px;margin:2px;"+styleCss+"'>"+proposalScheme.name+"</div>"
     $("#categoryDiv").append( measureTag );
 
     //注册事件
@@ -1142,15 +1192,32 @@ function insertCategoryItem(proposalScheme){
         loadFeeds();//加载该主题下的具体方案列表
 
         //高亮
-        $("div[id^=metacat]").css("background-color","#fff");
-        $("div[id^=metacat]").css("color","#000");          
-        $("#metacat"+categoryId).css("background-color","#2a61f1");
-        $("#metacat"+categoryId).css("color","#fff");        
+        $("div[id^=metacat]").each(function(){
+            $(this).css({
+                "background-color":"#fff",
+                "color":$(this).data("color")
+            });
+        });
+        $("#metacat"+categoryId).css({
+                "background-color":$("#metacat"+categoryId).data("color"),
+                "color":"#fff"
+            });
+  
     });
 
+    //根据类型显示不同的标签：board普通显示，free绿色，guide红色
+    var styleCss = "border:1px solid #2a61f1;color:#2a61f1;";
+    var color = "#2a61f1";
+    if(proposalScheme.type == "guide"){
+        styleCss = "border:1px solid darkred;color:darkred;";
+        color = "darkred";
+    }else if(proposalScheme.type == "free"){
+        styleCss = "border:1px solid darkgreen;color:darkgreen;";
+        color = "darkgreen";
+    }
 
     //同步写入主题选择Div
-    var proposalTag = "<div id='proposal"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-type='"+proposalScheme.type+"' data-name='"+proposalScheme.name+"' style='line-height:20px;font-size:12px;min-width:60px;font-weight:bold;padding:2px 10px;border:1px solid silver;border-radius:20px;margin:2px;'>"+proposalScheme.name+"</div>"
+    var proposalTag = "<div id='proposal"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-type='"+proposalScheme.type+"' data-color='"+color+"' data-name='"+proposalScheme.name+"' style='line-height:20px;font-size:12px;min-width:60px;font-weight:bold;padding:2px 10px;border-radius:20px;margin:2px;"+styleCss+"'>"+proposalScheme.name+"</div>"
     $("#proposalSchemesDiv").append( proposalTag );//同步写入候选表单
     //注册事件
     $("#proposal"+proposalScheme.id).click(function(){
@@ -1164,12 +1231,18 @@ function insertCategoryItem(proposalScheme){
         if("guide"==categoryType){
             getSchemeScripts(categoryId);
         }
-
+ 
         //高亮
-        $("div[id^=proposal]").css("background-color","#fff");
-        $("div[id^=proposal]").css("color","#000");          
-        $("#proposal"+categoryId).css("background-color","#2a61f1");
-        $("#proposal"+categoryId).css("color","#fff");        
+        $("div[id^=proposal]").each(function(){
+            $(this).css({
+                "background-color":"#fff",
+                "color":$(this).data("color")
+            });
+        });
+        $("#proposal"+categoryId).css({
+                "background-color":$("#proposal"+categoryId).data("color"),
+                "color":"#fff"
+            });            
     });
 
     // 表示加载结束

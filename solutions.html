@@ -13,6 +13,11 @@
     <link rel="stylesheet" type="text/css" href="css/favorite.css?v=1.5">
     <link rel="stylesheet" type="text/css" href="css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css">  
+
+    <link rel="stylesheet" type="text/css" href="ext/jsonform/bootstrap.css?v=0.02" />
+    <link rel="stylesheet" type="text/css" href="ext/jsonform/bootstrap-wysihtml5.css" />
+    <!--link rel="stylesheet" type="text/css" href="ext/jsonform/spectrum.css" /-->      
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">         
 </head>
@@ -111,6 +116,10 @@
     </a>        
   </div>
 
+    <div id="jsonformDiv" style="display:none; cursor: default;">
+        <form id="jsonform"></form>
+    </div> 
+
     <div id="chooseSchemeForm" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;">选择一个主题</div> 
             <div id="proposalSchemesDiv"  style="display:flex;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin:10px auto;">
@@ -133,7 +142,10 @@
 <script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
 <script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
 <script type="text/javascript" src="ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="ext/jsonform/underscore.js"></script>
+<script type="text/javascript" src="ext/jsonform/jsv.js"></script>
+<script type="text/javascript" src="ext/jsonform/jsonform.js?v=1.0"></script>
 <script type="text/javascript" src="js/util.js?v=4.0"></script>
 <script type="text/javascript" src="js/common.js?v=1.25"></script> 
-<script type="text/javascript" src="js/solutions.js?v=0.8"></script> 
+<script type="text/javascript" src="js/solutions.js?v=0.81"></script> 
 </html>
