@@ -286,20 +286,16 @@ function showCandidateForm(badgeType, badgeName){
             siiimpleToast.message('名称为必填~~',{
               position: 'bottom|center'
             });                 
-        }
-        /**
-        else if( !$("#candidateCompany2").val() || $("#candidateCompany2").val().trim().length ==0 ){
-            siiimpleToast.message('公司或院校为必填~~',{
+        }else if( !$("#candidateCompany2").val() || $("#candidateCompany2").val().trim().length ==0 ){
+            siiimpleToast.message('公司、院校或机构为必填~~',{
               position: 'bottom|center'
             });                 
         }else if( !$("#candidateJob2").val() || $("#candidateJob2").val().trim().length ==0 ){
-            siiimpleToast.message('身份或职位为必填~~',{
+            siiimpleToast.message('身份或工作为必填~~',{
               position: 'bottom|center'
             });                 
-        }
-        //**/
-        else if( !$("#candidateDesc2").val() || $("#candidateDesc2").val().trim().length ==0 ){
-            siiimpleToast.message('简介为必填~~',{
+        }else if( !$("#candidateDesc2").val() || $("#candidateDesc2").val().trim().length ==0 ){
+            siiimpleToast.message('个人和优势领域简介为必填~~',{
               position: 'bottom|center'
             });                 
         }else{
@@ -313,8 +309,8 @@ function showCandidateForm(badgeType, badgeName){
                     key: badgeType //默认申请领域专家
                 },
                 name: $("#candidateName2").val(),
-                //company: $("#candidateCompany2").val(),
-                //job: $("#candidateJob2").val(),
+                company: $("#candidateCompany2").val(),
+                job: $("#candidateJob2").val(),
                 description: $("#candidateDesc2").val()
             };          
             saveCandidateInfo(badgeName, categoryBadge);
