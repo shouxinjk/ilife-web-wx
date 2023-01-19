@@ -25,6 +25,36 @@ $(document).ready(function ()
         from = args["from"]; //需要修改的用户ID
     }    
 
+    if(args["type"]){
+        schemeType = args["type"]; //类型：free、guide
+
+        //修改提示
+        if(schemeType=="free"){
+            $("#tipInfo").empty();
+            $("#tipInfo").html("定制师主题支持手动创建方案及条目");
+        }else if(schemeType=="guide"){
+            $("#tipInfo").empty();
+            $("#tipInfo").html("专家指南主题方案为自动生成，可手动编辑");
+        }
+
+        //高亮首先清除原来高亮状态
+        if(currentActionType.trim().length>0){
+            $("#"+currentActionType+" img").attr("src","images/"+currentActionType+".png"); 
+            $("#"+currentActionType+" div").removeClass("actiontype-selected");
+            $("#"+currentActionType+" div").addClass("actiontype");  
+        }  
+        //更改并高亮显示
+        currentActionType = "proposal-schemes-"+schemeType;//同步高亮顶部菜单
+        if(currentActionType.trim().length>0){
+            $("#"+currentActionType+" img").attr("src","images/"+currentActionType+"-selected.png"); 
+            $("#"+currentActionType+" div").removeClass("actiontype");
+            $("#"+currentActionType+" div").addClass("actiontype-selected");  
+        } 
+    }  
+    if(args["status"]){
+        schemeStatus = args["status"]; //状态
+    }     
+
     if(args["categoryId"]){
         categoryId = args["categoryId"]; //记录当前修改节点维度
     }    
@@ -74,6 +104,9 @@ var currentConnection = null;
 
 var categoryId = null;
 var categoryName = null;
+
+var schemeType = null;//接收参数：根据类型过滤
+var schemeStatus = null;//接收参数：根据状态过滤
 
 var currentPerson = {};//默认当前修改用户为空
 
@@ -144,12 +177,17 @@ function loadItems(){
             }            
         }
     }, 
-    "GET",
+    "POST",
     {
         from:(page.current+1)*page.size,
-        to:(page.current+1)*page.size+page.size
+        to:(page.current+1)*page.size+page.size,
+        type: schemeType?schemeType:"",
+        status: schemeStatus?schemeStatus:""
     },
-    {});
+    {
+        "Content-Type":"application/json",
+        "Accept": "application/json"        
+    });
 }
 
 //将item显示到页面
@@ -293,6 +331,7 @@ function changeActionType (e) {
     //更改并高亮显示
     currentActionType = e.currentTarget.id;
     tagging = e.currentTarget.dataset.tagging;
+
     if (app.globalData.isDebug) console.log("User::ChangeActionType change action type.",currentActionType,tagging);
     if(currentActionType.trim().length>0){
         $("#"+currentActionType+" img").attr("src","images/"+currentActionType+"-selected.png"); 
@@ -300,8 +339,14 @@ function changeActionType (e) {
         $("#"+currentActionType+" div").addClass("actiontype-selected");  
     } 
 
+    var target = e.currentTarget.dataset.target;
     //跳转到相应页面
-    window.location.href = currentActionType+".html";
+    if(target && target.trim().length>0 ){
+        window.location.href = target;
+    }else{
+        window.location.href = currentActionType+".html";
+    }
+    
 }
 
 

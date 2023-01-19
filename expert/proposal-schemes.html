@@ -38,31 +38,27 @@
     <view class="info" id="user"></view>
     --> 
     <!-- 按钮 --> 
-    <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
-        <div class="order-cell" id="dimension" data-tagging="like view">
-            <img class="order-cell-icon-small" src="images/dimension.png"/>
-            <div class="actiontype">评价规则</div>
-        </div>          
-        <div class="order-cell" id="proposal-schemes" data-tagging="like view favorite buy">
-            <img class="order-cell-icon-small" src="images/proposal-schemes-selected.png"/>
-            <div class="actiontype-selected">定制指南</div>
-        </div>         
-        <div class="order-cell" id="need-persona" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/need-persona.png"/>
-            <div class="actiontype">需要模型</div>
+    <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">        
+        <div class="order-cell" id="proposal-schemes-free" data-tagging="like view favorite buy" data-target="proposal-schemes.html?type=free">
+            <img class="order-cell-icon-small" src="images/proposal-schemes-free.png"/>
+            <div class="actiontype">定制师主题</div>
+        </div>  
+        <div class="order-cell" id="proposal-schemes-guide" data-tagging="like view favorite buy" data-target="proposal-schemes.html?type=guide">
+            <img class="order-cell-icon-small" src="images/proposal-schemes-guide.png"/>
+            <div class="actiontype">专家指南主题</div>
+        </div>                  
+        <div class="order-cell" id="solutions" data-tagging="buy" data-target="../solutions.html">
+            <img class="order-cell-icon-small" src="images/solutions.png"/>
+            <div class="actiontype">定制方案</div>
         </div>     
-        <div class="order-cell" id="data" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/data.png"/>
-            <div class="actiontype">数据打分</div>
-        </div>                 
-        <div class="order-cell" id="ranks" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/ranks.png"/>
-            <div class="actiontype">排行榜</div>
-        </div>                                              
+        <div class="order-cell" id="boards" data-tagging="buy" data-target="../boards.html">
+            <img class="order-cell-icon-small" src="images/boards.png"/>
+            <div class="actiontype">组合清单</div>
+        </div>                                                              
     </view>
 
 
-    <div class="tips">
+    <div class="tips" id="tipInfo">
         查看定制主题及指南
     </div> 
 
@@ -93,13 +89,17 @@
         <img src="../images/measure.png" width="20px" height="20px"/>
         <div class="menu-btn-txt">&nbsp;评价</div>
     </a>
+    <a href="../billboards.html" class="menu-btn">
+        <img src="../images/billboard.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;排行</div>
+    </a>     
     <a href="../proposals.html" class="menu-btn">
         <img src="../images/proposal.png" width="20px" height="20px"/>
         <div class="menu-btn-txt">&nbsp;定制</div>
     </a>  
-    <a href="#" class="menu-btn">
+    <a href="../console.html" class="menu-btn">
         <img src="../images/my-selected.png" width="20px" height="20px"/>
-        <div class="menu-btn-txt-selected">&nbsp;专家</div>
+        <div class="menu-btn-txt-selected">&nbsp;定制师</div>
     </a>        
   </div>
 
