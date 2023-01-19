@@ -702,9 +702,16 @@ function showRankItems(){
       //设置当前选中条目ID
       rankItemId = $(this).data("dimensionid");
       var currentRankItem = rankItems.find(rankItem => rankItem.dimension.id == rankItemId); //查询得到当前节点元素  
-      //修改提示编号为问号，提示调整
-      $("#sort"+dimension.id).empty();
-      $("#sort"+dimension.id).append("?");
+      //修改当前选中的编号为问号，提示调整
+      var k=1;
+      rankItems.forEach(function(rankItem){ //恢复原来的序号
+        $("#sort"+rankItem.dimension.id).empty();
+        $("#sort"+rankItem.dimension.id).append(k);    
+        k++;    
+      });
+      //将当前选中的设置为问号
+      $("#sort"+currentRankItem.dimension.id).empty();
+      $("#sort"+currentRankItem.dimension.id).append("?");
 
       //修改按钮文字：根据选中条目判断后调整加入或取消排序  
       if(currentRankItem.priority<0){//显示加入排序
@@ -1324,6 +1331,7 @@ function showRankForm(){
     if($("#rankKeywords2").val().trim().length==0 && $("#searchTxt").val().trim().length>0 ){
       $("#rankKeywords2").val( $("#searchTxt").val().trim() );
     }
+
     //显示表单
     $.blockUI({ message: $('#rankform'),
         css:{ 

@@ -155,8 +155,13 @@ function showRankInfo(){
   $("#rankCategoryName").append(rank.category.name);
   $("#rankName").append(rank.name);
   $("#rankDesc").append(rank.description);
-  if(rank.keyword){
-    $("#rankKeyword").append(rank.keyword);
+  if(rank.keywords){
+    rank.keywords.split(" ").forEach(function(keyword){
+        if(keyword.trim().length>0){
+            $("#rankKeyword").append("<div style='font-size:10px;color:#fff;border-radius:10px;padding:1px 5px;border:1px solid #fff;margin-left:2px;'>"+keyword+"</div>");
+        }
+    });
+    
   }  
   //显示排行规则
   console.log("show rank items.",rankItems);

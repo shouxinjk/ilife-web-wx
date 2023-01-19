@@ -43,12 +43,10 @@ $(document).ready(function ()
 
     //注册事件：创建排行榜
     $("#createRankBtn").click(function(){
-        if(!categoryId){
-            siiimpleToast.message('请选择一个类目~~',{
-              position: 'bottom|center'
-            });             
+        if(categoryId){
+            window.location.href = "measures.html?showRankForm=true&categoryId="+categoryId+"&categoryName="+categoryName;          
         }else{
-            window.location.href = "measures.html?showRankForm=true&categoryId="+categoryId+"&categoryName="+categoryName;
+            window.location.href = "measures.html";  
         }
     });
 
@@ -322,9 +320,9 @@ var rankTpl = `
             <img src="__logo" style="width:60px;height:60px;object-fit: cover;border-radius: 10px;"/>
         </div>
         <div style="width:76%">
-            <div>
-                <div id="rankCategoryName__id" style="font-size:12px;line-height:16px;font-weight:bold;">__categoryName</div>
-                <div id="rankKeywrod__id" style="font-size:10px;line-height:16px;">__keyword</div>
+            <div style="display:flex;flex-direction: row;flex-wrap: nowrap;width:100%;align-items: center;">
+                <div id="rankCategoryName__id" style="font-size:12px;line-height:16px;font-weight:bold;text-overflow:ellipsis;overflow: hidden;white-space: nowrap;">__categoryName</div>
+                <div id="rankKeyword__id" style="font-size:10px;display:flex;flex-direction: row;flex-wrap: nowrap;text-overflow:ellipsis;overflow: hidden;white-space: nowrap;"></div>
             </div>
             <div id="rankName__id" style="font-size:16px;line-height:20px;font-weight:bold;;">__name</div>
             <div id="rankDesc__id" style="font-size:12px;line-height:16px;;">__desc</div>
@@ -364,8 +362,16 @@ function insertItem(){
     }
     //基本信息
     var rankHtml = rankTpl.replace(/__id/g,rank.id).replace(/__name/g,rank.name).replace(/__categoryName/g,rank.category.name)
-                .replace(/__keyword/g,rank.keyword?rank.keyword:"").replace(/__desc/g,rank.description).replace(/__logo/g,logo);
+                .replace(/__keyword/g,rank.keywords?rank.keywords:"").replace(/__desc/g,rank.description).replace(/__logo/g,logo);
     $("#waterfall").append(rankHtml);
+    //添加关键字
+    if(rank.keywords){
+        rank.keywords.split(" ").forEach(function(keyword){
+            if(keyword.trim().length>0){
+                $("#rankKeyword"+rank.id).append("<div style='font-size:10px;border-radius:10px;padding:1px 5px;border:1px solid silver;margin-left:2px;'>"+keyword+"</div>");
+            }
+        });
+    }
 
     //注册事件
     $("#rank"+rank.id).click(function(){
