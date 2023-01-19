@@ -38,38 +38,28 @@
     <view class="info" id="user"></view>
     -->
     <!-- 按钮 --> 
-    <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
-        <div class="order-cell" id="dimension" data-tagging="like view">
-            <img class="order-cell-icon-small" src="images/dimension.png"/>
-            <div class="actiontype">评价规则</div>
-        </div>          
-        <div class="order-cell" id="proposal-schemes" data-tagging="like view favorite buy">
-            <img class="order-cell-icon-small" src="images/proposal-schemes.png"/>
-            <div class="actiontype">定制指南</div>
-        </div>         
+    <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">       
         <div class="order-cell" id="need-persona" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/need-persona-selected.png"/>
-            <div class="actiontype-selected">需要模型</div>
+            <div class="actiontype-selected">画像模型</div>
         </div>     
-        <div class="order-cell" id="data" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/data.png"/>
-            <div class="actiontype">数据打分</div>
-        </div>                 
-        <div class="order-cell" id="ranks" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/ranks.png"/>
-            <div class="actiontype">排行榜</div>
+        <div class="order-cell" id="need-phase" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/need-phase.png"/>
+            <div class="actiontype">成长模型</div>
+        </div>       
+        <div class="order-cell" id="need-occasion" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/need-occasion.png"/>
+            <div class="actiontype">事件模型</div>
+        </div>     
+        <div class="order-cell" id="need-category" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/need-category.png"/>
+            <div class="actiontype">商品模型</div>
         </div>                                              
     </view>
 
     <div class="tips">
         建立画像需要模型 <a href="personas.html" style="font-size: 12px;font-weight:bold;">所有画像</a> <a href="#" id="vailidateBtn" style="font-size: 12px;font-weight:bold;">模型验证</a>
     </div> 
-
-    <div style="width:90%;text-align: center;margin:5px auto;display: flex;flex-direction: row;flex-wrap: nowrap;">
-        <div class='filter-selected' style="width:33%" id="personaNeedsFilter">分群需要构成</div>
-        <div class='filter' style="width:33%" id="phaseNeedsFilter">阶段需要构成</div>
-        <div class='filter' style="width:33%" id="categoryNeedsFilter">类目需要满足</div>
-    </div>
 
     <!-- 画像列表 -->
 <section style="position:sticky;z-index: 9;top:0;background-color: #fff;">
@@ -130,14 +120,18 @@
         <img src="../images/measure.png" width="20px" height="20px"/>
         <div class="menu-btn-txt">&nbsp;评价</div>
     </a>
+    <a href="../billboards.html" class="menu-btn">
+        <img src="../images/billboard.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;排行</div>
+    </a>      
     <a href="../proposals.html" class="menu-btn">
         <img src="../images/proposal.png" width="20px" height="20px"/>
         <div class="menu-btn-txt">&nbsp;定制</div>
     </a>  
-    <a href="#" class="menu-btn">
+    <a href="../console.html" class="menu-btn">
         <img src="../images/my-selected.png" width="20px" height="20px"/>
-        <div class="menu-btn-txt-selected">&nbsp;专家</div>
-    </a>        
+        <div class="menu-btn-txt-selected">&nbsp;专家学者</div>
+    </a>         
   </div>
 
     <!-- 修改关联属性的权重：对于已经建立的属性，只需要填写权重即可 -->
