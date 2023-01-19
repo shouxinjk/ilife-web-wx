@@ -60,6 +60,42 @@ $(document).ready(function ()
         window.location.href = "need-category.html";
     }); 
 
+    //打分：新增需求设置权重
+    $("#needWeightStars").starRating({//显示为starRating
+        totalStars: 10,
+        starSize:20,
+        useFullStars:false,//能够显示半星
+        disableAfterRate: false, //打分后可以继续修改
+        starShape: 'rounded',
+        //useGradient:true,
+        //starGradient:{start: '#FEF7CD', end: '#FF9511'},
+        //emptyColor: "lightgrey",
+        //initialRating: personaNeed.weight/2,//注意：评分是0-1,直接转换。初始打分置空，等待标注
+        ratedColors:['#dc143c', '#ff4500', '#ff6347', '#9acd32','#32cd32'],
+        callback: function(currentRating, el){
+            //获取当前打分并设置为personaNeedWeight2
+            $("#needWeight2").val(currentRating);//直接用打分值
+        }
+    }); 
+    //打分：修改已添加指标权重
+    $("#personaNeedWeightStars").starRating({//显示为starRating
+        totalStars: 10,
+        starSize:20,
+        useFullStars:false,//能够显示半星
+        disableAfterRate: false, //打分后可以继续修改
+        starShape: 'rounded',
+        //useGradient:true,
+        //starGradient:{start: '#FEF7CD', end: '#FF9511'},   
+        //emptyColor: "lightgrey",     
+        //initialRating: personaNeed.weight,//注意：评分是0-1,直接转换。初始打分置空，等待标注
+        ratedColors:['#dc143c', '#ff4500', '#ff6347', '#9acd32','#32cd32'],
+        callback: function(currentRating, el){
+            //获取当前打分并设置为personaNeedWeight2
+            $("#personaNeedWeight2").val(currentRating);//直接用打分值
+        }
+    }); 
+
+
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -239,7 +275,7 @@ function loadNeedTypes(){
                 needTypes[item.value]=item.label;
                 //加入选择器
                 var needtypeColor = "color:"+needTypeColor[item.value]+";border:1px solid "+needTypeColor[item.value];
-                var needTypeTag = "<div id='needType"+item.value+"' data-value='"+item.value+"' style='line-height:20px;font-size:12px;min-width:60px;font-weight:bold;padding:2px 10px;border-radius:20px;margin:2px;"+needtypeColor+"'>"+item.label+"</div>"
+                var needTypeTag = "<div id='needType"+item.value+"' data-value='"+item.value+"' data-type='"+item.value+"' style='line-height:20px;font-size:12px;min-width:60px;font-weight:bold;padding:2px 10px;border-radius:20px;margin:2px;"+needtypeColor+"'>"+item.label+"</div>"
                 $("#needTypesDiv").append( needTypeTag );//同步写入候选表单      
                 //注册事件
                 $("#needType"+item.value).click(function(){
@@ -319,6 +355,7 @@ function showPersonaNeeds(){
     //先清空
     $("#personaNeedsDiv").empty();
     $("#legendDiv").empty();
+    $("div[id^=personaNeedsDiv]").empty();//清空已经加载的need列表
 
     //逐条显示已经添加的属性节点
     if(personaNeeds && personaNeeds.length>0){
@@ -332,9 +369,9 @@ function showPersonaNeeds(){
             var tagclass = node.weight<0.1?"sxTag0":"measureTag"; //权重较低则灰色显示
             var needtypeColor = "color:#fff;background-color:"+needTypeColor[node.need.type]+";border:1px solid "+needTypeColor[node.need.type];
             var html = '<div class="'+tagclass+'" id="personaneed'+node.id+'" data-id="'+node.id+'" style="'+needtypeColor+'">';
-            html += node.need.name + " "+ node.weight+"%";
+            html += node.need.name + " "+ node.weight+"/10";
             html += '</div>';
-            $("#personaNeedsDiv").append(html);
+            $("#personaNeedsDiv"+node.need.type).append(html);
             //注册点击事件：点击后弹出浮框完成修改或删除
             $("#personaneed"+node.id).click(function(){ 
                 //从列表里取出当前操作的personaNeed
@@ -357,7 +394,8 @@ function showPersonaNeeds(){
         Object.keys(needTypeWeightSum).forEach(function(type){ //分别计算宽度并显示
             //添加legend显示
             var weight = needTypeWeightSum[type]/sumWeight*100;
-            $("#legendDiv").append("<div id='legend"+type+"' style='background-color:"+needTypeColor[type]+";color:#fff;font-size:10px;padding:2px;height:48px;padding:2px;width:"+(weight==0?0.1:weight)+"%;display: table;_position:relative;overflow:hidden;'><div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'><div style='_position: relative;_top: -50%;'>"+needTypes[type] + " "+weight.toFixed(1)+"%</div></div></div>");
+            if(weight>0)
+                $("#legendDiv").append("<div id='legend"+type+"' style='background-color:"+needTypeColor[type]+";color:#fff;font-size:10px;padding:2px;height:48px;padding:2px;width:"+(weight==0?0.1:weight)+"%;display: table;_position:relative;overflow:hidden;'><div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'><div style='_position: relative;_top: -50%;'>"+needTypes[type] + " "+weight.toFixed(1)+"%</div></div></div>");
         });        
     }
 
@@ -379,7 +417,7 @@ function showPersonaNeeds(){
                     var html = '<div class="sxTag0" id="need'+node.id+'" data-id="'+node.id+'" data-name="'+node.name+'" style="'+needtypeColor+'">';
                     html += node.name;
                     html += '</div>';
-                    $("#personaNeedsDiv").append(html);
+                    $("#personaNeedsDiv"+node.type).append(html);
                     //注册点击事件：点击后弹出浮框完成修改或删除
                     $("#need"+node.id).click(function(){ 
                         //新增personaNeed
@@ -395,20 +433,39 @@ function showPersonaNeeds(){
               console.log("no more pending needs.");   
             }
 
-            //增加创建按钮:避免重复添加
-            if($("#createNeedBtn").length==0){ 
-                //添加新增need并注册事件
-                $("#personaNeedsDiv").append('<div class="sxTagNew" id="createNeedBtn" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加需要</div>');
-                //注册点击事件：点击后弹出浮框完成修改或删除
-                $("#createNeedBtn").click(function(){ 
-                    //设置空白persona
-                    personaNeed = {}
-                    showNeedInfoForm();
-                });
-            }
+            //添加按钮：按照类型逐个添加
+            Object.keys(needTypes).forEach(function(needType){
+                $("#personaNeedsDiv"+needType).append('<div class="sxTagNew createNeedBtn" data-type="'+needType+'" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加需要</div>');
+                $("#personaNeedsTitle"+needType).empty();
+                $("#personaNeedsTitle"+needType).html("<span>设置/添加 "+needTypes[needType]+"</span>");
+                $("#personaNeedsTitle"+needType).css("display","block");
+            });
+            $("#personaNeedsDiv").append('<div class="sxTagNew createNeedBtn" data-type="" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加需要</div>');
+            $("#personaNeedsTitle").empty();
+            $("#personaNeedsTitle").html("<span>设置/添加 需要</span>");
+            $("#personaNeedsTitle").css("display","block");
+
+            //注册事件
+            $(".createNeedBtn").click(function(){ 
+                //设置空白persona
+                personaNeed = {}
+                //设置needType
+                if($(this).data("type")&&$(this).data("type").trim().length>0){
+                    needType = $(this).data("type");
+                    //高亮
+                    $("div[id^=needType]").each(function(){
+                        $(this).css("background-color","#fff");
+                        $(this).css("color",needTypeColor[$(this).data("type")]);                         
+                    });
+                    $("#needType"+needType).css("background-color",needTypeColor[needType]);
+                    $("#needType"+needType).css("color","#fff");                    
+                }
+                showNeedInfoForm();
+            }); 
 
         }
     });        
+   
 
 }
 //操作按钮：显示personaNeed修改表单
@@ -434,10 +491,14 @@ function showPersonaNeedInfoForm(){
             cursor:          'normal' 
         }
     }); 
+
     //设置默认值：对于有选定personaNeed的情况
+    $("#personaNeedWeightStars").starRating("setRating",0); //先恢复为0
     if(personaNeed && personaNeed.id && personaNeed.id.trim().length>0){ //已经关联的属性
         $("#personaNeedName2").val("需要："+personaNeed.need.name);
         $("#personaNeedWeight2").val(personaNeed.weight);
+        //打分
+        $("#personaNeedWeightStars").starRating("setRating",personaNeed.weight);        
     }else if(personaNeed && personaNeed.name && personaNeed.name.trim().length>0){ //已存在但未关联属性
         $("#personaNeedName2").val("需要："+personaNeed.name);
     }else{//新建属性
@@ -460,7 +521,7 @@ function showPersonaNeedInfoForm(){
     $("#btnSavePersonaNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
         if( !$("#personaNeedWeight2").val() || $("#personaNeedWeight2").val().trim().length ==0 ){
             $("#personaNeedWeight2").val(personaNeed.weight);
-            siiimpleToast.message('数据占比为必填~~',{
+            siiimpleToast.message('请点击星星设置权重~~',{
               position: 'bottom|center'
             });                 
         }else{
@@ -544,20 +605,21 @@ function showNeedInfoForm(){
             cursor:          'normal' 
         }
     }); 
+
     $("#btnCancelNeed").click(function(){      
         $.unblockUI(); //直接取消即可
     });   
     $("#btnSaveNeed").click(function(){//保存属性，并且直接保存personaNeed关联设置，完成后刷新数据
-        if( !$("#needWeight2").val() || $("#needWeight2").val().trim().length ==0 ){
-            siiimpleToast.message('数据占比为必填~~',{
-              position: 'bottom|center'
-            });                 
-        }else if( !needType ){
-            siiimpleToast.message('需要选择类型~~',{
+        if( !needType ){
+            siiimpleToast.message('请选择类型~~',{
               position: 'bottom|center'
             });                 
         }else if( !$("#needName2").val() || $("#needName2").val().trim().length ==0 ){
-            siiimpleToast.message('字段名称为必填~~',{
+            siiimpleToast.message('请填写名称~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#needWeight2").val() || $("#needWeight2").val().trim().length ==0 ){
+            siiimpleToast.message('请点击星星设置权重~~',{
               position: 'bottom|center'
             });                 
         }else{

@@ -235,6 +235,8 @@ function insertItem(){
         totalStars: 5,
         starSize:20,
         useFullStars:false,//能够显示半星
+        disableAfterRate: false, //打分后可以继续修改
+        starShape: 'rounded',
         //initialRating: item.markedValue/2,//注意：评分是0-1,直接转换。初始打分置空，等待标注
         ratedColors:['#dc143c', '#ff4500', '#ff6347', '#9acd32','#32cd32'],
         callback: function(currentRating, el){
