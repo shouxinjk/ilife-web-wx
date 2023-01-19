@@ -22,7 +22,16 @@ $(document).ready(function ()
     if(args["from"]){
         from = args["from"]; //需要修改的用户ID
     }    
-   
+    if(args["origin"]){
+        origin = args["origin"]; //前端调用源头，expert或scholar
+        //切换菜单
+        if(origin=="expert"){
+            $("#userRole").html("领域达人");
+        }else if(origin=="scholar"){
+            $("#userRole").html("专家学者");
+        }
+    }  
+
     if(args["personaId"]){
         currentPersonaId = args["personaId"]; //初次设置时，默认使用persona属性填充
     }
@@ -59,6 +68,8 @@ var currentActionType = '';//当前操作类型
 var tagging = '';//操作对应的action 如buy view like 等
 
 var from = "my";//可选值为my/connections,默认认为是自己修改自己
+
+var origin = null;//记录来源菜单类别，为expert或scholar，分别显示不同的菜单项
 
 var currentPersonId = app.globalData.userInfo?app.globalData.userInfo._key:null;//默认为当前登录用户
 var userInfo=app.globalData.userInfo;//默认为当前用户
