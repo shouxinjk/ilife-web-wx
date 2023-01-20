@@ -58,7 +58,7 @@
     </view>
 
     <div class="tips">
-        建立评价指标和数据属性 <a href="categories.html?origin=expert" style="font-size: 12px;font-weight:bold;">所有类目</a> <a href="#" id="vailidateBtn" style="font-size: 12px;font-weight:bold;">模型验证</a>
+        建立评价指标和数据字段 <a href="categories.html?origin=expert" style="font-size: 12px;font-weight:bold;">所有类目</a> <a href="#" id="vailidateBtn" style="font-size: 12px;font-weight:bold;">模型验证</a>
     </div> 
 
     <!-- 类目列表 -->
@@ -87,7 +87,7 @@
         </div> 
 
         <!--属性列表：显示所有关联属性，可以增加或修改-->   
-        <div id="dimensionMeasuresTitle" class="sx_seperator" style="margin:30px 0;"><span>增加/设置 属性字段</span></div>                    
+        <div id="dimensionMeasuresTitle" class="sx_seperator" style="margin:30px 0;"><span>增加/设置 数据字段</span></div>                    
         <div id="dimensionMeasuresDiv" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div> 
 
@@ -131,9 +131,9 @@
 
     <!-- 修改维度指标，包括名称、描述、权重 -->
     <div id="dimensionform" style="display:none; cursor: default;"> 
-            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">评价指标</div> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">评价指标及权重</div> 
             <input type="text" id="dimensionName2" placeholder="指标名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>
-            <input type="number" id="dimensionWeight2" placeholder="权重百分比，1-99，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>              
+            <input type="number" id="dimensionWeight2" placeholder="权重占比，1-99，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>              
             <textarea type="url" id="dimensionDesc2" rows="3" placeholder="简要描述，必填" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;padding:2px;" required></textarea>           
             <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
                 <button type="submit" class="btnNo" id="btnCancelDimension" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
@@ -144,9 +144,9 @@
 
     <!-- 修改关联属性的权重：对于已经建立的属性，只需要填写权重即可 -->
     <div id="dimensionmeasureform" style="display:none; cursor: default;"> 
-            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">数据字段</div> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">设置数据字段权重</div> 
             <input type="text" id="dimensionMeasureName2" placeholder="指标名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;border:0;" readonly/>
-            <input type="number" id="dimensionMeasureWeight2" placeholder="权重百分比，1-99，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>                     
+            <input type="number" id="dimensionMeasureWeight2" placeholder="权重占比，1-99，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>                     
             <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
                 <button type="submit" class="btnNo" id="btnCancelDimensionMeasure" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
                 <button type="submit" class="btnDelete" id="btnDeleteDimensionMeasure" style="font-size: 12px;padding:2px 5px;margin:2px;">删除</button> 
@@ -158,7 +158,7 @@
     <div id="measureform" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">新增数据字段</div> 
             <input type="text" id="measureName2" placeholder="指标名称，如服装材质，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>
-            <input type="number" id="measureWeight2" placeholder="在当前指标下所占权重百分比，1-99，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>             
+            <input type="number" id="measureWeight2" placeholder="在当前指标下权重占比，1-99，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>             
             <input type="text" id="measureValue2" placeholder="设置一个默认值，如全棉，在数据缺失时使用" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;"/>                  
             <textarea type="url" id="measureTags2" rows="3" placeholder="可能包含的数值，如全棉，锦纶，皮革等" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;padding:2px;"></textarea>                               
             <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
@@ -184,6 +184,6 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/dimension.js?v=1.6"></script> 
+<script type="text/javascript" src="js/dimension.js?v=1.63"></script> 
 <script type="text/javascript" src="../ext/short-md5.js"></script>
 </html>

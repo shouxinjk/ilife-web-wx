@@ -369,7 +369,7 @@ function insertItem(){
 
     var title = "<div class='persona-title'>"+statusStr+item.name+"</div>"
     var description = "<div class='persona-description'>"+(item.description?item.description:(item.expression.replace(/var\s+xAdvice=/g,"").replace(/\'/g,"")))+"</div>"    
-    $("#waterfall").append("<li><div class='sx_seperator' style='margin:10px 0;width:90%;margin-left:5%;'></div><div class='persona' id='"+item.id+"' style='border:0;'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title+tags +description+ "</div><div class='persona-action'>&gt;</div></li>");
+    $("#waterfall").append("<li><div class='sx_seperator' style='margin:10px 0;width:90%;margin-left:5%;'></div><div class='persona' id='"+item.id+"' style='border:0;'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info' style='width:78%;'>" +title+tags +description+ "</div></li>");
     num++;
 
     //注册事件： 查看指南详情

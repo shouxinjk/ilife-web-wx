@@ -46,6 +46,94 @@ $(document).ready(function ()
     //加载维度定义数据
     //loadDimensionInfo();
 
+    //注册事件：设置指标属性关联
+    $("#btnCancelDimensionMeasure").click(function(){      
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnDeleteDimensionMeasure").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+        console.log("try to delete item.");
+        deleteDimensionMeasureInfo(dimensionMeasure);
+    });    
+    $("#btnSaveDimensionMeasure").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+        if( !$("#dimensionMeasureWeight2").val() || $("#dimensionMeasureWeight2").val().trim().length ==0 ){
+            $("#dimensionMeasureWeight2").val(dimensionMeasure.weight);
+            siiimpleToast.message('数据占比为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save new item.");
+            dimensionMeasure.weight = $("#dimensionMeasureWeight2").val();//仅需设置权重即可，measureId及dimensionId已提前完成设置
+            saveDimensionMeasureInfo(dimensionMeasure);
+        }
+    });
+
+    //注册事件：新建指标
+   $("#btnCancelDimension").click(function(){      
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnDeleteDimension").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+        console.log("try to delete item.");
+        deleteDimensionInfo(dimension);
+    });    
+    $("#btnSaveDimension").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+        if( !$("#dimensionName2").val() || $("#dimensionName2").val().trim().length ==0 ){
+            $("#dimensionName2").val(dimension.name);
+            siiimpleToast.message('名称为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#dimensionWeight2").val() || $("#dimensionWeight2").val().trim().length ==0 ){
+            $("#dimensionWeight2").val(dimension.weight);
+            siiimpleToast.message('指标占比为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#dimensionDesc2").val() || $("#dimensionDesc2").val().trim().length ==0 ){
+            $("#dimensionDesc2").val(dimension.description);
+            siiimpleToast.message('描述为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save new item.");
+            dimension.name = $("#dimensionName2").val();
+            dimension.weight = $("#dimensionWeight2").val();
+            dimension.description = $("#dimensionDesc2").val();
+            if(!dimension.id || dimension.id.trim().length==0){ //如果是新建，则补充默认属性
+                dimension.scriptType = "auto";//设置为自动计算类型
+                dimension.featured = dimensionId==categoryId?true:false,//仅第一层指标设为特征指标
+                dimension.category = {
+                    id: categoryId
+                };
+            }
+            dimension.parent = { //设置上级节点id
+                id: dimensionId
+            };            
+            saveDimensionInfo(dimension);
+        }
+    });
+
+    //注册事件：新建属性
+    $("#btnCancelMeasure").click(function(){      
+        $.unblockUI(); //直接取消即可
+    });   
+    $("#btnSaveMeasure").click(function(){//保存属性，并且直接保存dimensionMeasure关联设置，完成后刷新数据
+        if( !$("#measureWeight2").val() || $("#measureWeight2").val().trim().length ==0 ){
+            siiimpleToast.message('数据占比为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#measureName2").val() || $("#measureName2").val().trim().length ==0 ){
+            siiimpleToast.message('字段名称为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save new measure item.");
+            saveMeasureInfo(
+                $("#measureName2").val().trim(),
+                $("#measureValue2").val().trim().length>0?$("#measureValue2").val().trim():"",
+                $("#measureTags2").val().trim().length>0?$("#measureTags2").val().trim():"",
+                $("#measureWeight2").val().trim()
+            );
+        }
+    });
+
 });
 
 util.getUserInfo();//从本地加载cookie
@@ -339,7 +427,8 @@ function showDimensions(){
     if(dimensions&&dimensions.length>0){
         dimensions.forEach(function(node){
             var tagclass = node.weight<0.1?"sxTag0":"dimensionTag"; //权重较低则灰色显示
-            var html = '<div class="'+tagclass+'" id="dim'+node.id+'" data-id="'+node.id+'">';
+            var tagColor = "color:#fff;background-color:#40B4E7;border:1px solid #40B4E7";
+            var html = '<div class="dimensionTag" id="dim'+node.id+'" data-id="'+node.id+'" style="'+tagColor+'">';
             html += node.name + " "+ node.weight+"%";
             html += '</div>';
             $("#dimensionsDiv").append(html);
@@ -358,7 +447,7 @@ function showDimensions(){
     }
 
     //添加新增条目并注册事件
-    $("#dimensionsDiv").append('<div class="sxTagNew" id="createDimensionBtn">添加评价指标</div>');
+    $("#dimensionsDiv").append('<div class="sxTagNew" id="createDimensionBtn" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">添加评价指标</div>');
     //注册点击事件：点击后弹出浮框完成修改或删除
     $("#createDimensionBtn").click(function(){ 
         //设置空白dimension
@@ -406,47 +495,7 @@ function showDimensionInfoForm(){
     }else{
         $("#btnDeleteDimension").css("display","none");
     }
-    $("#btnCancelDimension").click(function(){      
-        $.unblockUI(); //直接取消即可
-    });
-    $("#btnDeleteDimension").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
-        console.log("try to delete item.");
-        deleteDimensionInfo(dimension);
-    });    
-    $("#btnSaveDimension").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
-        if( !$("#dimensionName2").val() || $("#dimensionName2").val().trim().length ==0 ){
-            $("#dimensionName2").val(dimension.name);
-            siiimpleToast.message('名称为必填~~',{
-              position: 'bottom|center'
-            });                 
-        }else if( !$("#dimensionWeight2").val() || $("#dimensionWeight2").val().trim().length ==0 ){
-            $("#dimensionWeight2").val(dimension.weight);
-            siiimpleToast.message('指标占比为必填~~',{
-              position: 'bottom|center'
-            });                 
-        }else if( !$("#dimensionDesc2").val() || $("#dimensionDesc2").val().trim().length ==0 ){
-            $("#dimensionDesc2").val(dimension.description);
-            siiimpleToast.message('描述为必填~~',{
-              position: 'bottom|center'
-            });                 
-        }else{
-            console.log("try to save new item.");
-            dimension.name = $("#dimensionName2").val();
-            dimension.weight = $("#dimensionWeight2").val();
-            dimension.description = $("#dimensionDesc2").val();
-            if(!dimension.id || dimension.id.trim().length==0){ //如果是新建，则补充默认属性
-                dimension.scriptType = "auto";//设置为自动计算类型
-                dimension.featured = dimensionId==categoryId?true:false,//仅第一层指标设为特征指标
-                dimension.category = {
-                    id: categoryId
-                };
-            }
-            dimension.parent = { //设置上级节点id
-                id: dimensionId
-            };            
-            saveDimensionInfo(dimension);
-        }
-    });
+ 
 }
 //保存dimension信息：完成后关闭浮框，并且刷新数据
 function saveDimensionInfo(dimension){
@@ -508,7 +557,8 @@ function showDimensionMeasures(){
     if(dimensionMeasures && dimensionMeasures.length>0){
         dimensionMeasures.forEach(function(node){
             var tagclass = node.weight<0.1?"sxTag0":"measureTag"; //权重较低则灰色显示
-            var html = '<div class="'+tagclass+'" id="dimmeasure'+node.id+'" data-id="'+node.id+'">';
+            var tagColor = "color:#fff;background-color:#E85552;border:1px solid #E85552";
+            var html = '<div class="measureTag" id="dimmeasure'+node.id+'" data-id="'+node.id+'" style="'+tagColor+'">';
             html += node.measure.name + " "+ node.weight+"%";
             html += '</div>';
             $("#dimensionMeasuresDiv").append(html);
@@ -540,7 +590,8 @@ function showDimensionMeasures(){
             if(ret.success && ret.pendingMeasures && $("#createMeasureBtn").length==0){  //避免重复添加
                 //逐条添加，注意是measure节点
                 ret.pendingMeasures.forEach(function(node){
-                    var html = '<div class="sxTag0" id="measure'+node.id+'" data-id="'+node.id+'" data-name="'+node.name+'">';
+                    var tagColor = "color:#E85552;background-color:#fff;border:1px solid #E85552";
+                    var html = '<div class="sxTag0" id="measure'+node.id+'" data-id="'+node.id+'" data-name="'+node.name+'" style="'+tagColor+'">';
                     html += node.name;
                     html += '</div>';
                     $("#dimensionMeasuresDiv").append(html);
@@ -563,7 +614,7 @@ function showDimensionMeasures(){
             //增加创建按钮:避免重复添加
             if($("#createMeasureBtn").length==0){ 
                 //添加新增measure并注册事件
-                $("#dimensionMeasuresDiv").append('<div class="sxTagNew" id="createMeasureBtn">添加数据字段</div>');
+                $("#dimensionMeasuresDiv").append('<div class="sxTagNew" id="createMeasureBtn" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">添加数据字段</div>');
                 //注册点击事件：点击后弹出浮框完成修改或删除
                 $("#createMeasureBtn").click(function(){ 
                     //设置空白dimension
@@ -601,10 +652,10 @@ function showDimensionMeasureInfoForm(){
     }); 
     //设置默认值：对于有选定dimensionMeasure的情况
     if(dimensionMeasure && dimensionMeasure.id && dimensionMeasure.id.trim().length>0){ //已经关联的属性
-        $("#dimensionMeasureName2").val(dimensionMeasure.name);
+        $("#dimensionMeasureName2").val("请设置权重： "+dimensionMeasure.name);
         $("#dimensionMeasureWeight2").val(dimensionMeasure.weight);
     }else if(dimensionMeasure && dimensionMeasure.name && dimensionMeasure.name.trim().length>0){ //已存在但未关联属性
-        $("#dimensionMeasureName2").val(dimensionMeasure.name);
+        $("#dimensionMeasureName2").val("请设置权重："+dimensionMeasure.name);
     }else{//新建属性
         $("#dimensionMeasureName2").val("");
         $("#dimensionMeasureWeight2").val("");        
@@ -615,25 +666,7 @@ function showDimensionMeasureInfoForm(){
     }else{
         $("#btnDeleteDimensionMeasure").css("display","none");
     }
-    $("#btnCancelDimensionMeasure").click(function(){      
-        $.unblockUI(); //直接取消即可
-    });
-    $("#btnDeleteDimensionMeasure").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
-        console.log("try to delete item.");
-        deleteDimensionMeasureInfo(dimensionMeasure);
-    });    
-    $("#btnSaveDimensionMeasure").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
-        if( !$("#dimensionMeasureWeight2").val() || $("#dimensionMeasureWeight2").val().trim().length ==0 ){
-            $("#dimensionMeasureWeight2").val(dimensionMeasure.weight);
-            siiimpleToast.message('数据占比为必填~~',{
-              position: 'bottom|center'
-            });                 
-        }else{
-            console.log("try to save new item.");
-            dimensionMeasure.weight = $("#dimensionMeasureWeight2").val();//仅需设置权重即可，measureId及dimensionId已提前完成设置
-            saveDimensionMeasureInfo(dimensionMeasure);
-        }
-    });
+
 }
 //保存dimension信息：完成后关闭浮框，并且刷新数据
 function saveDimensionMeasureInfo(dimensionMeasure){
@@ -708,28 +741,7 @@ function showMeasureInfoForm(){
             cursor:          'normal' 
         }
     }); 
-    $("#btnCancelMeasure").click(function(){      
-        $.unblockUI(); //直接取消即可
-    });   
-    $("#btnSaveMeasure").click(function(){//保存属性，并且直接保存dimensionMeasure关联设置，完成后刷新数据
-        if( !$("#measureWeight2").val() || $("#measureWeight2").val().trim().length ==0 ){
-            siiimpleToast.message('数据占比为必填~~',{
-              position: 'bottom|center'
-            });                 
-        }else if( !$("#measureName2").val() || $("#measureName2").val().trim().length ==0 ){
-            siiimpleToast.message('字段名称为必填~~',{
-              position: 'bottom|center'
-            });                 
-        }else{
-            console.log("try to save new measure item.");
-            saveMeasureInfo(
-                $("#measureName2").val().trim(),
-                $("#measureValue2").val().trim().length>0?$("#measureValue2").val().trim():"",
-                $("#measureTags2").val().trim().length>0?$("#measureTags2").val().trim():"",
-                $("#measureWeight2").val().trim()
-            );
-        }
-    });
+
 }
 //保存measure信息：完成后需要继续提交建立dimensionMeasure，并且关闭浮框
 function saveMeasureInfo(name,defaultValue,tags,weight){
