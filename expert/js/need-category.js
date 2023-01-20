@@ -49,17 +49,53 @@ $(document).ready(function ()
     //加载维度定义数据
     //loadCategoryNeeds();
 
-    //注册事件：切换菜单
-    $("#personaNeedsFilter").click(function(e){
-        window.location.href = "need-persona.html";
+    //注册事件：修改已存在need
+    $("#btnCancelCategoryNeed").click(function(){      
+        $.unblockUI(); //直接取消即可
     });
-    $("#phaseNeedsFilter").click(function(e){
-        window.location.href = "need-phase.html";
+    $("#btnDeleteCategoryNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+        console.log("try to delete item.");
+        deleteCategoryNeedInfo(categoryNeed);
+    });    
+    $("#btnSaveCategoryNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+        if( !$("#categoryNeedWeight2").val() || $("#categoryNeedWeight2").val().trim().length ==0 ){
+            $("#categoryNeedWeight2").val(categoryNeed.weight);
+            siiimpleToast.message('请点选星星设置权重~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save new item.");
+            categoryNeed.weight = $("#categoryNeedWeight2").val();//仅需设置权重即可，needId及categoryId已提前完成设置
+            saveCategoryNeedInfo(categoryNeed);
+        }
     });
-    $("#categoryNeedsFilter").click(function(e){
-        window.location.href = "need-category.html";
-    }); 
 
+    //注册事件：新增need
+    $("#btnCancelNeed").click(function(){      
+        $.unblockUI(); //直接取消即可
+    });   
+    $("#btnSaveNeed").click(function(){//保存属性，并且直接保存categoryNeed关联设置，完成后刷新数据
+        if( !$("#needName2").val() || $("#needName2").val().trim().length ==0 ){
+            siiimpleToast.message('名称为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !needType ){
+            siiimpleToast.message('需要选择类型~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#needWeight2").val() || $("#needWeight2").val().trim().length ==0 ){
+            siiimpleToast.message('请点选星星设置权重~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save new need item.");
+            saveNeedInfo(
+                $("#needName2").val().trim(),
+                $("#needAlias2").val().trim(),
+                $("#needWeight2").val().trim()
+            );
+        }
+    });
 
     //打分：新增需求设置权重
     $("#needWeightStars").starRating({//显示为starRating
@@ -382,7 +418,7 @@ function showCategoryNeeds(){
             //添加legend显示
             var weight = needTypeWeightSum[type]/sumWeight*100;
             if(weight>0)
-                $("#legendDiv").append("<div id='legend"+type+"' style='background-color:"+needTypeColor[type]+";color:#fff;font-size:10px;font-weight:bold;padding:2px;height:48px;padding:2px;width:"+(Math.floor(weight*10)/10)+"%;display: table;_position:relative;overflow:hidden;'><div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'><div style='_position: relative;_top: -50%;'>"+needTypes[type] + " "+weight.toFixed(1)+"%</div></div></div>");
+                $("#legendDiv").append("<div id='legend"+type+"' style='background-color:"+needTypeColor[type]+";color:#fff;font-size:10px;font-weight:bold;padding:2px;height:48px;padding:2px;width:"+(Math.floor(weight*10)/10)+"%;display: table;_position:relative;overflow:hidden;'><div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'><div style='_position: relative;_top: -50%;'>"+needTypes[type] + " "+Number(weight.toFixed(1))+"%</div></div></div>");
         });        
     }
 
@@ -432,12 +468,14 @@ function showCategoryNeeds(){
                     $("#categoryNeedsTitle"+needType).css("display","block");
                 }
             });
+            /**
             if($("#createNeedBtn").length==0){ //排重
                 $("#categoryNeedsDiv").append('<div class="sxTagNew createNeedBtn" id="createNeedBtn" data-type="" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加</div>');
                 $("#categoryNeedsTitle").empty();
                 $("#categoryNeedsTitle").html("<span>设置/添加 更多需要</span>");
                 $("#categoryNeedsTitle").css("display","block");
             }
+            //**/
 
             //注册事件
             $(".createNeedBtn").click(function(){ 
@@ -503,25 +541,7 @@ function showCategoryNeedInfoForm(){
     }else{
         $("#btnDeleteCategoryNeed").css("display","none");
     }
-    $("#btnCancelCategoryNeed").click(function(){      
-        $.unblockUI(); //直接取消即可
-    });
-    $("#btnDeleteCategoryNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
-        console.log("try to delete item.");
-        deleteCategoryNeedInfo(categoryNeed);
-    });    
-    $("#btnSaveCategoryNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
-        if( !$("#categoryNeedWeight2").val() || $("#categoryNeedWeight2").val().trim().length ==0 ){
-            $("#categoryNeedWeight2").val(categoryNeed.weight);
-            siiimpleToast.message('请点选星星设置权重~~',{
-              position: 'bottom|center'
-            });                 
-        }else{
-            console.log("try to save new item.");
-            categoryNeed.weight = $("#categoryNeedWeight2").val();//仅需设置权重即可，needId及categoryId已提前完成设置
-            saveCategoryNeedInfo(categoryNeed);
-        }
-    });
+
 }
 //保存category信息：完成后关闭浮框，并且刷新数据
 function saveCategoryNeedInfo(categoryNeed){
@@ -593,31 +613,7 @@ function showNeedInfoForm(){
             cursor:          'normal' 
         }
     }); 
-    $("#btnCancelNeed").click(function(){      
-        $.unblockUI(); //直接取消即可
-    });   
-    $("#btnSaveNeed").click(function(){//保存属性，并且直接保存categoryNeed关联设置，完成后刷新数据
-        if( !$("#needName2").val() || $("#needName2").val().trim().length ==0 ){
-            siiimpleToast.message('名称为必填~~',{
-              position: 'bottom|center'
-            });                 
-        }else if( !needType ){
-            siiimpleToast.message('需要选择类型~~',{
-              position: 'bottom|center'
-            });                 
-        }else if( !$("#needWeight2").val() || $("#needWeight2").val().trim().length ==0 ){
-            siiimpleToast.message('请点选星星设置权重~~',{
-              position: 'bottom|center'
-            });                 
-        }else{
-            console.log("try to save new need item.");
-            saveNeedInfo(
-                $("#needName2").val().trim(),
-                $("#needAlias2").val().trim(),
-                $("#needWeight2").val().trim()
-            );
-        }
-    });
+
 }
 //保存need信息：完成后需要继续提交建立categoryNeed，并且关闭浮框
 function saveNeedInfo(name,alias,weight){

@@ -378,7 +378,7 @@ function showPersonaNeeds(){
             //添加legend显示
             var weight = needTypeWeightSum[type]/sumWeight*100;
             if(weight>0)
-                $("#legendDiv").append("<div id='legend"+type+"' style='background-color:"+needTypeColor[type]+";color:#fff;font-size:10px;font-weight:bold;padding:2px;height:48px;padding:2px;width:"+(Math.floor(weight*10)/10)+"%;display: table;_position:relative;overflow:hidden;'><div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'><div style='_position: relative;_top: -50%;'>"+needTypes[type] + " "+weight.toFixed(1)+"%</div></div></div>");
+                $("#legendDiv").append("<div id='legend"+type+"' style='background-color:"+needTypeColor[type]+";color:#fff;font-size:10px;font-weight:bold;padding:2px;height:48px;padding:2px;width:"+(Math.floor(weight*10)/10)+"%;display: table;_position:relative;overflow:hidden;'><div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'><div style='_position: relative;_top: -50%;'>"+needTypes[type] + " "+Number(weight.toFixed(1))+"%</div></div></div>");
         });        
     }
 
