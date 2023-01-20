@@ -169,7 +169,27 @@ util.updatePerson=function(id,userInfo,callback) {
         callback(res);
       }
     }, "PATCH", userInfo, { "Api-Key": "foobar" });
-    //提交更新到kafka
+
+    //提交到管理端，能够统一管理用户信息。注意，不是达人。
+    $.ajax({
+        url:app.config.sx_api + "/ope/person/rest/person",
+        type:"post",
+        data:JSON.stringify({
+            id: userInfo._key,
+            nickname: userInfo.nickname,
+            logo: userInfo.avatarUrl,
+            lastAccess: new Date() //记录最后访问时间
+        }),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },
+        success:function(result){
+            console.log("sync person done.",result);
+        }
+    }) 
+
+    //提交更新到kafka：开始用户分析
     util.updatePersonNotify(userInfo);
 }
 
