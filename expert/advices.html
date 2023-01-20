@@ -2,21 +2,21 @@
 <html>
 
 <head>
-    <title>定制指南-小确幸大生活</title>
+    <title>商品摘要-小确幸大生活</title>
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
-    <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">     
+    <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">    
-    <link rel="stylesheet" type="text/css" href="../ext/star-rating-svg/star-rating-svg.css">
+    <link rel="stylesheet" type="text/css" href="../css/common.css">
     <link rel="stylesheet" type="text/css" href="../broker/css/broker.css">    
     <link rel="stylesheet" type="text/css" href="../publisher/css/publisher.css?v=3.82"> 
     <link rel="stylesheet" type="text/css" href="../broker/css/broker-my.css?v=1.41">
     <link rel="stylesheet" type="text/css" href="css/expert.css?v=0.11">
     <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
-    <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">    
-    <link rel="stylesheet" type="text/css" href="../css/common.css"> 
+    <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">  
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
+    <link rel="stylesheet" type="text/css" href="../broker/css/feeds.css?v=3.9"> 
 </head>
 
 <body>
@@ -32,7 +32,7 @@
         <ul class="navUl">
         </ul>
     </div-->   
-
+<section>
     <!-- 用户信息 --> 
     <!--
     <view class="info" id="user"></view>
@@ -44,33 +44,38 @@
             <div class="actiontype">评价规则</div>
         </div> 
         <div class="order-cell" id="ranks" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/ranks-selected.png"/>
-            <div class="actiontype-selected">排行榜</div>
+            <img class="order-cell-icon-small" src="images/ranks.png"/>
+            <div class="actiontype">排行榜</div>
         </div>                            
         <div class="order-cell" id="data" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/data.png"/>
             <div class="actiontype">数据打分</div>
         </div>                 
         <div class="order-cell" id="advices" data-tagging="like view favorite buy">
-            <img class="order-cell-icon-small" src="images/advices.png"/>
-            <div class="actiontype">商品摘要</div>
+            <img class="order-cell-icon-small" src="images/advices-selected.png"/>
+            <div class="actiontype-selected">商品摘要</div>
         </div>                                                      
     </view>
 
     <div class="tips">
-        查看排行榜设置 <a href="#" id="createRankBtn" style="font-size: 12px;font-weight:bold;">创建排行榜</a>
+        设置商品摘规则，能够自动根据商品生成 <a href="categories.html?origin=expert" style="font-size: 12px;font-weight:bold;">所有类目</a>  <a href="#" id="createAdviceBtn" style="font-size: 12px;font-weight:bold;">增加摘要</a>
     </div> 
 
+    <!-- 类目列表 -->
+<section style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+    <div class="swiper-container menus">
+        <!-- Additional required wrapper -->
+        <div class="swiper-wrapper btn-area" id="categories">
+
+        </div>
+    </div>    
+</section>
+    <!--滑动条底部占位符。固定显示，在推到顶端时将显示出来-->
+    <div class="swiper-placeholder" style="position:fixed;z-index: -1;background-color: #fff;top:0;">&nbsp;&nbsp;</div>
+
+    <!-- 瀑布流 -->
     <div id="Center">
-        <!-- 基本信息 -->                     
-        <div id="base">
-        </div> 
-
-        <!-- 维度列表 -->   
-        <div id="dimensionTitle" class="sx_seperator" style="margin:30px 0;width:90%;margin-left:5%;"><span>排行规则</span></div>                    
-        <div id="dimensionItems">
-        </div>       
-
+        <ul id="waterfall"></ul>
     </div>
 
     <!-- 加载进度与提示 -->
@@ -78,13 +83,12 @@
         <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
     </div>
 
-    <div id="footer" class="footer">
-        <button class="findMoreBtn-show" id="findMoreBtn">查看榜单</button>
+    <div id="footer" class="footer" style="border:0;font-size: 10px;">
+
     </div> 
 
-    <div style="height:60px;">
-        &nbsp;&nbsp;
-    </div>  
+    <div id="footer-placeholder" style="line-height: 60px">&nbsp;&nbsp;</div> 
+</section>
 
   <div id="sx-menu">
     <a href="../index.html" class="menu-btn">
@@ -120,13 +124,12 @@
 <script type="text/javascript" src="../ext/jquery.blockUI.js"></script>
 <script type="text/javascript" src="../ext/siiimple-toast-master/main.js"></script>
 <script type="text/javascript" src="../ext/siiimple-toast-master/siiimple-toast.min.js"></script>
-<script type="text/javascript" src="../ext/star-rating-svg/jquery.star-rating-svg.min.js"></script>
 <script type="text/javascript" src="../ext/d3/d3.min.js"></script>
 <script type="text/javascript" src="../ext/d3/d3-hierarchy.js"></script>
 <script type="text/javascript" src="../ext/d3/treemap.js?v=0.14"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/rank.js?v=1.0"></script> 
+<script type="text/javascript" src="js/advices.js?v=1.5"></script> 
 <script type="text/javascript" src="../ext/short-md5.js"></script>
 </html>

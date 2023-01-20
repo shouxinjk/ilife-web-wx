@@ -31,10 +31,10 @@ $(document).ready(function ()
 
     $("body").css("background-color","#fff");//更改body背景为白色
 
-    //注册事件：新建排行榜
+    //注册事件：新建推荐语
     $("#createRankBtn").click(function(e){
         if(!categoryId){
-            siiimpleToast.message('请选择类目~~',{
+            siiimpleToast.message('请选择类目先~~',{
               position: 'bottom|center'
             });             
         }else{
@@ -92,7 +92,7 @@ var sxLoopCount = 1000;//定时器运行100次即停止，即30秒
 //加载建立有排行榜的类目列表：一次加载全部，用于顶部滑动条
 var categories = [];
 function loadCategories() {
-    util.AJAX(app.config.sx_api+"/mod/itemCategory/rest/rank-categories", function (res) {
+    util.AJAX(app.config.sx_api+"/mod/itemCategory/rest/advice-categories", function (res) {
         console.log("got categories.",res);
         categories = res;
         showSwiper();    
@@ -214,137 +214,134 @@ function changeCategory (category) {
 //}
 
 function loadData(){
-    util.AJAX(app.config.sx_api+"/mod/rank/rest/paged-ranks", function (res) {
-        showloading(false);
-        console.log("loadItems try to retrive pending items.", res)
-        if (res && res.length>0 ) {//否则显示到页面
-            //更新当前翻页
-            page.current = page.current + 1;
-            //装载到列表
-            res.forEach(function(item){
-                if(items.find(entry => entry.id == item.id)){ //排重
-                    //do nothing
-                }else{
-                    items.push(item);
-                }
-            });          
-            //显示到页面
-            insertItem();
-        }else{//如果没有则提示，
-            shownomore();
-            if(!items || items.length==0){
-                $("#Center").append("<div style='font-size:12px;line-height:24px;width:100%;text-align:center;'>没有排行榜~~</div>");
-            }            
-        }
-    }, 
-    "POST",
-    {
-        categoryId:categoryId?categoryId:"",
-        from:(page.current+1)*page.size,
-        to:(page.current+1)*page.size+page.size
-    },
-    {
-        "Content-Type":"application/json",
-        "Accept": "application/json"
-    });
+    if(categoryId){ //如果选定类目，则获取继承路径下的所有模板
+        util.AJAX(app.config.sx_api+"/mod/template/rest/item-templates", function (res) {
+            showloading(false);
+            console.log("loadItems try to retrive pending items.", res)
+            if (res && res.length>0 ) {//否则显示到页面
+                //更新当前翻页
+                page.current = page.current + 1;
+                //装载到列表
+                res.forEach(function(item){
+                    if(items.find(entry => entry.id == item.id)){ //排重
+                        //do nothing
+                    }else{
+                        items.push(item);
+                    }
+                });          
+                //显示到页面
+                insertItem();
+            }else{//如果没有则提示，
+                shownomore();
+                if(!items || items.length==0){
+                    $("#Center").append("<div style='font-size:12px;line-height:24px;width:100%;text-align:center;'>没有文案模板~~</div>");
+                }            
+            }
+        }, 
+        "GET",
+        {
+            categoryId:categoryId,
+        },
+        {
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        });        
+    }else{ //分页获取全部
+        util.AJAX(app.config.sx_api+"/mod/template/rest/item-templates", function (res) {
+            showloading(false);
+            console.log("loadItems try to retrive pending items.", res)
+            if (res && res.length>0 ) {//否则显示到页面
+                //更新当前翻页
+                page.current = page.current + 1;
+                //装载到列表
+                res.forEach(function(item){
+                    if(items.find(entry => entry.id == item.id)){ //排重
+                        //do nothing
+                    }else{
+                        items.push(item);
+                    }
+                });          
+                //显示到页面
+                insertItem();
+            }else{//如果没有则提示，
+                shownomore();
+                if(!items || items.length==0){
+                    $("#Center").append("<div style='font-size:12px;line-height:24px;width:100%;text-align:center;'>没有文案模板~~</div>");
+                }            
+            }
+        }, 
+        "POST",
+        {
+            category:{
+                id:categoryId?categoryId:""
+            },
+            type:"item", //固定为单品推荐语
+            page:{
+                pageNo:page.current+1,
+                pageSize:page.size,
+                orderBy: "update_date desc"
+            }
+
+        },
+        {
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        });         
+    }
+
 }
 
-
-//排行榜设置模板
-var rankTpl = `
-    <div class='sx_seperator' style='margin:5px 0;width:90%;margin-left:5%;'></div>
-    <div id="rank__id" data-id="__id" style="display:flex;flex-direction: row;flex-wrap: nowrap;width:100%;padding:5px;align-items: center;justify-content: center;">
-        <div style="width:20%;text-align:center;">
-            <img src="__logo" style="width:60px;height:60px;object-fit: cover;border-radius: 10px;"/>
-        </div>
-        <div style="width:76%">
-            <div style="display:flex;flex-direction: row;flex-wrap: nowrap;width:100%;align-items: center;">
-                <div id="rankCategoryName__id" style="font-size:12px;line-height:16px;font-weight:bold;text-overflow:ellipsis;overflow: hidden;white-space: nowrap;">__categoryName</div>
-                <div id="rankKeyword__id" style="font-size:10px;display:flex;flex-direction: row;flex-wrap: nowrap;text-overflow:ellipsis;overflow: hidden;white-space: nowrap;"></div>
-            </div>
-            <div id="rankName__id" style="font-size:16px;line-height:20px;font-weight:bold;;">__name</div>
-            <div id="rankDesc__id" style="font-size:12px;line-height:16px;;">__desc</div>
-            <!--排序规则:显示为grid-->   
-            <div id="rankItems__id">
-                
-            </div>                
-        </div>
-    </div> 
-`;
-//排行榜排序条目模板
-var rankItemTpl = `
-  <div class="element-item post-transition metal " id="rankItem__dimensionid" data-dimensionid="__dimensionid" data-priority="__priority" data-bgcolor="__bgcolor" style="background-color:__bgcolor">
-    <h5 class="name" style="font-size:10px;">__name</h5>
-    <p class="symbol" data-sort="__sort" id="sort__dimensionid">__sort</p>
-    <p class="number">__weight</p>
-  </div>
-`;
-var colors = ['#8b0000', '#dc143c', '#ff4500', '#ff6347', '#1e90ff','#40e0d0','#0dbf8c','#9acd32','#32cd32','#228b22','#067633'];
-var weightSum=0;//由于参与排行的维度数量会变化，需要重新计算
-//显示排行榜条目
+//将item显示到页面
 function insertItem(){
     // 加载内容
-    var rank = items[num-1];
-    console.log("try insert rank item.",rank);
-    if(!rank){
-      shownomore(true);
-      return;
+    var item = items[num-1];
+    if(!item){
+        shownomore(true);
+        return;
     }
 
     //logo
     var logo = "http://www.shouxinjk.net/static/logo/distributor/ilife.png";
-    if(rank.category.logo && rank.category.logo.indexOf("http")>-1){
-        logo = rank.category.logo;
-    }else if(rank.category.logo && rank.category.logo.trim().length>0){
-        logo = "http://www.shouxinjk.net/static/logo/category/"+rank.category.logo;
-    }
-    //基本信息
-    var rankHtml = rankTpl.replace(/__id/g,rank.id).replace(/__name/g,rank.name).replace(/__categoryName/g,rank.category.name)
-                .replace(/__keyword/g,rank.keywords?rank.keywords:"").replace(/__desc/g,rank.description).replace(/__logo/g,logo);
-    $("#waterfall").append(rankHtml);
-    //添加关键字
-    if(rank.keywords){
-        rank.keywords.split(" ").forEach(function(keyword){
-            if(keyword.trim().length>0){
-                $("#rankKeyword"+rank.id).append("<div style='font-size:10px;border-radius:10px;padding:1px 5px;border:1px solid silver;margin-left:2px;'>"+keyword+"</div>");
-            }
-        });
+    if(item.category.logo && item.category.logo.indexOf("http")>-1){
+        logo = item.category.logo;
+    }else if(item.category.logo && item.category.logo.trim().length>0){
+        logo = "http://www.shouxinjk.net/static/logo/category/"+item.category.logo;
     }
 
-    //注册事件
-    $("#rank"+rank.id).click(function(){
-        //跳转到详情页
-        window.location.href = "rank.html?id="+$(this).data("id");
+    var image = "<img src='"+logo+"' width='60px' height='60px' style='object-fit:cover;' />"
+    var tagTmpl = "<div class='persona-tag' style='background-color:__bgcolor;border-color:__bgcolor;border-radius:12px;padding:1px 5px;'>__TAG</div>";
+    var tags = "<div class='persona-tags' style='margin-top:5px;'>";
+    //将类目及适用条件作为标签
+    //类目
+    tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,item.category.name);   
+    //适用条件
+    if(item.condition && item.condition.trim().length>0){
+        tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,"按条件适用");   
+    }else{
+        tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,"全部适用");   
+    }
+    tags += "</div>";
+
+    //状态：
+    var statusStr = "";
+    if(item.status==0){
+        statusStr = "<span style='background-color:darkred;color:#fff;font-size:10px;font-weight:bold;padding:1px 2px;margin-right:5px;'>未启用</span>";
+    }else{
+        statusStr = "<span style='background-color:darkgreen;color:#fff;font-size:10px;font-weight:bold;padding:1px 2px;margin-right:5px;'>已启用</span>";
+    }
+
+    var title = "<div class='persona-title'>"+statusStr+item.name+"</div>"
+    var description = "<div class='persona-description'>"+(item.description?item.description:(item.expression.replace(/var\s+xAdvice=/g,"").replace(/\'/g,"")))+"</div>"    
+    $("#waterfall").append("<li><div class='sx_seperator' style='margin:10px 0;width:90%;margin-left:5%;'></div><div class='persona' id='"+item.id+"' style='border:0;'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title+tags +description+ "</div><div class='persona-action'>&gt;</div></li>");
+    num++;
+
+    //注册事件： 查看指南详情
+    $("#"+item.id).click(function(){
+        window.location.href="advice.html?id="+$(this).attr("id");
     });
 
-    //显示排行规则
-    $("#rankItems"+rank.id).empty();//先清空
-    if(rank.items){
-      console.log("show rank items.",rank.items);
-      var weightSum = 0;
-      rank.items.forEach(function(rankItem){
-        weightSum += rankItem.dimension.weight;
-      });
-      var i=0;
-      rank.items.forEach(function(rankItem){
-        var dimension = rankItem.dimension;
-        var rankItemHtml = rankItemTpl;
-        rankItemHtml = rankItemHtml.replace(/__dimensionid/g,dimension.id);
-        rankItemHtml = rankItemHtml.replace(/__name/g,dimension.name);
-        rankItemHtml = rankItemHtml.replace(/__priority/g,rankItem.priority);
-        rankItemHtml = rankItemHtml.replace(/__sort/g,(i+1));
-        rankItemHtml = rankItemHtml.replace(/__weight/g,Number((dimension.weight/weightSum*100).toFixed(0))+"%");
-        rankItemHtml = rankItemHtml.replace(/__bgcolor/g,colors[i]);//使用缓存颜色
-        $("#rankItems"+rank.id).append(rankItemHtml);
-        i++;
-      });
-    }
-
     // 表示加载结束
-    showloading(false);
-    loading = false;    
-    num++; 
-
+    loading = false;
 }
 
 //根据openid查询加载broker
