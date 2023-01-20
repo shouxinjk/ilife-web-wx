@@ -6,7 +6,7 @@
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
-    <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">   
+    <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">    
     <link rel="stylesheet" type="text/css" href="../ext/star-rating-svg/star-rating-svg.css"> 
     <link rel="stylesheet" type="text/css" href="../css/common.css">
     <link rel="stylesheet" type="text/css" href="../broker/css/broker.css">    
@@ -35,22 +35,22 @@
     </div-->   
 
     <!-- 用户信息 --> 
-    <!--
+    <!-- 
     <view class="info" id="user"></view>
-    -->
+    --> 
     <!-- 按钮 --> 
     <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">       
-        <div class="order-cell" id="need-phase" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/need-phase.png"/>
+        <div class="order-cell" id="need-persona" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/need-persona.png"/>
             <div class="actiontype">画像模型</div>
         </div>     
         <div class="order-cell" id="need-phase" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/need-phase-selected.png"/>
-            <div class="actiontype-selected">成长模型</div>
+            <img class="order-cell-icon-small" src="images/need-phase.png"/>
+            <div class="actiontype">成长模型</div>
         </div>       
         <div class="order-cell" id="need-occasion" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/need-occasion.png"/>
-            <div class="actiontype">事件模型</div>
+            <img class="order-cell-icon-small" src="images/need-occasion-selected.png"/>
+            <div class="actiontype-selected">事件模型</div>
         </div>     
         <div class="order-cell" id="need-category" data-tagging="buy">
             <img class="order-cell-icon-small" src="images/need-category.png"/>
@@ -59,14 +59,14 @@
     </view>
 
     <div class="tips">
-        建立成长阶段需要模型
+        建立事件需要满足模型
     </div> 
 
-    <!-- 画像列表 -->
+    <!-- 事件列表 -->
 <section style="position:sticky;z-index: 9;top:0;background-color: #fff;">
     <div class="swiper-container menus">
         <!-- Additional required wrapper -->
-        <div class="swiper-wrapper btn-area" id="phases">
+        <div class="swiper-wrapper btn-area" id="occasions">
 
         </div>
     </div>    
@@ -76,48 +76,49 @@
 
     <div id="Center">
         <!--阶段描述-->   
-        <div id="summaryDiv" class="sx_seperator" style="display:none;margin:20px 0; "><span>阶段概要</span></div>                   
+        <div id="summaryDiv" class="sx_seperator" style="display:none;margin:20px 0; "><span>事件概要</span></div>                   
         <div id="summary" style="margin:0 2%;width:96%;font-size:12px;line-height: 16px;">
         </div> 
 
-        <!--需要构成-->   
-        <div id="treemapTitle" class="sx_seperator" style="display:none;margin:20px 0; "><span>需要构成</span></div>     
+        <!--客观评价treemap图，显示当前选定层级的指标及属性分布-->   
+        <div id="treemapTitle" class="sx_seperator" style="display:none;margin:20px 0; "><span>需要满足</span></div>     
     <section style="position:sticky;z-index: 10;top:60px;background-color: #fff;" id="legendDivSticky">
         <!-- 图例：采用不同颜色标记需要类型：显示为一个颜色条 -->
         <div id="legendDiv" style="display:flex;flex-direction: row; flex-wrap: nowrap;text-align: center; justify-content: center; align-items: center;margin-top:10px;margin-bottom:5px;width:96%;margin-left:2%;padding:5px 0;">
 
         </div>    
-    </section>     
-        <!--客观评价treemap图，显示当前选定层级的指标及属性分布-->     
+    </section>        
         <div id="treemapTips" style="display:none;margin-bottom:5px;text-align: center;color:#ff6781;font-size: 12px;"></div>                  
         <div id="treemap" style="margin:0 2%;width:96%;">
         </div> 
 
+
         <!--属性列表：显示所有关联属性，可以增加或修改-->   
         <!-- alpha -->
-        <div id="phaseNeedsTitlealpha" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 生存需求</span></div>                    
-        <div id="phaseNeedsDivalpha" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="occasionNeedsTitlealpha" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 生存需求</span></div>                    
+        <div id="occasionNeedsDivalpha" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div> 
         <!-- beta -->
-        <div id="phaseNeedsTitlebeta" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 安全需求</span></div>                    
-        <div id="phaseNeedsDivbeta" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="occasionNeedsTitlebeta" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 安全需求</span></div>                    
+        <div id="occasionNeedsDivbeta" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div>    
         <!-- gamma -->
-        <div id="phaseNeedsTitlegamma" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 情感需求</span></div>                    
-        <div id="phaseNeedsDivgamma" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="occasionNeedsTitlegamma" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 情感需求</span></div>                    
+        <div id="occasionNeedsDivgamma" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div>    
         <!-- delte -->
-        <div id="phaseNeedsTitledelte" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 尊重需求</span></div>                    
-        <div id="phaseNeedsDivdelte" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="occasionNeedsTitledelte" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 尊重需求</span></div>                    
+        <div id="occasionNeedsDivdelte" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div>     
         <!-- epsilon -->
-        <div id="phaseNeedsTitleepsilon" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 价值需求</span></div>                    
-        <div id="phaseNeedsDivepsilon" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="occasionNeedsTitleepsilon" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 价值需求</span></div>                    
+        <div id="occasionNeedsDivepsilon" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div>                                   
         <!-- 未归类需要 -->
-        <div id="phaseNeedsTitle" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 需要</span></div>                    
-        <div id="phaseNeedsDiv" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="occasionNeedsTitle" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 需要</span></div>                    
+        <div id="occasionNeedsDiv" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div> 
+
 
     </div>
 
@@ -154,19 +155,19 @@
     <a href="../console.html" class="menu-btn">
         <img src="../images/my-selected.png" width="20px" height="20px"/>
         <div class="menu-btn-txt-selected">&nbsp;专家学者</div>
-    </a>         
+    </a>        
   </div>
 
     <!-- 修改关联属性的权重：对于已经建立的属性，只需要填写权重即可 -->
-    <div id="phaseneedform" style="display:none; cursor: default;"> 
+    <div id="occasionneedform" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">需要权重设置</div> 
-            <input type="text" id="phaseNeedName2" placeholder="需要名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;border:0;" readonly/>
-            <input type="number" id="phaseNeedWeight2" placeholder="权重百分比，1-10，必填" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>    
-            <div id="phaseNeedWeightStars" style="width:80%;text-align:left;margin-bottom:10px;margin-left:10%;" ></div>                    
+            <input type="text" id="occasionNeedName2" placeholder="需要名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;border:0;" readonly/>
+            <input type="number" id="occasionNeedWeight2" placeholder="权重百分比，1-10，必填" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>         
+            <div id="occasionNeedWeightStars" style="width:80%;text-align:left;margin-bottom:10px;margin-left:10%;" ></div>                 
             <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
-                <button type="submit" class="btnNo" id="btnCancelPhaseNeed" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
-                <button type="submit" class="btnDelete" id="btnDeletePhaseNeed" style="font-size: 12px;padding:2px 5px;margin:2px;">删除</button> 
-                <button type="submit" class="btnYes" id="btnSavePhaseNeed" style="font-size: 12px;padding:2px 5px;margin:2px;">确定</button> 
+                <button type="submit" class="btnNo" id="btnCancelOccasionNeed" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
+                <button type="submit" class="btnDelete" id="btnDeleteOccasionNeed" style="font-size: 12px;padding:2px 5px;margin:2px;">删除</button> 
+                <button type="submit" class="btnYes" id="btnSaveOccasionNeed" style="font-size: 12px;padding:2px 5px;margin:2px;">确定</button> 
             </div>
     </div>
 
@@ -176,9 +177,9 @@
             <div id="needTypesDiv"  style="display:flex;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin:10px auto;padding:0 10px;">
             </div>            
             <input type="text" id="needName2" placeholder="专业名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>
-            <input type="text" id="needAlias2" placeholder="别名/俗称/通用名，便于普通用户理解使用" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;"/>             
-            <input type="number" id="needWeight2" placeholder="影响权重，1-10，必填" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>   
-            <div id="needWeightStars" style="width:80%;text-align:left;margin-bottom:10px;margin-left:10%;" ></div>                              
+            <input type="text" id="needAlias2" placeholder="别名/俗称/通用名，便于普通用户理解使用" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;"/>            
+            <input type="number" id="needWeight2" placeholder="影响权重，1-10，必填" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>     
+            <div id="needWeightStars" style="width:80%;text-align:left;margin-bottom:10px;margin-left:10%;" ></div>                           
                              
             <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
                 <button type="submit" class="btnNo" id="btnCancelNeed" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
@@ -204,6 +205,6 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/need-phase.js?v=1.52"></script> 
+<script type="text/javascript" src="js/need-occasion.js?v=1.53"></script> 
 <script type="text/javascript" src="../ext/short-md5.js"></script>
 </html>

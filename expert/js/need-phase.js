@@ -351,9 +351,9 @@ function showPhaseNeeds(){
             }
             needTypeWeightSum[node.need.type] = needTypeWeightSum[node.need.type] + node.weight;
             //显示到界面
-            var tagclass = node.weight<0.1?"sxTag0":"measureTag"; //权重较低则灰色显示
-            var needtypeColor = "color:#fff;background-color:"+needTypeColor[node.need.type]+";border:1px solid "+needTypeColor[node.need.type];
-            var html = '<div class="'+tagclass+'" id="phaseneed'+node.id+'" data-id="'+node.id+'" style="'+needtypeColor+'">';
+            var needtypeColor = "color:#fff;background-color:"+(needTypeColor[node.need.type]?needTypeColor[node.need.type]:"grey")+";border:1px solid "+(needTypeColor[node.need.type]?needTypeColor[node.need.type]:"grey");
+
+            var html = '<div class="sxTag0" id="phaseneed'+node.id+'" data-id="'+node.id+'" style="'+needtypeColor+'">';
             html += node.need.name + " "+ node.weight+"/10";
             html += '</div>';
             if($("#phaseneed"+node.id).length==0){ //排重
@@ -382,7 +382,7 @@ function showPhaseNeeds(){
             //添加legend显示
             var weight = needTypeWeightSum[type]/sumWeight*100;
             if(weight>0)
-                $("#legendDiv").append("<div id='legend"+type+"' style='background-color:"+needTypeColor[type]+";color:#fff;font-size:10px;font-weight:bold;padding:2px;height:48px;padding:2px;width:"+(weight.toFixed(1))+"%;display: table;_position:relative;overflow:hidden;'><div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'><div style='_position: relative;_top: -50%;'>"+needTypes[type] + " "+weight.toFixed(1)+"%</div></div></div>");
+                $("#legendDiv").append("<div id='legend"+type+"' style='background-color:"+needTypeColor[type]+";color:#fff;font-size:10px;font-weight:bold;padding:2px;height:48px;padding:2px;width:"+(Math.floor(weight*10)/10)+"%;display: table;_position:relative;overflow:hidden;'><div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'><div style='_position: relative;_top: -50%;'>"+needTypes[type] + " "+weight.toFixed(1)+"%</div></div></div>");
         });        
     }
 
@@ -539,10 +539,6 @@ function savePhaseNeedInfo(phaseNeed){
                 //取消浮框，并刷新界面
                 $.unblockUI(); //直接取消即可
                 loadDimensionInfo();
-            }else{
-              siiimpleToast.message('啊哦，出错了~~',{
-                      position: 'bottom|center'
-                    });    
             }
         }
     });

@@ -19,12 +19,12 @@ $(document).ready(function ()
         from = args["from"]; //需要修改的用户ID
     }    
    
-    if(args["categoryId"]){
-        categoryId = args["categoryId"]; 
+    if(args["occasionId"]){
+        occasionId = args["occasionId"]; 
     }
-    if(args["categoryName"]){
-        categoryName = args["categoryName"]; 
-        $("#treemapTitle").prepend("<span style='padding:0 2px;/*color:#007bff;*/'>"+categoryName+"</span>");
+    if(args["occasionName"]){
+        occasionName = args["occasionName"]; 
+        $("#treemapTitle").prepend("<span style='padding:0 2px;/*color:#007bff;*/'>"+occasionName+"</span>");
     }    
 
     $("body").css("background-color","#fff");//更改body背景为白色
@@ -37,29 +37,17 @@ $(document).ready(function ()
 
     //注册事件：直接进入首页，通过切换画像得到
     $("#vailidateBtn").click(function(e){
-        window.location.href="../index.html?categoryId="+categoryId;
+        window.location.href="../index.html?occasionId="+occasionId;
     });
 
     //加载需要类型
     loadNeedTypes();
 
-    //加载所有类目列表：注意是加载全部类目
-    loadCategories();//加载后将自动高亮，并加载需要数据
+    //加载所有事件列表：注意是加载全部事件
+    loadOccasions();//加载后将自动高亮，并加载需要数据
 
     //加载维度定义数据
-    //loadCategoryNeeds();
-
-    //注册事件：切换菜单
-    $("#personaNeedsFilter").click(function(e){
-        window.location.href = "need-persona.html";
-    });
-    $("#phaseNeedsFilter").click(function(e){
-        window.location.href = "need-phase.html";
-    });
-    $("#categoryNeedsFilter").click(function(e){
-        window.location.href = "need-category.html";
-    }); 
-
+    //loadOccasionNeeds();
 
     //打分：新增需求设置权重
     $("#needWeightStars").starRating({//显示为starRating
@@ -79,7 +67,7 @@ $(document).ready(function ()
         }
     }); 
     //打分：修改已添加指标权重
-    $("#categoryNeedWeightStars").starRating({//显示为starRating
+    $("#occasionNeedWeightStars").starRating({//显示为starRating
         totalStars: 10,
         starSize:20,
         useFullStars:false,//能够显示半星
@@ -92,7 +80,7 @@ $(document).ready(function ()
         ratedColors:['#dc143c', '#ff4500', '#ff6347', '#9acd32','#32cd32'],
         callback: function(currentRating, el){
             //获取当前打分并设置为personaNeedWeight2
-            $("#categoryNeedWeight2").val(currentRating);//直接用打分值
+            $("#occasionNeedWeight2").val(currentRating);//直接用打分值
         }
     }); 
 
@@ -127,9 +115,9 @@ var currentPersona = {};
 var currentConnection = null;
 var currentPerson = {};//默认当前修改用户为空
 
-var categoryId = null;
-var categoryName = null;
-var categoryNeeds = [];//关联的need列表
+var occasionId = null;
+var occasionName = null;
+var occasionNeeds = [];//关联的need列表
 var needTypes = {};//需要类型
 var needType = null;//当前选中的needType
 var needTypeColor = { //颜色表
@@ -148,23 +136,23 @@ var needTypeWeightSum={
 }; //按需要类型统计占比，用于计算legend宽度
 
 var need = {};//记录当前操作的need
-var categoryNeed = {};//记录当前操作的categoryNeed，注意新增need是直接完成
+var occasionNeed = {};//记录当前操作的occasionNeed，注意新增need是直接完成
 
 //加载阶段列表：一次加载全部，用于顶部滑动条
-var categories = [];
-function loadCategories() {
-    util.AJAX(app.config.sx_api+"/mod/itemCategory/rest/all-categories", function (res) {
-        console.log("got categories.",res);
-        categories = res;
+var occasions = [];
+function loadOccasions() {
+    util.AJAX(app.config.sx_api+"/mod/occasion/rest/all-occasions", function (res) {
+        console.log("got occasions.",res);
+        occasions = res;
         showSwiper();    
     });
 }
 //显示滑动条
 function showSwiper(){
     //装载到页面
-    categories.forEach(function(item){
+    occasions.forEach(function(item){
         if(item.id != "1") //排除根节点
-            insertCategoryItem(item);
+            insertOccasionItem(item);
     });
   
     //显示滑动条
@@ -182,74 +170,74 @@ function showSwiper(){
     //**/
   
     //将当前选中条目设为高亮  
-    if(categoryId){//有指定Id则直接高亮
-        var category = categories.find(item => item.id == categoryId);
-        if(category){
-            changeCategory(category);
+    if(occasionId){//有指定Id则直接高亮
+        var occasion = occasions.find(item => item.id == occasionId);
+        if(occasion){
+            changeOccasion(occasion);
         }else{
-            console.log("cannot find category by id.",$(this).data("id"));
+            console.log("cannot find occasion by id.",$(this).data("id"));
         }         
     }else{//否则，默认为第一个
-        changeCategory(categories[0]);
+        changeOccasion(occasions[0]);
     }
   
 }
 
-//显示滑动条显示元素：category，包括LOGO及名称
-function insertCategoryItem(category){
+//显示滑动条显示元素：occasion，包括LOGO及名称
+function insertOccasionItem(occasion){
     //logo
     var logo = "http://www.shouxinjk.net/static/logo/distributor/ilife.png";
-    if(category.logo && category.logo.indexOf("http")>-1){
-        logo = category.logo;
-    }else if(category.logo && category.logo.trim().length>0){
-        logo = "http://www.shouxinjk.net/static/logo/category/"+category.logo;
+    if(occasion.logo && occasion.logo.indexOf("http")>-1){
+        logo = occasion.logo;
+    }else if(occasion.logo && occasion.logo.trim().length>0){
+        logo = "http://www.shouxinjk.net/static/logo/occasion/"+occasion.logo;
     }
     // 显示HTML
     var html = '';
     html += '<div class="swiper-slide">';
-    html += '<div class="person" id="'+category.id+'" data-id="'+category.id+'">';
-    var style = category.id==categoryId?'-selected':'';
+    html += '<div class="person" id="'+occasion.id+'" data-id="'+occasion.id+'">';
+    var style = occasion.id==occasionId?'-selected':'';
     html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+logo+'"/></div>';
-    html += '<span class="person-name">'+category.name+'</span>';
+    html += '<span class="person-name">'+occasion.name+'</span>';
     html += '</div>';
     html += '</div>';
-    $("#categories").append(html);
+    $("#occasions").append(html);
 
     //注册事件:点击后切换
-    $("#"+category.id).click(function(e){
-      console.log("change category.",$(this).data("id"));
-      var category = categories.find(item => item.id == $(this).data("id"));
-      if(category){
-        changeCategory(category);
+    $("#"+occasion.id).click(function(e){
+      console.log("change occasion.",$(this).data("id"));
+      var occasion = occasions.find(item => item.id == $(this).data("id"));
+      if(occasion){
+        changeOccasion(occasion);
       }else{
-        console.log("cannot find category by id.",$(this).data("id"));
+        console.log("cannot find occasion by id.",$(this).data("id"));
       }
       
     });
 }
-//切换Category
-function changeCategory (category) {
-    console.log("change category.",category);
-    $("#"+categoryId+" img").removeClass("person-img-selected");
-    $("#"+categoryId+" img").addClass("person-img");
-    $("#"+category.id+" img").removeClass("person-img");
-    $("#"+category.id+" img").addClass("person-img-selected");
+//切换Occasion
+function changeOccasion (occasion) {
+    console.log("change occasion.",occasion);
+    $("#"+occasionId+" img").removeClass("person-img-selected");
+    $("#"+occasionId+" img").addClass("person-img");
+    $("#"+occasion.id+" img").removeClass("person-img");
+    $("#"+occasion.id+" img").addClass("person-img-selected");
 
-    $("#"+categoryId+" span").removeClass("person-name-selected");
-    $("#"+categoryId+" span").addClass("person-name");
-    $("#"+category.id+" span").removeClass("person-name");
-    $("#"+category.id+" span").addClass("person-name-selected");
+    $("#"+occasionId+" span").removeClass("person-name-selected");
+    $("#"+occasionId+" span").addClass("person-name");
+    $("#"+occasion.id+" span").removeClass("person-name");
+    $("#"+occasion.id+" span").addClass("person-name-selected");
 
-    categoryId = category.id;
-    categoryName = category.name;
-    if(category.description && category.description.trim().length>0){
-        $("#summaryDiv").css("display","block");
-        $("#summary").html(category.description);
-    }
+    occasionId = occasion.id;
+    occasionName = occasion.name;
+
+    $("#summaryDiv").css("display","block");
+    $("#summary").html(occasion.name+" "+(occasion.occasionCategory?occasion.occasionCategory.name:"")+" "+occasion.exprTrigger);
+
     $("#treemapTitle").empty();
-    $("#treemapTitle").append("<span style='padding:0 2px;/*color:#007bff;*/'>"+categoryName+" 需要满足</span>");
+    $("#treemapTitle").append("<span style='padding:0 2px;/*color:#007bff;*/'>"+occasionName+" 需要满足</span>");
 
-    loadCategoryNeeds();//重新加载数据
+    loadOccasionNeeds();//重新加载数据
   } 
 
 //装载需要类型
@@ -296,18 +284,18 @@ function loadNeedTypes(){
     {});
 }
 
-//装载CategoryNeed数据
-function loadCategoryNeeds(){
-    if(!categoryId){
-        console.log("categoryId cannot be null.");
+//装载OccasionNeed数据
+function loadOccasionNeeds(){
+    if(!occasionId){
+        console.log("occasionId cannot be null.");
         return;
     }
-    //根据categoryId获取所有需要列表
-    console.log("try to load needs.",categoryId);
+    //根据occasionId获取所有需要列表
+    console.log("try to load needs.",occasionId);
     $.ajax({
-        url:app.config.sx_api+"/mod/categoryNeed/rest/needs/"+categoryId,
+        url:app.config.sx_api+"/mod/occasionNeed/rest/needs/"+occasionId,
         type:"get",
-        //data:JSON.stringify(categoryId),//注意：不能使用JSON对象
+        //data:JSON.stringify(occasionId),//注意：不能使用JSON对象
         headers:{
             "Content-Type":"application/json",
             "Accept": "application/json"
@@ -315,10 +303,10 @@ function loadCategoryNeeds(){
         success:function(ret){
             console.log("===got needs===\n",ret);
             if(ret && ret.length>0){
-                categoryNeeds = ret;
+                occasionNeeds = ret;
                 var nodes = [];
-                if(categoryNeeds && categoryNeeds.length>0){//合并子级指标
-                    categoryNeeds.forEach(function(node){
+                if(occasionNeeds && occasionNeeds.length>0){//合并子级指标
+                    occasionNeeds.forEach(function(node){
                         nodes.push({
                             name: node.need.name,
                             id: node.need.id,
@@ -326,10 +314,10 @@ function loadCategoryNeeds(){
                         });
                     });
                 }    
-                showCategoryNeeds();//显示属性列表供操作       
+                showOccasionNeeds();//显示属性列表供操作       
                 showTreemap( nodes );                
             }else{
-                showCategoryNeeds();//显示属性列表供操作：需要显示待添加列表
+                showOccasionNeeds();//显示属性列表供操作：需要显示待添加列表
                 $("#treemap").empty();//清空已经加载的treemap
                 $("#legendDiv").empty();//清空已经加载的legend
             }
@@ -338,14 +326,14 @@ function loadCategoryNeeds(){
 }
 
 //显示属性列表：能够直接发起增、删、改操作。显示时需要结合所有可选属性，以及已添加属性进行。
-function showCategoryNeeds(){
+function showOccasionNeeds(){
     //先清空
     $("#legendDiv").empty();
-    $("div[id^=categoryNeedsDiv]").empty();//清空已经加载的need列表
+    $("div[id^=occasionNeedsDiv]").empty();//清空已经加载的need列表
 
     //逐条显示已经添加的属性节点
-    if(categoryNeeds && categoryNeeds.length>0){
-        categoryNeeds.forEach(function(node){
+    if(occasionNeeds && occasionNeeds.length>0){
+        occasionNeeds.forEach(function(node){
             //按类型汇总needType权重
             if(!needTypeWeightSum[node.need.type]){
                 needTypeWeightSum[node.need.type] = 0;
@@ -353,20 +341,20 @@ function showCategoryNeeds(){
             needTypeWeightSum[node.need.type] = needTypeWeightSum[node.need.type] + node.weight;
             //显示到界面
             var needtypeColor = "color:#fff;background-color:"+(needTypeColor[node.need.type]?needTypeColor[node.need.type]:"grey")+";border:1px solid "+(needTypeColor[node.need.type]?needTypeColor[node.need.type]:"grey");
-            var html = '<div class="sxTag0" id="categoryneed'+node.id+'" data-id="'+node.id+'" style="'+needtypeColor+'">';
+            var html = '<div class="sxTag0" id="occasionneed'+node.id+'" data-id="'+node.id+'" style="'+needtypeColor+'">';
             html += node.need.name + " "+ node.weight+"/10";
             html += '</div>';
-            if($("#categoryneed"+node.id).length==0){ //排重
-                $("#categoryNeedsDiv"+node.need.type).append(html);
+            if($("#occasionneed"+node.id).length==0){ //排重
+                $("#occasionNeedsDiv"+node.need.type).append(html);
                 //注册点击事件：点击后弹出浮框完成修改或删除
-                $("#categoryneed"+node.id).click(function(){ 
-                    //从列表里取出当前操作的categoryNeed
-                    var currentCategoryNeedId = $(this).data("id");
-                    categoryNeed = categoryNeeds.find(item => item.id == currentCategoryNeedId);
-                    if(categoryNeed){
-                        showCategoryNeedInfoForm();
+                $("#occasionneed"+node.id).click(function(){ 
+                    //从列表里取出当前操作的occasionNeed
+                    var currentOccasionNeedId = $(this).data("id");
+                    occasionNeed = occasionNeeds.find(item => item.id == currentOccasionNeedId);
+                    if(occasionNeed){
+                        showOccasionNeedInfoForm();
                     }else{
-                        console.log("no categoryNeed found by id.",currentCategoryNeedId);
+                        console.log("no occasionNeed found by id.",currentOccasionNeedId);
                     }
                 });
             }
@@ -388,7 +376,7 @@ function showCategoryNeeds(){
 
     //查询得到待添加需要列表，注意类型为Need
     $.ajax({
-        url:app.config.sx_api+"/mod/categoryNeed/rest/pending-needs/"+categoryId,
+        url:app.config.sx_api+"/mod/occasionNeed/rest/pending-needs/"+occasionId,
         type:"get",
         //data:JSON.stringify({}),//注意：不能使用JSON对象
         headers:{
@@ -396,7 +384,7 @@ function showCategoryNeeds(){
             "Accept": "application/json"
         },  
         success:function(ret){
-            console.log("===got pending categorys===\n",ret);
+            console.log("===got pending occasions===\n",ret);
             if(ret && ret.length>0 && $("#createNeedBtn").length==0){  //避免重复添加
                 //逐条添加，注意是need节点
                 ret.forEach(function(node){
@@ -405,16 +393,16 @@ function showCategoryNeeds(){
                     html += node.name;
                     html += '</div>';
                     if($("#need"+node.id).length==0){ //排重
-                        $("#categoryNeedsDiv"+node.type).append(html);
+                        $("#occasionNeedsDiv"+node.type).append(html);
                         //注册点击事件：点击后弹出浮框完成修改或删除
                         $("#need"+node.id).click(function(){ 
-                            //新增categoryNeed
-                            categoryNeed = {
+                            //新增occasionNeed
+                            occasionNeed = {
                                 name: $(this).data("name"),
-                                category: {id: categoryId}, //设置当前category
-                                need: {id: $(this).data("id")} //直接将当前选中属性作为categoryNeed 的关联属性
+                                occasion: {id: occasionId}, //设置当前occasion
+                                need: {id: $(this).data("id")} //直接将当前选中属性作为occasionNeed 的关联属性
                             };
-                            showCategoryNeedInfoForm();
+                            showOccasionNeedInfoForm();
                         });
                     }
                 });                
@@ -426,23 +414,23 @@ function showCategoryNeeds(){
             //添加按钮：按照类型逐个添加
             Object.keys(needTypes).forEach(function(needType){
                 if($("#createNeedBtn"+needType).length==0){ //排重
-                    $("#categoryNeedsDiv"+needType).append('<div class="sxTagNew createNeedBtn" id="createNeedBtn'+needType+'" data-type="'+needType+'" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加</div>');
-                    $("#categoryNeedsTitle"+needType).empty();
-                    $("#categoryNeedsTitle"+needType).html("<span>设置/添加 "+needTypes[needType]+"</span>");
-                    $("#categoryNeedsTitle"+needType).css("display","block");
+                    $("#occasionNeedsDiv"+needType).append('<div class="sxTagNew createNeedBtn" id="createNeedBtn'+needType+'" data-type="'+needType+'" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加</div>');
+                    $("#occasionNeedsTitle"+needType).empty();
+                    $("#occasionNeedsTitle"+needType).html("<span>设置/添加 "+needTypes[needType]+"</span>");
+                    $("#occasionNeedsTitle"+needType).css("display","block");
                 }
             });
             if($("#createNeedBtn").length==0){ //排重
-                $("#categoryNeedsDiv").append('<div class="sxTagNew createNeedBtn" id="createNeedBtn" data-type="" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加</div>');
-                $("#categoryNeedsTitle").empty();
-                $("#categoryNeedsTitle").html("<span>设置/添加 更多需要</span>");
-                $("#categoryNeedsTitle").css("display","block");
+                $("#occasionNeedsDiv").append('<div class="sxTagNew createNeedBtn" id="createNeedBtn" data-type="" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加</div>');
+                $("#occasionNeedsTitle").empty();
+                $("#occasionNeedsTitle").html("<span>设置/添加 更多需要</span>");
+                $("#occasionNeedsTitle").css("display","block");
             }
 
             //注册事件
             $(".createNeedBtn").click(function(){ 
                 //设置空白phase
-                categoryNeed = {}
+                occasionNeed = {}
                 //设置needType
                 if($(this).data("type")&&$(this).data("type").trim().length>0){
                     needType = $(this).data("type");
@@ -461,11 +449,11 @@ function showCategoryNeeds(){
     });        
 
 }
-//操作按钮：显示categoryNeed修改表单
-function showCategoryNeedInfoForm(){
-    console.log("show categoryNeed form.",categoryNeed);  
+//操作按钮：显示occasionNeed修改表单
+function showOccasionNeedInfoForm(){
+    console.log("show occasionNeed form.",occasionNeed);  
     //显示数据填报表单
-    $.blockUI({ message: $('#categoryneedform'),
+    $.blockUI({ message: $('#occasionneedform'),
         css:{ 
             padding:        10, 
             margin:         0, 
@@ -484,58 +472,58 @@ function showCategoryNeedInfoForm(){
             cursor:          'normal' 
         }
     }); 
-    //设置默认值：对于有选定categoryNeed的情况
-    $("#categoryNeedWeightStars").starRating("setRating",0); //先恢复为0
-    if(categoryNeed && categoryNeed.id && categoryNeed.id.trim().length>0){ //已经关联的属性
-        $("#categoryNeedName2").val("需要："+categoryNeed.need.name);
-        $("#categoryNeedWeight2").val(categoryNeed.weight);
+    //设置默认值：对于有选定occasionNeed的情况
+    $("#occasionNeedWeightStars").starRating("setRating",0); //先恢复为0
+    if(occasionNeed && occasionNeed.id && occasionNeed.id.trim().length>0){ //已经关联的属性
+        $("#occasionNeedName2").val("需要："+occasionNeed.need.name);
+        $("#occasionNeedWeight2").val(occasionNeed.weight);
         //打分
-        $("#categoryNeedWeightStars").starRating("setRating",categoryNeed.weight);         
-    }else if(categoryNeed && categoryNeed.name && categoryNeed.name.trim().length>0){ //已存在但未关联属性
-        $("#categoryNeedName2").val("需要："+categoryNeed.name);
+        $("#occasionNeedWeightStars").starRating("setRating",occasionNeed.weight);         
+    }else if(occasionNeed && occasionNeed.name && occasionNeed.name.trim().length>0){ //已存在但未关联属性
+        $("#occasionNeedName2").val("需要："+occasionNeed.name);
     }else{//新建属性
-        $("#categoryNeedName2").val("");
-        $("#categoryNeedWeight2").val("");        
+        $("#occasionNeedName2").val("");
+        $("#occasionNeedWeight2").val("");        
     }
     //判定是否显示删除按钮：仅对于已经存在的指标显示删除按钮
-    if(categoryNeed && categoryNeed.id && categoryNeed.id.trim().length>0){
-        $("#btnDeleteCategoryNeed").css("display","block");
+    if(occasionNeed && occasionNeed.id && occasionNeed.id.trim().length>0){
+        $("#btnDeleteOccasionNeed").css("display","block");
     }else{
-        $("#btnDeleteCategoryNeed").css("display","none");
+        $("#btnDeleteOccasionNeed").css("display","none");
     }
-    $("#btnCancelCategoryNeed").click(function(){      
+    $("#btnCancelOccasionNeed").click(function(){      
         $.unblockUI(); //直接取消即可
     });
-    $("#btnDeleteCategoryNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+    $("#btnDeleteOccasionNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
         console.log("try to delete item.");
-        deleteCategoryNeedInfo(categoryNeed);
+        deleteOccasionNeedInfo(occasionNeed);
     });    
-    $("#btnSaveCategoryNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
-        if( !$("#categoryNeedWeight2").val() || $("#categoryNeedWeight2").val().trim().length ==0 ){
-            $("#categoryNeedWeight2").val(categoryNeed.weight);
+    $("#btnSaveOccasionNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+        if( !$("#occasionNeedWeight2").val() || $("#occasionNeedWeight2").val().trim().length ==0 ){
+            $("#occasionNeedWeight2").val(occasionNeed.weight);
             siiimpleToast.message('请点选星星设置权重~~',{
               position: 'bottom|center'
             });                 
         }else{
             console.log("try to save new item.");
-            categoryNeed.weight = $("#categoryNeedWeight2").val();//仅需设置权重即可，needId及categoryId已提前完成设置
-            saveCategoryNeedInfo(categoryNeed);
+            occasionNeed.weight = $("#occasionNeedWeight2").val();//仅需设置权重即可，needId及occasionId已提前完成设置
+            saveOccasionNeedInfo(occasionNeed);
         }
     });
 }
-//保存category信息：完成后关闭浮框，并且刷新数据
-function saveCategoryNeedInfo(categoryNeed){
-    console.log("try to save categoryNeed info.",categoryNeed,JSON.stringify(categoryNeed));
+//保存occasion信息：完成后关闭浮框，并且刷新数据
+function saveOccasionNeedInfo(occasionNeed){
+    console.log("try to save occasionNeed info.",occasionNeed,JSON.stringify(occasionNeed));
     $.ajax({
-        url:app.config.sx_api+"/mod/categoryNeed/rest/category-need",
+        url:app.config.sx_api+"/mod/occasionNeed/rest/occasion-need",
         type:"post",
-        data:JSON.stringify(categoryNeed),//注意：不能使用JSON对象
+        data:JSON.stringify(occasionNeed),//注意：不能使用JSON对象
         headers:{
             "Content-Type":"application/json",
             "Accept": "application/json"
         },  
         success:function(ret){
-            console.log("===save categoryNeed done===\n",ret);
+            console.log("===save occasionNeed done===\n",ret);
             if(ret.success){ 
                 //取消浮框，并刷新界面
                 $.unblockUI(); //直接取消即可
@@ -544,23 +532,23 @@ function saveCategoryNeedInfo(categoryNeed){
         }
     });
 }
-//删除category信息：完成后关闭浮框，并且刷新数据
-function deleteCategoryNeedInfo(categoryNeed){
-    console.log("try to delete categoryNeed info.",categoryNeed);
+//删除occasion信息：完成后关闭浮框，并且刷新数据
+function deleteOccasionNeedInfo(occasionNeed){
+    console.log("try to delete occasionNeed info.",occasionNeed);
     $.ajax({
-        url:app.config.sx_api+"/mod/categoryNeed/rest/category-need",
+        url:app.config.sx_api+"/mod/occasionNeed/rest/occasion-need",
         type:"put",//DELETE方法遇到CORS问题，采用PUT
-        data:JSON.stringify(categoryNeed),//注意：不能使用JSON对象
+        data:JSON.stringify(occasionNeed),//注意：不能使用JSON对象
         headers:{
             "Content-Type":"application/json",
             "Accept": "application/json"
         },  
         success:function(ret){
-            console.log("===delete categoryNeed done===\n",ret);
+            console.log("===delete occasionNeed done===\n",ret);
             if(ret.success){ 
                 //取消浮框，并刷新界面
                 $.unblockUI(); //直接取消即可
-                loadCategoryNeeds();
+                loadOccasionNeeds();
             }else{
               siiimpleToast.message('啊哦，出错了~~',{
                       position: 'bottom|center'
@@ -596,7 +584,7 @@ function showNeedInfoForm(){
     $("#btnCancelNeed").click(function(){      
         $.unblockUI(); //直接取消即可
     });   
-    $("#btnSaveNeed").click(function(){//保存属性，并且直接保存categoryNeed关联设置，完成后刷新数据
+    $("#btnSaveNeed").click(function(){//保存属性，并且直接保存occasionNeed关联设置，完成后刷新数据
         if( !$("#needName2").val() || $("#needName2").val().trim().length ==0 ){
             siiimpleToast.message('名称为必填~~',{
               position: 'bottom|center'
@@ -619,7 +607,7 @@ function showNeedInfoForm(){
         }
     });
 }
-//保存need信息：完成后需要继续提交建立categoryNeed，并且关闭浮框
+//保存need信息：完成后需要继续提交建立occasionNeed，并且关闭浮框
 function saveNeedInfo(name,alias,weight){
     var need = { //构建空白need信息，全部采用默认值填写
         name: name,
@@ -640,9 +628,9 @@ function saveNeedInfo(name,alias,weight){
             if(ret.success && ret.data){ 
                 //先取消浮框
                 //$.unblockUI(); //直接取消即可
-                //建立categoryNeed
-                saveCategoryNeedInfo({
-                    category:{id: categoryId},
+                //建立occasionNeed
+                saveOccasionNeedInfo({
+                    occasion:{id: occasionId},
                     need:{id: ret.data.id},
                     weight: weight
                 });
@@ -654,23 +642,23 @@ function saveNeedInfo(name,alias,weight){
         }
     });
 }
-//保存categoryNeed信息：完成后关闭浮框，并且刷新数据
-function saveCategoryNeedInfo(categoryNeed){
-    console.log("try to save categoryNeed info.",categoryNeed,JSON.stringify(categoryNeed));
+//保存occasionNeed信息：完成后关闭浮框，并且刷新数据
+function saveOccasionNeedInfo(occasionNeed){
+    console.log("try to save occasionNeed info.",occasionNeed,JSON.stringify(occasionNeed));
     $.ajax({
-        url:app.config.sx_api+"/mod/categoryNeed/rest/category-need",
+        url:app.config.sx_api+"/mod/occasionNeed/rest/occasion-need",
         type:"post",
-        data:JSON.stringify(categoryNeed),//注意：不能使用JSON对象
+        data:JSON.stringify(occasionNeed),//注意：不能使用JSON对象
         headers:{
             "Content-Type":"application/json",
             "Accept": "application/json"
         },  
         success:function(ret){
-            console.log("===save categoryNeed done===\n",ret);
+            console.log("===save occasionNeed done===\n",ret);
             if(ret.success){ 
                 //取消浮框，并刷新界面
                 $.unblockUI(); //直接取消即可
-                loadCategoryNeeds();
+                loadOccasionNeeds();
             }else{
               siiimpleToast.message('啊哦，出错了~~',{
                       position: 'bottom|center'
@@ -692,7 +680,7 @@ function showTreemap(dimtree){
       group: d => d.name.split(".")[0], // e.g., "animate" in "flare.animate.Easing"; for color
       label: (d, n) => [...d.name.split(".").pop().split(/(?=[A-Z][a-z])/g), n.value.toLocaleString("en")].join("\n"),
       title: (d, n) => `${d.name}\n${n.value.toLocaleString("en")}`, // text to show on hover
-      //link: (d, n) => `${d.href}`,//`https://www.biglistoflittlethings.com/ilife-web-wx/expert/category.html?categoryId=${d.categoryId}&id=${d.id}`,
+      //link: (d, n) => `${d.href}`,//`https://www.biglistoflittlethings.com/ilife-web-wx/expert/occasion.html?occasionId=${d.occasionId}&id=${d.id}`,
       padding: 2,
       //tile, // e.g., d3.treemapBinary; set by input above
       //width: 600,
@@ -717,7 +705,7 @@ function showTreemap(dimtree){
             height:Number(height)
         };
     svgAsPngUri(canvas, options, function(uri) {
-        //console.log("image uri.",dataURLtoFile(uri,"category.png"));
+        //console.log("image uri.",dataURLtoFile(uri,"occasion.png"));
         //将图片提交到服务器端。保存文件文件key为：need-scheme
         uploadPngFile(uri, "treemap.png", "need-scheme");//文件上传后将在stuff.media下增加{need-scheme:imagepath}键值对
     }); 
@@ -754,16 +742,16 @@ function loadConnection(){
 }
 
 //加载用户关联的Persona
-function loadPersona(categoryId){
+function loadPersona(occasionId){
     var header={
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     }; 
-    util.AJAX(app.config.data_api+"/_api/document/category_categorys/"+categoryId, function (res) {
-        console.log("Broker::My Loaded category by id.", res)
+    util.AJAX(app.config.data_api+"/_api/document/occasion_occasions/"+occasionId, function (res) {
+        console.log("Broker::My Loaded occasion by id.", res)
         if(res){
             currentPersona = res;
-            currentPerson = {//直接引用category属性作为当前用户设置
+            currentPerson = {//直接引用occasion属性作为当前用户设置
               ...res
             };
             delete  currentPerson._key;
@@ -772,7 +760,7 @@ function loadPersona(categoryId){
             delete  currentPerson.broker;
             delete  currentPerson.image;
             delete  currentPerson.name;
-            currentPerson.category = res;//设置当前用户的category信息
+            currentPerson.occasion = res;//设置当前用户的occasion信息
             if(res.image)
                 currentPerson.avatarUrl = res.image;//设置默认头像
             if(res.name)
@@ -806,10 +794,10 @@ function showPerson(person){
 }
 
 function goRecommend(){
-    window.location.href = "index.html?type="+(currentPerson.openId?"person":"category")+"&id="+currentPerson._key;
+    window.location.href = "index.html?type="+(currentPerson.openId?"person":"occasion")+"&id="+currentPerson._key;
 }
 function goActionHistory(){
-    window.location.href = "feeds.html?type="+(currentPerson.openId?"person":"category")+"&id="+currentPerson._key;
+    window.location.href = "feeds.html?type="+(currentPerson.openId?"person":"occasion")+"&id="+currentPerson._key;
 }
 
 //修改用户信息
@@ -842,7 +830,7 @@ function updatePerson(){
         }, "PATCH",currentPerson,header);
     }else{//否则创建后更新
         console.log("create new user.",currentPerson);
-        var key = md5(currentPerson.category._key+userInfo._key+new Date().getTime(),16);//构建一个user._key。注意用短md5，构成差异，并且避免微信 二维码 scene_str 总长64位限制
+        var key = md5(currentPerson.occasion._key+userInfo._key+new Date().getTime(),16);//构建一个user._key。注意用短md5，构成差异，并且避免微信 二维码 scene_str 总长64位限制
         util.AJAX(app.config.data_api+"/user/users/"+key, function (res) {
             console.log("User::Setting user created.", res)
             currentPerson = res;
@@ -901,7 +889,7 @@ function loadTags(){
     }; 
     console.log("try to load user tags.");
     util.AJAX(app.config.sx_api+"/mod/userTag/rest/tags?types=user-setting", function (res) {
-        console.log("Broker::My Loaded category tags.", res)
+        console.log("Broker::My Loaded occasion tags.", res)
         if(res){
             showTags(res);//直接开始显示
         }
@@ -915,7 +903,7 @@ function showTags(tags){
     //首先将所有tag按照类别放入二维数组
     for(var i=0;i<tags.length;i++){
         var tag = tags[i];
-        var tagType = tag.userTagCategory.name;
+        var tagType = tag.userTagOccasion.name;
         if(userTagTypes.indexOf(tagType)<0){
             userTagTypes.push(tagType);
             userTags[tagType] = [];
@@ -927,15 +915,15 @@ function showTags(tags){
     //然后按照二维数组组织HTML显示
     var html = "";
     for(var i=0;i<userTagTypes.length;i++){
-        var userTagByCategory = userTagTypes[i];
+        var userTagByOccasion = userTagTypes[i];
         //添加标签分类及分割线
         $("#user-tags-div").append("<div class='user-tag-wrapper-separator'></div>");
-        $("#user-tags-div").append("<div class='user-tag-wrapper' id='user-tag-wrapper-"+userTagByCategory+"'></div>");
+        $("#user-tags-div").append("<div class='user-tag-wrapper' id='user-tag-wrapper-"+userTagByOccasion+"'></div>");
         //添加分类文字
-        $("#user-tag-wrapper-"+userTagByCategory).append('<div class="user-tag-category">'+userTagByCategory+'</div>');
+        $("#user-tag-wrapper-"+userTagByOccasion).append('<div class="user-tag-occasion">'+userTagByOccasion+'</div>');
         //添加具体标签
-        var taglist = userTags[userTagByCategory];
-        $("#user-tag-wrapper-"+userTagByCategory).append('<div class="user-tag-list" id="user-tag-list-'+userTagByCategory+'"></div>');
+        var taglist = userTags[userTagByOccasion];
+        $("#user-tag-wrapper-"+userTagByOccasion).append('<div class="user-tag-list" id="user-tag-list-'+userTagByOccasion+'"></div>');
         for(var j=0;j<taglist.length;j++){
             var tag = taglist[j];
 
@@ -946,9 +934,9 @@ function showTags(tags){
             document.body.appendChild(myScript); 
 
             //组织tag HTML            
-            $("#user-tag-list-"+userTagByCategory).append('<div class="user-tag" id="tag'+tag.userTagCategory.id+'-'+tag.id+'" data-tagId="'+tag.id+'" data-name="'+tag.name+'" data-rule=\''+tag.ruleOfJudgment+'\' data-categoryId="'+tag.userTagCategory.id+'" data-type="'+tag.userNeed.type+'" data-property="'+tag.userNeed.property+'" data-isExclusive="'+tag.userTagCategory.isExclusive+'" data-expr=\''+tag.expression+'\'>'+tag.name+'</div>');
+            $("#user-tag-list-"+userTagByOccasion).append('<div class="user-tag" id="tag'+tag.userTagOccasion.id+'-'+tag.id+'" data-tagId="'+tag.id+'" data-name="'+tag.name+'" data-rule=\''+tag.ruleOfJudgment+'\' data-occasionId="'+tag.userTagOccasion.id+'" data-type="'+tag.userNeed.type+'" data-property="'+tag.userNeed.property+'" data-isExclusive="'+tag.userTagOccasion.isExclusive+'" data-expr=\''+tag.expression+'\'>'+tag.name+'</div>');
             //注册点击事件
-            $("#tag"+tag.userTagCategory.id+'-'+tag.id).click(function(e){
+            $("#tag"+tag.userTagOccasion.id+'-'+tag.id).click(function(e){
                 changeTag(e);
             }); 
     
@@ -960,8 +948,8 @@ function showTags(tags){
                 property:tag.userNeed.property,  
                 rule:tag.ruleOfJudgment,
                 expr:tag.expression,  
-                categoryId:tag.userTagCategory.id,                              
-                isExclusive:tag.userTagCategory.isExclusive
+                occasionId:tag.userTagOccasion.id,                              
+                isExclusive:tag.userTagOccasion.isExclusive
             });       
         }
     }
@@ -1015,7 +1003,7 @@ function changeTag(e){
         name:e.currentTarget.dataset.name,
         type:e.currentTarget.dataset.type,
         property:e.currentTarget.dataset.property,
-        categoryId:e.currentTarget.dataset.categoryid,
+        occasionId:e.currentTarget.dataset.occasionid,
         isExclusive:e.currentTarget.dataset.isexclusive
     });
 }
@@ -1026,21 +1014,21 @@ function changeTagDisplay(tagInfo){
     if(tagInfo.isExclusive=="1" || tagInfo.isExclusive==1){    //如果是单选，则先把所有已选中的干掉，然后把选中的加上高亮
         //把同一类标签风格都改为取消状态
         console.log("change exclusive tag.",tagInfo)
-        $("div[id^='tag"+tagInfo.categoryId+"']").each(function(index, element) {
+        $("div[id^='tag"+tagInfo.occasionId+"']").each(function(index, element) {
              $(this).removeClass("user-tag-selected");
              $(this).addClass("user-tag");
         });   
         //高亮显示当前选中的标签 
-        $("#"+tagInfo.categoryId+'-'+tagInfo.tagId).removeClass("user-tag");
-        $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).addClass("user-tag-selected");        
+        $("#"+tagInfo.occasionId+'-'+tagInfo.tagId).removeClass("user-tag");
+        $("#tag"+tagInfo.occasionId+'-'+tagInfo.tagId).addClass("user-tag-selected");        
     }else{//对于多选，如果当前值在列表内则加上高亮，如果不在则去掉高亮
         console.log("\n\nchange non-exclusive tag.",tagInfo)
         if(currentPerson[tagInfo.property] && currentPerson[tagInfo.property].indexOf(tagInfo.name)>=0){
-            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).removeClass("user-tag");
-            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).addClass("user-tag-selected");             
+            $("#tag"+tagInfo.occasionId+'-'+tagInfo.tagId).removeClass("user-tag");
+            $("#tag"+tagInfo.occasionId+'-'+tagInfo.tagId).addClass("user-tag-selected");             
         }else{
-            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).removeClass("user-tag-selected");
-            $("#tag"+tagInfo.categoryId+'-'+tagInfo.tagId).addClass("user-tag");             
+            $("#tag"+tagInfo.occasionId+'-'+tagInfo.tagId).removeClass("user-tag-selected");
+            $("#tag"+tagInfo.occasionId+'-'+tagInfo.tagId).addClass("user-tag");             
         }
     }
 }
@@ -1064,11 +1052,11 @@ function loadPerson(personId) {
         //userInfo = res;
         currentPerson = res;
         //检查是否有persona设置，如果没有则跳转到persona选择界面
-        if((res.persona && res.persona._key) || !res.openId){//如果有category则显示表单。注意：对于通过画像生成虚拟用户则直接显示表单，通过有无openId判断
+        if((res.persona && res.persona._key) || !res.openId){//如果有occasion则显示表单。注意：对于通过画像生成虚拟用户则直接显示表单，通过有无openId判断
             insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
             showPerson(currentPerson);//显示设置的用户表单
             loadBrokerByOpenid(userInfo._key);//根据当前登录用户openid加载broker信息
-        }else{//没有category则提示先选择一个category
+        }else{//没有occasion则提示先选择一个occasion
             window.location.href = "user-choosepersona.html?id="+personId+"&refer=user";//refer=user表示设置后返回到user界面
         }
     });
@@ -1138,7 +1126,7 @@ function changeActionType (e) {
 }
 
 
-//修改category的tags：每次修改后均做更新，且仅更新tags
+//修改occasion的tags：每次修改后均做更新，且仅更新tags
 function updatePersonaTags(){
     var data={
         tags:currentPersona.tags//在发生操作后直接修改
@@ -1147,7 +1135,7 @@ function updatePersonaTags(){
         "Content-Type":"application/json",
         Authorization:"Basic aWxpZmU6aWxpZmU="
     }; 
-    util.AJAX(app.config.data_api+"/_api/document/category_categorys/"+currentPersona._key, function (res) {
+    util.AJAX(app.config.data_api+"/_api/document/occasion_occasions/"+currentPersona._key, function (res) {
         console.log("Broker::My Persona tags updated.", res)
     }, "PATCH",data,header);
 }
