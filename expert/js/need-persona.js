@@ -246,7 +246,7 @@ function insertPersonaItem(persona){
     html += '<div class="swiper-slide">';
     html += '<div class="person" id="'+persona.id+'" data-id="'+persona.id+'">';
     var style = persona.id==personaId?'-selected':'';
-    html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+logo+'"/></div>';
+    html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+logo+'" style="border-radius:50%;"/></div>';
     html += '<span class="person-name">'+persona.name+'</span>';
     html += '</div>';
     html += '</div>';

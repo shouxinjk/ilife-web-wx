@@ -47,6 +47,55 @@ $(document).ready(function ()
     if(personaId)
         loadPersonaNeeds();
 
+
+    //注册事件：修改设置
+    $("#btnCancelPersonaNeed").click(function(){      
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnDeletePersonaNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+        console.log("try to delete item.");
+        deletePersonaNeedInfo(personaNeed);
+    });    
+    $("#btnSavePersonaNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
+        if( !$("#personaNeedWeight2").val() || $("#personaNeedWeight2").val().trim().length ==0 ){
+            $("#personaNeedWeight2").val(personaNeed.weight);
+            siiimpleToast.message('请点选星星设置权重~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save new item.");
+            personaNeed.weight = $("#personaNeedWeight2").val();//仅需设置权重即可，needId及personaId已提前完成设置
+            savePersonaNeedInfo(personaNeed);
+        }
+    });
+
+    //注册事件：新增need
+    $("#btnCancelNeed").click(function(){      
+        $.unblockUI(); //直接取消即可
+    });   
+    $("#btnSaveNeed").click(function(){//保存属性，并且直接保存personaNeed关联设置，完成后刷新数据
+        if( !needType ){
+            siiimpleToast.message('请选择类型~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#needName2").val() || $("#needName2").val().trim().length ==0 ){
+            siiimpleToast.message('请填写名称~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#needWeight2").val() || $("#needWeight2").val().trim().length ==0 ){
+            siiimpleToast.message('请点击星星设置权重~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save new need item.");
+            saveNeedInfo(
+                $("#needName2").val().trim(),
+                $("#needAlias2").val().trim(),
+                $("#needWeight2").val().trim()
+            );
+        }
+    });
+
     //打分：新增需求设置权重
     $("#needWeightStars").starRating({//显示为starRating
         totalStars: 10,
@@ -64,6 +113,7 @@ $(document).ready(function ()
             $("#needWeight2").val(currentRating);//直接用打分值
         }
     }); 
+
     //打分：修改已添加指标权重
     $("#personaNeedWeightStars").starRating({//显示为starRating
         totalStars: 10,
@@ -502,25 +552,7 @@ function showPersonaNeedInfoForm(){
     }else{
         $("#btnDeletePersonaNeed").css("display","none");
     }
-    $("#btnCancelPersonaNeed").click(function(){      
-        $.unblockUI(); //直接取消即可
-    });
-    $("#btnDeletePersonaNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
-        console.log("try to delete item.");
-        deletePersonaNeedInfo(personaNeed);
-    });    
-    $("#btnSavePersonaNeed").click(function(){//完成后需要刷新数据，包括treemap、指标列表、属性列表
-        if( !$("#personaNeedWeight2").val() || $("#personaNeedWeight2").val().trim().length ==0 ){
-            $("#personaNeedWeight2").val(personaNeed.weight);
-            siiimpleToast.message('请点选星星设置权重~~',{
-              position: 'bottom|center'
-            });                 
-        }else{
-            console.log("try to save new item.");
-            personaNeed.weight = $("#personaNeedWeight2").val();//仅需设置权重即可，needId及personaId已提前完成设置
-            savePersonaNeedInfo(personaNeed);
-        }
-    });
+
 }
 //保存persona信息：完成后关闭浮框，并且刷新数据
 function savePersonaNeedInfo(personaNeed){
@@ -593,31 +625,7 @@ function showNeedInfoForm(){
         }
     }); 
 
-    $("#btnCancelNeed").click(function(){      
-        $.unblockUI(); //直接取消即可
-    });   
-    $("#btnSaveNeed").click(function(){//保存属性，并且直接保存personaNeed关联设置，完成后刷新数据
-        if( !needType ){
-            siiimpleToast.message('请选择类型~~',{
-              position: 'bottom|center'
-            });                 
-        }else if( !$("#needName2").val() || $("#needName2").val().trim().length ==0 ){
-            siiimpleToast.message('请填写名称~~',{
-              position: 'bottom|center'
-            });                 
-        }else if( !$("#needWeight2").val() || $("#needWeight2").val().trim().length ==0 ){
-            siiimpleToast.message('请点击星星设置权重~~',{
-              position: 'bottom|center'
-            });                 
-        }else{
-            console.log("try to save new need item.");
-            saveNeedInfo(
-                $("#needName2").val().trim(),
-                $("#needAlias2").val().trim(),
-                $("#needWeight2").val().trim()
-            );
-        }
-    });
+
 }
 //保存need信息：完成后需要继续提交建立personaNeed，并且关闭浮框
 function saveNeedInfo(name,alias,weight){

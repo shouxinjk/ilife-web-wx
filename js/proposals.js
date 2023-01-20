@@ -823,13 +823,13 @@ function insertItem(){
     var tags = "<div style='display:flex;'>";
     //如果是board，默认第一个添加 主题组合清单标签
     if(item.type=="board"){
-        tags += "<span style='border-radius:10px;background-color:#2a61f1;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>主题组合清单</span>";      
+        tags += "<span style='border-radius:10px;background-color:#226cff;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>主题组合清单</span>";      
     }else if(item.type=="solution"){ //如果是定制主题，则需要根据scheme判断具体类型
         var proposalScheme = proposalSchemes.find(proposalScheme => proposalScheme.id == item.scheme);
         if(proposalScheme && proposalScheme.type =="guide"){
-            tags += "<span style='border-radius:10px;background-color:darkred;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>专家指南</span>";      
+            tags += "<span style='border-radius:10px;background-color:#CC3333;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>专家指南</span>";      
         }else if(proposalScheme && proposalScheme.type =="free"){
-            tags += "<span style='border-radius:10px;background-color:darkgreen;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>定制师方案</span>";      
+            tags += "<span style='border-radius:10px;background-color:#009933;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>定制师方案</span>";      
         }
         //将scheme的category作为标签
         if(proposalScheme.category && proposalScheme.category.trim().length>0){
@@ -1160,14 +1160,14 @@ function insertCategoryItem(proposalScheme){
     $("#no-results-tip").toggleClass("no-result-tip-show",false); 
 
     //根据类型显示不同的标签：board普通显示，free绿色，guide红色
-    var styleCss = "border:1px solid #2a61f1;color:#2a61f1;";
-    var color = "#2a61f1";
+    var styleCss = "border:1px solid #226cff;color:#226cff;";
+    var color = "#226cff";
     if(proposalScheme.type == "guide"){
-        styleCss = "border:1px solid darkred;color:darkred;";
-        color = "darkred";
+        styleCss = "border:1px solid #CC3333;color:#CC3333;";
+        color = "#CC3333";
     }else if(proposalScheme.type == "free"){
-        styleCss = "border:1px solid darkgreen;color:darkgreen;";
-        color = "darkgreen";
+        styleCss = "border:1px solid #009933;color:#009933;";
+        color = "#009933";
     }
 
     var measureTag = "<div id='metacat"+proposalScheme.id+"' data-id='"+proposalScheme.id+"' data-type='"+proposalScheme.type+"' data-color='"+color+"' data-name='"+proposalScheme.name+"' style='line-height:16px;font-size:12px;min-width:60px;font-weight:bold;padding:2px;border-radius:10px;margin:2px;"+styleCss+"'>"+proposalScheme.name+"</div>"
@@ -1206,14 +1206,14 @@ function insertCategoryItem(proposalScheme){
     });
 
     //根据类型显示不同的标签：board普通显示，free绿色，guide红色
-    var styleCss = "border:1px solid #2a61f1;color:#2a61f1;";
-    var color = "#2a61f1";
+    var styleCss = "border:1px solid #226cff;color:#226cff;";
+    var color = "#226cff";
     if(proposalScheme.type == "guide"){
-        styleCss = "border:1px solid darkred;color:darkred;";
-        color = "darkred";
+        styleCss = "border:1px solid #CC3333;color:#CC3333;";
+        color = "#CC3333";
     }else if(proposalScheme.type == "free"){
-        styleCss = "border:1px solid darkgreen;color:darkgreen;";
-        color = "darkgreen";
+        styleCss = "border:1px solid #009933;color:#009933;";
+        color = "#009933";
     }
 
     //同步写入主题选择Div

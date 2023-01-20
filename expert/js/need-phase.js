@@ -244,7 +244,7 @@ function insertPhaseItem(phase){
     html += '<div class="swiper-slide">';
     html += '<div class="person" id="'+phase.id+'" data-id="'+phase.id+'">';
     var style = phase.id==phaseId?'-selected':'';
-    html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+logo+'"/></div>';
+    html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+logo+'" style="border-radius:50%;"/></div>';
     html += '<span class="person-name">'+phase.name+'</span>';
     html += '</div>';
     html += '</div>';
