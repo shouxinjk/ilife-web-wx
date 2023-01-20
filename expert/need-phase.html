@@ -6,7 +6,8 @@
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
-    <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">    
+    <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">   
+    <link rel="stylesheet" type="text/css" href="../ext/star-rating-svg/star-rating-svg.css"> 
     <link rel="stylesheet" type="text/css" href="../css/common.css">
     <link rel="stylesheet" type="text/css" href="../broker/css/broker.css">    
     <link rel="stylesheet" type="text/css" href="../publisher/css/publisher.css?v=3.82"> 
@@ -39,8 +40,8 @@
     -->
     <!-- 按钮 --> 
     <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">       
-        <div class="order-cell" id="need-persona" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/need-persona.png"/>
+        <div class="order-cell" id="need-phase" data-tagging="buy">
+            <img class="order-cell-icon-small" src="images/need-phase.png"/>
             <div class="actiontype">画像模型</div>
         </div>     
         <div class="order-cell" id="need-phase" data-tagging="buy">
@@ -93,7 +94,28 @@
         </div> 
 
         <!--属性列表：显示所有关联属性，可以增加或修改-->   
-        <div id="phaseNeedsTitle" class="sx_seperator" style="margin:30px 0;"><span>增加/设置 需要</span></div>                    
+        <!-- alpha -->
+        <div id="phaseNeedsTitlealpha" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 生存需求</span></div>                    
+        <div id="phaseNeedsDivalpha" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        </div> 
+        <!-- beta -->
+        <div id="phaseNeedsTitlebeta" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 安全需求</span></div>                    
+        <div id="phaseNeedsDivbeta" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        </div>    
+        <!-- gamma -->
+        <div id="phaseNeedsTitlegamma" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 情感需求</span></div>                    
+        <div id="phaseNeedsDivgamma" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        </div>    
+        <!-- delte -->
+        <div id="phaseNeedsTitledelte" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 尊重需求</span></div>                    
+        <div id="phaseNeedsDivdelte" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        </div>     
+        <!-- epsilon -->
+        <div id="phaseNeedsTitleepsilon" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 价值需求</span></div>                    
+        <div id="phaseNeedsDivepsilon" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        </div>                                   
+        <!-- 未归类需要 -->
+        <div id="phaseNeedsTitle" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 需要</span></div>                    
         <div id="phaseNeedsDiv" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div> 
 
@@ -139,7 +161,8 @@
     <div id="phaseneedform" style="display:none; cursor: default;"> 
             <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">需要权重设置</div> 
             <input type="text" id="phaseNeedName2" placeholder="需要名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;border:0;" readonly/>
-            <input type="number" id="phaseNeedWeight2" placeholder="权重百分比，1-10，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>                     
+            <input type="number" id="phaseNeedWeight2" placeholder="权重百分比，1-10，必填" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>    
+            <div id="phaseNeedWeightStars" style="width:80%;text-align:left;margin-bottom:10px;margin-left:10%;" ></div>                    
             <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
                 <button type="submit" class="btnNo" id="btnCancelPhaseNeed" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
                 <button type="submit" class="btnDelete" id="btnDeletePhaseNeed" style="font-size: 12px;padding:2px 5px;margin:2px;">删除</button> 
@@ -153,8 +176,9 @@
             <div id="needTypesDiv"  style="display:flex;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin:10px auto;padding:0 10px;">
             </div>            
             <input type="text" id="needName2" placeholder="专业名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>
-            <input type="number" id="needWeight2" placeholder="影响权重，1-10，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>             
-            <input type="text" id="needAlias2" placeholder="别名，俗称，通用名" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;"/>                  
+            <input type="text" id="needAlias2" placeholder="别名/俗称/通用名，便于普通用户理解使用" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;"/>             
+            <input type="number" id="needWeight2" placeholder="影响权重，1-10，必填" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>   
+            <div id="needWeightStars" style="width:80%;text-align:left;margin-bottom:10px;margin-left:10%;" ></div>                              
                              
             <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
                 <button type="submit" class="btnNo" id="btnCancelNeed" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
@@ -173,12 +197,13 @@
 <script type="text/javascript" src="../ext/jquery.blockUI.js"></script>
 <script type="text/javascript" src="../ext/siiimple-toast-master/main.js"></script>
 <script type="text/javascript" src="../ext/siiimple-toast-master/siiimple-toast.min.js"></script>
+<script type="text/javascript" src="../ext/star-rating-svg/jquery.star-rating-svg.js"></script>
 <script type="text/javascript" src="../ext/d3/d3.min.js"></script>
 <script type="text/javascript" src="../ext/d3/d3-hierarchy.js"></script>
 <script type="text/javascript" src="../ext/d3/treemap.js?v=0.14"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/need-phase.js?v=1.37"></script> 
+<script type="text/javascript" src="js/need-phase.js?v=1.38"></script> 
 <script type="text/javascript" src="../ext/short-md5.js"></script>
 </html>

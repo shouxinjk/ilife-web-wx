@@ -413,19 +413,19 @@ function showPersonaNeeds(){
                     var html = '<div class="sxTag0" id="need'+node.id+'" data-id="'+node.id+'" data-name="'+node.name+'" style="'+needtypeColor+'">';
                     html += node.name;
                     html += '</div>';
-                    //if($("#need"+node.id).length>0) //排重
-                    //    continue;
-                    $("#personaNeedsDiv"+node.type).append(html);
-                    //注册点击事件：点击后弹出浮框完成修改或删除
-                    $("#need"+node.id).click(function(){ 
-                        //新增personaNeed
-                        personaNeed = {
-                            name: $(this).data("name"),
-                            persona: {id: personaId}, //设置当前persona
-                            need: {id: $(this).data("id")} //直接将当前选中属性作为personaNeed 的关联属性
-                        };
-                        showPersonaNeedInfoForm();
-                    });
+                    if($("#need"+node.id).length==0){ //排重
+                        $("#personaNeedsDiv"+node.type).append(html);
+                        //注册点击事件：点击后弹出浮框完成修改或删除
+                        $("#need"+node.id).click(function(){ 
+                            //新增personaNeed
+                            personaNeed = {
+                                name: $(this).data("name"),
+                                persona: {id: personaId}, //设置当前persona
+                                need: {id: $(this).data("id")} //直接将当前选中属性作为personaNeed 的关联属性
+                            };
+                            showPersonaNeedInfoForm();
+                        });
+                    }
                 });                
             }else{
               console.log("no more pending needs.");   
