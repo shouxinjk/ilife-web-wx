@@ -200,55 +200,42 @@ function insertItem(){
     }
 
     var image = "<img src='"+item.logo+"' width='60px' height='60px' style='object-fit:cover;' />"
-    var tagTmpl = "<div class='persona-tag' style='background-color:__bgcolor;border-color:__bgcolor;'>__TAG</div>";
-    var tags = "<div class='persona-tags'>";
-    //将类型描述作为标签
-    if(item.category && item.category.trim().length>0)
-    tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,item.category.trim());    
-    /**
-    //将类型作为标签显示
-    if("guide"==item.type){//指南定制类型
-        tags += tagTmpl.replace(/__bgcolor/g,"darkred").replace(/__TAG/g,"专家指南");
-    }else if("free"==item.type){//自由定制类型
-        tags += tagTmpl.replace(/__bgcolor/g,"darkgreen").replace(/__TAG/g,"定制师方案");
+    var tagTmpl = "<div class='persona-tag' style='background-color:__bgcolor;border-color:__bgcolor;color:#fff;border-radius:12px;padding:1px 5px;'>__TAG</div>";
+    var tags = "<div class='persona-tags' style='margin-top:5px;'>";
+      
+    //类型 
+    if(item.type=="guide"){
+        tags += tagTmpl.replace(/__bgcolor/g,"darkred").replace(/__TAG/g,"专家指南");       
+    }else if(item.type=="free"){
+        tags += tagTmpl.replace(/__bgcolor/g,"darkgreen").replace(/__TAG/g,"定制师方案");      
     }else{
-        console.log("unknown type. ", item.type);
-        //tags += tagTmpl.replace(/__bgcolor/g,"#fff").replace(/__TAG/g,"未知");
+        //do nothing
     }
-    //将状态作为标签
-    if("1"==item.status){
-        tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,"已启用");
-    }else{
-        tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,"待启用");
-    }
-    //**/
+    //将scheme的category作为标签
+    if(item.category && item.category.trim().length>0){
+        item.category.split(" ").forEach(function(categoryTag){
+            if(categoryTag.trim().length>0)
+                tags += tagTmpl.replace(/__bgcolor/g,"#514c49").replace(/__TAG/g,categoryTag);   
+        });
+    } 
     tags += "</div>";
 
-    //显示高亮标签，包括类型、状态。采用固定样式结构
-    var highlightTagTpl = "<span class='profitTipCredit'>__type</span><span class='itemTagProfitCredit'>__tag</span>&nbsp;"
-    var highlights = "<div style='margin:5px 0;margin-top:-10px;'>";
-    //类型：
-    if("guide"==item.type){
-        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkred").replace(/__bgcolor/g,"#fff").replace(/__type/g,"类型").replace(/__tag/g,"专家指南");
-    }else{
-        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkgreen").replace(/__bgcolor/g,"#fff").replace(/__type/g,"类型").replace(/__tag/g,"定制师方案");
-    }
     //状态：
-    if(item.status=="0"){
-        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkred").replace(/__bgcolor/g,"#fff").replace(/__type/g,"状态").replace(/__tag/g,"未启用");
+    var statusStr = "";
+    if(item.status==0){
+        statusStr = "<span style='background-color:darkred;color:#fff;font-size:10px;font-weight:bold;padding:1px 2px;margin-right:5px;'>未启用</span>";
     }else{
-        highlights += highlightTagTpl.replace(/__bgcolor/g,"darkgreen").replace(/__bgcolor/g,"#fff").replace(/__type/g,"状态").replace(/__tag/g,"已启用");
+        statusStr = "<span style='background-color:darkgreen;color:#fff;font-size:10px;font-weight:bold;padding:1px 2px;margin-right:5px;'>已启用</span>";
     }
-    highlights += "</div>";
 
-
+    //添加继承的上级title
     var parentTitle = "";
     if(item.parent && item.parent.name){
         parentTitle = item.parent.name +" · ";
     }
-    var title = "<div class='persona-title'>"+parentTitle+item.name+"</div>"
+    var title = "<div class='persona-title'>"+statusStr+parentTitle+item.name+"</div>"
     var description = "<div class='persona-description'>"+item.description+"</div>"    
-    $("#waterfall").append("<li><div class='sx_seperator' style='margin:10px 0;width:90%;margin-left:5%;'></div><div class='persona' id='"+item.id+"' style='border:0;'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title+highlights +description+ tags+ "</div><div class='persona-action'>&gt;</div></li>");
+    $("#waterfall").append("<li><div class='sx_seperator' style='margin:10px 0;width:90%;margin-left:5%;'></div><div class='persona' id='"+item.id+"' style='border:0;'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title+tags +description+ "</div><div class='persona-action'>&gt;</div></li>");
     num++;
 
     //注册事件： 查看指南详情

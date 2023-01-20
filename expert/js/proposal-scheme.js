@@ -113,7 +113,16 @@ function loadItem(){
         console.log("loadItems try to retrive pending items.", res)
         if (res.scheme) {//有数值时才显示
             //显示到页面
-            insertItem(res.scheme,res.guideBooks,res.sections,res.subtypes);           
+            insertItem(res.scheme,res.guideBooks,res.sections,res.subtypes);    
+            //调整顶部菜单
+            if("guide"==res.scheme.type){
+                $("#proposal-schemes-guide>img").attr("src","images/proposal-schemes-guide-selected.png");
+                $("#proposal-schemes-guide>div").removeClass("actiontype");
+                $("#proposal-schemes-guide>div").addClass("actiontype-selected");
+            }else{
+                $("#proposal-schemes-free>img").attr("src","images/proposal-schemes-free-selected.png");
+                $("#proposal-schemes-free>div").removeClass("actiontype");
+                $("#proposal-schemes-free>div").addClass("actiontype-selected");            }                   
         }else{//如果没有则提示，
             shownomore();
             console.log("cannot find scheme by id. ", schemeId);           
@@ -361,7 +370,12 @@ function changeActionType (e) {
         $("#"+currentActionType+" div").addClass("actiontype-selected");  
     } 
 
+    var target = e.currentTarget.dataset.target;
     //跳转到相应页面
-    window.location.href = currentActionType+".html";
+    if(target && target.trim().length>0 ){
+        window.location.href = target;
+    }else{
+        window.location.href = currentActionType+".html";
+    }
 }
 
