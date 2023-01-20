@@ -155,7 +155,7 @@ function insertItem(){
     }
     var title = "<div class='persona-title'>"+(item.nickName?item.nickName:(item.nickname?item.nickname:"没写名字的神秘人"))+(item.openId?"":"☆")+"</div>"
     //var description = "<div class='persona-description'>"+(item.province?item.province:"")+(item.city?(" "+item.city):"")+"</div>"
-    $("#waterfall").append("<li><div class='persona' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +relation+ "</div><div class='persona-action'>&gt;</div></li>");
+    $("#waterfall").append("<li><div class='persona' data-type='person' data-id='"+item._key+"' data-name='"+item.nickname+"' data='"+item._key+"'><div class='persona-logo-wrapper'>" + image +"</div><div class='persona-info'>" +title +relation+ "</div><div class='persona-action'>&gt;</div></li>");
 
     //注册事件
     $("div[data='"+item._key+"']").click(function(){

@@ -7,7 +7,7 @@
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
     <link rel="stylesheet" type="text/css" href="ext/siiimple-toast-master/style.css?v=1.0">    
-    <link rel="stylesheet" type="text/css" href="ext/star-rating-svg/star-rating-svg.css"> 
+    <link rel="stylesheet" type="text/css" href="ext/star-rating-svg/star-rating-svg.css">
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <link rel="stylesheet" type="text/css" href="broker/css/broker.css">    
     <link rel="stylesheet" type="text/css" href="publisher/css/publisher.css?v=3.82"> 
@@ -16,8 +16,8 @@
     <link rel="stylesheet" type="text/css" href="css/waterfall.css">
     <link rel="stylesheet" type="text/css" href="css/swiper.min.css">     
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
-    <link rel="stylesheet" type="text/css" href="broker/css/feeds.css?v=3.9"> 
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">  
+    <link rel="stylesheet" type="text/css" href="broker/css/feeds.css?v=3.9">  
 </head>
 
 <body>
@@ -35,9 +35,9 @@
     </div-->   
 
     <!-- 用户信息 --> 
-    <!-- 
+    <!--
     <view class="info" id="user"></view>
-    --> 
+    -->
     <!-- 按钮 --> 
     <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
         <div class="order-cell" id="user" data-tagging="share">
@@ -67,13 +67,13 @@
     </div> 
 
     <div id="Center">
-        <!--阶段描述-->   
-        <div id="summaryDiv" class="sx_seperator" style="display:none;margin:20px 0; "><span>设置用户生活构成</span></div>                   
+        <!--画像描述-->   
+        <div id="summaryDiv" class="sx_seperator" style="display:none;margin:20px 0; "><span>分群概要</span></div>                   
         <div id="summary" style="margin:0 2%;width:96%;font-size:12px;line-height: 16px;">
         </div> 
 
         <!--客观评价treemap图，显示当前选定层级的指标及属性分布-->   
-        <div id="treemapTitle" class="sx_seperator" style="display:none;margin:20px 0; "><span>生活构成</span></div>     
+        <div id="treemapTitle" class="sx_seperator" style="display:none;margin:20px 0; "><span>需要构成</span></div>     
     <section style="position:sticky;z-index: 10;top:51px;background-color: #fff;" id="legendDivSticky">
         <!-- 图例：采用不同颜色标记需要类型：显示为一个颜色条 -->
         <div id="legendDiv" style="display:flex;flex-direction: row; flex-wrap: nowrap;text-align: center; justify-content: center; align-items: center;margin-top:10px;margin-bottom:5px;width:96%;margin-left:2%;padding:5px 0;">
@@ -84,33 +84,31 @@
         <div id="treemap" style="margin:0 2%;width:96%;">
         </div> 
 
-
         <!--属性列表：显示所有关联属性，可以增加或修改-->   
         <!-- alpha -->
-        <div id="personNeedsTitlealpha" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 衣食住行用等基本元素</span></div>                    
-        <div id="personNeedsDivalpha" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="personaNeedsTitlealpha" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 生存需求</span></div>                    
+        <div id="personaNeedsDivalpha" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div> 
         <!-- beta -->
-        <div id="personNeedsTitlebeta" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 工作、财产等保障性元素</span></div>                    
-        <div id="personNeedsDivbeta" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="personaNeedsTitlebeta" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 安全需求</span></div>                    
+        <div id="personaNeedsDivbeta" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div>    
         <!-- gamma -->
-        <div id="personNeedsTitlegamma" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 情感、社交等元素</span></div>                    
-        <div id="personNeedsDivgamma" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="personaNeedsTitlegamma" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 情感需求</span></div>                    
+        <div id="personaNeedsDivgamma" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div>    
         <!-- delte -->
-        <div id="personNeedsTitledelte" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 获得认可和尊重元素</span></div>                    
-        <div id="personNeedsDivdelte" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="personaNeedsTitledelte" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 尊重需求</span></div>                    
+        <div id="personaNeedsDivdelte" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div>     
         <!-- epsilon -->
-        <div id="personNeedsTitleepsilon" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 求知、审美、挑战等精神追求</span></div>                    
-        <div id="personNeedsDivepsilon" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="personaNeedsTitleepsilon" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 价值需求</span></div>                    
+        <div id="personaNeedsDivepsilon" style="display:flex; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div>                                   
         <!-- 未归类需要 -->
-        <div id="personNeedsTitle" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 更多生活元素</span></div>                    
-        <div id="personNeedsDiv" style="display:none; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
+        <div id="personaNeedsTitle" class="sx_seperator" style="margin:20px 0;display:none;"><span>增加/设置 需要</span></div>                    
+        <div id="personaNeedsDiv" style="display:none; flex-wrap:wrap; margin:0 2%;width:96%;align-items: center; text-align: center;justify-content: center;">
         </div> 
-
 
     </div>
 
@@ -151,27 +149,27 @@
   </div>
 
     <!-- 修改关联属性的权重：对于已经建立的属性，只需要填写权重即可 -->
-    <div id="personneedform" style="display:none; cursor: default;"> 
-            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">修改设置</div> 
-            <input type="text" id="personNeedName2" placeholder="名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;border:0;" readonly/>
-            <input type="number" id="personNeedWeight2" placeholder="权重百分比，1-10，必填" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>         
-            <div id="personNeedWeightStars" style="width:80%;text-align:left;margin-bottom:10px;margin-left:10%;" ></div>                 
+    <div id="personaneedform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">需要权重设置</div> 
+            <input type="text" id="personaNeedName2" placeholder="需要名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;border:0;" readonly/>
+            <input type="number" id="personaNeedWeight2" placeholder="权重百分比，1-10，必填" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>  
+            <div id="personaNeedWeightStars" style="width:80%;text-align:left;margin-bottom:10px;margin-left:10%;" ></div>                    
             <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
-                <button type="submit" class="btnNo" id="btnCancelPersonNeed" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
-                <button type="submit" class="btnDelete" id="btnDeletePersonNeed" style="font-size: 12px;padding:2px 5px;margin:2px;">删除</button> 
-                <button type="submit" class="btnYes" id="btnSavePersonNeed" style="font-size: 12px;padding:2px 5px;margin:2px;">确定</button> 
+                <button type="submit" class="btnNo" id="btnCancelPersonaNeed" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
+                <button type="submit" class="btnDelete" id="btnDeletePersonaNeed" style="font-size: 12px;padding:2px 5px;margin:2px;">删除</button> 
+                <button type="submit" class="btnYes" id="btnSavePersonaNeed" style="font-size: 12px;padding:2px 5px;margin:2px;">确定</button> 
             </div>
     </div>
 
     <!-- 新建属性：建立后直接关联到评价指标，并且设置权重 -->
     <div id="needform" style="display:none; cursor: default;"> 
-            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">新增生活构成</div> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="enhouseTip">新增需要</div> 
             <div id="needTypesDiv"  style="display:flex;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin:10px auto;padding:0 10px;">
             </div>            
-            <input type="text" id="needName2" placeholder="名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>
-            <input type="text" id="needAlias2" placeholder="别名/俗称/通用名，便于普通用户理解使用" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;"/>            
-            <input type="number" id="needWeight2" placeholder="影响权重，1-10，必填" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>     
-            <div id="needWeightStars" style="width:80%;text-align:left;margin-bottom:10px;margin-left:10%;" ></div>                           
+            <input type="text" id="needName2" placeholder="专业名称，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>
+            <input type="text" id="needAlias2" placeholder="别名/俗称/通用名，便于普通用户理解使用" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;"/>               
+            <input type="number" id="needWeight2" placeholder="影响权重，1-10，必填" style="display:none;width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>  
+            <div id="needWeightStars" style="width:80%;text-align:left;margin-bottom:10px;margin-left:10%;" ></div>                         
                              
             <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
                 <button type="submit" class="btnNo" id="btnCancelNeed" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
@@ -193,10 +191,10 @@
 <script type="text/javascript" src="ext/star-rating-svg/jquery.star-rating-svg.js"></script>
 <script type="text/javascript" src="ext/d3/d3.min.js"></script>
 <script type="text/javascript" src="ext/d3/d3-hierarchy.js"></script>
-<script type="text/javascript" src="ext/d3/treemap.js?v=0.14"></script>
+<script type="text/javascript" src="ext/d3/treemap.js?v=0.16"></script>
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
-<script type="text/javascript" src="js/util.js?v=3.03"></script>
+<script type="text/javascript" src="js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/need-person.js?v=1.53"></script> 
+<script type="text/javascript" src="js/need-persona.js?v=1.51"></script> 
 <script type="text/javascript" src="ext/short-md5.js"></script>
 </html>
