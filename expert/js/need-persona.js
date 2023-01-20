@@ -292,12 +292,7 @@ function loadNeedTypes(){
                             $("#needType"+type).css("color",needTypeColor[type]);  
                         }
                     });
-                    /**
-                    $("div[id^=needType]").css("background-color","#fff");
-                    $("div[id^=needType]").css("color","#000");          
-                    $("#needType"+needType).css("background-color","#2a61f1");
-                    $("#needType"+needType).css("color","#fff");    
-                    //**/    
+  
                 });                          
             });         
         }else{//如果没有则提示，
@@ -353,7 +348,6 @@ function loadPersonaNeeds(){
 //显示属性列表：能够直接发起增、删、改操作。显示时需要结合所有可选属性，以及已添加属性进行。
 function showPersonaNeeds(){
     //先清空
-    $("#personaNeedsDiv").empty();
     $("#legendDiv").empty();
     $("div[id^=personaNeedsDiv]").empty();//清空已经加载的need列表
 
@@ -371,18 +365,20 @@ function showPersonaNeeds(){
             var html = '<div class="'+tagclass+'" id="personaneed'+node.id+'" data-id="'+node.id+'" style="'+needtypeColor+'">';
             html += node.need.name + " "+ node.weight+"/10";
             html += '</div>';
-            $("#personaNeedsDiv"+node.need.type).append(html);
-            //注册点击事件：点击后弹出浮框完成修改或删除
-            $("#personaneed"+node.id).click(function(){ 
-                //从列表里取出当前操作的personaNeed
-                var currentPersonaNeedId = $(this).data("id");
-                personaNeed = personaNeeds.find(item => item.id == currentPersonaNeedId);
-                if(personaNeed){
-                    showPersonaNeedInfoForm();
-                }else{
-                    console.log("no personaNeed found by id.",currentPersonaNeedId);
-                }
-            });
+            if($("#personaneed"+node.id).length==0){ //排重
+                $("#personaNeedsDiv"+node.need.type).append(html);
+                //注册点击事件：点击后弹出浮框完成修改或删除
+                $("#personaneed"+node.id).click(function(){ 
+                    //从列表里取出当前操作的personaNeed
+                    var currentPersonaNeedId = $(this).data("id");
+                    personaNeed = personaNeeds.find(item => item.id == currentPersonaNeedId);
+                    if(personaNeed){
+                        showPersonaNeedInfoForm();
+                    }else{
+                        console.log("no personaNeed found by id.",currentPersonaNeedId);
+                    }
+                });
+            }
         });   
 
         //计算legend宽度：按照汇总值，分别计算百分比得到
@@ -395,7 +391,7 @@ function showPersonaNeeds(){
             //添加legend显示
             var weight = needTypeWeightSum[type]/sumWeight*100;
             if(weight>0)
-                $("#legendDiv").append("<div id='legend"+type+"' style='background-color:"+needTypeColor[type]+";color:#fff;font-size:10px;padding:2px;height:48px;padding:2px;width:"+(weight==0?0.1:weight)+"%;display: table;_position:relative;overflow:hidden;'><div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'><div style='_position: relative;_top: -50%;'>"+needTypes[type] + " "+weight.toFixed(1)+"%</div></div></div>");
+                $("#legendDiv").append("<div id='legend"+type+"' style='background-color:"+needTypeColor[type]+";color:#fff;font-size:10px;font-weight:bold;padding:2px;height:48px;padding:2px;width:"+(weight.toFixed(0))+"%;display: table;_position:relative;overflow:hidden;'><div style='vertical-align: middle;display: table-cell;_position: absolute;_top: 50%;'><div style='_position: relative;_top: -50%;'>"+needTypes[type] + " "+weight.toFixed(1)+"%</div></div></div>");
         });        
     }
 
@@ -417,6 +413,8 @@ function showPersonaNeeds(){
                     var html = '<div class="sxTag0" id="need'+node.id+'" data-id="'+node.id+'" data-name="'+node.name+'" style="'+needtypeColor+'">';
                     html += node.name;
                     html += '</div>';
+                    //if($("#need"+node.id).length>0) //排重
+                    //    continue;
                     $("#personaNeedsDiv"+node.type).append(html);
                     //注册点击事件：点击后弹出浮框完成修改或删除
                     $("#need"+node.id).click(function(){ 
@@ -435,15 +433,19 @@ function showPersonaNeeds(){
 
             //添加按钮：按照类型逐个添加
             Object.keys(needTypes).forEach(function(needType){
-                $("#personaNeedsDiv"+needType).append('<div class="sxTagNew createNeedBtn" data-type="'+needType+'" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加需要</div>');
-                $("#personaNeedsTitle"+needType).empty();
-                $("#personaNeedsTitle"+needType).html("<span>设置/添加 "+needTypes[needType]+"</span>");
-                $("#personaNeedsTitle"+needType).css("display","block");
+                if($("#createNeedBtn"+needType).length==0){ //排重
+                    $("#personaNeedsDiv"+needType).append('<div class="sxTagNew createNeedBtn" id="createNeedBtn'+needType+'" data-type="'+needType+'" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加</div>');
+                    $("#personaNeedsTitle"+needType).empty();
+                    $("#personaNeedsTitle"+needType).html("<span>设置/添加 "+needTypes[needType]+"</span>");
+                    $("#personaNeedsTitle"+needType).css("display","block");
+                }
             });
-            $("#personaNeedsDiv").append('<div class="sxTagNew createNeedBtn" data-type="" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加需要</div>');
-            $("#personaNeedsTitle").empty();
-            $("#personaNeedsTitle").html("<span>设置/添加 需要</span>");
-            $("#personaNeedsTitle").css("display","block");
+            if($("#createNeedBtn").length==0){ //排重
+                $("#personaNeedsDiv").append('<div class="sxTagNew createNeedBtn" id="createNeedBtn" data-type="" style="background-color:#514c49;border:1px solid #514c49;color:#fff;">+ 添加</div>');
+                $("#personaNeedsTitle").empty();
+                $("#personaNeedsTitle").html("<span>设置/添加 更多需要</span>");
+                $("#personaNeedsTitle").css("display","block");
+            }
 
             //注册事件
             $(".createNeedBtn").click(function(){ 

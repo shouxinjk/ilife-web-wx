@@ -127,11 +127,13 @@ function Treemap(elementId, data, { // data is either tabular (array of objects)
 
     node.append("text")
         .attr("clip-path", (d, i) => `url(${new URL(`#${uid}-clip-${i}`, location)})`)
+        .attr("font-size",16)
+        .attr("fill","#fff")        
       .selectAll("tspan")
       .data((d, i) => `${L[i]}`.split(/\n/g))
       .join("tspan")
         .attr("x", 3)
-        .attr("y", (d, i, D) => `${(i === D.length - 1) * 0.3 + 1.1 + i * 0.9}em`)
+        .attr("y", (d, i, D) => `${(i === D.length - 1) * 0.3 + 1.1 + i * 0.9}em`)       
         .attr("fill-opacity", (d, i, D) => i === D.length - 1 ? 0.7 : null)
         .text(d => d);   
   }
