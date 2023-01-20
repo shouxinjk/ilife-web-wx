@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>定制指南-小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="../ext/siiimple-toast-master/style.css?v=1.0">    
+    <link rel="stylesheet" type="text/css" href="../ext/star-rating-svg/star-rating-svg.css">
+    <link rel="stylesheet" type="text/css" href="../css/common.css">
+    <link rel="stylesheet" type="text/css" href="../broker/css/broker.css">    
+    <link rel="stylesheet" type="text/css" href="../publisher/css/publisher.css?v=3.82"> 
+    <link rel="stylesheet" type="text/css" href="../broker/css/broker-my.css?v=1.43">
+    <link rel="stylesheet" type="text/css" href="css/expert.css?v=0.11">
+    <link rel="stylesheet" type="text/css" href="../css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="../css/swiper.min.css">     
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">    
+</head>
+
+<body>
+    <!--div class="header">
+        <div class="search">
+            <span>MAN生活</span>
+            <input placeholder=" 小确幸,大生活">
+        </div>
+    </div-->
+
+    <!-- 导航菜单 -->
+    <!--div class="nav">
+        <ul class="navUl">
+        </ul>
+    </div-->   
+
+    <!-- 用户信息 --> 
+    <!--
+    <view class="info" id="user"></view>
+    --> 
+    <!-- 按钮 --> 
+    <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">        
+        <div class="order-cell" id="proposal-schemes-free" data-tagging="like view favorite buy" data-target="proposal-schemes.html?type=free">
+            <img class="order-cell-icon-small" src="images/proposal-schemes-free.png"/>
+            <div class="actiontype">手动主题</div>
+        </div>  
+        <div class="order-cell" id="proposal-schemes-guide" data-tagging="like view favorite buy" data-target="proposal-schemes.html?type=guide">
+            <img class="order-cell-icon-small" src="images/proposal-schemes-guide.png"/>
+            <div class="actiontype">自动主题</div>
+        </div>               
+        <div class="order-cell" id="guides" data-tagging="like view favorite buy">
+            <img class="order-cell-icon-small" src="images/guides-selected.png"/>
+            <div class="actiontype-selected">定制指南</div>
+        </div>             
+        <div class="order-cell" id="solutions" data-tagging="buy" data-target="../solutions.html">
+            <img class="order-cell-icon-small" src="images/solutions.png"/>
+            <div class="actiontype">定制方案</div>
+        </div>     
+        <div class="order-cell" id="boards" data-tagging="buy" data-target="../boards.html">
+            <img class="order-cell-icon-small" src="images/boards.png"/>
+            <div class="actiontype">组合清单</div>
+        </div>                                                              
+    </view>
+
+
+    <div class="tips" id="tipInfo">
+        查看定制主题及指南
+    </div> 
+
+    <div id="Center">
+        <ul id="waterfall">           
+        </ul>
+    </div>
+
+    <!-- 加载进度与提示 -->
+    <div class="loading-hide" id="loading">
+        <img src="http://www.uusucai.com/d/file/web/tubiao/2015/06/19/5fc1dd5e77261ac65f5412ba66b466e4.gif"/>
+    </div>
+
+    <div id="footer" class="footer-hide" style="border:0;margin-top:20px;font-size: 10px;">
+        没有更多了~~
+    </div>  
+
+    <div style="height:60px;">
+        &nbsp;&nbsp;
+    </div>  
+
+  <div id="sx-menu">
+    <a href="../index.html" class="menu-btn">
+        <img src="../images/smile-happy.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;推荐</div>
+    </a>
+    <a href="../measures.html" class="menu-btn">
+        <img src="../images/measure.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;评价</div>
+    </a>
+    <a href="../billboards.html" class="menu-btn">
+        <img src="../images/billboard.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;排行</div>
+    </a>     
+    <a href="../proposals.html" class="menu-btn">
+        <img src="../images/proposal.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;定制</div>
+    </a>  
+    <a href="../console.html" class="menu-btn">
+        <img src="../images/my-selected.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt-selected">&nbsp;定制师</div>
+    </a>        
+  </div>
+
+</body>
+
+<!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
+<script type="text/javascript" src="../ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../ext/jquery-ui.min.js"></script>
+<script type="text/javascript" src="../js/newWaterfall.js"></script>
+<script type="text/javascript" src="../js/swiper.min.js"></script>
+<script type="text/javascript" src="../js/jquery.cookie.js"></script>
+<script type="text/javascript" src="../ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="../ext/siiimple-toast-master/siiimple-toast.min.js"></script>
+<script type="text/javascript" src="../ext/star-rating-svg/jquery.star-rating-svg.min.js"></script>
+<script type="text/javascript" src="../ext/d3/d3.min.js"></script>
+<script type="text/javascript" src="../ext/d3/d3-hierarchy.js"></script>
+<script type="text/javascript" src="../ext/d3/treemap.js?v=0.14"></script>
+<script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+<script type="text/javascript" src="../js/util.js?v=3.02"></script>
+<script type="text/javascript" src="js/common.js?v=1.0"></script> 
+<script type="text/javascript" src="js/guides.js?v=1.31"></script> 
+<script type="text/javascript" src="../ext/short-md5.js"></script>
+</html>
