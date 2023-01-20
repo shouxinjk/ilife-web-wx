@@ -112,6 +112,39 @@ $(document).ready(function ()
     if(args["showRankForm"]=="true"){
       showRankForm();
     }
+
+    //注册事件：创建排行榜操作
+    $("#btnCancelRank").click(function(){
+        $("#itemUrl").css("border","1px solid silver");//恢复标准风格       
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnSaveRank").click(function(){//提交后创建排行榜
+        //检查必填项：名称。排行规则在切换时已经检查
+        if( !$("#rankName2").val() || $("#rankName2").val().trim().length ==0 ){
+            siiimpleToast.message('名称为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#rankDesc2").val() || $("#rankDesc2").val().trim().length ==0 ){
+            siiimpleToast.message('简介为必填~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save rank.");
+            var rank = {
+              id: "",//设置为空将自动根据items计算
+              isNewRecord: true,//做为新排行榜建立
+              category:{
+                id: categoryId
+              },
+              name: $("#rankName2").val(),
+              description: $("#rankDesc2").val(),
+              keywords: $("#rankKeywords2").val()?$("#rankKeywords2").val().trim():"",
+              openid: app.globalData.userInfo._key,
+              nickname: app.globalData.userInfo.nickname
+            }           
+            saveRankInfo(rank);
+        }
+    });
 });
 
 var rankItemGrid = null;//排行榜维度条目grid
@@ -1352,37 +1385,7 @@ function showRankForm(){
             cursor:          'normal' 
         }
     }); 
-    $("#btnCancelRank").click(function(){
-        $("#itemUrl").css("border","1px solid silver");//恢复标准风格       
-        $.unblockUI(); //直接取消即可
-    });
-    $("#btnSaveRank").click(function(){//提交后创建排行榜
-        //检查必填项：名称。排行规则在切换时已经检查
-        if( !$("#rankName2").val() || $("#rankName2").val().trim().length ==0 ){
-            siiimpleToast.message('名称为必填~~',{
-              position: 'bottom|center'
-            });                 
-        }else if( !$("#rankDesc2").val() || $("#rankDesc2").val().trim().length ==0 ){
-            siiimpleToast.message('简介为必填~~',{
-              position: 'bottom|center'
-            });                 
-        }else{
-            console.log("try to save rank.");
-            var rank = {
-              id: "",//设置为空将自动根据items计算
-              isNewRecord: true,//做为新排行榜建立
-              category:{
-                id: categoryId
-              },
-              name: $("#rankName2").val(),
-              description: $("#rankDesc2").val(),
-              keywords: $("#rankKeywords2").val()?$("#rankKeywords2").val().trim():"",
-              openid: app.globalData.userInfo._key,
-              nickname: app.globalData.userInfo.nickname
-            }           
-            saveRankInfo(rank);
-        }
-    });
+
 }
 
 //显示增加商品表单：粘贴URL即可

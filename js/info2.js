@@ -584,7 +584,7 @@ function requestAdviceScheme(categoryId/*,isAnsync*/){
         url:app.config.sx_api+"/mod/template/rest/item-templates",
         type:"get",
         //async:isAnsync,
-        data:{categoryId:categoryId},
+        data:{categoryId:categoryId,status:"active"},//仅选取已启用推荐语
         success:function(schemes){
             console.log("\n===got item advice schemes ===\n",schemes);
             //遍历并生成文案

@@ -32,13 +32,13 @@ $(document).ready(function ()
     $("body").css("background-color","#fff");//更改body背景为白色
 
     //注册事件：新建推荐语
-    $("#createRankBtn").click(function(e){
+    $("#createAdviceBtn").click(function(e){
         if(!categoryId){
             siiimpleToast.message('请选择类目先~~',{
               position: 'bottom|center'
             });             
         }else{
-            window.location.href = "../measures.html?categoryId="+categoryId+"&categoryName="+categoryName;
+            showAdviceForm();
         }
     }); 
 
@@ -50,6 +50,36 @@ $(document).ready(function ()
 
     //加载所有类目列表：注意是加载全部类目
     loadCategories();//加载后将自动高亮，并加载排行榜数据
+
+    //注册事件：新建推荐语
+    $("#btnCancelAdvice").click(function(){
+        $.unblockUI(); //直接取消即可
+    });
+    $("#btnSaveAdvice").click(function(){//提交后创建排行榜
+        if( !$("#adviceName2").val() || $("#adviceName2").val().trim().length ==0 ){
+            siiimpleToast.message('请填写文案名称~~',{
+              position: 'bottom|center'
+            });                 
+        }else if( !$("#adviceDesc2").val() || $("#adviceDesc2").val().trim().length ==0 ){
+            siiimpleToast.message('请填写文案描述~~',{
+              position: 'bottom|center'
+            });                 
+        }else{
+            console.log("try to save advice.");
+            var advice = {
+              category:{
+                id: categoryId
+              },
+              name: $("#adviceName2").val(),
+              description: $("#adviceDesc2").val(),
+              conditionDesc: $("#adviceConditionDesc2").val()?$("#adviceConditionDesc2").val().trim():"",
+              status:"inactive", //默认为待激活
+              //openid: app.globalData.userInfo._key,
+              //nickname: app.globalData.userInfo.nickname
+            }           
+            saveAdviceInfo(advice);
+        }
+    });
 
 });
 
@@ -180,6 +210,10 @@ function changeCategory (category) {
     categoryId = category.id;
     categoryName = category.name;
 
+    //写入新建表单，提示当前选中的类目
+    var categoryTag = "<div id='adviceCategory"+categoryId+"' data-value='"+categoryId+"' data-type='"+categoryId+"' style='line-height:20px;font-size:12px;min-width:60px;font-weight:bold;padding:2px 10px;border-radius:20px;margin:2px;color:514c49;border:1px solid 514c49;'>"+categoryName+"</div>"
+    $("#fullCategoryDiv").append( categoryTag );//同步写入候选表单     
+
     $("#waterfall").empty();//清空原有列表
     $("#waterfall").css("height","20px");//调整瀑布流高度
     showloading(true);//显示加载状态
@@ -241,6 +275,7 @@ function loadData(){
         "GET",
         {
             categoryId:categoryId,
+            //status:"active" //显示全部
         },
         {
             "Content-Type":"application/json",
@@ -324,10 +359,12 @@ function insertItem(){
 
     //状态：
     var statusStr = "";
-    if(item.status==0){
+    if(item.status=="inactive"){
         statusStr = "<span style='background-color:darkred;color:#fff;font-size:10px;font-weight:bold;padding:1px 2px;margin-right:5px;'>未启用</span>";
-    }else{
+    }else if(item.status=="active"){
         statusStr = "<span style='background-color:darkgreen;color:#fff;font-size:10px;font-weight:bold;padding:1px 2px;margin-right:5px;'>已启用</span>";
+    }else{
+
     }
 
     var title = "<div class='persona-title'>"+statusStr+item.name+"</div>"
@@ -336,12 +373,88 @@ function insertItem(){
     num++;
 
     //注册事件： 查看指南详情
+    /**
     $("#"+item.id).click(function(){
         window.location.href="advice.html?id="+$(this).attr("id");
     });
+    //**/
 
     // 表示加载结束
     loading = false;
+}
+
+
+//显示建立推荐语表单：显示类目、适用条件、脚本描述
+function showAdviceForm(){
+    console.log("show advice form.");  
+    //设置默认值
+    $("#adviceTip").empty();
+    $("#adviceTip").append("创建"+(categoryName?categoryName:"")+"推荐文案");
+
+    //显示表单
+    $.blockUI({ message: $('#adviceform'),
+        css:{ 
+            padding:        10, 
+            margin:         0, 
+            width:          '80%', 
+            top:            '20%', 
+            left:           '10%', 
+            textAlign:      'center', 
+            color:          '#000', 
+            border:         '1px solid silver', 
+            backgroundColor:'#fff', 
+            cursor:         'normal' 
+        },
+        overlayCSS:  { 
+            backgroundColor: '#000', 
+            opacity:         0.7, 
+            cursor:          'normal' 
+        }
+    }); 
+
+}
+
+//保存推荐语：完成后关闭浮框，并且重新加载数据
+function saveAdviceInfo(advice){
+    //保存advice
+    console.log("try to save advice info.",advice);
+    $.ajax({
+        url:app.config.sx_api+"/mod/template/rest/template",
+        type:"post",
+        data:JSON.stringify(advice),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },  
+        success:function(ret){
+            console.log("===save advice done===\n",ret);
+            if(ret.success){ 
+                siiimpleToast.message('已提交，请等待审核~~',{
+                  position: 'bottom|center'
+                });                 
+                //清空之前的数据
+                $("#adviceConditionDesc2").val("");
+                $("#adviceDesc2").val("");
+                //取消浮框，并刷新界面
+                $.unblockUI(); //直接取消即可
+
+                //重新加载数据
+                $("#waterfall").empty();//清空原有列表
+                $("#waterfall").css("height","20px");//调整瀑布流高度
+                showloading(true);//显示加载状态
+
+                page.current = -1;//从第一页开始查看
+                items = [];//清空列表
+                num = 1;//从第一条开始加载
+                loadData();//重新加载数据
+
+            }else{
+              siiimpleToast.message('啊哦，出错了~~',{
+                      position: 'bottom|center'
+                    });    
+            }
+        }
+    });
 }
 
 //根据openid查询加载broker

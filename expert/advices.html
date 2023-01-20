@@ -58,7 +58,7 @@
     </view>
 
     <div class="tips">
-        设置商品摘规则，能够自动根据商品生成 <a href="categories.html?origin=expert" style="font-size: 12px;font-weight:bold;">所有类目</a>  <a href="#" id="createAdviceBtn" style="font-size: 12px;font-weight:bold;">增加摘要</a>
+        设置商品摘规则，能够自动根据商品生成 <a href="categories.html?origin=expert" style="font-size: 12px;font-weight:bold;">所有类目</a>  <a href="#" id="createAdviceBtn" style="font-size: 12px;font-weight:bold;">创建摘要</a>
     </div> 
 
     <!-- 类目列表 -->
@@ -113,6 +113,21 @@
     </a>        
   </div>
 
+    <!-- 新建推荐语模板 -->
+    <div id="adviceform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="adviceTip">增加新的商品摘要模板</div> 
+            <div id="fullCategoryDiv"  style="display:none;flex-direction: row; flex-wrap: wrap;text-align: center; justify-content: center; align-items: center;margin:10px auto;padding:0 10px;">
+            </div>            
+            <input type="text" id="adviceName2" placeholder="名称，如高性价比智能手表，必填" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>                        
+            <textarea type="text" id="adviceConditionDesc2" rows="3" placeholder="适用条件，能够限定应用范围。如：评分高于4.5，价格在800-1200元之间的智能手表。选填。" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;padding:2px;"></textarea>                                      
+            <textarea type="text" id="adviceDesc2" rows="3" placeholder="推荐语生成规则，能够根据具体商品自动生成。如：这个价位竞争胜出的智能手表，是用户用钱投票的结果，合理的价格和良好的口碑，是品质和设计的保证。必填" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;padding:2px;"></textarea>  
+
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelAdvice" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
+                <button type="submit" class="btnYes" id="btnSaveAdvice" style="font-size: 12px;padding:2px 5px;margin:2px;">确定</button> 
+            </div>
+    </div>
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
@@ -130,6 +145,6 @@
 <script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
 <script type="text/javascript" src="../js/util.js?v=3.02"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script> 
-<script type="text/javascript" src="js/advices.js?v=1.5"></script> 
+<script type="text/javascript" src="js/advices.js?v=1.51"></script> 
 <script type="text/javascript" src="../ext/short-md5.js"></script>
 </html>
