@@ -128,7 +128,7 @@ function insertItem(item){
     var html = tplLevel1;
     html  = html.replace(/__id/g,item.id);  
     html  = html.replace(/__name/g,item.alias?item.alias:item.name);  
-    html  = html.replace(/__img/g,item.logo?(item.logo.indexOf("http")>-1?item.log:"http://www.shouxinjk.net/static/logo/category/"+item.logo):"http://www.shouxinjk.net/static/logo/distributor/ilife.png");  
+    html  = html.replace(/__img/g,item.logo?(item.logo.indexOf("http")>-1?item.log:"../images/category/"+item.logo):"http://www.shouxinjk.net/static/logo/distributor/ilife.png");  
     $("#waterfall").append(html);
 
     //注册事件： 点击跳转设置界面

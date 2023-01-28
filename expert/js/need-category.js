@@ -238,7 +238,8 @@ function insertCategoryItem(category){
     if(category.logo && category.logo.indexOf("http")>-1){
         logo = category.logo;
     }else if(category.logo && category.logo.trim().length>0){
-        logo = "http://www.shouxinjk.net/static/logo/category/"+category.logo;
+        //logo = "http://www.shouxinjk.net/static/logo/category/"+category.logo;
+        logo = "../images/category/"+category.logo;
     }
     // 显示HTML
     var html = '';

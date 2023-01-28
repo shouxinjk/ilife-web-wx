@@ -224,7 +224,8 @@ function insertCategoryItem(category){
     if(category.logo && category.logo.indexOf("http")>-1){
         logo = category.logo;
     }else if(category.logo && category.logo.trim().length>0){
-        logo = "http://www.shouxinjk.net/static/logo/category/"+category.logo;
+        //logo = "http://www.shouxinjk.net/static/logo/category/"+category.logo;
+        logo = "images/category/"+category.logo;
     }
     // 显示HTML
     var html = '';
@@ -358,7 +359,8 @@ function insertItem(){
     if(rank.category.logo && rank.category.logo.indexOf("http")>-1){
         logo = rank.category.logo;
     }else if(rank.category.logo && rank.category.logo.trim().length>0){
-        logo = "http://www.shouxinjk.net/static/logo/category/"+rank.category.logo;
+        //logo = "http://www.shouxinjk.net/static/logo/category/"+rank.category.logo;
+        logo = "images/category/"+rank.category.logo;
     }
     //基本信息
     var rankHtml = rankTpl.replace(/__id/g,rank.id).replace(/__name/g,rank.name).replace(/__categoryName/g,rank.category.name)
