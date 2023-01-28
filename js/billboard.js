@@ -641,7 +641,7 @@ function loadMeasureScores(stuff){
               score += Math.pow(sort, -0.75) * rankItem.weight/weightSum * itemScore[rankItem.dimension.id]?itemScore[rankItem.dimension.id]:Math.random();
               sort ++ ;
             });
-            score = score/rankItems.length*100;
+            score = Math.sqrt(score/rankItems.length*100)*10; //此处做了额外处理，避免得分较低
             //$("#score"+stuff._key).append(Number(score.toFixed(1)));
             //将计算结果写入stuff内，并替换列表中的数据
             stuff["_score"] = score;
