@@ -27,6 +27,7 @@
             <input id="searchTxt" placeholder="🔍  客观评价每一件商品" style="line-height: normal;display: inline-block;"/><a id="findAll" class="searchBtn" style="color:#fff;">&nbsp;&nbsp;搜索</a> 
             <!--a class="searchBtn" style="color:#fff;" href="measures.html">&nbsp;&nbsp;热门</a-->   
             <!--a id="addNewItemBtn" href="#" style="font-size: 12px;font-weight:bold;color:#fff;">&nbsp;&nbsp;提交商品</a-->
+            <a id="showMeasureInfoBtn" href="#" style="font-size: 12px;font-weight:bold;color:#fff;">&nbsp;&nbsp;评价体系</a> 
         </div>       
     </div>
     <div style="background-color: green;height:4px;">&nbsp;&nbsp;</div>
@@ -168,6 +169,36 @@
             </div>
     </div>    
 
+    <!-- 评价体系 -->
+    <div id="measureinfoform" style="display:none; cursor: default;text-align: left;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;text-align: center;">确幸评价体系</div> 
+            <div class="wx-scroll-list" style="height:300px;">
+               <div style="display:flex;align-items: center;margin-top:10px;">
+                   <div><img src="images/icon/type-measure.png" style="width:48px;object-fit: cover;margin:0 5px;"/></div>
+                   <div style="font-size:12px;line-height: 16px;"><b>评价体系</b><br/>采用层次分析法(AHP)及群组决策特征根法(GEM)综合计算得到评分，是综合专家知识及机器智能的综合评分法。</div>
+               </div>
+               <div style="display:flex;align-items: center;margin-top:10px;">
+                   <div><img src="images/icon/type-dimension.png" style="width:48px;object-fit: cover;margin:0 5px;"/></div>
+                   <div style="font-size:12px;line-height: 16px;"><b>度量与指标</b><br/>不同的主题或类目均有不同的度量方法及指标，确性评价提供开放指标体系。<br/>领域专家能够建立所在领域的度量指标，如行程包含时间合理性、路线合理性、同行评价、用户评价、性价比；USB存储设备包含写入速度、存储容量、接口版本等关键指标。</div>
+               </div>
+               <div style="display:flex;align-items: center;margin-top:10px;">
+                   <div><img src="images/icon/type-data.png" style="width:48px;object-fit: cover;margin:0 5px;"/></div>
+                   <div style="font-size:12px;line-height: 16px;"><b>数据来源</b><br/>原始数据均来源于开放、可信数据，包括电商平台、专业数据库、行业数据库等，如天猫、京东、拼多多、黑猫投诉平台、服装材料数据、酒店星级标准、国家标准、行业标准等。</div>
+               </div>                              
+            </div>    
+            <div>
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;margin-top:2px;">
+                    <div><img src="images/money/info.png" style="width:12px;height:12px;object-fit: cover;"/></div>
+                    <div>&nbsp;领域专家请加入我们建立更全面更专业的评价体系 <a href="console.html" style="font-size: 8px;font-weight: bold;color:blue;">立即加入</a></div>
+                </div> 
+            </div>                                 
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelCustomize" style="font-size: 12px;padding:2px 5px; margin:2px;">关闭</button>  
+            </div>
+    </div> 
+
+
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
@@ -190,5 +221,5 @@
 <script type="text/javascript" src="ext/require.min.js"></script>
 <script type="text/javascript" src="js/md5.js?v=1.2"></script>
 <script type="text/javascript" src="js/util.js?v=3.3"></script>
-<script type="text/javascript" src="js/measures.js?v=1.2"></script> 
+<script type="text/javascript" src="js/measures.js?v=1.3"></script> 
 </html>

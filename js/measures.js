@@ -145,6 +145,37 @@ $(document).ready(function ()
             saveRankInfo(rank);
         }
     });
+
+
+    //注册事件：显示评分信息
+    $("#showMeasureInfoBtn").click(function(){
+        //显示表单
+        $.blockUI({ message: $('#measureinfoform'),
+            css:{ 
+                padding:        10, 
+                margin:         0, 
+                width:          '80%', 
+                top:            '20%', 
+                left:           '10%', 
+                textAlign:      'center', 
+                color:          '#000', 
+                border:         '1px solid silver', 
+                backgroundColor:'#fff', 
+                cursor:         'normal' 
+            },
+            overlayCSS:  { 
+                backgroundColor: '#000', 
+                opacity:         0.7, 
+                cursor:          'normal' 
+            }
+        });         
+    });
+
+    //注册事件：隐藏排行规则
+    $(".btnNo").click(function(){     
+        $.unblockUI(); //直接取消即可
+    });
+
 });
 
 var rankItemGrid = null;//排行榜维度条目grid
