@@ -146,6 +146,35 @@ $(document).ready(function ()
       }
     });  
 
+    //注册事件：显示定制提示
+    $("#showCustomizeInfoBtn").click(function(){
+        //显示表单
+        $.blockUI({ message: $('#customizeform'),
+            css:{ 
+                padding:        10, 
+                margin:         0, 
+                width:          '80%', 
+                top:            '20%', 
+                left:           '10%', 
+                textAlign:      'center', 
+                color:          '#000', 
+                border:         '1px solid silver', 
+                backgroundColor:'#fff', 
+                cursor:         'normal' 
+            },
+            overlayCSS:  { 
+                backgroundColor: '#000', 
+                opacity:         0.7, 
+                cursor:          'normal' 
+            }
+        });         
+    });
+
+    //注册事件：隐藏排行规则
+    $(".btnNo").click(function(){     
+        $.unblockUI(); //直接取消即可
+    });
+
 });
 
 var width = 600;

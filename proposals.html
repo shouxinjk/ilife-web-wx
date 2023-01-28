@@ -31,7 +31,8 @@
         <div class="search" style="text-align: center;background-color: #2a61f1; ">
             <span style="margin-left:-20px;background-color: #2a61f1;">&nbsp;</span>
             <input id="searchTxt" placeholder="🔍  快速定制专属个性化方案" style="line-height: normal;display: inline-block;"/><a id="findAll" class="searchBtn" style="color:#fff;">&nbsp;&nbsp;搜索</a> 
-            <!--a class="searchBtn" style="color:#fff;" href="proposals.html">&nbsp;&nbsp;热门</a-->     
+            <!--a class="searchBtn" style="color:#fff;" href="proposals.html">&nbsp;&nbsp;热门</a-->    
+            <a id="showCustomizeInfoBtn" href="#" style="font-size: 12px;font-weight:bold;color:#fff;">&nbsp;&nbsp;定制指南</a> 
         </div>       
     </div>
     <div style="background-color: #2a61f1;height:4px;">&nbsp;&nbsp;</div>
@@ -109,6 +110,36 @@
             </div>
     </div> 
 
+
+    <!-- 定制规则 -->
+    <div id="customizeform" style="display:none; cursor: default;text-align: left;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;text-align: center;">定制类型及方法</div> 
+            <div class="wx-scroll-list" style="height:300px;">
+               <div style="display:flex;align-items: center;margin-top:10px;">
+                   <div><img src="images/icon/type-board.png"/></div>
+                   <div style="font-size:12px;line-height: 16px;"><b style="color:#226cff;">快速组合清单</b><br/>能够将同一个主题的商品快速组合在一起，以便获取所有可选项。<br/>如家庭烘焙组合、野营帐篷和用品、山姆购物清单等</div>
+               </div>
+               <div style="display:flex;align-items: center;margin-top:10px;">
+                   <div><img src="images/icon/type-guide.png"/></div>
+                   <div style="font-size:12px;line-height: 16px;"><b style="color:#CC3333;">专家指南</b><br/>是一对一定制，如个性化体检方案。<br/>通过提供必要的信息，自动根据专业的定制指南生成专属个性化方案</div>
+               </div>
+               <div style="display:flex;align-items: center;margin-top:10px;">
+                   <div><img src="images/icon/type-solution.png"/></div>
+                   <div style="font-size:12px;line-height: 16px;"><b style="color:#009933;">定制师方案</b><br/>能够将多个元素按照一定的结构组织在一起，如3天的旅游行程.<br/>包括酒店、景点、美食、玩乐、购物等多个类型，能够用于出行前制定行程计划，尤其是在有多人参与时能够通过分享和修订得到一个共同认可的方案。</div>
+               </div>                              
+            </div>    
+            <div>
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;margin-top:2px;">
+                    <div><img src="images/money/info.png" style="width:12px;height:12px;object-fit: cover;"/></div>
+                    <div>&nbsp;定制包含：组合清单、专家指南、定制师方案三种</div>
+                </div> 
+            </div>                                 
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelCustomize" style="font-size: 12px;padding:2px 5px; margin:2px;">关闭</button>  
+            </div>
+    </div> 
+
+
 </body>
 
 <!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
@@ -126,5 +157,5 @@
 <script type="text/javascript" src="ext/d3/d3.min.js"></script>
 <script type="text/javascript" src="ext/d3/zoomable-circle-packing.js?v=0.6"></script>
 <script type="text/javascript" src="js/util.js?v=3.21"></script>
-<script type="text/javascript" src="js/proposals.js?v=1.1"></script> 
+<script type="text/javascript" src="js/proposals.js?v=1.2"></script> 
 </html>

@@ -101,7 +101,6 @@ $(document).ready(function ()
 
     });  
 
-
 });
 
 util.getUserInfo();//从本地加载cookie
