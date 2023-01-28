@@ -58,7 +58,7 @@ var num = 1;//需要加载的内容下标
 
 var items = [];
 var page = {//翻页控制
-  size: 20,//每页条数
+  size: 100,//每页条数
   total: 1,//总页数
   current: -1//当前翻页
 };
@@ -161,8 +161,16 @@ function showRankInfo(){
             $("#rankKeyword").append("<div style='font-size:10px;color:#fff;border-radius:10px;padding:1px 5px;border:1px solid #fff;margin-left:2px;'>"+keyword+"</div>");
         }
     });
-    
   }  
+
+    //logo
+    var logo = "http://www.shouxinjk.net/static/logo/distributor/ilife.png";
+    if(rank.category && rank.category.logo && rank.category.logo.indexOf("http")>-1){
+        logo = rank.category.logo;
+    }else if(rank.category && rank.category.logo && rank.category.logo.trim().length>0){
+        logo = "images/category/"+rank.category.logo;
+    }
+  $("#rankCagtegoryLogo>img").attr("src",logo);
   //显示排行规则
   console.log("show rank items.",rankItems);
   $("#rankItems").empty();//先清空
@@ -216,8 +224,153 @@ function loadFeeds(){
     }, 60);
 }
 
-//加载用户浏览数据：根据选定用户显示其浏览历史，对于画像则显示该画像下的聚集数据
-//currentPersonType: person则显示指定用户的记录，persona显示该画像下所有记录
+//复杂查询模板
+var esQueryTemplate = JSON.stringify({
+  "from": 0,
+  "size": page.size,    
+  "query":{
+    "bool":{
+      "must": [],       
+      "must_not": [],                
+      "filter": [],      
+      "should":[]
+    }
+  },
+  "sort": [
+    { "_score":   { "order": "desc" }},
+    { "@timestamp": { "order": "desc" }}
+  ]   
+});
+
+//根据featured维度score计算综合得分：根据featured维度数量动态组织搜索条件
+var funcQueryByMeasureTpl =  JSON.stringify({
+    "nested": {
+      "path": "measure",
+      "score_mode": "min", 
+      "query": {
+        "function_score": {
+          "script_score": {
+            "script": "_score * doc['profit.amount'].value"
+          }
+        }
+      }
+    }
+  });
+
+//groovy脚本模板：如果有measure.xxx则直接采用，否则采用随机值
+var scriptTpl = `doc['measure._fdim']?doc['measure._fdim'].value:Math.random()`;
+
+/**
+//根据rank设置的meta.category及keywords过滤条目
+//根据rank定义的排序维度综合计算得分
+function loadData() {
+    console.log("Feed::loadData",categoryId);
+
+    //构建复杂查询
+    var esQuery = JSON.parse(esQueryTemplate);
+    esQuery.from = (page.current + 1) * page.size;
+    esQuery.size = page.size;
+
+    //设置meta.category为must条件
+    esQuery.query.bool.must.push({
+            "nested": {
+              "path": "meta",
+              "query": {
+                "term": {
+                  "meta.category": categoryId
+                }
+              }
+            }
+          });
+
+    //如果有关键字，则根据关键字过滤
+    if(rank.keywords && rank.keywords.trim().length>0){
+      console.log("add query text to search.",rank.keywords);
+      esQuery.query.bool.must.push({
+                      "match" : {"full_text": rank.keywords}
+                });
+    }    
+
+    var sumWeight = 0;
+    rankItems.forEach(function(rankItem){
+        sumWeight += rankItem.dimension.weight;
+    });
+    if(sumWeight==0)sumWeight=1;
+
+    //根据rank的排序字段添加functions
+    var scripts = "";
+    var itemSort = 1;
+    rankItems.forEach(function(rankItem){
+        if(itemSort>1)
+            scripts += " + ";
+        scripts += scriptTpl.replace(/_fdim/g,rankItem.dimension.propKey);
+        scripts += " * " + Math.pow(itemSort, -0.75); //按照排序先后加权
+        scripts += " * " + rankItem.dimension.weight/sumWeight; //weight动态加权
+        itemSort++;
+    });
+    scripts = "_score * 100 * ("+scripts+") / "+rankItems.length; //不考虑原始得分 _score
+
+    var funcQueryByMeasure = JSON.parse(funcQueryByMeasureTpl);
+    funcQueryByMeasure.nested.query.function_score.script_score.script = scripts;
+    esQuery.query.bool.should.push(funcQueryByMeasure);//动态计算加入查询
+
+    //设置请求头
+    var esHeader = {
+      "Content-Type": "application/json",
+      "Authorization": "Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
+    };
+
+    console.log("try to search stuff.",JSON.stringify(esQuery), esQuery);
+
+    $.ajax({
+        url:app.config.search_api+"/stuff/_search", 
+        type:"post",
+        data:JSON.stringify(esQuery),//注意：nginx启用CORS配置后不能直接通过JSON对象传值
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":"Basic ZWxhc3RpYzpjaGFuZ2VtZQ=="
+        },
+        crossDomain: true,
+        timeout:3000,//设置超时
+        success:function(data){
+            console.log("Feed::loadData success.",data);
+            if(data.hits.total == 0 || data.hits.hits.length==0){//如果没有内容，则显示提示文字
+                shownomore(true);
+                showloading(false);
+            }else{
+                //更新总页数
+                var total = data.hits.total;
+                page.total = (total + page.size - 1) / page.size;
+                //更新当前翻页
+                page.current = page.current + 1;
+                //装载具体条目
+                var hits = data.hits.hits;
+                for(var i = 0 ; i < hits.length ; i++){
+                    var hit = hits[i]._source;
+                    hit["_score"] = hits[i]._score;
+                    items.push(hit);
+                }
+                insertItem();
+                showloading(false);
+            }
+        },
+        complete: function (XMLHttpRequest, textStatus) {//调用执行后调用的函数
+            if(textStatus == 'timeout'){//如果是超时，则显示更多按钮
+              console.log("ajax超时",textStatus);
+              shownomore(true);
+            }
+        },
+        error: function () {//调用出错执行的函数
+            //请求出错处理：超时则直接显示搜索更多按钮
+            shownomore(true);
+          }
+    });
+  }
+//**/
+
+
+//直接获取前100条数据：取出后在前端完成排序
+var sortedItems = [];//记录已经排序的条目列表
 function loadData() {
     console.log("Feed::loadData",categoryId);
     //设置query
@@ -284,10 +437,19 @@ function loadData() {
                 //装载具体条目
                 var hits = data.hits.hits;
                 for(var i = 0 ; i < hits.length ; i++){
-                    items.push(hits[i]._source);
+                    var hit = hits[i]._source;
+                    hit["_score"] = Math.random()*100; //先随机给一个值
+                    items.push(hit);
+                    //加载评价数据并计算得分
+                    loadMeasureScores(hit);//在计算得分后开始显示
                 }
+                //按照得分排序
+                //items.sort(sortByScore);
+                //开始展示到界面
+                /**
                 insertItem();
                 showloading(false);
+                //**/
             }
         },
         complete: function (XMLHttpRequest, textStatus) {//调用执行后调用的函数
@@ -303,17 +465,23 @@ function loadData() {
     });
   }
 
+//按照得分多少排序
+function sortByScore(a, b){
+    return b._score - a._score;
+}
+
 
 //将item显示到页面
 //logo、平台、标题、标价+售价+优惠券、店返+团返+积分、评价数据、点击后跳转到详情页面
 function insertItem(){
     // 加载内容
-    var item = items[num-1];
+    var item = sortedItems[num-1];
     console.log("try insert stuff item.",item);
     if(!item){
       shownomore(true);
       return;
     }
+
     //排重
     if($("#"+item._key).length>0)
       return;
@@ -427,10 +595,13 @@ function insertItem(){
         + "</div></li>");
     num++;
 
+    /**
     //装载评价数据：查询后动态添加
     if(item.meta&&item.meta.category){
       loadMeasureScores(item);
     }
+    //**/
+    $("#score"+item._key).append(Number(item._score.toFixed(1)));
 
     //注册事件
     $("#"+item._key).click(function(){
@@ -471,7 +642,22 @@ function loadMeasureScores(stuff){
               sort ++ ;
             });
             score = score/rankItems.length*100;
-            $("#score"+stuff._key).append(Number(score.toFixed(1)));
+            //$("#score"+stuff._key).append(Number(score.toFixed(1)));
+            //将计算结果写入stuff内，并替换列表中的数据
+            stuff["_score"] = score;
+            /**
+            var idx = items.find(item => item._key == stuff._key);
+            items.splice(idx, 1, stuff);
+            //**/
+            sortedItems.push(stuff);
+
+            //排序完成后开始显示
+            if(sortedItems.length == items.length){ //全部加载完成后就可以显示了
+                sortedItems.sort(sortByScore);//重新排序
+                insertItem();
+                showloading(false);
+            }
+
         }
     });   
 }

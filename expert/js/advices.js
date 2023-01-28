@@ -340,8 +340,8 @@ function insertItem(){
     if(item.category.logo && item.category.logo.indexOf("http")>-1){
         logo = item.category.logo;
     }else if(item.category.logo && item.category.logo.trim().length>0){
-        logo = "http://www.shouxinjk.net/static/logo/category/"+item.category.logo;
-    }
+        logo = "images/category/"+item.category.logo;
+    }    
 
     var image = "<img src='"+logo+"' width='60px' height='60px' style='object-fit:cover;' />"
     var tagTmpl = "<div class='persona-tag' style='background-color:__bgcolor;border-color:__bgcolor;border-radius:12px;padding:1px 5px;'>__TAG</div>";
