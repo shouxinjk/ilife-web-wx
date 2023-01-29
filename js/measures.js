@@ -109,7 +109,7 @@ $(document).ready(function ()
     registerShareHandler();  
 
     //如果是从排行榜进入则直接显示创建排行榜表单
-    if(args["showRankForm"]=="true"){
+    if(args["showRankForm"]=="true" && document.referrer && document.referrer.indexOf("billboard")>0){
       showRankForm();
     }
 
@@ -366,7 +366,7 @@ function searchCategory() {
                     }
                     //默认选按照已经传递的categoryId设置当前类目
                     if(categoryId&&categoryId.trim().length>0){//补充categoryName
-                      if(categoryId == ""+hits[i]._source.meta.category){
+                      if(hits[i]._source.meta && categoryId == ""+hits[i]._source.meta.category){
                         categoryName = hits[i]._source.meta.categoryName;
                         //showDimensionCirclePack( hits[i]._source.meta.categoryName );//加载并显示图表
                         showMeasureCharts( hits[i]._source.meta.categoryName );//加载并显示图表
