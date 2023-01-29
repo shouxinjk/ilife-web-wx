@@ -239,7 +239,7 @@ function insertPersonaItem(persona){
     if(persona.logo && persona.logo.indexOf("http")>-1){
         logo = persona.logo;
     }else if(persona.logo && persona.logo.trim().length>0){
-        logo = "http://www.shouxinjk.net/static/logo/persona/"+persona.logo;
+        logo = "../images/persona/"+persona.logo;
     }
     // 显示HTML
     var html = '';

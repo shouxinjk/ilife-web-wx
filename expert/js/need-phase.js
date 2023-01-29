@@ -237,7 +237,7 @@ function insertPhaseItem(phase){
     if(phase.logo && phase.logo.indexOf("http")>-1){
         logo = phase.logo;
     }else if(phase.logo && phase.logo.trim().length>0){
-        logo = "http://www.shouxinjk.net/static/logo/phase/"+phase.logo;
+        logo = "../images/phase/"+phase.logo;
     }
     // 显示HTML
     var html = '';
