@@ -34,11 +34,13 @@ $(document).ready(function ()
     }else if(origin && origin =="board-waterfall"){//如果是board则调整跳转页面：瀑布流风格
         state="board2-waterfall"+args;
     }else if(origin && origin =="board-all"){//显示所有清单。达人入口为模板消息
-        state="broker/boards"+args;
+        state="boards"+args;
     }else if(origin && origin =="solution"){//显示所有清单。达人入口为模板消息
         state="solution"+args;
     }else if(origin && origin =="measures"){//进入measure排行榜清单
         state="measures"+args;
+    }else{
+        state=origin+args; //默认直接跳转
     }
 
 
