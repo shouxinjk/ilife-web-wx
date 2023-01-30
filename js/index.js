@@ -1130,7 +1130,12 @@ function insertItem(){
     var solutionBtns = "";
     if(solutionId&&solutionItemId){//如果有solution信息则显示添加按钮
         solutionBtns = "<div class='itemTags'>";
-        solutionBtns += "<a  id='btn-add-"+item._key+"-to-solution' data-solutionitemid='"+solutionItemId+"' data-item='"+item._key+"' class='boardOption' style='color:blue;'>加入方案</a>&nbsp;";
+        solutionBtns += "<a  id='btn-add-"+item._key+"-to-solution-item' data-solutionitemid='"+solutionItemId+"' data-item='"+item._key+"' class='boardOption' style='color:blue;'>加入方案</a>&nbsp;";
+        solutionBtns += "<a class='boardOption' href='solution-modify.html?id="+solutionId+"' style='color:blue;'>返回方案</a>";
+        solutionBtns += "</div>";
+    }else if(solutionId){//如果有solution信息则显示添加按钮
+        solutionBtns = "<div class='itemTags'>";
+        solutionBtns += "<a  id='btn-add-"+item._key+"-to-solution' data-solutionid='"+solutionId+"' data-item='"+item._key+"' class='boardOption' style='color:blue;'>加入方案</a>&nbsp;";
         solutionBtns += "<a class='boardOption' href='solution-modify.html?id="+solutionId+"' style='color:blue;'>返回方案</a>";
         solutionBtns += "</div>";
     }
@@ -1179,14 +1184,23 @@ function insertItem(){
         event.stopPropagation(); //禁止冒泡
     });
 
-    //如果有solution则注册增加商品事件
-    $("#btn-add-"+item._key+"-to-solution").click(function(event){
+    //如果有solutionItem则注册增加商品事件
+    $("#btn-add-"+item._key+"-to-solution-item").click(function(event){
         event.stopPropagation(); //禁止冒泡
         //添加item到board并浮框提示
         var itemKey = $(this).data("item");
         console.log("try add item to solutionItem.",solutionItemId,itemKey);
         addItemToSolutionItem(itemKey);
     });    
+
+    //如果有solution则注册增加商品事件
+    $("#btn-add-"+item._key+"-to-solution").click(function(event){
+        event.stopPropagation(); //禁止冒泡
+        //添加item到board并浮框提示
+        var itemKey = $(this).data("item");
+        console.log("try add item to solutionItem.",solutionId,itemKey);
+        addItemToSolution(itemKey);
+    });
 
     //装载评价数据：查询后动态添加
     if(item.meta&&item.meta.category){
@@ -1249,8 +1263,30 @@ function addItemToBoard(item){
     }, "POST",data,header);
 }
 
-
 //添加item到solution
+function addItemToSolution(itemKey){
+    console.log("try to add item to solution.", itemKey)
+    var header={
+        "Content-Type":"application/json",
+        Authorization:"Basic aWxpZmU6aWxpZmU="
+    };     
+    //提交到后端
+    util.AJAX(app.config.sx_api+"/diy/solution/rest/solution/stuff/"+solutionId+"/"+itemKey, function (res) {
+        console.log("add item to solution successfully.", res)
+        if(res.success){
+            console.log("item added successfully", res)
+            siiimpleToast.message('已添加~~',{
+                  position: 'bottom|center'
+                });             
+        }else{
+            siiimpleToast.message('啊哦，出错了~~',{
+                  position: 'bottom|center'
+                });           
+        }
+    }, "POST",{},header);
+}
+
+//添加item到solutionItem
 function addItemToSolutionItem(itemKey){
     console.log("try to add item to solution.", itemKey)
     var header={

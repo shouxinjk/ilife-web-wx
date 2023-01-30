@@ -76,7 +76,13 @@ $(document).ready(function ()
     //注册点击事件：查看选品库
     $("#goSelectionBtn").click(function(){
         window.location.href="broker/selection.html";           
-    });   
+    });  
+
+    //注册点击事件：补充数据：点击补充数据后显示可编辑表单。包含继承属性数据
+    $("#addDataBtn").click(function(){
+        $("#propsview").css("display","none"); //隐藏只读列表 
+        $("#props").css("display","block"); //显示编辑表单      
+    });      
 
     //注册点击事件：赞同评价规则
     $(".likeDimensionBtn").click(function(){
@@ -372,14 +378,14 @@ function showContent(item){
     if(item.props && Array.isArray(item.props)){//兼容数组结构
         item.props.forEach(function(json){
             for (var key in json){
-                $("#props").append("<div class='prop-row'><div class='prop-key' style='text-align:right'>"+(categoryProps[key]?categoryProps[key]:key)+"</div><div class='prop-value' style='padding-left:5px;'>"+json[key]+"</div></div>");
+                $("#propsview").append("<div class='prop-row'><div class='prop-key' style='text-align:right'>"+(categoryProps[key]?categoryProps[key]:key)+"</div><div class='prop-value' style='padding-left:5px;'>"+json[key]+"</div></div>");
                 totalprops ++;
             }            
         });
     }else{//键值对则直接遍历
         for (var key in item.props){
             if(item.props[key])
-                $("#props").append("<div class='prop-row'><div class='prop-key' style='text-align:right'>"+(categoryProps[key]?categoryProps[key]:key)+"</div><div class='prop-value' style='padding-left:5px;'>"+item.props[key]+"</div></div>");
+                $("#propsview").append("<div class='prop-row'><div class='prop-key' style='text-align:right'>"+(categoryProps[key]?categoryProps[key]:key)+"</div><div class='prop-value' style='padding-left:5px;'>"+item.props[key]+"</div></div>");
                 totalprops++;
         } 
     }
@@ -2411,7 +2417,7 @@ function loadProps(categoryId){
                 }else if(item.description&&item.description.trim().length>0){ //其次显示属性描述
                     propHtml = propHtml.replace(/__placeholder/g,item.description);
                 }else{
-                    propHtml = propHtml.replace(/__placeholder/g,"还没有数据，等你补充哦~~");
+                    propHtml = propHtml.replace(/__placeholder/g,"补充数据评价更准确~~");
                 }
                 propHtml = propHtml.replace(/__property/g,property);
                 propHtml = propHtml.replace(/__targetProperty/g,targetPropKey);

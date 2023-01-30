@@ -238,7 +238,7 @@ function insertOccasionItem(occasion){
     if(occasion.logo && occasion.logo.indexOf("http")>-1){
         logo = occasion.logo;
     }else if(occasion.logo && occasion.logo.trim().length>0){
-        logo = "http://www.shouxinjk.net/static/logo/occasion/"+occasion.logo;
+        logo = "../images/occasion/"+occasion.logo;
     }
     // 显示HTML
     var html = '';

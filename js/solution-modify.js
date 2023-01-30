@@ -477,8 +477,45 @@ function deleteSolutionItem(){
     });
 }
 
-//删除一个关联的商品
-function deleteStuffItem(solutionitemId, itemKey){
+//删除一个关联在方案上的商品：即底部推荐商品
+function deleteStuffOnSolution(itemKey){
+    console.log("try to delete stuff from solution.", itemKey);
+
+    //直接替换当前solutionItem的关联商品集合
+    var stuffItems = [];
+    if(solution.itemIds){
+        stuffItems = solution.itemIds.replace(/\s+/g,"").split(",");
+        var idx = stuffItems.indexOf(itemKey);
+        if(idx>-1)
+            stuffItems.splice(idx,1);
+        solution.itemIds = stuffItems.join(",");
+    }
+    console.log("try to save solution item info.",solution);
+    $.ajax({
+        url:app.config.sx_api+"/diy/solution/rest/solution",
+        type:"post",
+        data:JSON.stringify(solution),//注意：不能使用JSON对象
+        headers:{
+            "Content-Type":"application/json",
+            "Accept": "application/json"
+        },  
+        success:function(ret){
+            console.log("===save solution item done===\n",ret);
+            if(ret.success){ //取消浮框，并更新界面
+                //直接隐藏条目
+                $("#stuffOnSolution"+itemKey).empty();
+                //window.location.href = "solution-modify.html?id="+solution.id;
+            }else{
+              siiimpleToast.message('啊哦，出错了~~',{
+                      position: 'bottom|center'
+                    });    
+            }
+        }
+    });
+}
+
+//删除一个关联在方案条条目上的商品
+function deleteStuffOnSolutionItem(solutionitemId, itemKey){
     solutionItemId = solutionitemId;
     console.log("try to delete stuff from solution item.",solutionItemId, itemKey);
     getCurrentSolutionItem();
@@ -649,7 +686,38 @@ function buildSolutionItemHtml(item){
 //构建商品条目html。参数：
 //solutionItemId 所属方案条目
 //item 商品条目doc
-function buildStuffItemHtml(solutionItemId, item){
+function buildStuffOnSolutionHtml(item){
+    var logo = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
+    if(item.logo){
+        logo = item.logo.replace(/\.avif/,"");
+    }else{
+        logo = item.images[0].replace(/\.avif/,"");
+    }
+
+    var btnHtml = '<span id="deleteStuffOnSolutionBtn'+item._key+'"  data-itemkey="'+item._key+'" style="'+btnStyle+'">删除</span>';
+
+    var highlight = "<div class='description'>"+(item.price.currency?item.price.currency:"￥")+item.price.sale+" "+item.distributor.name+btnHtml+"</div>";
+    var title = "<div class='description' style='line-height: 14px; overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;'>"+item.title+"</div>";
+    var image = "<img src='"+logo+"' style='width:48px;object-fit:cover;border-radius:5px;margin:5px auto;'/>";
+    
+    //添加标签
+    var tags = "<div style='display:flex;flex-direction:row;flex-wrap:wrap;'>";
+    if(item.tags && item.tags.length>0){//装载标签
+        item.tags.forEach(function(tag){
+            if(tag && tag.trim().length>0 && tag.trim().length<10)
+                tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;margin-top:2px;font-size:10px;line-height:12px;'>"+tag+"</span>";
+        });
+    }
+    tags += "</div>"; 
+
+    var html = "<div id='stuffOnSolution"+item._key+"' class='task'><div class='task-logo' style='text-align:center;/*vertical-align:bottom;*/width:20%;'>" + image +"</div><div class='task-tags' style='width:80%;'>" +highlight+title+tags+"</div>"
+    return html;   
+}
+
+//构建商品条目html。参数：
+//solutionItemId 所属方案条目
+//item 商品条目doc
+function buildStuffOnSolutionItemHtml(solutionItemId, item){
     var logo = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
     if(item.logo){
         logo = item.logo.replace(/\.avif/,"");
@@ -756,6 +824,16 @@ function showContent(solution){
     //摘要
     $("#content").html(solution.description);
 
+    //关联的商品条目显示：
+    loadStuffOnSolution();
+    //添加关联商品按钮
+    var addItem2Solution = '<div id="addStuff2SolutionBtn" style="'+btnStyleL+';width:100px;margin:10px auto;">添加推荐商品</div>';
+    $("#stuffOnSolutionDiv").append(addItem2Solution);
+    //注册关联点击事件：直接跳转到首页搜索添加
+    $("#addStuff2SolutionBtn").click(function(){
+        window.location.href="index.html?solutionId="+solution.id;
+    });
+
     //分享链接
     if(posterId){//如果指定海报ID
         $("#share-link").attr("href","board2-poster.html?type=board2-waterfall&id="+id+"&posterId="+posterId);
@@ -798,6 +876,78 @@ function showContent(solution){
         }
 
     });  
+}
+
+
+//根据方案获取关联的商品条目，并逐条加载显示到界面
+function loadStuffOnSolution(){//获取内容列表
+    if(solution.itemIds && solution.itemIds.trim().length>0){ //items是逗号分隔的字符串，需要分解后逐条加载
+        console.log("try load stuff items.", solution.itemIds.split(","),solution.itemIds)
+        solution.itemIds.split(",").forEach(function(_key){
+            var itemKey = _key.replace(/\s+/,"");
+            console.log("try load stuff item.", _key, itemKey)
+            $.ajax({
+                url:"https://data.shouxinjk.net/_db/sea/my/stuff/"+itemKey,
+                type:"get",
+                data:{},
+                success:function(data){  
+                    console.log("got stuff",data);
+                    insertStuffOnSolution(data); //显示到界面    
+                }
+            })  
+        });
+    }          
+}
+
+//将方案下关联的商品条目显示到界面
+function insertStuffOnSolution(stuff){
+    // 获取佣金：获取范围
+    //console.log("Board::insertBoardItem load share info.", item);
+    if(stuff.profit && stuff.profit.order && stuff.profit.order >0){
+        //console.log("Board::insertBoardItem load share info. step 2...", item);
+        if( bonusMax == 0 & bonusMin ==0 ){//首先将两者均设为第一个值
+            bonusMin = stuff.profit.order;
+            bonusMax = stuff.profit.order;
+        }
+        if( stuff.profit.order > bonusMax){
+            bonusMax = stuff.profit.order;
+        }
+        if( stuff.profit.order < bonusMin){
+            bonusMin = stuff.profit.order;
+        }
+        //showShareContent();//当前无佣金时也显示
+    }   
+    showShareContent();//更新佣金
+
+    var html = buildStuffOnSolutionHtml(stuff);
+    $("#stuffOnSolutionDiv").append(html);
+
+    //注册删除事件
+    $("#deleteStuffOnSolutionBtn"+stuff._key).click(function(){
+        var itemKey = $(this).data("itemkey");
+        console.log("trigger delete stuff item.",itemKey);
+        deleteStuffOnSolution(itemKey);
+    });
+
+    //注册事件：能够跳转到指定item
+    /**
+    $('#stuffItem'+stuff._key).click(function(){
+        var targetUrl = "info2.html?id="+stuff._key;
+        //根据是否是海报进入区分跳转：如果是海报进入则直接跳转到第三方页面
+        if(posterId&&!stuff.link.token){//对于淘宝等还是要进入详情页面，可以直接复制淘口令
+            targetUrl = "go.html?id="+stuff._key;
+        }
+        if(broker&&broker.id){//如果当前用户是达人，则使用当前达人跟踪。
+            targetUrl += "&fromBroker="+broker.id;
+        }else if(board&&board.broker.id){//否则，使用board的创建者进行跟踪
+            targetUrl += "&fromBroker="+board.broker.id;
+        }
+        window.location.href=targetUrl;
+    });
+    //**/
+
+    // 表示加载结束
+    loading = false;
 }
 
 function showShareContent(){
@@ -993,7 +1143,7 @@ function loadSolutionItems(solutionId){
                 window.location.href="index.html?solutionId="+solution.id+"&solutionItemId="+ $(this).data("solutionitemid")+"&keyword="+ $(this).data("keyword");
             });  
             //装载关联的stuff条目
-            loadStuffItem(hits[i]);//查询具体的item条目
+            loadStuffOnSolutionItem(hits[i]);//查询具体的item条目
             //如果第一个item为section类型则隐藏默认分隔条
             if(i==0 && (!hits[i].type || "section"==hits[i].type.id)){
                 $("#defaultSection").css("display","none");
@@ -1003,7 +1153,7 @@ function loadSolutionItems(solutionId){
 }
 
 //根据方案条目获取关联的商品条目，并逐条加载显示到界面
-function loadStuffItem(item){//获取内容列表
+function loadStuffOnSolutionItem(item){//获取内容列表
     if(item && item.itemIds && item.itemIds.trim().length>0){ //items是逗号分隔的字符串，需要分解后逐条加载
         console.log("try load stuff items.", item.itemIds.split(","),item.itemIds)
         item.itemIds.split(",").forEach(function(_key){
@@ -1015,7 +1165,7 @@ function loadStuffItem(item){//获取内容列表
                 data:{},
                 success:function(data){  
                     console.log("got stuff",data);
-                    insertStuffItem(item.id, data); //显示到界面    
+                    insertStuffOnSolutionItem(item.id, data); //显示到界面    
                 }
             })  
         });
@@ -1023,7 +1173,7 @@ function loadStuffItem(item){//获取内容列表
 }
 
 //将方案条目下关联的商品条目显示到界面
-function insertStuffItem(solutionItemId, stuff){
+function insertStuffOnSolutionItem(solutionItemId, stuff){
     // 获取佣金：获取范围
     //console.log("Board::insertBoardItem load share info.", item);
     if(stuff.profit && stuff.profit.order && stuff.profit.order >0){
@@ -1042,7 +1192,7 @@ function insertStuffItem(solutionItemId, stuff){
     }   
     showShareContent();//更新佣金
 
-    var html = buildStuffItemHtml(solutionItemId, stuff);
+    var html = buildStuffOnSolutionItemHtml(solutionItemId, stuff);
     $("#stuffItemDiv"+solutionItemId).append(html);
 
     //注册删除事件
@@ -1050,7 +1200,7 @@ function insertStuffItem(solutionItemId, stuff){
         solutionItemId = $(this).data("solutionitemid")
         var itemKey = $(this).data("itemkey");
         console.log("trigger delete stuff item.",solutionItemId,itemKey);
-        deleteStuffItem(solutionItemId, itemKey);
+        deleteStuffOnSolutionItem(solutionItemId, itemKey);
     });
 
     //注册事件：能够跳转到指定item

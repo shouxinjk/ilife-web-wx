@@ -149,6 +149,36 @@ function buildSolutionItemHtml(item){
       
 }
 
+
+//构建商品条目html。参数：
+//solutionItemId 所属方案条目
+//item 商品条目doc
+function buildStuffOnSolutionHtml(item){
+    var logo = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
+    if(item.logo){
+        logo = item.logo.replace(/\.avif/,"");
+    }else{
+        logo = item.images[0].replace(/\.avif/,"");
+    }
+
+    var highlight = "<div class='description'>"+(item.price.currency?item.price.currency:"￥")+item.price.sale+" "+item.distributor.name+"</div>";
+    var title = "<div class='description' style='line-height: 14px; overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 3;-webkit-box-orient: vertical;'>"+item.title+"</div>";
+    var image = "<img src='"+logo+"' style='width:48px;object-fit:cover;border-radius:5px;margin:5px auto;'/>";
+    
+    //添加标签
+    var tags = "<div style='display:flex;flex-direction:row;flex-wrap:wrap;'>";
+    if(item.tags && item.tags.length>0){//装载标签
+        item.tags.forEach(function(tag){
+            if(tag && tag.trim().length>0 && tag.trim().length<10)
+                tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;margin-top:2px;font-size:10px;line-height:12px;'>"+tag+"</span>";
+        });
+    }
+    tags += "</div>"; 
+
+    var html = "<div id='stuffOnSolution"+item._key+"' class='task'><div class='task-logo' style='text-align:center;/*vertical-align:bottom;*/width:20%;'>" + image +"</div><div class='task-tags' style='width:80%;'>" +highlight+title+tags+"</div>"
+    return html;   
+}
+
 //构建商品条目html。参数：
 //solutionItemId 所属方案条目
 //item 商品条目doc
@@ -238,6 +268,9 @@ function showContent(solution){
 
     //摘要
     $("#content").html(solution.description);
+
+    //关联的商品条目显示：
+    loadStuffOnSolution();
 
     //分享链接
     if(posterId){//如果指定海报ID
@@ -491,6 +524,73 @@ function insertStuffItem(solutionItemId, stuff){
 
     var html = buildStuffItemHtml(solutionItemId, stuff);
     $("#stuffItemDiv"+solutionItemId).append(html);
+
+    //注册事件：能够跳转到指定item
+    $('#stuffItem'+stuff._key).click(function(){
+        var targetUrl = "info2.html?id="+stuff._key;
+        //根据是否是海报进入区分跳转：如果是海报进入则直接跳转到第三方页面
+        if(posterId&&!stuff.link.token){//对于淘宝等还是要进入详情页面，可以直接复制淘口令
+            targetUrl = "go.html?id="+stuff._key;
+        }
+        if(broker&&broker.id){//如果当前用户是达人，则使用当前达人跟踪。
+            targetUrl += "&fromBroker="+broker.id;
+        }else if(board&&board.broker.id){//否则，使用board的创建者进行跟踪
+            targetUrl += "&fromBroker="+board.broker.id;
+        }
+        window.location.href=targetUrl;
+    });
+
+    // 表示加载结束
+    loading = false;
+}
+
+
+//根据方案获取关联的商品条目，并逐条加载显示到界面
+function loadStuffOnSolution(){//获取内容列表
+    if(solution.itemIds && solution.itemIds.trim().length>0){ //items是逗号分隔的字符串，需要分解后逐条加载
+        $("#moreItems").html("方案关联商品推荐");
+        console.log("try load stuff items.", solution.itemIds.split(","),solution.itemIds)
+        solution.itemIds.split(",").forEach(function(_key){
+            var itemKey = _key.replace(/\s+/,"");
+            console.log("try load stuff item.", _key, itemKey)
+            $.ajax({
+                url:"https://data.shouxinjk.net/_db/sea/my/stuff/"+itemKey,
+                type:"get",
+                data:{},
+                success:function(data){  
+                    console.log("got stuff",data);
+                    insertStuffOnSolution(data); //显示到界面    
+                }
+            })
+        });
+    }          
+}
+
+//将方案下关联的商品条目显示到界面
+function insertStuffOnSolution(stuff){
+    // 获取佣金：获取范围
+    //console.log("Board::insertBoardItem load share info.", item);
+    if(stuff.profit && stuff.profit.order && stuff.profit.order >0){
+        //console.log("Board::insertBoardItem load share info. step 2...", item);
+        if( bonusMax == 0 & bonusMin ==0 ){//首先将两者均设为第一个值
+            bonusMin = stuff.profit.order;
+            bonusMax = stuff.profit.order;
+        }
+        if( stuff.profit.order > bonusMax){
+            bonusMax = stuff.profit.order;
+        }
+        if( stuff.profit.order < bonusMin){
+            bonusMin = stuff.profit.order;
+        }
+        //showShareContent();//当前无佣金时也显示
+    }   
+    showShareContent();//更新佣金
+
+    var html = buildStuffOnSolutionHtml(stuff);
+    $("#stuffOnSolutionDiv").append("<div style='line-height:5px;'>&nbsp;</div>");//占位符
+    $("#stuffOnSolutionDiv").append("<div class='feed-separator' style='border-radius:0;width:100%;position:relative;'></div>");
+    $("#stuffOnSolutionDiv").append("<div style='line-height:5px;'>&nbsp;</div>");//占位符
+    $("#stuffOnSolutionDiv").append(html);
 
     //注册事件：能够跳转到指定item
     $('#stuffItem'+stuff._key).click(function(){

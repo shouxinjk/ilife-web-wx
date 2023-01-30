@@ -128,9 +128,11 @@
             <!-- 属性列表：显示所有属性值 -->
             <!--div id="propsTitle" class="prop-key" style="width:90%;display:none;margin-bottom:5px;">评价数据来源</div-->   
             <!--hr  id="propsTitle" class="hr-solid-content" data-content="基础数据明细"  style="display:none;margin:30px 0;"/-->   
-            <div id="propsTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>商品数据明细</span></div>             
-            <!-- 商品属性表，可能为空-->
-            <div id="props"></div> 
+            <div id="propsTitle" class="sx_seperator" style="display:none;margin:30px 0;"><span>数据明细</span><span id="addDataBtn" style="color:#007bff;font-weight: bold;">补充数据</span></div>             
+            <!-- 商品属性表，用于展示。可能为空-->
+            <div id="propsview"></div> 
+            <!-- 商品属性表，可编辑：在点击补充数据后显示，默认隐藏-->
+            <div id="props" style="display:none;"></div>             
 
             <!-- Posters: 海报列表，便于下载分享 -->
             <div id="posterTitle" class="prop-key" style="width:90%;display:none;margin-bottom:5px;">因此，我们也有不一样的视角看商品。</div> 
@@ -196,6 +198,10 @@
             <img src="images/measure.png" width="20px" height="20px"/>
             <div class="menu-btn-txt">&nbsp;评价</div>
         </a>
+        <a href="billboards.html" class="menu-btn">
+            <img src="images/billboard.png" width="20px" height="20px"/>
+            <div class="menu-btn-txt">&nbsp;排行</div>
+        </a>         
         <a id="sx-menu-proposals" href="proposals.html" class="menu-btn">
             <img src="images/proposal.png" width="20px" height="20px"/>
             <div class="menu-btn-txt">&nbsp;定制</div>
@@ -235,6 +241,6 @@
 <script type="text/javascript" src="js/options.js?v=1.04"></script>
 <script type="text/javascript" src="js/helper.js?v=1.13"></script>
 <script type="text/javascript" src="js/common.js?v=1.0"></script>
-<script type="text/javascript" src="js/info2.js?v=9.42"></script>
+<script type="text/javascript" src="js/info2.js?v=9.43"></script>
 <script type="text/javascript" src="ext/require.min.js"></script>
 </html>
