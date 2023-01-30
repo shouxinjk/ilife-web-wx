@@ -2232,8 +2232,8 @@ function registerShareHandler(){
                 // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //准备分享的描述：优先采用推荐语、其次tagging、再次tags
-                var advice = "选出好的，分享对的，让生活充满小确幸。";      
-                var title = (tagging&&tagging.trim().length>0)?tagging:"小确幸，大生活";
+                var advice = "客观评价、理性决策、个性定制，让每一个决策都是小确幸，填满你的大生活。";      
+                var title = (tagging&&tagging.trim().length>0)?tagging:"小确幸大生活·你的专属决策助手";
                 console.log("share title.",title);         
                 //分享到朋友圈
                 wx.onMenuShareTimeline({

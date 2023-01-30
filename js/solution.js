@@ -412,6 +412,9 @@ function loadBrokerById(brokerId) {
 }
 
 //根据id查询solution详情
+var solution = {};
+var shareLogo = "http://www.shouxinjk.net/static/logo/distributor/ilife.png";
+var shareTitle = "确幸定制·你的专属个性化方案";
 function loadSolution(solutionId){
     var header={
         "Content-Type":"application/json",
@@ -422,6 +425,17 @@ function loadSolution(solutionId){
         if(res.success && res.data){
             console.log("got solution info.", res)
             solution = res.data;
+            //组织分享图标
+            if(solution.scheme && solution.scheme.logo && solution.scheme.logo.indexOf("http")>-1){
+                shareLogo = solution.scheme.logo;
+            }
+            //组织分享标题
+            if(solution.scheme && solution.scheme.type == "free"){
+                shareTitle = "定制师方案·"+solution.name;
+            }else if(solution.scheme && solution.scheme.type == "guide"){
+                shareTitle = "专家指南·"+solution.name;
+            }
+
             showContent(res.data);
 
             //根据proposalScheme类型加载更多推荐或参考指南列表
@@ -873,10 +887,10 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:solution&&solution.name?solution.name:"小确幸，大生活", // 分享标题
+                    title:shareTitle, // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:solution.scheme.logo?solution.scheme.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    imgUrl:shareLogo, // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: solution分享当前不记录
@@ -889,11 +903,11 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:solution&&solution.name?solution.name:"小确幸，大生活", // 分享标题
-                    desc:solution.description&&solution.description.trim().length>0?solution.description.replace(/<br\/>/g,""):"Live is all about having a good time.", // 分享描述
+                    title:shareTitle, // 分享标题
+                    desc:solution.description&&solution.description.trim().length>0?solution.description.replace(/<br\/>/g,""):"Life is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: solution.scheme.logo?solution.scheme.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    imgUrl: shareLogo, // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
@@ -908,10 +922,10 @@ function registerShareHandler(){
                 });   
                 //分享到朋友圈
                 wx.updateTimelineShareData({
-                    title:solution&&solution.name?solution.name:"小确幸，大生活", // 分享标题
+                    title:shareTitle, // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:solution.scheme.logo?solution.scheme.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    imgUrl:shareLogo, // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: solution分享当前不记录
@@ -924,11 +938,11 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.updateAppMessageShareData({
-                    title:solution&&solution.name?solution.name:"小确幸，大生活", // 分享标题
+                    title:shareTitle, // 分享标题
                     desc:solution.description&&solution.description.trim().length>0?solution.description.replace(/<br\/>/g,""):"Live is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: solution.scheme.logo?solution.scheme.logo:"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(23)+".jpeg", // 分享图标
+                    imgUrl: shareLogo, // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {

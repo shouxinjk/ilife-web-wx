@@ -175,6 +175,9 @@ $(document).ready(function ()
         $.unblockUI(); //直接取消即可
     });
 
+    //注册分享事件
+    registerShareHandler();   
+
 });
 
 var width = 600;
@@ -861,7 +864,7 @@ function insertItem(){
             tags += "<span style='border-radius:10px;background-color:#009933;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>定制师方案</span>";      
         }
         //将scheme的category作为标签
-        if(proposalScheme.category && proposalScheme.category.trim().length>0){
+        if(proposalScheme && proposalScheme.category && proposalScheme.category.trim().length>0){
             proposalScheme.category.split(" ").forEach(function(categoryTag){
                 if(categoryTag.trim().length>0)
                     tags += "<span style='border-radius:10px;background-color:#514c49;color:#fff;padding:2px 5px;margin-right:2px;font-size:10px;line-height:12px;'>"+categoryTag+"</span>";      
@@ -898,253 +901,6 @@ function insertItem(){
     loading = false;
 }
 
-/**
-//已废弃：直接从数据库加载定制方案。已调整为从索引获取
-//根据选定的定制主题查询所有方案
-function loadData() {
-    console.log("Feed::loadData",categoryId);
-    var query = { //默认查询所有
-          page:{
-            pageNo: page.current,
-            pageSize: page.size
-          }
-        };
-    if(categoryId && categoryId.trim().length>0){
-        query = {
-          scheme:{id: categoryId},
-          page:{
-            pageNo: page.current,
-            pageSize: page.size
-          }
-        };    
-    }
-    $.ajax({
-        url:app.config.sx_api+"/diy/solution/rest/search",
-        type:"post",
-        data:JSON.stringify(query),
-        headers:{
-            "Content-Type":"application/json",
-            "Accept": "application/json"
-        },
-        timeout:3000,//设置超时
-        success:function(ret){
-            console.log("Feed::loadData success.",ret);
-            if(!ret.success || !ret.data || ret.data.length==0){//如果没有内容，则显示提示文字
-                shownomore(true);
-                showloading(false);
-            }else{
-                //更新当前翻页
-                page.current = page.current + 1;
-                //装载具体条目
-                for(var i = 0 ; i < ret.data.length ; i++){
-                    items.push(ret.data[i]);
-                }
-                insertItem();
-                showloading(false);
-            }
-        },
-        complete: function (XMLHttpRequest, textStatus) {//调用执行后调用的函数
-            if(textStatus == 'timeout'){//如果是超时，则显示更多按钮
-              console.log("ajax超时",textStatus);
-              shownomore(true);
-            }
-        },
-        error: function () {//调用出错执行的函数
-            //请求出错处理：超时则直接显示搜索更多按钮
-            shownomore(true);
-          }
-    });
-  }
-
-
-//将item显示到页面
-//所属类型、名称、创建时间
-function insertItem(){
-    // 加载内容
-    var item = items[num-1];
-    console.log("try insert item.",num,item,items);
-    if(!item){
-      shownomore(true);
-      return;
-    }
-    //排重
-    if($("#"+item.id).length>0)
-      return;
-
-    var imgWidth = 60;//固定为100
-    var imgHeight = 60;//随机指定初始值
-    //计算图片高度
-    var imgSrc = "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png";
-    if(item.scheme && item.scheme.logo && item.scheme.logo.trim().length>0)
-      imgSrc = item.scheme.logo;
-    var img = new Image();
-    img.src = imgSrc;
-    var orgWidth = img.width;
-    var orgHeight = img.height;
-    imgHeight = orgHeight/orgWidth*imgWidth;
-    //计算文字高度：按照1倍行距计算
-
-    var image = "<img src='"+imgSrc+"' width='"+imgWidth+"' height='"+imgHeight+"'/>"
-
-    var title = "<div class='fav-item-title'>"+item.name+"</div>";
-    var author = "";
-    if(item.byNickname){
-      author = "<div  class='author' style='font-size:12px;font-weight:bold;color:darkorange;margin:2px 0;'>"+item.byNickname+"</div>";
-    }
-    var description = "<div class='fav-item-title' style='width:92%;font-weight:normal;font-size:12px;line-height: 14px;overflow: hidden; text-overflow: ellipsis;display: -webkit-box;-webkit-line-clamp: 4;-webkit-box-orient: vertical;'>"+item.description+"</div>";
-    $("#waterfall").append("<li><div class='feed-separator' style='border-radius:0'></div><div class='fav-item' id='"+item.id+"'  style='margin:5px 0;'><div class='fav-item-logo'>" + image +"</div><div class='fav-item-tags' style='vertical-align:middle;'>" +title + author + description+ "</div></li>");
- 
-
-
-    num++;
-
-    //注册事件：跳转到方案查看界面
-    $("#"+item.id).click(function(){
-        window.location.href = "solution.html?id="+item.id;
-    });
-
-    // 表示加载结束
-    loading = false;
-}
-//**/
-
-//load predefined personas
-function loadPersonas() {
-    util.AJAX(app.config.data_api+"/persona/personas/broker/"+app.globalData.userInfo._key, function (res) {
-      var arr = res;
-      //将persona作为特殊的person显示到顶部
-      for (var i = 0; i < arr.length; i++) {
-        var u = arr[i];
-        if(personKeys.indexOf(u._key) < 0){
-          u.nickName = u.name;//将persona转换为person
-          u.avatarUrl = u.image;//将persona转换为person
-          u.personOrPersona = "persona";//设置标记，用于区分persona及person
-          persons.push(u);
-          personKeys.push(u._key);
-        }
-      }
-
-      //新增客群按钮
-      var addPersonaKey = "btn-add-persona";
-      personKeys.push(addPersonaKey);
-      persons.push({
-        nickName:"添加客群",
-        avatarUrl:"images/add-persona.png",
-        _key:addPersonaKey
-      });       
-
-      //显示滑动条
-      showSwiper(); 
-    });
-}
-
-//load related persons
-function loadPersons() {
-    util.AJAX(app.config.data_api+"/user/users/connections/"+app.globalData.userInfo._key, function (res) {
-      var arr = res;
-      //从列表内过滤掉当前用户：当前用户永远排在第一个
-      //*
-      if (app.globalData.userInfo != null && personKeys.indexOf(app.globalData.userInfo._key) < 0){
-          persons.push(app.globalData.userInfo);
-          personKeys.push(app.globalData.userInfo._key);
-        }
-      //**/
-      for (var i = 0; i < arr.length; i++) {
-        var u = arr[i];
-        if(personKeys.indexOf(u._key) < 0/* && u.openId*/){//对于未注册用户不显示
-          //如果是非注册用户则显示为客群
-          if(!u.openId){
-            u.personOrPersona = "persona";//设置标记，用于区分persona及person
-          }
-          persons.push(u);
-          personKeys.push(u._key);
-        }
-      } 
-
-      //新增关心的人按钮
-      var addPersonKey = "btn-add-related-person";
-      personKeys.push(addPersonKey);
-      persons.push({
-        nickName:"添加关心的人",
-        avatarUrl:"images/add-person.png",
-        _key:addPersonKey
-      });      
-
-      //显示顶部滑动条
-      if(util.hasBrokerInfo()){//如果是达人，则继续装载画像
-          loadPersonas();
-      }else{//否则直接显示顶部滑动条
-          showSwiper();
-      } 
-    });
-}
-
-function showSwiper(){
-    //将用户装载到页面
-    for (var i = 0; i < persons.length; i++) {
-      insertPerson(persons[i]);
-    }    
-    //显示滑动条
-    var mySwiper = new Swiper ('.swiper-container', {
-        slidesPerView: 7,
-    });  
-    //调整swiper 风格，使之悬浮显示
-    $(".swiper-container").css("position","fixed");
-    $(".swiper-container").css("left","0");
-    $(".swiper-container").css("top","0");
-    $(".swiper-container").css("z-index","999");
-    $(".swiper-container").css("background-color","#fff");
-    //$(".swiper-container").css("margin-bottom","3px");
-  
-    //将当前用户设为高亮  
-    if(inputPerson && personKeys.indexOf(inputPerson)>-1 && persons[personKeys.indexOf(inputPerson)]){//有输入用户信息则优先使用
-      currentPerson = inputPerson;
-      currentPersonType = persons[personKeys.indexOf(inputPerson)].personOrPersona?"persona":"person";
-      currentPersonTagging = persons[personKeys.indexOf(inputPerson)].tags?persons[personKeys.indexOf(inputPerson)].tags.join(" "):"";
-    }else{//根据当前用户加载数据：默认使用第一个
-      currentPerson = persons[0]._key;
-      currentPersonTagging = persons[0].tags?persons[0].tags.join(" "):"";   
-    }   
-    changePerson(currentPersonType,currentPerson,currentPersonTagging);    
-}
-
-//将person显示到页面
-/*
-<view class="person">
-      <image class="person-img{{person._key==currentPerson?'-selected':''}}" src="{{person.avatarUrl}}" bindtap="changePerson" data-id="{{person._key}}"/>
-      <view class="person-name">{{person.nickName}}</view>
-</view>
-*/
-
-function insertPerson(person){
-    // 显示HTML
-    var html = '';
-    html += '<div class="swiper-slide">';
-    html += '<div class="person" id="'+person._key+'"data-type="'+(person.personOrPersona?"persona":"person")+'" data-tagging="'+(person.tags?person.tags.join(" "):"*")+'">';
-    var style= person._key==currentPerson?'-selected':'';
-    html += '<div class="person-img-wrapper"><img class="person-img'+style+'" src="'+person.avatarUrl+'"/></div>';
-    html += '<span class="person-name">'+(person.personOrPersona=="persona"?"☆":"")+person.nickName+'</span>';
-    html += '</div>';
-    html += '</div>';
-    $("#persons").append(html);
-
-    //注册事件:点击后切换用户
-    //通过jquery事件注入
-    if(person._key=="btn-add-related-person"){//新增关心的人，直接跳转
-      $("#"+person._key).click(function(e){
-          window.location.href="user-choosepersona.html?from=feeds";
-      });
-    }else if(person._key=="btn-add-persona"){//新增客群，直接跳转
-      $("#"+person._key).click(function(e){
-          window.location.href="broker/my-addpersona.html?from=feeds";
-      });
-    }else{//切换数据列表
-      $("#"+person._key).click(function(e){
-          console.log("try to change person by jQuery click event.",person._key,e.currentTarget.type,e.currentTarget.id,e);
-          changePerson(e.currentTarget.dataset.type,e.currentTarget.id,e.currentTarget.dataset.tagging);
-      });
-    }
-}
 
 //显示没有更多内容
 function shownomore(flag){
@@ -1179,6 +935,7 @@ function showloading(flag){
 }
 
 //将item显示到页面
+var shareTitle = "确幸定制·你的专属个性化方案";
 function insertCategoryItem(proposalScheme){
     if(!proposalScheme){
       shownomore(true);
@@ -1209,6 +966,18 @@ function insertCategoryItem(proposalScheme){
         categoryId = $(this).data("id"); //设置全局变量，避免interval延迟调用问题
         categoryName = $(this).data("name"); //设置全局变量，避免interval延迟调用问题
         categoryType = $(this).data("type"); //设置全局变量，避免interval延迟调用问题
+
+        //修改分享标题
+        if(categoryType == "free"){
+            shareTitle = "定制师方案·"+categoryName;
+        }else if(categoryType == "guide"){
+            shareTitle = "专家指南·"+categoryName;
+        }else if(categoryId == "board"){
+            shareTitle = "甄选合集·"+categoryName;
+        }
+
+        //重新注册分享事件
+        registerShareHandler();
 
         //修改新建标题
         $("#createProposalTip").html("定制我的 "+categoryName);
@@ -1364,3 +1133,140 @@ function getDateDiff(dateTimeStamp) {
     return result;
 }
 
+
+
+function registerShareHandler(){
+    //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system
+    var shareBrokerId = "system";//默认为平台直接分享
+    if(broker&&broker.id){//如果当前分享用户本身是达人，则直接引用其自身ID
+        shareBrokerId=broker.id;
+    }else if(fromBroker && fromBroker.trim().length>0){//如果当前用户不是达人，但页面带有前述达人，则使用前述达人ID
+        shareBrokerId=fromBroker;
+    }
+    //计算分享用户：如果是注册用户则使用当前用户，否则默认为平台用户
+    var shareUserId = "system";//默认为平台直接分享
+    if(app.globalData.userInfo && app.globalData.userInfo._key){//如果为注册用户，则使用当前用户
+        shareUserId = app.globalData.userInfo._key;
+    }
+
+    //准备分享url，需要增加分享的 fromUser、fromBroker信息
+    var shareUrl = window.location.href.replace(/proposals/g,"share");//需要使用中间页进行跳转
+    if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
+        shareUrl += "&fromUser="+shareUserId;
+        shareUrl += "&fromBroker="+shareBrokerId;
+    }else{//否则作为第一个参数增加
+        shareUrl += "?fromUser="+shareUserId;
+        shareUrl += "&fromBroker="+shareBrokerId;        
+    }
+    shareUrl += "&origin=proposals";//添加源，表示是一个列表页分享
+    //添加categoryId及categoryName
+    if(categoryId && categoryId.trim().length>0){
+        shareUrl += "&categoryId="+categoryId;  
+    }
+    if(categoryName && categoryName.trim().length>0){
+        shareUrl += "&categoryName="+categoryName;  
+    }
+
+    $.ajax({
+        url:app.config.auth_api+"/wechat/jssdk/ticket",
+        type:"get",
+        data:{url:window.location.href},//重要：获取jssdk ticket的URL必须和浏览器浏览地址保持一致！！
+        success:function(json){
+            console.log("===got jssdk ticket===\n",json);
+            wx.config({
+                debug:false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId: json.appId, // 必填，公众号的唯一标识
+                timestamp:json.timestamp , // 必填，生成签名的时间戳
+                nonceStr: json.nonceStr, // 必填，生成签名的随机串
+                signature: json.signature,// 必填，签名
+                jsApiList: [
+                   // 'onMenuShareTimeline', 'onMenuShareAppMessage','onMenuShareQQ', 'onMenuShareWeibo', 'onMenuShareQZone',
+                  'updateAppMessageShareData',
+                  'updateTimelineShareData',
+                  'onMenuShareAppMessage',
+                  'onMenuShareTimeline',
+                  'chooseWXPay',
+                  'showOptionMenu',
+                  "hideMenuItems",
+                  "showMenuItems",
+                  "onMenuShareTimeline",
+                  'onMenuShareAppMessage'                   
+                ] // 必填，需要使用的JS接口列表
+            });
+            wx.ready(function() {
+                // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
+                // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                //分享到朋友圈
+                wx.onMenuShareTimeline({
+                    title:shareTitle, // 分享标题
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl:"https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg", // 分享图标
+                    success: function () {
+                        // 用户点击了分享后执行的回调函数
+                        //TODO: solution分享当前不记录
+                        /*
+                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到朋友圈",res);
+                        }); 
+                        //**/
+                    },
+                });
+                //分享给朋友
+                wx.onMenuShareAppMessage({
+                    title:shareTitle, // 分享标题
+                    desc:"专家指南+定制师经验+灵活的方案生成，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg", // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                    success: function () {
+                      // 用户点击了分享后执行的回调函数
+                      //TODO:solution分享当前不记录
+                      /**
+                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到微信",res);
+                        }); 
+                        //**/
+                    }
+                });   
+                //分享到朋友圈
+                wx.updateTimelineShareData({
+                    title:shareTitle, // 分享标题
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl:"https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg", // 分享图标
+                    success: function () {
+                        // 用户点击了分享后执行的回调函数
+                        //TODO: solution分享当前不记录
+                        /*
+                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到朋友圈",res);
+                        }); 
+                        //**/
+                    },
+                });
+                //分享给朋友
+                wx.updateAppMessageShareData({
+                    title:shareTitle, // 分享标题
+                    desc:"专家指南+定制师经验+灵活的方案生成，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg", // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                    success: function () {
+                      // 用户点击了分享后执行的回调函数
+                      //TODO:solution分享当前不记录
+                      /**
+                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到微信",res);
+                        }); 
+                        //**/
+                    }
+                });                          
+            });
+        }
+    })    
+}
