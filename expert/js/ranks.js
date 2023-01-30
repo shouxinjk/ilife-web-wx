@@ -181,7 +181,7 @@ function changeCategory (category) {
     categoryName = category.name;
 
     $("#waterfall").empty();//清空原有列表
-    $("#waterfall").css("height","20px");//调整瀑布流高度
+    //$("#waterfall").css("height","20px");//调整瀑布流高度
     showloading(true);//显示加载状态
 
     page.current = -1;//从第一页开始查看

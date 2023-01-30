@@ -235,10 +235,14 @@ function showSwiper(){
 function insertOccasionItem(occasion){
     //logo
     var logo = "http://www.shouxinjk.net/static/logo/distributor/ilife.png";
-    if(occasion.logo && occasion.logo.indexOf("http")>-1){
-        logo = occasion.logo;
-    }else if(occasion.logo && occasion.logo.trim().length>0){
-        logo = "../images/occasion/"+occasion.logo;
+    if(occasion.category && occasion.category.logo && occasion.category.logo.indexOf("http")>-1){ //优先商品类目logo
+        logo = occasion.category.logo;
+    }else if(occasion.category && occasion.category.logo && occasion.category.logo.trim().length>0){
+        logo = "../images/category/"+occasion.category.logo;
+    }else if(occasion.occasionCategory && occasion.occasionCategory.logo && occasion.occasionCategory.logo.indexOf("http")>-1){ //其次事件类别logo
+        logo = occasion.occasionCategory.logo;
+    }else if(occasion.occasionCategory && occasion.occasionCategory.logo && occasion.occasionCategory.logo.trim().length>0){
+        logo = "../images/occasion/"+occasion.occasionCategory.logo;
     }
     // 显示HTML
     var html = '';

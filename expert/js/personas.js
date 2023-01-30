@@ -126,7 +126,7 @@ function insertItem(){
     if(item.logo && item.logo.indexOf("http")>-1){
         logo = item.logo;
     }else if(item.logo && item.logo.trim().length>0){
-        logo = "http://www.shouxinjk.net/static/logo/phase/"+item.logo;
+        logo = "../images/persona/"+item.logo;
     }
 
     var image = "<img src='"+logo+"' width='50' height='50' class='persona-logo'/>"
