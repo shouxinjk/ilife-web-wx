@@ -79,6 +79,9 @@ $(document).ready(function ()
     $(".btnNo").click(function(){     
         $.unblockUI(); //直接取消即可
     });
+
+    //注册分享事件
+    registerShareHandler();
     
 });
 
