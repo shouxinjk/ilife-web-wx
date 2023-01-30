@@ -21,6 +21,11 @@ $(document).ready(function ()
     //category = args["category"]?args["category"]:0; //如果是跳转，需要获取当前目录
     if(args["id"])inputPerson=args["id"];//从请求中获取需要展示的person或personaId
     if(args["categoryId"])categoryId=args["categoryId"];//如果传递则使用传递进入的categoryId
+    if(args["categoryName"]){
+        categoryName=args["categoryName"];//如果传递则使用传递进入的categoryName
+    }else{
+        categoryName = "";
+    }
     //初始化瀑布流
     $('#waterfall').NewWaterfall({
         width: width-20,//1列
@@ -109,6 +114,7 @@ var currentPersonType = "person";//当前选中的是用户还是画像，默认
 var personKeys = [];//标记已经加载的用户key，用于排重
 
 var categoryId = null;
+var categoryName = "";
 
 var inputPerson = null;//接收指定的personId或personaId
 
@@ -269,6 +275,9 @@ function changeCategory (category) {
 
         categoryId = category.id;
         categoryName = category.name;
+
+        //重新注册分享事件
+        registerShareHandler();
     }
 
     showloading(true);//显示加载状态
@@ -555,7 +564,7 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:(categoryName&&categoryName.trim().length>0?categoryName:"确幸评价·")+"排行榜", // 分享标题
+                    title:"确幸评价·"+(categoryName&&categoryName.trim().length>0?categoryName:"")+"排行榜", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:"https://www.biglistoflittlethings.com/ilife-web-wx/images/ranks.jpeg", // 分享图标
@@ -571,7 +580,7 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:(categoryName&&categoryName.trim().length>0?categoryName:"确幸评价·")+"排行榜", // 分享标题
+                    title:"确幸评价·"+(categoryName&&categoryName.trim().length>0?categoryName:"")+"排行榜", // 分享标题
                     desc:"完整的评价体系，全面的数据，发现更多更真实的信息", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
@@ -590,7 +599,7 @@ function registerShareHandler(){
                 });   
                 //分享到朋友圈
                 wx.updateTimelineShareData({
-                    title:(categoryName&&categoryName.trim().length>0?categoryName:"确幸评价·")+"排行榜", // 分享标题
+                    title:"确幸评价·"+(categoryName&&categoryName.trim().length>0?categoryName:"")+"排行榜", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:"https://www.biglistoflittlethings.com/ilife-web-wx/images/ranks.jpeg", // 分享图标
@@ -606,7 +615,7 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.updateAppMessageShareData({
-                    title:(categoryName&&categoryName.trim().length>0?categoryName:"确幸评价·")+"排行榜", // 分享标题
+                    title:"确幸评价·"+(categoryName&&categoryName.trim().length>0?categoryName:"")+"排行榜", // 分享标题
                     desc:"完整的评价体系，全面的数据，发现更多更真实的信息", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
