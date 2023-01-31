@@ -296,9 +296,26 @@ function showContent(solution){
               position: 'bottom|center'
             });             
         }else{
+            //将scheme logo作为solutionLogo
+            var solutionJson = JSON.parse(JSON.stringify(solution));
+            if(solutionJson.scheme && solutionJson.scheme.logo && solutionJson.scheme.logo.indexOf("http")>-1){
+                solutionJson.logo = solutionJson.scheme.logo;
+            }else if(solutionJson.scheme && solutionJson.scheme.logo && solutionJson.scheme.logo.trim().length>0){
+                solutionJson.logo = "https://www.biglistoflittlethings.com/ilife-web-wx/images/category/"+rank.scheme.logo;
+            }else{ //否则4选一
+                var shareLogos = [
+                    "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg",
+                    "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-solution.png",
+                    "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-guide.png",
+                    "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-board.png"
+                ];
+                var idx = Math.floor(Math.random()*1000)%4;
+                solutionJson.logo = shareLogos[idx];
+            }
+
             //推送到CK，同步发送到微信群
             wxGroups.forEach(function(wxgroup){
-                saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "solution", solution.id, JSON.stringify(solution), "pending");
+                saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "solution", solutionJson.id, JSON.stringify(solutionJson), "pending");
             });   
             if(wxGroups.length>0){
                 console.log("wxgroups synchronized.");
