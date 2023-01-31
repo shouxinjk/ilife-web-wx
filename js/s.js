@@ -53,6 +53,8 @@ function checkShortCode(shortCode){//获取详细内容
                 window.location.href = json.longUrl//直接跳转展示  
             }else if(json&&json.itemKey&&json.itemKey.indexOf("solution_")>-1){//如果是solution地址，其itemKey构造为：solution_xxxxxxxxxx，其中xxxxxxx为solutionId
                 window.location.href = json.longUrl//直接跳转展示  
+            }else if(json&&json.itemKey&&json.itemKey.indexOf("rank_")>-1){//如果是rank地址，其itemKey构造为：rank_xxxxxxxxxx，其中xxxxxxx为rankId
+                window.location.href = json.longUrl//直接跳转展示  
             }else if(json&&json.itemKey&&json.itemKey.indexOf("page_")>-1){//如果是指定page，则直接跳转，如流量主跳转到互阅列表
                 window.location.href = json.longUrl//直接跳转展示   
             }else if(json&&json.itemKey&&broker&&broker.id){//如果有达人信息，则进入详情界面，便于分享或生成二维码

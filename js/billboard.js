@@ -42,6 +42,8 @@ $(document).ready(function ()
     //加载broker信息
     loadBrokerInfo(); 
        
+    //加载达人信息，准备云推送
+    loadBrokerByOpenid(app.globalData.userInfo._key);
 });
 
 var width = 600;
@@ -661,6 +663,82 @@ function loadMeasureScores(stuff){
         }
     });   
 }
+
+//根据openid查询加载broker
+function loadBrokerByOpenid(openid) {
+    console.log("try to load broker info by openid.",openid);
+    util.AJAX(app.config.sx_api+"/mod/broker/rest/brokerByOpenid/"+openid, function (res) {
+        console.log("load broker info.",openid,res);
+        if (res.status) {//将佣金信息显示到页面
+            broker = res.data;
+            loadWxGroups(res.data.id);//加载该达人的微信群
+            //$("#author").html(broker.nickname);    //如果当前用户是达人，则转为其个人board     
+            $("#sharebox").css("display","block");      //仅对达人显示分享框
+        }
+        //加载达人后再注册分享事件：此处是二次注册，避免达人信息丢失。
+        registerShareHandler();       
+    });
+}
+
+//根据达人ID加载活跃微信群
+var wxGroups = [];//存储当前达人的微信群列表
+function loadWxGroups(brokerId){
+    console.log("try to load wx groups by brokerId.",brokerId);
+    $.ajax({
+        url:app.config.sx_api+"/wx/wxGroup/rest/listByBrokerId?brokerId="+brokerId,
+        type:"get",        
+        success:function(ret){
+            console.log("===got wx groups===\n",ret);
+            wxGroups = ret;
+            //如果有微信群则显示推送按钮
+            if(wxGroups && wxGroups.length>0)
+              showPushBtn();
+        }
+    }); 
+}
+//显示推送到微信群按钮
+function showPushBtn(){
+  $("#rankBaseInfo").append("<div>&nbsp;&nbsp;<a style='color:#ff4500;display:inline;font-size:12px;font-weight:bold;' href='#' id='btnPush'>云推送</a></div>");
+  //注册事件：云推送
+  $("#btnPush").click(function(){
+      event.stopPropagation();//阻止触发跳转详情
+
+      //推送到CK，同步发送到微信群
+      wxGroups.forEach(function(wxgroup){
+          saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "rank", rank.id, JSON.stringify(rank), "pending");
+      });   
+      if(wxGroups.length>0){
+          console.log("wxgroups synchronized.");
+          siiimpleToast.message('推送已安排~~',{
+            position: 'bottom|center'
+          });             
+      }else{
+          console.log("no wxGroups.");
+          siiimpleToast.message('还未开通云助手，请联系客服~~',{
+            position: 'bottom|center'
+          });          
+      }
+
+  });    
+}
+//存储featured item到ck
+function saveFeaturedItem(eventId, brokerId, groupType, groupId, groupName,itemType, itemKey, jsonStr, status){
+  var q = "insert into ilife.features values ('"+eventId+"','"+brokerId+"','"+groupType+"','"+groupId+"','"+groupName+"','"+itemType+"','"+itemKey+"','"+jsonStr.replace(/'/g, "’")+"','"+status+"',now())";
+  console.log("try to save featured item.",q);
+  jQuery.ajax({
+    url:app.config.analyze_api+"?query=",//+encodeURIComponent(q),
+    type:"post",
+    data:q,
+    headers:{
+        "content-type": "text/plain; charset=utf-8", // 直接提交raw数据
+        "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+    },         
+    success:function(json){
+      console.log("===featured item saved.===\n",json);
+    }
+  });    
+}
+
 
 //显示没有更多内容
 function shownomore(flag){
