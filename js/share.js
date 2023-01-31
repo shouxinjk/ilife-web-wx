@@ -29,7 +29,9 @@ $(document).ready(function ()
     var state="go"+args;//默认单品直接跳转到第三方详情页
     //如果origin为board，则跳转到board
     var origin = getQuery()["origin"];//获取origin参数，如果为空则不作处理
-    if(origin && origin =="board"){//如果是board则调整跳转页面：列表风格
+    if(origin && origin =="item"){//单品默认直接进入第三方详情界面
+        state="go"+args;
+    }else if(origin && origin =="board"){//如果是board则调整跳转页面：列表风格
         state="board2"+args;
     }else if(origin && origin =="board-waterfall"){//如果是board则调整跳转页面：瀑布流风格
         state="board2-waterfall"+args;

@@ -3216,7 +3216,7 @@ function registerShareHandler(){
                 // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //准备分享的描述：优先采用推荐语、其次tagging、再次tags
-                var advice = "Live is all about having a good time.";
+                var advice = "大大小小的选择构成了我们的生活，挑选适合自己的才是最好的。";
                 if(stuff.advice && Object.keys(stuff.advice).length>0 ){//如果有advice，则随机采用
                     var count = Object.keys(stuff.advice).length;
                     var random = 0;//默认采用第一条
@@ -3233,7 +3233,7 @@ function registerShareHandler(){
                 }                
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:stuff?stuff.title:"小确幸，大生活", // 分享标题
+                    title:"确幸推荐·"+(stuff?stuff.title:"你的生活助手"), // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:stuff?stuff.images[0].replace(/\.avif/,''):"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
@@ -3246,7 +3246,7 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:stuff?stuff.title:"小确幸，大生活", // 分享标题
+                    title:"确幸推荐·"+(stuff?stuff.title:"你的生活助手"), // 分享标题
                     desc:advice, // 分享描述
                     //desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
@@ -3264,7 +3264,7 @@ function registerShareHandler(){
 
                 //分享到朋友圈
                 wx.updateTimelineShareData({
-                    title:stuff?stuff.title:"小确幸，大生活", // 分享标题
+                    title:"确幸推荐·"+(stuff?stuff.title:"你的生活助手"), // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:stuff?stuff.images[0].replace(/\.avif/,''):"http://www.biglistoflittlethings.com/list/images/logo"+getRandomInt(11)+".jpeg", // 分享图标
@@ -3277,7 +3277,7 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.updateAppMessageShareData({
-                    title:stuff?stuff.title:"小确幸，大生活", // 分享标题
+                    title:"确幸推荐·"+(stuff?stuff.title:"你的生活助手"), // 分享标题
                     desc:advice, // 分享描述
                     //desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致

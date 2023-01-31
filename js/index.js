@@ -2174,8 +2174,8 @@ function registerShareHandler(){
     }
 
     //准备分享url，需要增加分享的 fromUser、fromBroker信息
-    //var shareUrl = window.location.href.replace(/info2/g,"share");//需要使用中间页进行跳转
-    var shareUrl = window.location.href;//通过中间页直接跳转到第三方电商详情页面
+    var shareUrl = window.location.href.replace(/index/g,"share");//需要使用中间页进行跳转
+    //var shareUrl = window.location.href;//通过中间页直接跳转到第三方电商详情页面
     if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
         shareUrl += "&fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;
@@ -2234,7 +2234,7 @@ function registerShareHandler(){
                 //准备分享的描述：优先采用推荐语、其次tagging、再次tags
                 var advice = "客观评价、理性决策、个性定制，让每一个决策都是小确幸，填满你的大生活。";      
                 var title = (tagging&&tagging.trim().length>0)?tagging:"小确幸大生活·你的专属决策助手";
-                console.log("share title.",title);         
+                console.log("share title.",title, advice);         
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
                     title:title, // 分享标题
