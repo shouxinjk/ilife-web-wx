@@ -1624,7 +1624,7 @@ function registerShareHandler(){
                 //分享给朋友
                 wx.onMenuShareAppMessage({
                     title:"确幸评价·"+(categoryName&&categoryName.trim().length>0?categoryName:"")+"评分", // 分享标题
-                    desc:"完整的评价体系，全面的数据，发现更多更真实的信息", // 分享描述
+                    desc:"完整的评价体系和全面的数据，避免噪声干扰，发现真实信息。数据更充分，决策更理性。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "https://www.biglistoflittlethings.com/ilife-web-wx/images/measure.jpeg", // 分享图标
@@ -1659,7 +1659,7 @@ function registerShareHandler(){
                 //分享给朋友
                 wx.updateAppMessageShareData({
                     title:"确幸评价·"+(categoryName&&categoryName.trim().length>0?categoryName:"")+"评分", // 分享标题
-                    desc:"完整的评价体系，全面的数据，发现更多更真实的信息", // 分享描述
+                    desc:"完整的评价体系和全面的数据，避免噪声干扰，发现真实信息。数据更充分，决策更理性。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "https://www.biglistoflittlethings.com/ilife-web-wx/images/measure.jpeg", // 分享图标

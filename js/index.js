@@ -2234,43 +2234,78 @@ function registerShareHandler(){
                 //准备分享的描述：优先采用推荐语、其次tagging、再次tags
                 var advice = "客观评价、理性决策、个性定制，让每一个决策都是小确幸，填满你的大生活。";      
                 var title = (tagging&&tagging.trim().length>0)?tagging:"小确幸大生活·你的专属决策助手";
-                console.log("share title.",title, advice);         
-                //分享到朋友圈
+                console.log("share title.",title, advice);        
+
                 wx.onMenuShareTimeline({
-                    title:title, // 分享标题
+                    title:"小确幸大生活·你的专属决策助手", // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:"https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
                     success: function () {
-                        // do nothing
+                        // 用户点击了分享后执行的回调函数
+                        //TODO: solution分享当前不记录
+                        /*
+                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到朋友圈",res);
+                        }); 
+                        //**/
                     },
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:title, // 分享标题
-                    desc:advice, // 分享描述
-                    //desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
+                    title:"小确幸大生活·你的专属决策助手", // 分享标题
+                    desc:"客观评价、理性决策、个性定制，让每一个决策都是小确幸，让小确幸填满你的大生活。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
-                      // do nothing
+                      // 用户点击了分享后执行的回调函数
+                      //TODO:solution分享当前不记录
+                      /**
+                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到微信",res);
+                        }); 
+                        //**/
                     }
-                });  
-                //分享到微博
-                wx.onMenuShareWeibo({
-                    title:title, // 分享标题
-                    desc:advice, // 分享描述
-                    //desc:stuff&&stuff.tags?stuff.tags.join(" "):"Live is all about having a good time.", // 分享描述
+                });   
+                //分享到朋友圈
+                wx.updateTimelineShareData({
+                    title:"小确幸大生活·你的专属决策助手", // 分享标题
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl:"https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
+                    success: function () {
+                        // 用户点击了分享后执行的回调函数
+                        //TODO: solution分享当前不记录
+                        /*
+                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到朋友圈",res);
+                        }); 
+                        //**/
+                    },
+                });
+                //分享给朋友
+                wx.updateAppMessageShareData({
+                    title:"小确幸大生活·你的专属决策助手", // 分享标题
+                    desc:"客观评价、理性决策、个性定制，让每一个决策都是小确幸，让小确幸填满你的大生活。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "https://www.biglistoflittlethings.com/static/logo/distributor/ilife.png", // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
-                      // do nothing
+                      // 用户点击了分享后执行的回调函数
+                      //TODO:solution分享当前不记录
+                      /**
+                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到微信",res);
+                        }); 
+                        //**/
                     }
-                });                             
+                });  
+                            
             });
         }
     })    
