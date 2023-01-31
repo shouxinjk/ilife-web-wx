@@ -1137,7 +1137,13 @@ function getDateDiff(dateTimeStamp) {
     return result;
 }
 
-
+//注册分享事件后参数变化无效，需要显式指定函数调用
+function getShareTitle(){
+    return shareTitle;
+}
+function getShareLogo(){
+    return shareLogo;
+}
 
 function registerShareHandler(){
     //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system
@@ -1202,10 +1208,10 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.updateTimelineShareData({
-                    title:shareTitle, // 分享标题
+                    title:getShareTitle(), // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:shareLogo, // 分享图标
+                    imgUrl:getShareLogo(), // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: solution分享当前不记录
@@ -1218,11 +1224,11 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.updateAppMessageShareData({
-                    title:shareTitle, // 分享标题
+                    title:getShareTitle(), // 分享标题
                     desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: shareLogo, // 分享图标
+                    imgUrl: getShareLogo(), // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
@@ -1235,13 +1241,13 @@ function registerShareHandler(){
                         //**/
                     }
                 });  
-                                
+
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:shareTitle, // 分享标题
+                    title:getShareTitle(), // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:shareLogo, // 分享图标
+                    imgUrl:getShareLogo(), // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: solution分享当前不记录
@@ -1254,11 +1260,11 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:shareTitle, // 分享标题
+                    title:getShareTitle(), // 分享标题
                     desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: shareLogo, // 分享图标
+                    imgUrl: getShareLogo(), // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
@@ -1271,7 +1277,7 @@ function registerShareHandler(){
                         //**/
                     }
                 });   
-                        
+                    
             });
         }
     })    
