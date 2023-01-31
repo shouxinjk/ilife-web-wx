@@ -968,6 +968,7 @@ function insertCategoryItem(proposalScheme){
         categoryName = $(this).data("name"); //设置全局变量，避免interval延迟调用问题
         categoryType = $(this).data("type"); //设置全局变量，避免interval延迟调用问题
 
+        //注意：以下代码不work。原因：微信分享在页面实例化之后完成注册，后续参数变化不会引起分享内容变化。调整为随机设置
         //修改分享标题
         if(categoryType == "free"){
             shareTitle = "定制师方案·"+categoryName;
@@ -1137,14 +1138,13 @@ function getDateDiff(dateTimeStamp) {
     return result;
 }
 
-//注册分享事件后参数变化无效，需要显式指定函数调用
-function getShareTitle(){
-    return shareTitle;
-}
-function getShareLogo(){
-    return shareLogo;
-}
-
+//注册分享事件后参数变化无效，采用随机显示方式
+var shareTitlePrefixs = ["确幸定制·","定制师方案·","专家指南·","甄选合集·"];
+var shareLogos = [
+"https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg",
+"https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-solution.png",
+"https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-guide.png",
+"https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-board.png"];
 function registerShareHandler(){
     //计算分享达人：如果当前用户为达人则使用其自身ID，如果当前用户不是达人则使用页面本身的fromBroker，如果fromBroker为空则默认为system
     var shareBrokerId = "system";//默认为平台直接分享
@@ -1208,10 +1208,10 @@ function registerShareHandler(){
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
                 wx.updateTimelineShareData({
-                    title:getShareTitle(), // 分享标题
+                    title:shareTitlePrefixs[Math.floor(Math.random()*1000)%4]+(categoryName?categoryName:"你的专属个性化方案"), // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:getShareLogo(), // 分享图标
+                    imgUrl:shareLogos[Math.floor(Math.random()*1000)%4], // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: solution分享当前不记录
@@ -1224,11 +1224,11 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.updateAppMessageShareData({
-                    title:getShareTitle(), // 分享标题
+                    title:shareTitlePrefixs[Math.floor(Math.random()*1000)%4]+(categoryName?categoryName:"你的专属个性化方案"), // 分享标题
                     desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: getShareLogo(), // 分享图标
+                    imgUrl: shareLogos[Math.floor(Math.random()*1000)%4], // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
@@ -1244,10 +1244,10 @@ function registerShareHandler(){
 
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:getShareTitle(), // 分享标题
+                    title:shareTitlePrefixs[Math.floor(Math.random()*1000)%4]+(categoryName?categoryName:"你的专属个性化方案"), // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:getShareLogo(), // 分享图标
+                    imgUrl:shareLogos[Math.floor(Math.random()*1000)%4], // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: solution分享当前不记录
@@ -1260,11 +1260,11 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:getShareTitle(), // 分享标题
+                    title:shareTitlePrefixs[Math.floor(Math.random()*1000)%4]+(categoryName?categoryName:"你的专属个性化方案"), // 分享标题
                     desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: getShareLogo(), // 分享图标
+                    imgUrl: shareLogos[Math.floor(Math.random()*1000)%4], // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
