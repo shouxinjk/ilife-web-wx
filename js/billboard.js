@@ -703,9 +703,19 @@ function showPushBtn(){
   $("#btnPush").click(function(){
       event.stopPropagation();//阻止触发跳转详情
 
+      //将类目logo作为rankLogo
+      var rankJson = JSON.parse(JSON.stringify(rank));
+      if(rankJson.category && rankJson.category.logo && rankJson.category.logo.indexOf("http")>-1){
+        rankJson.logo = rankJson.category.logo;
+      }else if(rankJson.category && rankJson.category.logo && rankJson.category.logo.trim().length>0){
+        rankJson.logo = "https://www.biglistoflittlethings.com/ilife-web-wx/images/category/"+rank.category.logo;
+      }else{
+        rankJson.logo = "http://www.shouxinjk.net/static/logo/distributor/ilife.png";
+      }
+      
       //推送到CK，同步发送到微信群
       wxGroups.forEach(function(wxgroup){
-          saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "rank", rank.id, JSON.stringify(rank), "pending");
+          saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "rank", rank.id, JSON.stringify(rankJson), "pending");
       });   
       if(wxGroups.length>0){
           console.log("wxgroups synchronized.");
