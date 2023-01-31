@@ -1206,12 +1206,14 @@ function registerShareHandler(){
             wx.ready(function() {
                 // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
+                //随机获取分享标题前缀及图片
+                var idx = Math.floor(Math.random()*1000)%4;
                 //分享到朋友圈
                 wx.updateTimelineShareData({
-                    title:shareTitlePrefixs[Math.floor(Math.random()*1000)%4]+(categoryName?categoryName:"你的专属个性化方案"), // 分享标题
+                    title:shareTitlePrefixs[idx]+(categoryName?categoryName:"个性化专属"), // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:shareLogos[Math.floor(Math.random()*1000)%4], // 分享图标
+                    imgUrl:shareLogos[idx], // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: solution分享当前不记录
@@ -1224,11 +1226,11 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.updateAppMessageShareData({
-                    title:shareTitlePrefixs[Math.floor(Math.random()*1000)%4]+(categoryName?categoryName:"你的专属个性化方案"), // 分享标题
+                    title:shareTitlePrefixs[idx]+(categoryName?categoryName:"个性化专属"), // 分享标题
                     desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: shareLogos[Math.floor(Math.random()*1000)%4], // 分享图标
+                    imgUrl: shareLogos[idx], // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
@@ -1244,10 +1246,10 @@ function registerShareHandler(){
 
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:shareTitlePrefixs[Math.floor(Math.random()*1000)%4]+(categoryName?categoryName:"你的专属个性化方案"), // 分享标题
+                    title:shareTitlePrefixs[idx]+(categoryName?categoryName:"个性化专属"), // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:shareLogos[Math.floor(Math.random()*1000)%4], // 分享图标
+                    imgUrl:shareLogos[idx], // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: solution分享当前不记录
@@ -1260,11 +1262,11 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:shareTitlePrefixs[Math.floor(Math.random()*1000)%4]+(categoryName?categoryName:"你的专属个性化方案"), // 分享标题
+                    title:shareTitlePrefixs[idx]+(categoryName?categoryName:"个性化专属"), // 分享标题
                     desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: shareLogos[Math.floor(Math.random()*1000)%4], // 分享图标
+                    imgUrl: shareLogos[idx], // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
