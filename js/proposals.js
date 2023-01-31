@@ -936,6 +936,7 @@ function showloading(flag){
 
 //将item显示到页面
 var shareTitle = "确幸定制·你的专属个性化方案";
+var shareLogo = "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg";
 function insertCategoryItem(proposalScheme){
     if(!proposalScheme){
       shownomore(true);
@@ -970,10 +971,13 @@ function insertCategoryItem(proposalScheme){
         //修改分享标题
         if(categoryType == "free"){
             shareTitle = "定制师方案·"+categoryName;
+            shareLogo = "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-solution.png";
         }else if(categoryType == "guide"){
             shareTitle = "专家指南·"+categoryName;
+            shareLogo = "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-guide.png";
         }else if(categoryId == "board"){
             shareTitle = "甄选合集·"+categoryName;
+            shareLogo = "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-board.png";
         }
 
         //重新注册分享事件
@@ -1197,46 +1201,11 @@ function registerShareHandler(){
                 // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，
                 // 则须把相关接口放在ready函数中调用来确保正确执行。对于用户触发时才调用的接口，则可以直接调用，不需要放在ready函数中。
                 //分享到朋友圈
-                wx.onMenuShareTimeline({
-                    title:shareTitle, // 分享标题
-                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-                    link:shareUrl,
-                    imgUrl:"https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg", // 分享图标
-                    success: function () {
-                        // 用户点击了分享后执行的回调函数
-                        //TODO: solution分享当前不记录
-                        /*
-                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
-                            console.log("分享到朋友圈",res);
-                        }); 
-                        //**/
-                    },
-                });
-                //分享给朋友
-                wx.onMenuShareAppMessage({
-                    title:shareTitle, // 分享标题
-                    desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
-                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-                    link:shareUrl,
-                    imgUrl: "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg", // 分享图标
-                    type: 'link', // 分享类型,music、video或link，不填默认为link
-                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
-                    success: function () {
-                      // 用户点击了分享后执行的回调函数
-                      //TODO:solution分享当前不记录
-                      /**
-                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
-                            console.log("分享到微信",res);
-                        }); 
-                        //**/
-                    }
-                });   
-                //分享到朋友圈
                 wx.updateTimelineShareData({
                     title:shareTitle, // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl:"https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg", // 分享图标
+                    imgUrl:shareLogo, // 分享图标
                     success: function () {
                         // 用户点击了分享后执行的回调函数
                         //TODO: solution分享当前不记录
@@ -1253,7 +1222,7 @@ function registerShareHandler(){
                     desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
-                    imgUrl: "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg", // 分享图标
+                    imgUrl: shareLogo, // 分享图标
                     type: 'link', // 分享类型,music、video或link，不填默认为link
                     dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
                     success: function () {
@@ -1265,7 +1234,44 @@ function registerShareHandler(){
                         }); 
                         //**/
                     }
-                });                          
+                });  
+                                
+                //分享到朋友圈
+                wx.onMenuShareTimeline({
+                    title:shareTitle, // 分享标题
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl:shareLogo, // 分享图标
+                    success: function () {
+                        // 用户点击了分享后执行的回调函数
+                        //TODO: solution分享当前不记录
+                        /*
+                        logstash(stuff,"mp","share timeline",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到朋友圈",res);
+                        }); 
+                        //**/
+                    },
+                });
+                //分享给朋友
+                wx.onMenuShareAppMessage({
+                    title:shareTitle, // 分享标题
+                    desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
+                    //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+                    link:shareUrl,
+                    imgUrl: shareLogo, // 分享图标
+                    type: 'link', // 分享类型,music、video或link，不填默认为link
+                    dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+                    success: function () {
+                      // 用户点击了分享后执行的回调函数
+                      //TODO:solution分享当前不记录
+                      /**
+                        logstash(stuff,"mp","share appmsg",shareUserId,shareBrokerId,function(res){
+                            console.log("分享到微信",res);
+                        }); 
+                        //**/
+                    }
+                });   
+                        
             });
         }
     })    
