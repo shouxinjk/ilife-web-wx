@@ -1215,7 +1215,7 @@ function registerShareHandler(){
                 //分享给朋友
                 wx.onMenuShareAppMessage({
                     title:shareTitle, // 分享标题
-                    desc:"专家指南+定制师经验+灵活的方案生成，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
+                    desc:"专家指南，加上定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg", // 分享图标
@@ -1250,7 +1250,7 @@ function registerShareHandler(){
                 //分享给朋友
                 wx.updateAppMessageShareData({
                     title:shareTitle, // 分享标题
-                    desc:"专家指南+定制师经验+灵活的方案生成，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
+                    desc:"专家指南，加上定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl: "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg", // 分享图标
