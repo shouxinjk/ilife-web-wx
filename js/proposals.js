@@ -1139,7 +1139,7 @@ function getDateDiff(dateTimeStamp) {
 }
 
 //注册分享事件后参数变化无效，采用随机显示方式
-var shareTitlePrefixs = ["确幸定制·","定制师方案·","专家指南·","甄选合集·"];
+var shareTitles = ["确幸定制·你的专属个性化方案","确幸定制·定制师方案","确幸定制·专家指南","确幸定制·甄选合集"];
 var shareLogos = [
 "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg",
 "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-solution.png",
@@ -1210,7 +1210,7 @@ function registerShareHandler(){
                 var idx = Math.floor(Math.random()*1000)%4;
                 //分享到朋友圈
                 wx.updateTimelineShareData({
-                    title:shareTitlePrefixs[idx]+(categoryName?categoryName:"个性化专属"), // 分享标题
+                    title:shareTitles[idx]+(categoryName?"·"+categoryName:""), // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:shareLogos[idx], // 分享图标
@@ -1226,7 +1226,7 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.updateAppMessageShareData({
-                    title:shareTitlePrefixs[idx]+(categoryName?categoryName:"个性化专属"), // 分享标题
+                    title:shareTitles[idx]+(categoryName?"·"+categoryName:""), // 分享标题
                     desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
@@ -1246,7 +1246,7 @@ function registerShareHandler(){
 
                 //分享到朋友圈
                 wx.onMenuShareTimeline({
-                    title:shareTitlePrefixs[idx]+(categoryName?categoryName:"个性化专属"), // 分享标题
+                    title:shareTitles[idx]+(categoryName?"·"+categoryName:""), // 分享标题
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
                     imgUrl:shareLogos[idx], // 分享图标
@@ -1262,7 +1262,7 @@ function registerShareHandler(){
                 });
                 //分享给朋友
                 wx.onMenuShareAppMessage({
-                    title:shareTitlePrefixs[idx]+(categoryName?categoryName:"个性化专属"), // 分享标题
+                    title:shareTitles[idx]+(categoryName?"·"+categoryName:""), // 分享标题
                     desc:"专家指南+定制师经验，无论是个性体检，还是旅游行程，都能快速获取专属方案。", // 分享描述
                     //link:window.location.href, // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
                     link:shareUrl,
