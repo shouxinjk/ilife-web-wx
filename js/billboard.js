@@ -60,7 +60,7 @@ var num = 1;//需要加载的内容下标
 
 var items = [];
 var page = {//翻页控制
-  size: 100,//每页条数
+  size: 50,//每页条数
   total: 1,//总页数
   current: -1//当前翻页
 };
@@ -209,7 +209,7 @@ function loadFeeds(){
     sxInterval = setInterval(function ()
     {
         //console.log("interval",$(window).scrollTop(),$(document).height(),$(window).height(),$(document).height() - $(window).height() - dist);
-        if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading)
+        if ($(window).scrollTop() >= $(document).height() - $(window).height() - dist && !loading )
         {
             // 表示开始加载
             loading = true;
