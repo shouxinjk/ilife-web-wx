@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>流量主-小确幸大生活</title>
+    <title>物料-小确幸大生活</title>
     <link rel='shortcut icon' type='image/x-icon' href='../favicon.ico' />
     <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
     <link rel="stylesheet" type="text/css" href="../css/reset2.0.min.css">
@@ -20,37 +20,43 @@
 <body>
 <section>
     <!-- 用户信息 --> 
+    <!--
     <view class="info" id="user"></view>
+    -->
     <!-- 按钮 --> 
-    <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">     
-        <div class="order-cell" id="task" data-tagging="like view">
-            <img class="order-cell-icon-small" src="../broker/images/task.png"/>
-            <div class="actiontype">生活家</div>
-        </div>        
-        <div class="order-cell" id="articles" data-tagging="like view">
-            <img class="order-cell-icon-small" src="images/articles.png"/>
-            <div class="actiontype">文章</div>
+    <view class="order" id="buttons" style="position:sticky;z-index: 9;top:0;background-color: #fff;">
+        <!--div class="order-cell" id="task" data-tagging="like view">
+            <img class="order-cell-icon-small" src="images/task.png"/>
+            <div class="actiontype">任务</div>
+        </div-->      
+        <div class="order-cell" id="selection" data-tagging="like view">
+            <img class="order-cell-icon-small" src="../broker/images/selection-selected.png"/>
+            <div class="actiontype-selected">选品库</div>
+        </div>            
+        <div class="order-cell" id="feeds" data-tagging="like view">
+            <img class="order-cell-icon-small" src="../broker/images/feeds.png"/>
+            <div class="actiontype">发现</div>
         </div>           
-        <div class="order-cell" id="accounts" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/accounts.png"/>
-            <div class="actiontype">公众号</div>
+        <div class="order-cell" id="team" data-tagging="buy">
+            <img class="order-cell-icon-small" src="../broker/images/team.png"/>
+            <div class="actiontype">团队</div>
         </div>   
-        <div class="order-cell" id="material" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/material-selected.png"/>
-            <div class="actiontype-selected">带货</div>
-        </div>  
-        <!--div class="order-cell" id="reads" data-tagging="buy">
-            <img class="order-cell-icon-small" src="images/reads.png"/>
-            <div class="actiontype">数据</div>
-        </div-->                  
         <div class="order-cell" id="my" data-tagging="share">
-            <img class="order-cell-icon-small" src="images/my.png"/>
-            <div class="actiontype">我的</div>
-        </div>                                    
+            <img class="order-cell-icon-small" src="../broker/images/my.png"/>
+            <div class="actiontype">客群</div>
+        </div> 
+        <!--div class="order-cell" id="bot" data-tagging="share">
+            <img class="order-cell-icon-small" src="images/bot.png"/>
+            <div class="actiontype">云助理</div>
+        </div-->          
+        <div class="order-cell" id="money" data-tagging="share">
+            <img class="order-cell-icon-small" src="../broker/images/money.png"/>
+            <div class="actiontype">收益</div>
+        </div>                                   
     </view>
 
     <div class="tips" style="line-height: 16px;" id="tipsDiv">
-        以下内容可以直接嵌入公众号文章，下单后即有佣金
+        内容物料能够直接嵌入公众号文章 <a href="../broker/selection.html" style="font-size:12px;font-weight:bold;color:#007bff;">返回选品库</a>
     </div> 
 
     <div style="width:90%;text-align: center;margin:5px auto;display: flex;flex-direction: row;flex-wrap: nowrap;display: none;">
@@ -98,7 +104,7 @@
     </div> 
  </section>
 
-  <div id="sx-menu">
+<div id="sx-menu">
     <a href="../index.html" class="menu-btn">
         <img src="../images/smile-happy.png" width="20px" height="20px"/>
         <div class="menu-btn-txt">&nbsp;推荐</div>
@@ -107,13 +113,17 @@
         <img src="../images/measure.png" width="20px" height="20px"/>
         <div class="menu-btn-txt">&nbsp;评价</div>
     </a>
+    <a href="../billboards.html" class="menu-btn">
+        <img src="../images/billboard.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;排行</div>
+    </a>       
     <a href="../proposals.html" class="menu-btn">
         <img src="../images/proposal.png" width="20px" height="20px"/>
         <div class="menu-btn-txt">&nbsp;定制</div>
     </a> 
-    <a href="#" class="menu-btn">
+    <a href="../console.html" class="menu-btn">
         <img src="../images/my-selected.png" width="20px" height="20px"/>
-        <div class="menu-btn-txt-selected">&nbsp;流量主</div>
+        <div class="menu-btn-txt-selected">&nbsp;生活家</div>
     </a>        
   </div>
 
@@ -154,5 +164,5 @@
 <script type="text/javascript" src="../js/helper.js?v=1.11"></script>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
 <script type="text/javascript" src="js/common.js?v=1.63"></script> 
-<script type="text/javascript" src="js/material.js?v=0.2"></script> 
+<script type="text/javascript" src="js/material.js?v=0.4"></script> 
 </html>

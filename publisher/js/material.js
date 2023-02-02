@@ -502,7 +502,7 @@ function insertItem(){
     if(item.price&&item.price.profit&&item.type=='item'){//单品佣金显示
       profitTags += "<span class='profitTipOrder'>单返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.price.profit*100)/100).toFixed(2)))+"</span>";
       if(item.price&&item.price.profit2&&item.price.profit2>0.01)profitTags += "<span class='profitTipTeam'>团返</span><span class='itemTagProfitTeam' href='#'>¥"+(parseFloat((Math.floor(item.price.profit2*100)/100).toFixed(2)))+"</span>";
-    }else if(item.price&&item.type=='board'){//集合佣金显示
+    }else if(item.price&&(item.type=='board'||item.type=='solution'||item.type=='rank')){//集合佣金显示
         //店返：范围
       profitTags += "<span class='profitTipOrder'>单返</span><span class='itemTagProfitOrder' href='#'>¥"+(parseFloat((Math.floor(item.price.profit*100)/100).toFixed(2)))
       if(item.price&&item.price.profit2&&item.price.profit2>0.01&&item.price.profit2>item.price.profit)profitTags += "-"+(parseFloat((Math.floor(item.price.profit2*100)/100).toFixed(2)));
@@ -521,14 +521,15 @@ function insertItem(){
     var description = "<div class='description'>"+item.updateDate+"</div>";//更新时间
 
     //操作按钮：默认认为是单品
-    var btns = "<div style='margin-top:-10px;'><span id='view"+item.itemkey+"' style='color:#006cfd;font-size:12px;' data-url='"+item.url+"'>查看内容</span>"+
-               "<span id='item"+item.itemkey+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>查看商品</span>"+ 
+    var typeNames = {
+        item: "商品",
+        board: "清单",
+        solution: "定制方案",
+        rank: "排行榜"
+    };
+    var btns = "<div style='margin-top:-10px;'><span id='view"+item.itemkey+"' style='color:#006cfd;font-size:12px;' data-url='"+item.url+"'>浏览内容</span>"+
+               "<span id='jump"+item.itemkey+"' data-type='"+item.type+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>查看"+typeNames[item.type]+"</span>"+ 
                "<span id='copy"+item.itemkey+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>复制专属链接</span></div>"; 
-    if(item.type=='board'){
-        btns = "<div style='margin-top:-10px;'><span id='view"+item.itemkey+"' style='color:#006cfd;font-size:12px;' data-url='"+item.url+"'>查看内容</span>"+
-               "<span id='board"+item.itemkey+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>查看商品</span>"+ 
-               "<span id='copy"+item.itemkey+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>复制专属链接</span></div>";         
-    }
 
     $("#waterfall").append("<li><div class='task' data='"+item.itemkey+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +highlights+profitTags+btns+"</div></li>");
     num++;
@@ -553,22 +554,20 @@ function insertItem(){
         //e.clearSelection();            
     });     
     //跳转到单品或列表：
-    if(item.type=='board'){
-        $("#board"+item.itemkey).click(function(){
-            var targetUrl = "../board2-waterfall.html?id="+item.itemkey; 
-            console.log("Publisher::material now jump to board.",targetUrl);
-            //window.location.href = "../index.html";   
-            window.location.href = targetUrl;
-        });        
-    }else{
-        $("#item"+item.itemkey).click(function(){
-            var targetUrl = "../info2.html?id="+item.itemkey; 
-            console.log("Publisher::material now jump to item.",targetUrl);
-            //window.location.href = "../index.html";   
-            window.location.href = targetUrl;
-        });       
-    }
-
+    $("#jump"+item.itemkey).click(function(){
+        var targetUrl = "../info2.html?id="+item.itemkey; //默认认为是商品
+        var itemType = $(this).data("type");
+        if(itemType=="board"){
+            targetUrl = "../board2-waterfall.html?id="+item.itemkey; 
+        }else if(itemType=="solution"){
+            targetUrl = "../solution.html?id="+item.itemkey; 
+        }else if(itemType=="rank"){
+            targetUrl = "../billboard.html?rankId="+item.itemkey; 
+        }
+        console.log("Publisher::material now jump to item.",targetUrl);
+        //window.location.href = "../index.html";   
+        window.location.href = targetUrl;
+    });
 
     // 表示加载结束
     loading = false;
@@ -581,7 +580,7 @@ function loadPerson(personId) {
         console.log("load person info.",personId,res);
         userInfo = res;
         currentPerson = res._key;
-        insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
+        //insertPerson(userInfo);//TODO:当前直接显示默认信息，需要改进为显示broker信息，包括等级、个性化logo等
         //loadData();
         loadBrokerByOpenid(res._key);//根据openid加载broker信息
     });
@@ -654,7 +653,7 @@ function changeActionType (e) {
     } 
 
     //跳转到相应页面
-    window.location.href = currentActionType+".html";
+    window.location.href = "../broker/"+currentActionType+".html";
 }
 
 function loadCategories(currentCategory){
