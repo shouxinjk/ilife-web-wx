@@ -93,7 +93,15 @@ $(document).ready(function ()
     //注册点击事件：添加商品URL
     $("#addNewItemBtn").click(function(){
         showItemForm();        
-    });       
+    });  
+    //注册点击事件：创建清单或编辑清单
+    $("#createBoardBtn").click(function(){
+      if(boardId){ //如果有正在编辑的清单则直接跳转
+        window.location.href="board2-waterfall.html?id="+boardId;
+      }else{//否则新建
+        createBoard();
+      }
+    });     
 
     //注册点击事件：关于
     $("#findHelp").click(function(){
@@ -113,6 +121,7 @@ $(document).ready(function ()
 
     //注册分享事件
     registerShareHandler()
+
 
 //TODO：切换为复杂查询。需要在索引结构更新后进行
     //console.log("assemble", assembleEsQuery());     
@@ -1130,13 +1139,13 @@ function insertItem(){
     var solutionBtns = "";
     if(solutionId&&solutionItemId){//如果有solution信息则显示添加按钮
         solutionBtns = "<div class='itemTags'>";
-        solutionBtns += "<a  id='btn-add-"+item._key+"-to-solution-item' data-solutionitemid='"+solutionItemId+"' data-item='"+item._key+"' class='boardOption' style='color:blue;'>加入方案</a>&nbsp;";
-        solutionBtns += "<a class='boardOption' href='solution-modify.html?id="+solutionId+"' style='color:blue;'>返回方案</a>";
+        solutionBtns += "<a  id='btn-add-"+item._key+"-to-solution-item' data-solutionitemid='"+solutionItemId+"' data-item='"+item._key+"' class='boardOption' style='border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;'>加入方案</a>&nbsp;";
+        solutionBtns += "<a class='boardOption' href='solution-modify.html?id="+solutionId+"' style='border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;'>编辑方案</a>";
         solutionBtns += "</div>";
     }else if(solutionId){//如果有solution信息则显示添加按钮
         solutionBtns = "<div class='itemTags'>";
-        solutionBtns += "<a  id='btn-add-"+item._key+"-to-solution' data-solutionid='"+solutionId+"' data-item='"+item._key+"' class='boardOption' style='color:blue;'>加入方案</a>&nbsp;";
-        solutionBtns += "<a class='boardOption' href='solution-modify.html?id="+solutionId+"' style='color:blue;'>返回方案</a>";
+        solutionBtns += "<a  id='btn-add-"+item._key+"-to-solution' data-solutionid='"+solutionId+"' data-item='"+item._key+"' class='boardOption' style='border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;'>加入方案</a>&nbsp;";
+        solutionBtns += "<a class='boardOption' href='solution-modify.html?id="+solutionId+"' style='border:1px solid orange;padding:2px 5px;font-size:10px;border-radius:5px;'>编辑方案</a>";
         solutionBtns += "</div>";
     }
 
@@ -1932,6 +1941,8 @@ function createBoard(){
             id:broker.id
         },
         logo:"",
+        byOpenid: app.globalData.userInfo._key,
+        byNickname: app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName:"小确幸",
         title:app.globalData.userInfo && app.globalData.userInfo.nickName ?app.globalData.userInfo.nickName+" 的推荐清单":"新的推荐清单",
         //title:broker&&broker.name?broker.name+" 的推荐清单":"新的推荐清单",
         description:"我们精心挑选了以下好物，希望你会喜欢",
@@ -1944,15 +1955,20 @@ function createBoard(){
         console.log("Broker::Board::AddBoard create board successfully.", res)
         if(res.status){
             console.log("Broker::Board::AddBoard now jump to home page for item adding.", res)
+            /**
             var expDate = new Date();
             expDate.setTime(expDate.getTime() + (15 * 60 * 1000)); // 15分钟后自动失效：避免用户不主动修改
             $.cookie('board', JSON.stringify(res.data), { expires: expDate, path: '/' });  //把编辑中的board写入cookie便于添加item
             //修改当前board信息
             getBoard();
+            //**/
+            boardId = res.data.id;
             loadData();//重新加载数据：以便于显示“添加清单”按钮
-            showShareContent();//刷新分享按钮，提示分享
+            $("#createBoardBtn").html("编辑清单");
+            showBoardActions();//显示顶部提示条
+            //showShareContent();//刷新分享按钮，提示分享
             //显示提示浮框
-            siiimpleToast.message('清单已创建，点商品右下方「加入清单」添加吧~~',{
+            siiimpleToast.message('清单已创建，选择商品并「加入清单」吧~~',{
                   position: 'bottom|center'
                 });                      
         }
