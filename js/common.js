@@ -384,7 +384,9 @@ function purchasePoints(wxPayResult){
                 //更新到界面 
                 if(broker&&broker.points){
                     broker.points = broker.points + res.data.points.points;
-                    insertBroker(broker);
+                    //insertBroker(broker);
+                $("#sxCredit").empty();
+                $("#sxCredit").append("贡献度："+(broker.points>0?broker.points:0));                 
                 }             
             }
         }
