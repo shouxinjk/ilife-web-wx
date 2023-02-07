@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>小确幸大生活</title>
+    <link rel='shortcut icon' type='image/x-icon' href='favicon.ico' />
+    <meta charset="utf-8" name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="css/reset2.0.min.css">
+    <link rel="stylesheet" type="text/css" href="ext/toast/jquery.toast.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="ext/siiimple-toast-master/style.css?v=1.0">    
+    <link rel="stylesheet" type="text/css" href="broker/css/broker.css?v=1.0">
+    <link rel="stylesheet" type="text/css" href="broker/css/broker-my.css?v=1.41">
+    <link rel="stylesheet" type="text/css" href="publisher/css/publisher.css?v=1.02">
+    <link rel="stylesheet" type="text/css" href="css/waterfall.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper.min.css">    
+    <link href="ext/tag-it/css/jquery.tagit.css" rel="stylesheet" type="text/css">
+    <link href="ext/tag-it/css/tagit.ui-zendesk.css" rel="stylesheet" type="text/css">    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">   
+    <style type="text/css">
+        .actiontype {
+            font-size: 12px;
+            margin-top: 5px;     
+        }
+
+        /*微信风格聊天对话框*/
+        .chat-bubble{
+          position: relative;
+          margin:0 5px;
+          font-size:12px;
+          line-height: 16px;
+          padding:5px 8px;
+          word-break: break-all;
+          background:#fff;
+          border: 1px solid #cccccc;
+          border-radius: 5px;
+          /*max-width:180px;*/
+        }
+
+        .chat-bubble-left {}
+        .chat-bubble-left:before {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 0;
+          left: -20px;
+          top:5px;
+          border: 10px solid;
+          border-color:transparent #cccccc transparent  transparent ;
+        }
+        .chat-bubble-left:after {
+         content: '';
+         position: absolute;
+         width: 0;
+         height: 0;
+         left:-16px;
+         top:7px;
+         border: 8px solid;
+         border-color:transparent #ffffff transparent  transparent ;
+        }
+
+        .chat-bubble-right {}
+        .chat-bubble-right:before {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 0;
+          right: -20px;
+          top:5px;
+          border: 10px solid;
+          border-color:transparent transparent transparent #cccccc;
+        }
+        .chat-bubble-right:after {
+         content: '';
+         position: absolute;
+         width: 0;
+         height: 0;
+         right:-16px;
+         top:7px;
+         border: 8px solid;
+         border-color:transparent transparent transparent #ffffff ;
+        }
+
+        .chat-bubble-top {}
+        .chat-bubble-top:before {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 0;
+          left:10px;
+          top:31px;
+          border: 10px solid;
+          border-color: #cccccc transparent  transparent  transparent ;
+        }
+        .chat-bubble-top:after {
+         content: '';
+         position: absolute;
+         width: 0;
+         height: 0;
+         left:12px;
+         top:30px;
+         border: 8px solid;
+         border-color:#ffffff transparent transparent transparent  ;
+        }
+
+        .chat-bubble-bottom {}
+        .chat-bubble-bottom:before {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 0;
+          right:10px;
+          top:-21px;
+          border: 10px solid;
+          border-color:transparent transparent #cccccc transparent ;
+        }
+        .chat-bubble-bottom:after {
+         content: '';
+         position: absolute;
+         width: 0;
+         height: 0;
+         right:12px;
+         top:-16px;
+         border: 8px solid;
+         border-color:transparent transparent #ffffff transparent  ;
+        }
+
+    </style> 
+</head>
+
+<body>
+    <!--div class="header">
+        <div class="search">
+            <span>MAN生活</span>
+            <input placeholder=" 小确幸,大生活">
+        </div>
+    </div-->
+
+    <!-- 导航菜单 -->
+    <!--div class="nav">
+        <ul class="navUl">
+        </ul>
+    </div-->   
+
+    <!-- 用户信息 --> 
+    <view class="info" id="user" style="justify-content: center;min-height: 100px;"></view>
+
+
+    <div class="tips">
+        ChatGPT能够回答几乎一切问题 <button type="submit" class="btn-charge" id="btnCharge">打赏</button>
+    </div> 
+
+    <!--网页模拟微信对话框-->
+    <div id="Center" class="wx-scroll-list">
+
+    </div>
+    <!--输入框-->
+    <div style="width:100%;padding: 2px 0;background-color:#eee;position: fixed;bottom: 40px;">
+        <div style="display:flex;flex-direction: row; align-items:center;justify-content:center;width:90%;margin-left:5%;">
+            <div style="width:80%;padding:2px 5px;">
+                <input type="text" id="promptBox" placeholder="随便说点什么" style="width:100%;border:1px solid silver;border-radius:5px;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;"/>
+            </div>
+            <div style="width:20%">
+                <button type="submit" class="btnYes" id="btnSendPrompt" style="font-size: 12px;padding:2px 5px;width:100%;color:#fff;font-weight: bold;background-color:green; ">发送</button> 
+            </div>
+        </div>   
+    </div>   
+
+    <div id="footer" class="footer-hide">
+
+    </div>  
+
+    <div style="height:60px;">
+        &nbsp;&nbsp;
+    </div>  
+
+  <div id="sx-menu">
+    <a href="index.html" class="menu-btn">
+        <img src="images/smile-happy.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;推荐</div>
+    </a>
+    <a href="measures.html" class="menu-btn">
+        <img src="images/measure.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;评价</div>
+    </a>
+    <a href="billboards.html" class="menu-btn">
+        <img src="images/billboard.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;排行</div>
+    </a>     
+    <a href="proposals.html" class="menu-btn">
+        <img src="images/proposal.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt">&nbsp;定制</div>
+    </a>  
+    <a href="console.html" class="menu-btn">
+        <img src="images/my-selected.png" width="20px" height="20px"/>
+        <div class="menu-btn-txt-selected">&nbsp;我</div>
+    </a>        
+  </div>
+
+    <!-- 申请成为领域达人或专家 -->
+    <div id="candidateform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;" id="candidateTip" data-badge="expert">申请加入领域达人</div> 
+            <input type="text" id="candidateName2" placeholder="非常欢迎加入，请告诉我们怎么称呼" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>   
+            <input type="text" id="candidateJob2" placeholder="请告诉我们您的身份或工作" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>                        
+            <input type="text" id="candidateCompany2" placeholder="请告诉我们所在公司、院校或机构" style="width:80%;border:1px solid silver;line-height: 24px;font-size:14px;margin:5px auto;padding:2px;" required/>                           
+            <textarea type="text" id="candidateDesc2" rows="3" placeholder="请简述个人及优势领域" style="width:80%;border:1px solid silver;line-height: 20px;font-size:14px;margin:5px auto;padding:2px;"></textarea>                                     
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelCandidate" style="font-size: 12px;padding:2px 5px; margin:2px;">取消</button>  
+                <button type="submit" class="btnYes" id="btnSaveCandidate" style="font-size: 12px;padding:2px 5px;margin:2px;">提交申请</button> 
+            </div>
+    </div> 
+
+    <!-- 勋章列表 -->
+    <div id="badgeform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">徽章与能力</div> 
+            <div class="wx-scroll-list" id="badgeList" style="height:320px;"></div>  
+            <div>
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;margin-top:2px;">
+                    <div>✅</div>
+                    <div>&nbsp;表示已获取该徽章与能力</div>
+                </div> 
+            </div>                                   
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelBadge" style="font-size: 12px;padding:2px 5px; margin:2px;">关闭</button>  
+            </div>
+    </div> 
+
+    <!-- 贡献值列表 -->
+    <div id="creditform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">贡献值与收益分配</div> 
+            <div  class="wx-scroll-list" id="creditList" style="height:320px;"></div>    
+            <div>
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;">
+                    <div><img src="images/credit/periodic.png" style="width:12px;height:12px;object-fit: cover;"/></div>
+                    <div>按周期结算：结算后贡献值将从0重新开始累计</div>
+                </div> 
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;">
+                    <div><img src="images/credit/permanent.png" style="width:12px;height:12px;object-fit: cover;"/></div>
+                    <div>永久分成：结算后不清零，持续累计，并参与收益分成</div>
+                </div> 
+            </div>                                 
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelCredit" style="font-size: 12px;padding:2px 5px; margin:2px;">关闭</button>  
+            </div>
+    </div> 
+
+    <!-- 收益列表描述 -->
+    <div id="moneyform" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;">收益及提现</div> 
+            <div class="wx-scroll-list" id="moneyTipList" style="height:300px;">
+               
+            </div>    
+            <div>
+                <div style="font-size:8px;display: flex;flex-direction: row;align-items: center;margin-top:2px;">
+                    <div><img src="images/money/info.png" style="width:12px;height:12px;object-fit: cover;"/></div>
+                    <div>&nbsp;机构用户统一提现请联系客服</div>
+                </div> 
+            </div>                                 
+            <div style="display:flex;flex-wrap: nowrap;justify-content: center;">
+                <button type="submit" class="btnNo" id="btnCancelMoney" style="font-size: 12px;padding:2px 5px; margin:2px;">关闭</button>  
+            </div>
+    </div> 
+
+    <!--充值-->
+    <div id="chargeForm" style="display:none; cursor: default;"> 
+            <div style="font-size:16px;font-weight:bold;line-height: 20px;margin-bottom:10px;">打赏继续体验ChatGPT</div> 
+            <div id="chargeDiv" class="poor-topping-div">
+                
+            </div>
+            <div style="margin-top:10px;">
+                <button type="submit" class="btnNo" style="color:silver;border-color:silver;" id="btnCancelCharge">取消</button> 
+            </div>
+    </div> 
+
+</body>
+
+<!--script src="https://code.jquery.com/jquery-1.12.4.min.js"></script-->
+<script type="text/javascript" src="ext/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="ext/jquery-ui.min.js"></script>
+<script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+<script type="text/javascript" src="js/newWaterfall.js"></script>
+<script type="text/javascript" src="js/swiper.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="ext/jquery.blockUI.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/main.js"></script>
+<script type="text/javascript" src="ext/siiimple-toast-master/siiimple-toast.min.js"></script>
+<script type="text/javascript" src="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.js"></script>
+<script type="text/javascript" src="js/util.js?v=3.03"></script>
+<script type="text/javascript" src="js/common.js?v=1.39"></script> 
+<script type="text/javascript" src="js/md5.js?v=1.0"></script>
+<script type="text/javascript" src="js/toys.js?v=2.5"></script> 
+<script type="text/javascript" src="ext/short-md5.js"></script>
+<script src="ext/tag-it/js/tag-it.js" type="text/javascript" charset="utf-8"></script>
+</html>
