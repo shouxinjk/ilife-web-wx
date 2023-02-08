@@ -167,6 +167,13 @@ function showCompletion(text){
 
 //检查并发送prompt到后端请求应答
 function sendPrompt(){
+    //检查是否完成授权
+    if(!broker || !broker.nickname){
+        siiimpleToast.message('请点击顶部立即开始使用~~',{
+              position: 'bottom|center'
+            });         
+        return;        
+    }    
     //检查是否还有回复在等待
     if(pendingCompletionUUID){
         siiimpleToast.message('还在回答上一个问题哦，稍等哈~~',{
@@ -361,7 +368,7 @@ function registerBroker(){
             //微信不支持进入分享页后直接获取UserInfo，需要再次请求授权得到
             var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
             shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
-            window.href.location = shareUrl;                   
+            window.location.href = shareUrl;                   
         },
         error:function(){
             console.log("register failed.",app.globalData.userInfo);
@@ -407,7 +414,7 @@ function loadBrokerByOpenid(openid) {
             if(!broker.nickname){ //由于微信不支持从分享页直接进入授权，初次进入后虽然完成静默注册，但无法获取userinfo，需要再次触发授权得到，多跳转一次oauth授权
                 var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
                 shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
-                window.href.location = shareUrl;          
+                window.location.href = shareUrl;          
             }else{
                 insertBroker(broker);//显示达人信息
                 registerShareHandler();//注册分享事件

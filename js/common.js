@@ -6,7 +6,7 @@ function insertPerson(person){
         html += '<div class="info-general">';
         html += '</div>';
         html += '<div class="info-detail">';
-        html += '<div class="info-text info-blank"><button type="submit" class="btnYes" id="btnAuth" style="font-size: 12px;padding:2px 5px;width:100%;color:#fff;font-weight: bold;background-color:green; ">&nbsp;立即开始使用&nbsp;</button> </div>';
+        html += '<div class="info-text info-blank"><button type="submit" class="btnYes" id="btnAuth" style="font-size: 12px;padding:2px 5px;width:100%;color:#fff;font-weight: bold;background-color:green; ">立即开始使用</button> </div>';
         html += '<div style="position:absolute;right:5px;top:5px;"><a href="task.html" style="color:silver;font-size:10px;">帮助</a></div>';
         html += '</div>';
         $("#user").append(html);        
@@ -14,7 +14,7 @@ function insertPerson(person){
         $("#btnAuth").click(function(){
             var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
             shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
-            window.href.location = shareUrl;              
+            window.location.href = shareUrl;              
         });
          
     }else{
