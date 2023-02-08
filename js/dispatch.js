@@ -40,7 +40,7 @@ function flightCheck(code,state){
                 //发起检查及静默注册请求：发起即可，不用等
                 util.checkBrokerSilent({
                     openid:res.openid?res.openid:res.openId,
-                    nickname:res.nickname?res.nickname:(state.indexOf("broker")>-1?"生活家":"流量主"),
+                    nickname:res.nickname?res.nickname:(state.indexOf("broker")>-1?"生活家":"小确幸"),
                 });
                 //修改入口位置
                 if(state.indexOf("toys")>-1){
