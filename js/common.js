@@ -1,23 +1,37 @@
 //显示顶部用户信息
 function insertPerson(person){
-    if(!person.nickname){
+    if(!person.nickname){ //如果为新关注用户则显示授权按钮，并注册发起主动授权操作
+        // 显示HTML
+        var html = '';
+        html += '<div class="info-general">';
+        html += '</div>';
+        html += '<div class="info-detail">';
+        html += '<div class="info-text info-blank"><button type="submit" class="btnYes" id="btnAuth" style="font-size: 12px;padding:2px 5px;width:100%;color:#fff;font-weight: bold;background-color:green; ">&nbsp;立即开始使用&nbsp;</button> </div>';
+        html += '<div style="position:absolute;right:5px;top:5px;"><a href="task.html" style="color:silver;font-size:10px;">帮助</a></div>';
+        html += '</div>';
+        $("#user").append(html);        
         //微信不支持进入分享页后直接获取UserInfo，需要再次请求授权得到
-        var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
-        shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
-        window.href.location = shareUrl;           
+        $("#btnAuth").click(function(){
+            var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
+            shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
+            window.href.location = shareUrl;              
+        });
+         
+    }else{
+        // 显示HTML
+        var html = '';
+        html += '<div class="info-general">';
+        html += '<img class="general-icon" src="'+person.avatarUrl+'" height="60px"/>';
+        html += '</div>';
+        html += '<div class="info-detail">';
+        html += '<div class="info-text info-blank">'+person.nickName+'</div>';
+        html += '<div class="info-text info-blank tipform" id="brokerHint" data-type="badge" style="display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
+        html += '<div class="info-text info-blank" id="brokerLink" style="display:flex;flex-direction:row;">让小确幸填满你的大生活</div>';
+        html += '<div style="position:absolute;right:5px;top:5px;"><a href="task.html" style="color:silver;font-size:10px;">帮助</a></div>';
+        html += '</div>';
+        $("#user").append(html);
     }
-    // 显示HTML
-    var html = '';
-    html += '<div class="info-general">';
-    html += '<img class="general-icon" src="'+person.avatarUrl+'" height="60px"/>';
-    html += '</div>';
-    html += '<div class="info-detail">';
-    html += '<div class="info-text info-blank">'+person.nickName+'</div>';
-    html += '<div class="info-text info-blank tipform" id="brokerHint" data-type="badge" style="display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;">'+(person.province?person.province:"")+(person.city?(" "+person.city):"")+'</div>';
-    html += '<div class="info-text info-blank" id="brokerLink" style="display:flex;flex-direction:row;">让小确幸填满你的大生活</div>';
-    html += '<div style="position:absolute;right:5px;top:5px;"><a href="task.html" style="color:silver;font-size:10px;">帮助</a></div>';
-    html += '</div>';
-    $("#user").append(html);
+
     //同时更新broker的nickname及avatarUrl：由于微信不能静默获取，导致broker内缺乏nickname及avatarUrl
     console.log("try to sync broker info.",person);
     $.ajax({
