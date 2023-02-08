@@ -357,7 +357,8 @@ function registerBroker(){
                   position: 'bottom|center'
                 });   
             //**/           
-            widow.location.href = "toys.html";//新注册后直接刷新
+            //widow.location.href = "toys.html";//新注册后直接刷新
+            widow.location.href = "toys.html";//新注册后直接刷新          
         },
         error:function(){
             console.log("register failed.",app.globalData.userInfo);
