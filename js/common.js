@@ -6,7 +6,7 @@ function insertPerson(person){
         html += '<div class="info-general">';
         html += '</div>';
         html += '<div class="info-detail">';
-        html += '<div class="info-text info-blank"> </div>';
+        html += '<div class="info-text info-blank"> 正在进入中，请稍后……</div>';
         html += '<div style="position:absolute;right:5px;top:5px;"></div>';
         html += '</div>';
         $("#user").append(html);          
