@@ -1,5 +1,11 @@
 //显示顶部用户信息
 function insertPerson(person){
+    if(!person.nickname){
+        //微信不支持进入分享页后直接获取UserInfo，需要再次请求授权得到
+        var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
+        shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
+        window.href.location = shareUrl;           
+    }
     // 显示HTML
     var html = '';
     html += '<div class="info-general">';
