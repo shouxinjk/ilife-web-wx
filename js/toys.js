@@ -416,7 +416,7 @@ function loadBrokerByOpenid(openid) {
                 broker.badges=[];
             insertBroker(broker);//显示达人信息
             registerShareHandler();//注册分享事件
-            
+
             /**
             if(!broker.nickname){ //由于微信不支持从分享页直接进入授权，初次进入后虽然完成静默注册，但无法获取userinfo，需要再次触发授权得到，多跳转一次oauth授权
                 var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
@@ -508,11 +508,11 @@ function registerShareHandler(){
     //准备分享url，需要增加分享的 fromUser、fromBroker信息
     var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
     if(shareUrl.indexOf("?")>0){//如果本身带有参数，则加入到尾部
-        //shareUrl += "&fromUser="+shareUserId;
         shareUrl += "&fromBroker="+shareBrokerId;
+        //shareUrl += "&fromUser="+shareUserId;
     }else{//否则作为第一个参数增加
-        //shareUrl += "?fromUser="+shareUserId;
-        shareUrl += "&fromBroker="+shareBrokerId;        
+        shareUrl += "?fromBroker="+shareBrokerId;                
+        //shareUrl += "&fromUser="+shareUserId;
     }
     shareUrl += "&origin=toys";//添加源，表示是一个列表页分享
 
