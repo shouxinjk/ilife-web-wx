@@ -36,18 +36,14 @@ function flightCheck(code,state){
             $.cookie('hasUserInfo', 'true', { expires: 3650, path: '/' });
             //根据点击菜单完成静默注册及跳转干预
             //判断规则：如果state包含broker或publisher，则检查本地是否有缓存brokerInfo，如果没有则触发静默注册，并设置跳转地址
-            if((state.indexOf("broker")>-1 || state.indexOf("publisher")>-1) || state.indexOf("toys")>-1  || state.indexOf("console")>-1 && (!util.getBrokerInfo() || !util.getBrokerInfo().id)){//本地没有达人信息
+            if((state.indexOf("broker")>-1 || state.indexOf("publisher")>-1) /*|| state.indexOf("toys")>-1  || state.indexOf("console")>-1 && (!util.getBrokerInfo() */|| !util.getBrokerInfo().id)){//本地没有达人信息
                 //发起检查及静默注册请求：发起即可，不用等
                 util.checkBrokerSilent({
                     openid:res.openid?res.openid:res.openId,
                     nickname:res.nickname?res.nickname:(state.indexOf("broker")>-1?"生活家":"小确幸"),
                 });
                 //修改入口位置
-                if(state.indexOf("toys")>-1){
-                    brokerDefaultTargetUrl = "toys.html";
-                }else{
-                    brokerDefaultTargetUrl = "console.html"; //默认进入控制台
-                }
+                brokerDefaultTargetUrl = "console.html"; //默认进入控制台
             }
             //菜单入口设置：小确幸-->index.html；生活家-->清单(已有达人)、任务(静默注册)；流量主-->文章            
             //window.location.href=state+".html";
