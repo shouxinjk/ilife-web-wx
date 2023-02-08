@@ -367,7 +367,10 @@ function registerBroker(){
             //widow.location.href = "toys.html";//新注册后直接刷新     
             //微信不支持进入分享页后直接获取UserInfo，需要再次请求授权得到
             var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
-            shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
+            if(shareUrl.indexOf("?")>0)
+                shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
+            else
+                shareUrl += "?origin=toys";//添加源，表示是一个列表页分享      
             window.location.href = shareUrl;                   
         },
         error:function(){
@@ -413,7 +416,10 @@ function loadBrokerByOpenid(openid) {
                 broker.badges=[];
             if(!broker.nickname){ //由于微信不支持从分享页直接进入授权，初次进入后虽然完成静默注册，但无法获取userinfo，需要再次触发授权得到，多跳转一次oauth授权
                 var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
-                shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
+                if(shareUrl.indexOf("?")>0)
+                    shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
+                else
+                    shareUrl += "?origin=toys";//添加源，表示是一个列表页分享      
                 window.location.href = shareUrl;          
             }else{
                 insertBroker(broker);//显示达人信息
