@@ -289,45 +289,37 @@ function showContent(solution){
     $("#btnPush").click(function(){
         event.stopPropagation();//阻止触发跳转详情
 
-        //检查商品条目数量，少于3条不推送
-        if(items.length<3){
-            console.log("no enough board items. ignore.");
-            siiimpleToast.message('至少要有3个条目，请添加~~',{
+        //将scheme logo作为solutionLogo
+        var solutionJson = JSON.parse(JSON.stringify(solution));
+        if(solutionJson.scheme && solutionJson.scheme.logo && solutionJson.scheme.logo.indexOf("http")>-1){
+            solutionJson.logo = solutionJson.scheme.logo;
+        }else if(solutionJson.scheme && solutionJson.scheme.logo && solutionJson.scheme.logo.trim().length>0){
+            solutionJson.logo = "https://www.biglistoflittlethings.com/ilife-web-wx/images/category/"+rank.scheme.logo;
+        }else{ //否则4选一
+            var shareLogos = [
+                "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg",
+                "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-solution.png",
+                "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-guide.png",
+                "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-board.png"
+            ];
+            var idx = Math.floor(Math.random()*1000)%4;
+            solutionJson.logo = shareLogos[idx];
+        }
+
+        //推送到CK，同步发送到微信群
+        wxGroups.forEach(function(wxgroup){
+            saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "solution", solutionJson.id, JSON.stringify(solutionJson), "pending");
+        });   
+        if(wxGroups.length>0){
+            console.log("wxgroups synchronized.");
+            siiimpleToast.message('推送已安排~~',{
               position: 'bottom|center'
             });             
         }else{
-            //将scheme logo作为solutionLogo
-            var solutionJson = JSON.parse(JSON.stringify(solution));
-            if(solutionJson.scheme && solutionJson.scheme.logo && solutionJson.scheme.logo.indexOf("http")>-1){
-                solutionJson.logo = solutionJson.scheme.logo;
-            }else if(solutionJson.scheme && solutionJson.scheme.logo && solutionJson.scheme.logo.trim().length>0){
-                solutionJson.logo = "https://www.biglistoflittlethings.com/ilife-web-wx/images/category/"+rank.scheme.logo;
-            }else{ //否则4选一
-                var shareLogos = [
-                    "https://www.biglistoflittlethings.com/ilife-web-wx/images/proposal.jpeg",
-                    "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-solution.png",
-                    "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-guide.png",
-                    "https://www.biglistoflittlethings.com/ilife-web-wx/images/icon/type-board.png"
-                ];
-                var idx = Math.floor(Math.random()*1000)%4;
-                solutionJson.logo = shareLogos[idx];
-            }
-
-            //推送到CK，同步发送到微信群
-            wxGroups.forEach(function(wxgroup){
-                saveFeaturedItem(getUUID(), broker.id, "wechat", wxgroup.id, wxgroup.name, "solution", solutionJson.id, JSON.stringify(solutionJson), "pending");
-            });   
-            if(wxGroups.length>0){
-                console.log("wxgroups synchronized.");
-                siiimpleToast.message('推送已安排~~',{
-                  position: 'bottom|center'
-                });             
-            }else{
-                console.log("no wxGroups.");
-                siiimpleToast.message('还未开通云助手，请联系客服~~',{
-                  position: 'bottom|center'
-                });          
-            }
+            console.log("no wxGroups.");
+            siiimpleToast.message('还未开通云助手，请联系客服~~',{
+              position: 'bottom|center'
+            });          
         }
 
     });  
