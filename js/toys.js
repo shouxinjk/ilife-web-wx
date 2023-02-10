@@ -219,7 +219,7 @@ function sendPrompt(){
         timeout: 120000,//设置超时时间为120s
         success:function(res){
             console.log("got answer.",res);
-            showCompletion(res.text);
+            showCompletion(res.text.replace(/\\n/g,"<br/>"));
             //扣除虚拟豆：直接前端操作
             if(broker){
                 broker.points = broker.points-1;
