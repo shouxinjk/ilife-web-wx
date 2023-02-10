@@ -24,9 +24,6 @@ $(document).ready(function ()
 
     var response_type="code";
     var scope="snsapi_base";//静默授权，只需要获取openid
-    if(origin && origin=="toys"){
-        scope="snsapi_userinfo";//需要弹出提示获取用户信息
-    }
 
     //var state="info2"+args;//默认是单个商品详情页分享
     var state="go"+args;//默认单品直接跳转到第三方详情页
@@ -44,6 +41,9 @@ $(document).ready(function ()
         state="solution"+args;
     }else if(origin && origin =="measures"){//进入measure排行榜清单
         state="measures"+args;
+    }else if(origin && origin=="toys"){
+        state="toys"+args;
+        scope="snsapi_userinfo";//需要弹出提示获取用户信息
     }else{
         state=origin+args; //默认直接跳转
     }
