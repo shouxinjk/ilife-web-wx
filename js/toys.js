@@ -364,14 +364,16 @@ function registerBroker(){
                   position: 'bottom|center'
                 });   
             //**/           
-            //widow.location.href = "toys.html";//新注册后直接刷新     
+            widow.location.href = "toys.html";//新注册后直接刷新     
+            /**
             //微信不支持进入分享页后直接获取UserInfo，需要再次请求授权得到
             var shareUrl = window.location.href.replace(/toys/g,"share");//需要使用中间页进行跳转
             if(shareUrl.indexOf("?")>0)
                 shareUrl += "&origin=toys";//添加源，表示是一个列表页分享      
             else
                 shareUrl += "?origin=toys";//添加源，表示是一个列表页分享      
-            window.location.href = shareUrl;                   
+            window.location.href = shareUrl;      
+            //**/             
         },
         error:function(){
             console.log("register failed.",app.globalData.userInfo);
