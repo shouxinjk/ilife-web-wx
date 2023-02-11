@@ -25,14 +25,16 @@ $(document).ready(function ()
     var response_type="code";
     var scope="snsapi_base";//静默授权，只需要获取openid
 
+    //如果origin为board，则跳转到board
+    var origin = getQuery()["origin"];//获取origin参数，如果为空则不作处理
     //根据入口类型准备scope：如果是broker、publisher、toys则需要获取userinfo
     if(origin && (origin=="toys" || origin.indexOf("broker")>0 || origin.indexOf("publisher")>0)){
         scope="snsapi_userinfo";//需要弹出提示获取用户信息
     }
+
+
     //var state="info2"+args;//默认是单个商品详情页分享
     var state="go"+args;//默认单品直接跳转到第三方详情页
-    //如果origin为board，则跳转到board
-    var origin = getQuery()["origin"];//获取origin参数，如果为空则不作处理
     if(origin && origin =="item"){//单品默认直接进入第三方详情界面
         state="go"+args;
     }else if(origin && origin =="board"){//如果是board则调整跳转页面：列表风格
