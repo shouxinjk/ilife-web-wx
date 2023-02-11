@@ -25,7 +25,7 @@ $(document).ready(function ()
     var response_type="code";
     var scope="snsapi_base";//静默授权，只需要获取openid
 
-    //如果origin为board，则跳转到board
+    //根据origin设置授权方式，对于broker、publisher、toys等需要获取用户头像和昵称的情况采用snsapi_userinfo
     var origin = getQuery()["origin"];//获取origin参数，如果为空则不作处理
     //根据入口类型准备scope：如果是broker、publisher、toys则需要获取userinfo
     if(origin && (origin=="toys" || origin.indexOf("broker")>0 || origin.indexOf("publisher")>0)){

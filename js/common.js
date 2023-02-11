@@ -3,11 +3,10 @@ function insertPerson(person){
     if(!person.nickname){ //如果为新关注用户则显示空白
         // 显示HTML
         var html = '';
-        html += '<div class="info-general">';
+        html += '<div class="info-general" style="width:1%;">';
         html += '</div>';
-        html += '<div class="info-detail">';
-        html += '<div class="info-text info-blank"> 正在进入中，请稍后……</div>';
-        html += '<div style="position:absolute;right:5px;top:5px;"></div>';
+        html += '<div class="info-detail" style="width:98%;">';
+        html += '<div class="info-text info-blank" style="text-align:center;">正在进入中，请稍后……<br/>请留意底部“使用完整服务”</div>';
         html += '</div>';
         $("#user").append(html);          
     }else{
