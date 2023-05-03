@@ -439,7 +439,7 @@ textarea::-webkit-input-placeholder {
 
 .info {
     height: 80px;
-    background: url("//www.shouxinjk.net/list/images/bg.jpg") #FFF no-repeat 0 50%; 
+    background: url("../images/bg.jpg") #FFF no-repeat 0 50%; 
     background-size: cover; 
     display:flex;
     align-content:center;
