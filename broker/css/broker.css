@@ -34,8 +34,19 @@
     background: #fff;
     font-size: 32.81rpx;
 }
-
+/**
 .info {
+    height: 80px;
+    background: url("http://www.shouxinjk.net/list/images/bg.jpg") #FFF no-repeat 0 50%; 
+    background-size: cover; 
+    display:flex;
+    justify-content: center;
+    align-items: center;
+}
+**/
+
+/*用于支持浏览器工具，避免和原网页风格冲突*/
+.sxinfo {
     height: 80px;
     background: url("http://www.shouxinjk.net/list/images/bg.jpg") #FFF no-repeat 0 50%; 
     background-size: cover; 
