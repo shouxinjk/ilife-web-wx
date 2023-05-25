@@ -62,10 +62,10 @@ function loadBadges(broker) {
         //装载到达人徽章
         if(broker && broker.level>3){ //生活家及以上
             for(var i=3;i<=broker.level && i<res.length;i++){
-                if( (res[i].key=="broker" && broker.badges.find(item => item.badge.key == "broker_pro")) //是broker，且是broker_pro
-                    || (res[i].key=="tailor" && broker.badges.find(item => item.badge.key == "tailor_pro"))  //是tailor，且是tailor_pro
-                    || (res[i].key=="broker_pro" && !broker.badges.find(item => item.badge.key == "broker_pro"))   //是broker_pro，需要同时检查授权
-                    || (res[i].key=="tailor_pro" && !broker.badges.find(item => item.badge.key == "tailor_pro"))   //是tailor_pro，需要同时检查授权
+                if( (res[i].key=="broker" && broker.badges.find(item => item.badge.code == "broker_pro")) //是broker，且是broker_pro
+                    || (res[i].key=="tailor" && broker.badges.find(item => item.badge.code == "tailor_pro"))  //是tailor，且是tailor_pro
+                    || (res[i].key=="broker_pro" && !broker.badges.find(item => item.badge.code == "broker_pro"))   //是broker_pro，需要同时检查授权
+                    || (res[i].key=="tailor_pro" && !broker.badges.find(item => item.badge.code == "tailor_pro"))   //是tailor_pro，需要同时检查授权
                 ){
                     continue; //不显示，在下一个等级显示
                 }else{
@@ -94,7 +94,7 @@ function showBadge(badge){
     //徽章
     var badgesHtml = "";
     badgesHtml += "<div style='min-width:32px;display:flex;flex-direction:column;align-items:center;margin:0 2px;'>";
-    badgesHtml += "<div><img src='images/badge/"+(badge.icon?badge.icon:(badge.key+".png"))+"' style='width:32px;height:32px;object-fit:cover;'/></div>";
+    badgesHtml += "<div><img src='images/badge/"+(badge.icon?badge.icon:(badge.code+".png"))+"' style='width:32px;height:32px;object-fit:cover;'/></div>";
     badgesHtml += "<div style='text-align:center;font-size:9px;color:#fff;'><span>"+badge.name+"</span></div>";
     badgesHtml += "</div>";
 
@@ -123,8 +123,8 @@ function showBadgeList(broker, badges){
         var got = "";
         if( broker.level>= badge.level ){ //已获得的显示图标
             //对于生活家+ 定制师+需要特殊判断
-            if( (badge.key=="broker_pro" && !broker.badges.find(item => item.badge.key == "broker_pro"))   //是broker_pro，需要同时检查授权
-                || (badge.key=="tailor_pro" && !broker.badges.find(item => item.badge.key == "tailor_pro"))   //是tailor_pro，需要同时检查授权
+            if( (badge.code=="broker_pro" && !broker.badges.find(item => item.badge.code == "broker_pro"))   //是broker_pro，需要同时检查授权
+                || (badge.code=="tailor_pro" && !broker.badges.find(item => item.badge.code == "tailor_pro"))   //是tailor_pro，需要同时检查授权
             ){
                 //如果未在授权列表里，则显示未获取
             }else{
@@ -132,7 +132,7 @@ function showBadgeList(broker, badges){
                 got = "✅";                               
             }            
         }     
-        var html  = badgeTpl.replace(/__greyscale/g,greyscale).replace(/__key/g,badge.key).replace(/__name/g,got+badge.name).replace(/__desc/g,badge.description)
+        var html  = badgeTpl.replace(/__greyscale/g,greyscale).replace(/__key/g,badge.code).replace(/__name/g,got+badge.name).replace(/__desc/g,badge.description)
         $("#badgeList").append(html);
     });
 }
@@ -180,14 +180,14 @@ function insertBroker(broker){
     //解锁可用区域按钮
     var locks = {"broker":4,"tailor":6,"expert":8,"scholar":9};
     Object.keys(locks).forEach(function(lock){
-        if((broker.badges && broker.badges.find(item => item.badge.key == lock))||( broker.level>=locks[lock])){ //有勋章
+        if((broker.badges && broker.badges.find(item => item.badge.code == lock))||( broker.level>=locks[lock])){ //有勋章
             console.log("check badge.",lock,broker.badges);
             $("#"+lock+"Btns").css("display","flex");
             $("#"+lock+"Tips").css("display","none");
             $("#"+lock+"JoinBtn").css("display","none");
             //对于生活家和定制师需要提供充值升级能力
-            if( (lock=="broker" &&  !broker.badges.find(item => item.badge.key == "broker_pro")) //是broker，但不是broker_pro
-                || (lock=="tailor"  &&  !broker.badges.find(item => item.badge.key == "tailor_pro")) ){ //是tailor，但不是tailor_pro
+            if( (lock=="broker" &&  !broker.badges.find(item => item.badge.code == "broker_pro")) //是broker，但不是broker_pro
+                || (lock=="tailor"  &&  !broker.badges.find(item => item.badge.code == "tailor_pro")) ){ //是tailor，但不是tailor_pro
                 $("#"+lock+"JoinBtn").data("action","upgrade");
                 $("#"+lock+"JoinBtn>span").html("升级");
                 $("#"+lock+"JoinBtn").css("display","block");
