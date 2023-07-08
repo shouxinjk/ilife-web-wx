@@ -494,7 +494,7 @@ function insertItem(){
     //价格标签
     var highlights = "<div class='itemTags'>";
     if(item.type=="note"){
-        highlights += "<a class='itemTagPrice' href='#'></a>";//note不显示价格
+        highlights += "";//note不显示价格
     }else{
         highlights += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+(item.type=="item"?item.price.sale:(item.price.sale+"-"+item.price.bid))+"</a>";//board的价格显示范围
     }
