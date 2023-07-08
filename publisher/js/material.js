@@ -525,10 +525,11 @@ function insertItem(){
         item: "商品",
         board: "清单",
         solution: "定制方案",
+        note: "笔记",
         rank: "排行榜"
     };
     var btns = "<div style='margin-top:-10px;'><span id='view"+item.itemkey+"' style='color:#006cfd;font-size:12px;' data-url='"+item.url+"'>浏览内容</span>"+
-               "<span id='jump"+item.itemkey+"' data-type='"+item.type+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>查看"+typeNames[item.type]+"</span>"+ 
+               "<span id='jump"+item.itemkey+"' data-type='"+item.type+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>查看"+(typeNames[item.type]||"详情")+"</span>"+ 
                "<span id='copy"+item.itemkey+"' style='margin-left:10px;color:#006cfd;font-size:12px;'>复制专属链接</span></div>"; 
 
     $("#waterfall").append("<li><div class='task' data='"+item.itemkey+"' data-title='"+item.title+"' data-url='"+item.url+"'><div class='task-logo'>" + image +"</div><div class='task-tags'>" +title +highlights+profitTags+btns+"</div></li>");

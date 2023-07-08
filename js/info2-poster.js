@@ -443,9 +443,9 @@ function requestPosterScheme(){
 function requestPoster(scheme,xBroker,xItem,xUser){
     //判断海报模板是否匹配当前条目：
     var isOk = true;
-    if(scheme.condition && scheme.condition.length>0){//如果设置了适用条件则进行判断
+    if(scheme.cirteria && scheme.cirteria.length>0){//如果设置了适用条件则进行判断
         try{
-            isOk = eval(scheme.condition);
+            isOk = eval(scheme.cirteria);
         }catch(err){
             console.log("\n=== eval poster condition error===\n",err);
         }
@@ -521,9 +521,9 @@ function requestAdviceScheme(){
 function requestAdvice(scheme){
     //判断海报模板是否匹配当前条目
     var isOk = false;
-    if(scheme.condition && scheme.condition.length>0){//如果设置了适用条件则进行判断
+    if(scheme.criteria && scheme.criteria.length>0){//如果设置了适用条件则进行判断
         try{
-            isOk = eval(scheme.condition);
+            isOk = eval(scheme.criteria);
         }catch(err){
             console.log("\n=== eval poster condition error===\n",err);
         }
