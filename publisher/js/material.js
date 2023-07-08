@@ -493,7 +493,11 @@ function insertItem(){
 
     //价格标签
     var highlights = "<div class='itemTags'>";
-    highlights += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+(item.type=="item"?item.price.sale:(item.price.sale+"-"+item.price.bid))+"</a>";//board的价格显示范围
+    if(item.type=="note"){
+        highlights += "<a class='itemTagPrice' href='#'></a>";//note不显示价格
+    }else{
+        highlights += "<a class='itemTagPrice' href='#'>"+(item.price.currency?item.price.currency:"¥")+(item.type=="item"?item.price.sale:(item.price.sale+"-"+item.price.bid))+"</a>";//board的价格显示范围
+    }
     highlights += "<a class='distributor' href='#' style='font-size:12px;font-weight:bold;padding:2px;color:darkgreen;line-height:18px;vertical-align:middle;'>"+item.distributor.name+"</a>";
     highlights += "</div>";
 
