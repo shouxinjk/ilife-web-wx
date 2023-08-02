@@ -23,8 +23,9 @@ app.config={
     search_api:"https://data.pcitech.cn",//搜索服务:内容搜索后缀为 /stuff/_search
     message_api:"https://data.shouxinjk.net/kafka-rest",//日志等消息服务（kafka）
     poster_options:{//海报基础参数配置
-                  accessKey: "ApfrIzxCoK1DwNZO",
-                  secretKey: "EJCwlrnv6QZ0PCdvrWGi"
+                  Token: "ApfrIzxCoK1DwNZOEJCwlrnv6QZ0PCdv", //启动设计器时指定
+                  accessKey: "ApfrIzxCoK1DwNZO", //老版本参数，已弃用
+                  secretKey: "EJCwlrnv6QZ0PCdvrWGi" //老版本参数，已弃用
                 }
 };
 

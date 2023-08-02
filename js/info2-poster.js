@@ -467,16 +467,17 @@ function requestPoster(scheme,xBroker,xItem,xUser){
         return;//这里出错了就别玩了
     }
     console.log("\n===eval poster options===\n",xParam);
-    var options = {//merge参数配置
+    var options = {
                   ...app.config.poster_options,//静态参数：accessKey、accessSecret信息
                   ...xParam //动态参数：配置时定义
                 }
     console.log("\n===start request poster with options===\n",options);
     //请求生成海报
     $.ajax({
-        url:"https://poster.biglistoflittlethings.com/api/link",
-        type:"post",
-        data:JSON.stringify(options),
+        url: "https://poster.biglistoflittlethings.com/api/link",
+        type: "post",
+        data: options, //JSON.stringify(options),
+        headers: app.config.poster_options,
         success:function(res){
             console.log("\n===got item poster info ===\n",res);
             //将海报信息更新到stuff
