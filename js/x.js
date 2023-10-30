@@ -24,6 +24,7 @@ var fromUser = "";
 var fromBroker = "";
 
 //根据短码查询Qrcode URL地址信息，包括对应小程序APPId及二维码链接
+//先根据shortCode查询得到itemType、itemId，然后查询得到一个可用的小程序二维码
 function checkShortCode(shortCode){//获取详细内容
     $.ajax({
         url:app.config.analyze_api+"?query=select itemType,itemId,platform,appId,longUrl,qrcodeUrl,shortCode from ilife.qrcodes where shortCode='"+shortCode+"' limit 1 format JSON",
@@ -35,6 +36,30 @@ function checkShortCode(shortCode){//获取详细内容
         },  
         success:function(res){
             console.log("===got long url info===\n",res);
+            var json = {};
+            if(res.rows>0){
+                json = res.data[0];
+                checkMiprogCode(json.itemType, json.ItemId);
+            }else{//跳转到首页
+                console.log("target item cannot find. jump to index.",json);
+                window.location.href = "index.html";
+            }
+        }
+    });  
+}
+
+//查询商品条目下的小程序二维码，如果没有则跳转首页
+function checkMiprogCode(itemType, itemId){//获取小程序码
+    $.ajax({
+        url:app.config.analyze_api+"?query=select itemType,itemId,platform,appId,longUrl,qrcodeUrl,shortCode from ilife.qrcodes where platform='miniprog' and itemType='"+itemType+"' and itemId='"+itemId+"' limit 1 format JSON",
+        type:"get",
+        //async:false,//同步调用
+        data:{},
+        headers:{
+            "Authorization":"Basic ZGVmYXVsdDohQG1AbjA1"
+        },  
+        success:function(res){
+            console.log("===got miniprog qrcode info===\n",res);
             var json = {};
             if(res.rows>0){
                 json = res.data[0];
